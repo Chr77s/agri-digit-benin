@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node --no-opt node_modules/vite/bin/vite.js",
     "build": "node --no-opt node_modules/typescript/bin/tsc --noEmit && node --no-opt node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "test": "node --no-opt node_modules/vitest/vitest.mjs run --pool=forks --poolOptions.forks.singleFork",

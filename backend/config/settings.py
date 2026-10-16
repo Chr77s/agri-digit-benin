@@ -71,6 +71,9 @@ TEMPLATES = [
 ]
 WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {"default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")}
+# Un chemin SQLite relatif part de backend/, quel que soit le dossier de lancement.
+if DATABASES["default"]["ENGINE"].endswith("sqlite3") and DATABASES["default"]["NAME"] != ":memory:" and not Path(DATABASES["default"]["NAME"]).is_absolute():
+    DATABASES["default"]["NAME"] = str(BASE_DIR / DATABASES["default"]["NAME"])
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
