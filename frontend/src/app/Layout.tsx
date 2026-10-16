@@ -1,13 +1,14 @@
-import { useEffect, type ReactNode } from 'react';
+import * as RD from '@radix-ui/react-dialog';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOut, WifiOff } from 'lucide-react';
+import { LogOut, Menu, WifiOff, X } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
-import { Button } from '../shared/ui';
+import { Button, ThemeToggle } from '../shared/ui';
 import type { Role } from '../shared/api/types';
 import i18n from '../i18n';
 
@@ -77,42 +78,95 @@ export function Layout({ children }: { children?: ReactNode }) {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const nav = user ? NAV[user.role] ?? [] : [];
+  // Sous lg, navigation et compte passent dans un tiroir modal (Radix : focus piégé, Échap, voile, défilement bloqué, retour du focus).
+  const [open, setOpen] = useState(false);
+  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    const mq = window.matchMedia?.('(min-width: 1024px)');
+    const onChange = () => mq.matches && setOpen(false);
+    if (!mq) return;
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  // hideOthers de Radix laisse #root lisible ici (constaté au navigateur) : on le cache nous-mêmes aux lecteurs d'écran pendant l'ouverture.
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!open || !root) return;
+    root.setAttribute('aria-hidden', 'true');
+    return () => root.removeAttribute('aria-hidden');
+  }, [open]);
+  const drawer = !!user || nav.length > 0;
+  const account = user && (
+    <>
+      <span className="text-sm text-muted">{user.full_name}</span>
+      <label className="flex items-center gap-2 text-sm">
+        {t('app.language')}
+        <select className="min-h-touch rounded border border-border bg-surface px-2" value={i18n.language} onChange={(e) => void i18n.changeLanguage(e.target.value)}>
+          <option value="fr">Français</option>
+          <option value="fon">Fon ({t('lang.toValidate')})</option>
+          <option value="bba">Bariba ({t('lang.toValidate')})</option>
+        </select>
+      </label>
+      <Button variant="ghost" onClick={() => void signOut()}><LogOut aria-hidden size={18} /> {t('app.logout')}</Button>
+    </>
+  );
+  const navList = (inDrawer: boolean) => nav.length > 0 && (
+    <nav aria-label={t('app.mainNav')} className={inDrawer ? '' : 'mx-auto hidden max-w-6xl px-4 lg:block'}>
+      <ul className={inDrawer ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}>
+        {nav.map((n) => (
+          <li key={n.to}>
+            <NavLink end to={n.to} onClick={inDrawer ? () => setOpen(false) : undefined}
+              className={({ isActive }) => `flex min-h-touch items-center px-3 font-semibold ${inDrawer ? 'border-l-4' : 'whitespace-nowrap border-b-4'} ${isActive ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-text'}`}>
+              {t(`nav.${n.key}`)}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[2000] focus:bg-surface focus:p-2">{t('app.skip')}</a>
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2">
-          <Link to="/" className="flex min-h-touch items-center gap-2 text-xl font-semibold text-brand">
-            <img src="/icon.svg" alt="" width={32} height={32} /> {t('app.name')}
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
+          <Link to="/" className="flex min-h-touch min-w-0 items-center gap-2 text-lg font-semibold text-brand sm:text-xl">
+            <img src="/icon.svg" alt="" width={32} height={32} /> <span className="truncate">{t('app.name')}</span>
           </Link>
-          {user && (
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm text-muted">{user.full_name}</span>
-              <label className="flex items-center gap-2 text-sm">
-                {t('app.language')}
-                <select className="min-h-touch rounded border border-border bg-surface px-2" value={i18n.language} onChange={(e) => void i18n.changeLanguage(e.target.value)}>
-                  <option value="fr">Français</option>
-                  <option value="fon">Fon ({t('lang.toValidate')})</option>
-                  <option value="bba">Bariba ({t('lang.toValidate')})</option>
-                </select>
-              </label>
-              <Button variant="ghost" onClick={() => void signOut()}><LogOut aria-hidden size={18} /> {t('app.logout')}</Button>
-            </div>
-          )}
+          <div className="flex shrink-0 items-center gap-3">
+            <div className={drawer ? 'hidden lg:block' : ''}><ThemeToggle /></div>
+            {account && <div className="hidden flex-wrap items-center gap-3 lg:flex">{account}</div>}
+            {drawer && (
+              <RD.Root open={open} onOpenChange={setOpen}>
+                <RD.Trigger asChild>
+                  <button type="button" aria-label={t('app.menu')}
+                    className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border text-text hover:bg-bg lg:hidden">
+                    <Menu aria-hidden size={22} />
+                  </button>
+                </RD.Trigger>
+                <RD.Portal>
+                  <RD.Overlay className="drawer-overlay fixed inset-0 z-[1500] bg-text/40 lg:hidden" />
+                  <RD.Content aria-describedby={undefined} aria-modal="true"
+                    className="drawer-panel fixed inset-y-0 right-0 z-[1501] flex w-[min(20rem,85vw)] flex-col gap-4 overflow-y-auto border-l border-border bg-surface p-4 text-text shadow lg:hidden">
+                    <div className="flex items-center justify-between gap-2">
+                      <RD.Title className="text-xl font-semibold">{t('app.menu')}</RD.Title>
+                      <RD.Close asChild>
+                        <button type="button" aria-label={t('common.close')} className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border hover:bg-bg">
+                          <X aria-hidden size={22} />
+                        </button>
+                      </RD.Close>
+                    </div>
+                    {navList(true)}
+                    <div className="flex flex-col items-start gap-3 border-t border-border pt-4">
+                      <ThemeToggle />
+                      {account}
+                    </div>
+                  </RD.Content>
+                </RD.Portal>
+              </RD.Root>
+            )}
+          </div>
         </div>
-        {nav.length > 0 && (
-          <nav aria-label={t('app.mainNav')}className="mx-auto max-w-6xl overflow-x-auto px-4">
-            <ul className="flex gap-1">
-              {nav.map((n) => (
-                <li key={n.to}>
-                  <NavLink end to={n.to} className={({ isActive }) => `flex min-h-touch items-center whitespace-nowrap border-b-4 px-3 font-semibold ${isActive ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-text'}`}>
-                    {t(`nav.${n.key}`)}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        {navList(false)}
       </header>
       <OfflineBar />
       <ConflictsPanel />

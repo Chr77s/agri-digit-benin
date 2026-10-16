@@ -1,10 +1,31 @@
 // Vérifie les ratios de contraste WCAG des couples texte/fond des jetons (node scripts/contrast.mjs).
-const pairs = [
-  ['texte/fond', '#1B1F1A', '#F7F5F0', 4.5], ['secondaire/fond', '#4A5148', '#F7F5F0', 4.5], ['secondaire/surface', '#4A5148', '#FFFFFF', 4.5],
-  ['blanc/marque', '#FFFFFF', '#1F5B3A', 4.5], ['blanc/survol', '#FFFFFF', '#17472D', 4.5], ['marque/fond', '#1F5B3A', '#F7F5F0', 4.5],
-  ['succès', '#1F5B3A', '#E6F2EA', 4.5], ['avertissement', '#8A5A00', '#FFF3D6', 4.5], ['erreur', '#B3261E', '#FDECEA', 4.5],
-  ['bordure champ (muted)/surface', '#4A5148', '#FFFFFF', 3],
-];
+import { tokens } from '../src/shared/ui/tokens.ts'; // Node 22.18+ lit le TypeScript sans compilation
+
+// Jetons globaux, en clair et en sombre : [nom, texte, fond, minimum] (texte 4,5 ; composant d'interface 3).
+const pairs = [];
+for (const [mode, c] of [['clair', tokens.color], ['sombre', tokens.dark]]) {
+  for (const [n, a, b, min] of [
+    ['texte/fond', c.text, c.bg, 4.5], ['texte/surface', c.text, c.surface, 4.5], ['secondaire/fond', c.muted, c.bg, 4.5], ['secondaire/surface', c.muted, c.surface, 4.5],
+    ['encre/marque (bouton)', c.brandInk, c.brand, 4.5], ['encre/survol', c.brandInk, c.brandHover, 4.5], ['surface/marque (onglet actif)', c.surface, c.brand, 4.5],
+    ['marque/fond (lien)', c.brand, c.bg, 4.5], ['marque/surface', c.brand, c.surface, 4.5], ['marque/succès (survol secondaire)', c.brand, c.successBg, 4.5],
+    ['succès', c.success, c.successBg, 4.5], ['avertissement', c.warn, c.warnBg, 4.5], ['erreur', c.error, c.errorBg, 4.5],
+    ['erreur/surface', c.error, c.surface, 4.5], ['erreur/fond', c.error, c.bg, 4.5],
+    ['bordure champ (muted)/surface', c.muted, c.surface, 3], ['focus (marque)/fond', c.brand, c.bg, 3],
+  ]) pairs.push([`${mode} ${n}`, a, b, min]);
+}
+// Landing animée au scroll : jetons des deux modes (texte 4,5 ; composant d'interface 3).
+const landing = {
+  sombre: { fond: '#0A2417', alt: '#0F3A22', texte: '#EFEBD8', att: '#B8C7B0', accent: '#C6F432', surAccent: '#0A2417', ocre: '#E39A55', focus: '#C6F432', surface: '#10301F' },
+  clair: { fond: '#F2F5EE', alt: '#DDEAD6', texte: '#10261A', att: '#3F5546', accent: '#1F5B3A', surAccent: '#FFFFFF', ocre: '#8A4B12', focus: '#1F5B3A', surface: '#FFFFFF' },
+};
+for (const [mode, t] of Object.entries(landing)) {
+  for (const [bgName, bg] of [['fond', t.fond], ['fond alt', t.alt]]) {
+    pairs.push([`landing ${mode} texte/${bgName}`, t.texte, bg, 4.5], [`landing ${mode} atténué/${bgName}`, t.att, bg, 4.5],
+      [`landing ${mode} accent (lien)/${bgName}`, t.accent, bg, 4.5], [`landing ${mode} ocre/${bgName}`, t.ocre, bg, 4.5]);
+  }
+  pairs.push([`landing ${mode} texte sur accent (bouton)`, t.surAccent, t.accent, 4.5], [`landing ${mode} focus/fond`, t.focus, t.fond, 3],
+    [`landing ${mode} texte/surface`, t.texte, t.surface, 4.5]);
+}
 const lum = (h) => {
   const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));
   return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];

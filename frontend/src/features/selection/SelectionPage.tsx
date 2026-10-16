@@ -118,7 +118,7 @@ function RunDetail({ run, onUpdated }: { run: SelectionRun; onUpdated: (r: Selec
         </form>
       )}
       {run.status === 'validee' && <Notice tone="success" live>{run.validation_reason ? t('selection.validatedReason', { reason: run.validation_reason }) : t('selection.validated')}</Notice>}
-      <div className="w-64">
+      <div className="w-full sm:w-64">
         <Field label={t('common.show')}>{(p) => <Select {...p} value={filter} onChange={(e) => setFilter(e.target.value)} options={[{ value: 'true', label: t('selection.selected') }, { value: 'false', label: t('selection.notSelected') }]} />}</Field>
       </div>
       <p className="text-sm text-muted">{run.total_count ? t('selection.limitTotal', { total: fmtNum(run.total_count) }) : t('selection.limit')}</p>

@@ -12,6 +12,7 @@
     "notFound": "Page introuvable.",
     "backHome": "Retour à l'accueil",
     "mainNav": "Navigation principale",
+    "menu": "Menu",
     "rejected": "Refusée : {{error}}",
     "discard": "Supprimer cette saisie",
     "sendNow": "Envoyer maintenant",
@@ -1057,6 +1058,200 @@
       "president": "Président ou présidente",
       "tresorier": "Trésorier ou trésorière",
       "secretaire": "Secrétaire"
+    }
+  },
+  "landing": {
+    "skip": "Aller au contenu",
+    "nav": {
+      "label": "Navigation de la page d'accueil",
+      "comment": "Comment ça marche",
+      "confiance": "Nos garanties",
+      "faq": "Questions"
+    },
+    "motion": {
+      "reduce": "Réduire les animations",
+      "enable": "Réactiver les animations"
+    },
+    "login": "Se connecter",
+    "register": "Créer mon compte producteur",
+    "registerShort": "S'inscrire",
+    "hero": {
+      "title": "Votre champ, vos conseils, vos appuis : tout tient dans votre téléphone.",
+      "lead": "Inscrivez-vous en deux minutes avec votre numéro. Suivez chaque parcelle du semis à la récolte, recevez les alertes de votre agent ATDA et vendez votre récolte au bon prix.",
+      "scroll": "Faites défiler : on part du pays jusqu'à votre champ"
+    },
+    "act2": {
+      "title": "{{total}} fermes de maïs, un seul pays à faire grandir.",
+      "body": "Chaque colonne représente les fermes d'un carré d'environ 5 km : plus elle monte, plus la zone produit. L'Alibori, grenier du nord, en compte {{alibori}}.",
+      "note": "Fermes du POC, localisation approximative."
+    },
+    "act3": {
+      "title": "Dessinez votre parcelle du bout du doigt.",
+      "body": "Touchez les coins de votre champ sur la carte : la surface se calcule toute seule. Votre agent la valide, et chaque campagne est suivie jusqu'à la récolte.",
+      "example": "Exemple : un champ à Banikoara",
+      "area": "Surface",
+      "stage": {
+        "semis": "Semis",
+        "croissance": "Croissance",
+        "floraison": "Floraison",
+        "recolte": "Récolte"
+      }
+    },
+    "who": {
+      "title": "Une plateforme, tous les acteurs de la filière.",
+      "producer": {
+        "name": "Producteurs",
+        "text": "Gérez vos parcelles, recevez conseils et alertes, touchez vos appuis et vendez votre récolte."
+      },
+      "agent": {
+        "name": "Agents ATDA",
+        "text": "Validez les fiches, alertez tout un département en un message et tracez chaque remise d'appui."
+      },
+      "coop": {
+        "name": "Coopératives",
+        "text": "Suivez vos membres et regroupez l'offre pour peser sur le marché."
+      },
+      "institution": {
+        "name": "MAEP et MTDI",
+        "text": "Pilotez avec des indicateurs à jour, sélectionnez les bénéficiaires en transparence, auditez chaque accès."
+      }
+    },
+    "footer": {
+      "notice": "Prototype de démonstration pour le MAEP. Données non officielles.",
+      "legal": "Mentions légales",
+      "help": "Besoin d'aide ? Rapprochez-vous de votre agent ATDA.",
+      "tagline": "La plateforme agricole du Bénin : parcelles, conseils, appuis et marché au même endroit.",
+      "platform": "La plateforme",
+      "spaces": "Espaces",
+      "info": "Informations",
+      "links": {
+        "comment": "Comment ça marche",
+        "confiance": "Nos garanties",
+        "galerie": "Le Bénin agricole",
+        "qui": "Pour qui",
+        "faq": "Questions fréquentes",
+        "register": "Créer un compte producteur",
+        "login": "Se connecter"
+      }
+    },
+    "lang": {
+      "label": "Langue",
+      "fr": "Français",
+      "fon": "Fon",
+      "bba": "Bariba"
+    },
+    "badge": "République du Bénin · MAEP",
+    "stats": {
+      "farms": "fermes du POC",
+      "departments": "départements",
+      "communes": "communes",
+      "sectors": "filières prioritaires",
+      "note": "Données de démonstration du POC."
+    },
+    "portals": {
+      "title": "Votre espace vous attend.",
+      "lead": "Producteur ou agent ATDA : quelques secondes avec votre téléphone suffisent pour commencer.",
+      "producer": {
+        "title": "Je suis producteur",
+        "b1": "Inscription avec mon numéro, sans mot de passe",
+        "b2": "Mes parcelles et campagnes suivies",
+        "b3": "Alertes, appuis et marché au même endroit",
+        "cta": "Créer mon compte"
+      },
+      "agent": {
+        "title": "Je suis agent ATDA",
+        "b1": "Validation des fiches de mon secteur",
+        "b2": "Alertes par département",
+        "b3": "Suivi des remises d'appuis",
+        "cta": "Accéder à mon espace"
+      }
+    },
+    "gallery": {
+      "title": "Le Bénin agricole",
+      "source": "Source",
+      "carousel": "carrousel",
+      "prev": "Photo précédente",
+      "next": "Photo suivante"
+    },
+    "field": {
+      "rail": "Stades de la culture",
+      "semis": {
+        "title": "Semis",
+        "body": "Notez la date et la variété semée : l'application cale vos rappels et vos conseils sur votre propre calendrier."
+      },
+      "croissance": {
+        "title": "Croissance",
+        "body": "Sous terre, le grain gonfle et la racine plonge. En surface, vous recevez les alertes de ravageurs et de pluie de votre département."
+      },
+      "floraison": {
+        "title": "Floraison",
+        "body": "Feuille tachée, épi suspect ? Une photo suffit pour un premier avis, revu par un agronome quand le doute subsiste."
+      },
+      "recolte": {
+        "title": "Récolte",
+        "body": "Déclarez votre récolte, publiez une offre sur le marché et rencontrez acheteurs et transformateurs en direct."
+      }
+    },
+    "how": {
+      "title": "Trois étapes, et votre exploitation est en ligne.",
+      "s1": {
+        "title": "Inscrivez-vous avec votre numéro",
+        "body": "Pas de mot de passe à retenir : un code arrive par SMS à chaque connexion."
+      },
+      "s2": {
+        "title": "Votre agent ATDA valide votre fiche",
+        "body": "Il confirme votre identité et vos parcelles : vous devenez éligible aux programmes d'appui."
+      },
+      "s3": {
+        "title": "Recevez, suivez, vendez",
+        "body": "Alertes, conseils, appuis et marché arrivent au même endroit, campagne après campagne."
+      },
+      "cta": "Je commence"
+    },
+    "trust": {
+      "title": "Pensé pour le terrain, construit pour la confiance.",
+      "offline": {
+        "title": "Même sans réseau",
+        "body": "Saisissez au champ : tout part dès que le réseau revient."
+      },
+      "langs": {
+        "title": "Dans votre langue",
+        "body": "Français, fon, bariba, yoruba et dendi ; les traductions sont en cours de validation."
+      },
+      "consent": {
+        "title": "Vos données vous appartiennent",
+        "body": "Rien n'est partagé avec un organisme de crédit sans votre accord, et vous pouvez le retirer à tout moment."
+      },
+      "audit": {
+        "title": "Chaque accès est tracé",
+        "body": "Un journal infalsifiable enregistre qui a consulté quoi, dans le cadre de la loi béninoise 2017-20 sur le numérique."
+      }
+    },
+    "faq": {
+      "title": "Vos questions",
+      "q1": {
+        "q": "Faut-il un smartphone ?",
+        "a": "L'application s'ouvre dans le navigateur de n'importe quel téléphone récent, sans rien installer. Les alertes sont prévues aussi par SMS pour les téléphones simples."
+      },
+      "q2": {
+        "q": "Et si je n'ai pas de réseau au champ ?",
+        "a": "Vous pouvez saisir hors connexion. Vos données sont gardées sur le téléphone et envoyées automatiquement au retour du réseau."
+      },
+      "q3": {
+        "q": "Qui voit mes informations ?",
+        "a": "Vous, votre agent ATDA et les responsables des programmes qui vous concernent. Un organisme de crédit ne les voit qu'avec votre accord."
+      },
+      "q4": {
+        "q": "Comment obtenir des appuis ?",
+        "a": "Une fois votre fiche validée, postulez aux programmes ouverts depuis votre espace. Vous êtes prévenu de la décision et pouvez la contester."
+      },
+      "q5": {
+        "q": "Les conseils sont-ils fiables ?",
+        "a": "Chaque réponse cite la fiche technique dont elle vient ; ces fiches seront relues par l'INRAB et les ATDA avant la mise en service. Pour tout dosage, l'assistant vous oriente vers votre agent."
+      }
+    },
+    "calm": {
+      "summary": "De la carte du Bénin jusqu'à un champ de maïs à Banikoara : Agri-Digit suit chaque parcelle du semis à la récolte, et vous accompagne à chaque stade avec des alertes, des conseils et l'accès au marché."
     }
   }
 }

@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../features/auth/AuthContext';
 import { LoginPage } from '../features/auth/LoginPage';
@@ -45,6 +45,7 @@ const ExportsPage = lazy(() => import('../features/admin/AdminPages').then((m) =
 const AuditPage = lazy(() => import('../features/audit/AuditPage').then((m) => ({ default: m.AuditPage })));
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 
+const LandingPage = lazy(() => import('../features/landing/LandingPage').then((m) => ({ default: m.LandingPage })));
 const CreditPage = lazy(() => import('../features/credit/CreditPage').then((m) => ({ default: m.CreditPage })));
 const CardPage = lazy(() => import('../features/card/CardPages').then((m) => ({ default: m.CardPage })));
 const VerifyPage = lazy(() => import('../features/card/CardPages').then((m) => ({ default: m.VerifyPage })));
@@ -66,6 +67,9 @@ const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestion
 export function App() {
   const { t } = useTranslation();
   const { user, ready } = useAuth();
+  const { pathname } = useLocation();
+  // les visiteurs voient la landing plein écran ; le reste du site garde sa mise en page
+  if (pathname === '/' && !user) return ready ? <Suspense fallback={<Skeleton />}><LandingPage /></Suspense> : <Skeleton />;
   return (
     <Routes>
       <Route element={<Layout />}>

@@ -34,7 +34,7 @@ export function CooperativesPage() {
       {!isManager && (
         <div className="mb-4 flex flex-wrap gap-3">
           <div className="w-56"><Field label={t('common.department')}>{(p) => <Select {...p} value={department} onChange={(e) => setDepartment(e.target.value)} placeholder={t('common.all')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field></div>
-          <div className="w-64"><Field label={t('coop.searchName')}>{(p) => <input {...p} type="search" className={inputCls} value={search} onChange={(e) => setSearch(e.target.value)} />}</Field></div>
+          <div className="w-full sm:w-64"><Field label={t('coop.searchName')}>{(p) => <input {...p} type="search" className={inputCls} value={search} onChange={(e) => setSearch(e.target.value)} />}</Field></div>
         </div>
       )}
       <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('coop.empty')}>{canCreate ? t('coop.emptyCreate') : t('coop.emptyAsk')}</EmptyState>}>
@@ -111,7 +111,7 @@ export function CooperativeDetailPage() {
             <div><dt className="text-sm text-muted">{t('coop.activeMembers')}</dt><dd className="font-semibold">{c.members_count}</dd></div>
           </dl>
           <div aria-live="polite" className="mb-3">{msg && <Notice tone="success">{msg}</Notice>}</div>
-          <div className="mb-3 w-72"><Field label={t('common.show')}>{(p) => <Select {...p} value={String(active)} onChange={(e) => setActive(e.target.value === 'true')} options={[{ value: 'true', label: t('coop.activeMembers') }, { value: 'false', label: t('coop.history') }]} />}</Field></div>
+          <div className="mb-3 w-full sm:w-72"><Field label={t('common.show')}>{(p) => <Select {...p} value={String(active)} onChange={(e) => setActive(e.target.value === 'true')} options={[{ value: 'true', label: t('coop.activeMembers') }, { value: 'false', label: t('coop.history') }]} />}</Field></div>
           <QueryState q={members} empty={(d) => d.length === 0} emptyText={<EmptyState title={active ? t('coop.noActive') : t('coop.noHistory')}>{active && canEdit ? t('coop.noActiveHelp') : undefined}</EmptyState>}>
             {(d) => (
               <Table<Membership> caption={t('coop.members')} rowKey={(r) => r.id} data={d} exportName="membres" columns={[

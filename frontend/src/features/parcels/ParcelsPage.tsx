@@ -95,7 +95,7 @@ export function ParcelsPage() {
     <>
       <PageHeader title={t('nav.parcels')} listen={t('parcels.listen')} />
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="h-[420px] overflow-hidden rounded border border-border" aria-label={t('parcels.mapLabel')} role="region">
+        <div className="h-[min(420px,50vh)] min-h-[240px] overflow-hidden rounded border border-border" aria-label={t('parcels.mapLabel')} role="region">
           <MapContainer center={[11.298, 2.438]} zoom={14} className="h-full w-full">
             <TileLayer attribution={`&copy; ${t('parcels.mapContributors')} <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>`} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <DrawControl onDrawn={(g) => { setGeom(g); setGeomErr(''); setResult(null); }} />

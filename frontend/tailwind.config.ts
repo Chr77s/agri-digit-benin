@@ -1,22 +1,29 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 import { tokens } from './src/shared/ui/tokens';
 
 const t = tokens;
+type Key = keyof typeof t.color;
+// Couleurs en canaux RGB dans des variables : les classes existantes (bg-surface, text-brand/40…) basculent avec data-theme.
+const c = (k: Key) => `rgb(var(--c-${k}) / <alpha-value>)`;
+const vars = (p: Record<Key, string>) =>
+  Object.fromEntries(Object.entries(p).map(([k, h]) => [`--c-${k}`, [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(' ')]));
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-      bg: t.color.bg,
-      surface: t.color.surface,
-      text: t.color.text,
-      muted: t.color.muted,
-      border: t.color.border,
-      brand: { DEFAULT: t.color.brand, hover: t.color.brandHover },
-      warn: { DEFAULT: t.color.warn, bg: t.color.warnBg },
-      error: { DEFAULT: t.color.error, bg: t.color.errorBg },
-      success: { DEFAULT: t.color.success, bg: t.color.successBg },
+      bg: c('bg'),
+      surface: c('surface'),
+      text: c('text'),
+      muted: c('muted'),
+      border: c('border'),
+      brand: { DEFAULT: c('brand'), hover: c('brandHover'), ink: c('brandInk') },
+      warn: { DEFAULT: c('warn'), bg: c('warnBg') },
+      error: { DEFAULT: c('error'), bg: c('errorBg') },
+      success: { DEFAULT: c('success'), bg: c('successBg') },
     },
     fontSize: {
       sm: [t.fontSize.sm, '20px'],
@@ -30,5 +37,15 @@ export default {
     boxShadow: { none: 'none', DEFAULT: t.shadow },
     extend: { minHeight: { touch: t.touch }, minWidth: { touch: t.touch } },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addBase }) => {
+      const dark = { ...vars(t.dark), colorScheme: 'dark' };
+      // Sans choix enregistré (ou avant le JS), le mode suit le système ; data-theme posé par useTheme l'emporte.
+      addBase({
+        ":root, [data-theme='light']": { ...vars(t.color), colorScheme: 'light' },
+        "[data-theme='dark']": dark,
+        '@media (prefers-color-scheme: dark)': { ":root:not([data-theme='light'])": dark },
+      });
+    }),
+  ],
 } satisfies Config;

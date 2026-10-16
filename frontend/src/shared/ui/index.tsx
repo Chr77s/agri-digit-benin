@@ -1,9 +1,10 @@
 import * as RD from '@radix-ui/react-dialog';
 import { forwardRef, useId, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
-import { AlertTriangle, ArrowDown, ArrowUp, Download, Inbox, RotateCcw, Volume2 } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, Download, Inbox, Moon, RotateCcw, Sun, Volume2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '../api/client';
 import i18n from '../../i18n';
+import { useTheme } from '../theme/useTheme';
 
 const KEY_RE = /^[a-z][A-Za-z]*(\.[A-Za-z0-9_]+)+$/;
 /** Messages portés par une clé de traduction (schémas zod, erreurs choisies en code) : traduits à l'affichage. Un texte venu du serveur passe tel quel. */
@@ -14,7 +15,7 @@ export function useMsg() {
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-surface border-brand hover:bg-brand-hover',
+  primary: 'bg-brand text-brand-ink border-brand hover:bg-brand-hover',
   secondary: 'bg-surface text-brand border-brand hover:bg-success-bg',
   danger: 'bg-surface text-error border-error hover:bg-error-bg',
   ghost: 'bg-transparent text-text border-transparent hover:bg-surface underline-offset-2',
@@ -28,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
         type={type}
         disabled={disabled || busy}
         aria-busy={busy || undefined}
-        className={`inline-flex items-center justify-center gap-2 min-h-touch px-4 rounded border font-semibold text-base disabled:opacity-60 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+        className={`inline-flex items-center justify-center gap-2 min-h-touch px-5 rounded-full border font-semibold text-base disabled:opacity-60 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
         {...rest}
       >
         {children}
@@ -36,6 +37,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
     );
   },
 );
+
+/** Bascule clair/sombre : un seul libellé, l'état est porté par aria-pressed. */
+export function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button type="button" onClick={toggle} aria-pressed={theme === 'dark'} aria-label="Mode sombre"
+      className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border bg-transparent text-text hover:bg-bg">
+      {theme === 'dark' ? <Moon aria-hidden size={20} /> : <Sun aria-hidden size={20} />}
+    </button>
+  );
+}
 
 export function Field({ label, error, hint, children, id }: { label: string; error?: string; hint?: string; children: (p: { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }) => ReactNode; id?: string }) {
   const gen = useId();
@@ -198,9 +210,9 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-2">
-        <div className="flex flex-col gap-1">
+        <div className="flex w-full flex-col gap-1 sm:w-auto">
           <label htmlFor={sid} className="text-sm font-semibold">{t('table.search')}</label>
-          <input id={sid} type="search" className={`${inputCls} w-64`} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+          <input id={sid} type="search" className={`${inputCls} sm:w-64`} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
         </div>
         {exportName && (
           <Button variant="secondary" onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)}>
@@ -231,7 +243,7 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
             {view.map((r) => (
               <tr key={rowKey(r)} className="block border-b border-border p-2 md:table-row md:p-0">
                 {columns.map((c) => (
-                  <td key={c.key} className="block py-1 md:table-cell md:p-2">
+                  <td key={c.key} className="block break-words py-1 md:table-cell md:p-2 [&_a]:inline-flex [&_a]:min-h-touch [&_a]:items-center">
                     <span className="mr-2 text-sm font-semibold text-muted md:hidden">{c.label} :</span>
                     {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '')}
                   </td>

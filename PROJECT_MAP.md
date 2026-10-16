@@ -32,7 +32,7 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 
 ## Frontend (`frontend/`, Vite + React + TypeScript, PWA)
 
-`src/features/<auth|producers|parcels|campaigns|assistant|knowledge|alerts|outbox|programs|selection|credit|dashboard|audit|admin|consents|legal>`, `src/shared/ui` (design system, jetons dans `tokens.ts`), `src/shared/api` (client et types), `src/i18n` (fr, fon, bba, yo, dnd).
+`src/features/<auth|producers|parcels|campaigns|assistant|knowledge|alerts|outbox|programs|selection|credit|dashboard|audit|admin|consents|legal|landing>`, `src/shared/ui` (design system, jetons dans `tokens.ts`), `src/shared/api` (client et types), `src/i18n` (fr, fon, bba, yo, dnd).
 
 ## Infra et docs
 

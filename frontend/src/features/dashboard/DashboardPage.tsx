@@ -21,7 +21,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader title={t('nav.dashboard')} />
-      <div className="mb-4 w-64">
+      <div className="mb-4 w-full sm:w-64">
         <Field label={t('common.department')}>{(p) => <Select {...p} value={dep} onChange={(e) => setDep(e.target.value)} placeholder={t('dashboard.allCountry')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
       </div>
       <QueryState q={dash} empty={(d) => d.indicators.length === 0} emptyText={<EmptyState title={t('dashboard.emptyIndicators')} />}>

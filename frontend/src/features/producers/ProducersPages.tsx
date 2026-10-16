@@ -21,7 +21,7 @@ export function ProducersListPage() {
   return (
     <>
       <PageHeader title={t('producers.listTitle')} actions={<Link to="/inscription" className="inline-flex min-h-touch items-center rounded border border-brand px-4 font-semibold text-brand">{t('producers.register')}</Link>} />
-      <div className="mb-4 w-64">
+      <div className="mb-4 w-full sm:w-64">
         <Field label={t('producers.filterStatus')}>
           {(p) => <Select {...p} value={status} onChange={(e) => setStatus(e.target.value)} placeholder={t('common.all')} options={[{ value: 'en_attente', label: t('producers.filter.pending') }, { value: 'valide', label: t('producers.filter.valid') }, { value: 'rejete', label: t('producers.filter.rejected') }]} />}
         </Field>

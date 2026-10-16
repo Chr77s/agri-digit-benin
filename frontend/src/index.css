@@ -2,14 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Variables de couleur clair/sombre : générées depuis shared/ui/tokens.ts par tailwind.config.ts. */
 @layer base {
   html { font-size: 16px; }
   body { @apply bg-bg font-sans text-base text-text; }
-  :focus-visible { outline: 2px solid theme('colors.brand.DEFAULT'); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid rgb(var(--c-brand)); outline-offset: 2px; }
   a, button, input, select, textarea, summary { transition: background-color 150ms, border-color 150ms; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
 }
+/* Tiroir de navigation mobile (Layout) : Radix attend la fin de l'animation de sortie ; coupé par prefers-reduced-motion ci-dessus. */
+.drawer-panel[data-state='open'] { animation: drawer-in 200ms ease-out; }
+.drawer-panel[data-state='closed'] { animation: drawer-out 200ms ease-in; }
+.drawer-overlay[data-state='open'] { animation: fade-in 200ms ease-out; }
+.drawer-overlay[data-state='closed'] { animation: fade-in 200ms ease-in reverse; }
+@keyframes drawer-in { from { transform: translateX(100%); } }
+@keyframes drawer-out { to { transform: translateX(100%); } }
+@keyframes fade-in { from { opacity: 0; } }
 /* Cibles tactiles de 44 px pour le zoom de la carte. */
 .leaflet-control-zoom a { width: 44px !important; height: 44px !important; line-height: 44px !important; }
+/* Outils de dessin en sprite de 30 px : on agrandit tout le contrôle (boutons et actions) jusqu'à 44 px. */
+.leaflet-draw { zoom: 1.4667; }
+.leaflet-container .leaflet-draw .leaflet-draw-actions a { display: block; height: 30px; line-height: 30px; }
+/* Sur téléphone, la barre « Terminer / Effacer / Annuler » sortait à gauche de la carte : on l'empile. */
+@media (max-width: 639px) {
+  .leaflet-draw .leaflet-draw-actions li { display: block; }
+}

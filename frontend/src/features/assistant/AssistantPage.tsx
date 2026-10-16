@@ -53,7 +53,7 @@ export function AssistantPage() {
         <Field label={t('assistant.question')} error={err}>
           {(p) => <textarea {...p} className={`${inputCls} min-h-24 py-2 text-lg`} value={question} onChange={(e) => setQuestion(e.target.value)} />}
         </Field>
-        <div className="w-64">
+        <div className="w-full sm:w-64">
           <Field label={t('assistant.crop')}>
             {(p) => <Select {...p} value={vc} onChange={(e) => setVc(e.target.value)} placeholder={t('common.allF')} {...vcSelect(vcs.data)} />}
           </Field>

@@ -95,7 +95,7 @@ export function OutboxPage() {
     <>
       <PageHeader title={t('nav.outbox')} />
       <Notice tone="warn">{t('alerts.simNotice')}</Notice>
-      <div className="my-4 w-64"><Field label={t('alerts.channel')}>{(p) => <Select {...p} value={channel} onChange={(e) => setChannel(e.target.value)} options={[{ value: 'sms', label: t('alerts.sms') }, { value: 'voice', label: t('alerts.voice') }]} />}</Field></div>
+      <div className="my-4 w-full sm:w-64"><Field label={t('alerts.channel')}>{(p) => <Select {...p} value={channel} onChange={(e) => setChannel(e.target.value)} options={[{ value: 'sms', label: t('alerts.sms') }, { value: 'voice', label: t('alerts.voice') }]} />}</Field></div>
       <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('alerts.outEmpty')}>{t('alerts.outEmptyHelp')}</EmptyState>}>
         {(d) => (
           <Table<OutboxMessage> caption={t('alerts.outCaption')} data={d} rowKey={(r) => r.id} exportName="boite-envoi" columns={[
