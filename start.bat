@@ -12,9 +12,11 @@ if not exist backend\.env copy backend\.env.example backend\.env >nul
 
 echo [2/5] Base de donnees et donnees de demonstration
 pushd backend
+set FIRST=0
+if not exist db.sqlite3 set FIRST=1
 .venv\Scripts\python manage.py migrate --noinput || goto :errp
 .venv\Scripts\python manage.py seed_demo || goto :errp
-.venv\Scripts\python manage.py import_poc_farms || goto :errp
+if "%FIRST%"=="1" .venv\Scripts\python manage.py import_poc_farms || goto :errp
 popd
 
 echo [3/5] Dependances du frontend

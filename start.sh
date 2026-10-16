@@ -12,9 +12,10 @@ backend/.venv/bin/python -m pip install -q -r backend/requirements.lock
 [ -f backend/.env ] || cp backend/.env.example backend/.env
 
 echo "[2/5] Base de données et données de démonstration"
+FIRST=0; [ -f backend/db.sqlite3 ] || FIRST=1
 (cd backend && .venv/bin/python manage.py migrate --noinput \
   && .venv/bin/python manage.py seed_demo \
-  && .venv/bin/python manage.py import_poc_farms)
+  && { [ "$FIRST" = 0 ] || .venv/bin/python manage.py import_poc_farms; })
 
 echo "[3/5] Dépendances du frontend"
 [ -d frontend/node_modules ] || (cd frontend && npm ci)
