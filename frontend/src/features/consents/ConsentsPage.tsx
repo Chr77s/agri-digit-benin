@@ -11,7 +11,7 @@ const useWithdraw = () => {
 };
 
 const purposeLabel: Record<string, string> = {
-  registration: 'Inscription et services agricoles', inscription: 'Inscription et services agricoles', credit: 'Partage du profil pour le crédit',
+  donnees_personnelles: 'Données personnelles (inscription et services agricoles)', parental: 'Consentement parental (moins de 16 ans)', credit: 'Partage du profil pour le crédit',
 };
 
 export function ConsentsPage() {
@@ -29,7 +29,7 @@ export function ConsentsPage() {
         {(d) => (
           <ul className="flex flex-col gap-2">
             {d.map((c) => {
-              const purpose = String(c.purpose ?? c.scope ?? 'registration');
+              const purpose = String(c.type ?? c.purpose ?? 'registration');
               const withdrawn = !!c.withdrawn_at;
               return (
                 <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded border border-border bg-surface p-3">

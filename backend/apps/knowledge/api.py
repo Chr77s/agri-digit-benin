@@ -8,12 +8,11 @@ from apps.core.errors import ApiError
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AGENT, AGRONOME, PRODUCTEUR, RESPONSABLE, roles
 
-READERS = roles(PRODUCTEUR, AGENT, AGRONOME, RESPONSABLE, ADMIN)
-
 from . import services
 from .models import KnowledgeDoc
 
 EDITORS = (AGRONOME, ADMIN)
+READERS = roles(PRODUCTEUR, AGENT, AGRONOME, RESPONSABLE, ADMIN)
 
 
 class DocSerializer(serializers.ModelSerializer):

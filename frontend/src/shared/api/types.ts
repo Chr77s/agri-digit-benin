@@ -71,7 +71,7 @@ export interface Alert {
   id: string; title: string; message: string; category: AlertCategory;
   severity: Severity; department: string; communes: string[]; value_chains: string[];
   status: string; created_by?: string; created_at?: string;
-  sent?: number; delivered?: number; failed?: number;
+  stats?: Partial<SendResult> | null; sent_at?: string | null;
 }
 export interface SendResult { sent: number; delivered: number; failed: number }
 export interface Notification {
@@ -84,11 +84,11 @@ export interface OutboxMessage {
 
 export interface Program {
   id: string; name: string; description: string; conditions: string; value_chains: string[];
-  closes_at: string; is_open?: boolean;
+  closes_at: string; is_open?: boolean; is_closed?: boolean;
 }
 export type ApplicationStatus = 'deposee' | 'en_instruction' | 'acceptee' | 'refusee';
 export interface Application {
-  id: string; program: string; program_name?: string; producer: string; producer_name?: string;
+  id: string; program: string; program_name?: string; producer: string; producer_name?: string; producer_code?: string;
   status: ApplicationStatus; reason?: string | null; created_at: string;
 }
 export interface Weights { confidence: number; road_distance: number; area: number }
@@ -105,4 +105,4 @@ export interface Contest { id: string; farm_id: string; reason: string; status: 
 
 export interface FarmAggregate { name: string; farms: number | null; maize_ha: number | null; source: string; updated_at: string }
 export interface Indicator { key: string; label: string; value: number | null; unit: string; source: string; updated_at: string }
-export interface Dashboard { scope: string; indicators: Indicator[] }
+export interface Dashboard { scope: string | { department: string | null; name: string }; indicators: Indicator[] }

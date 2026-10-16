@@ -118,7 +118,7 @@ function EditDialog({ open, onClose, p, onSaved }: { open: boolean; onClose: () 
     <Dialog open={open} onClose={onClose} title="Corriger la fiche">
       <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); a.patch.mutate(v, { onSuccess: onSaved }); }}>
         {(['first_name', 'last_name', 'phone'] as const).map((k) => (
-          <Field key={k} label={{ first_name: 'Prénom', last_name: 'Nom', phone: 'Téléphone' }[k]} error={a.patch.error instanceof Error ? undefined : undefined}>
+          <Field key={k} label={{ first_name: 'Prénom', last_name: 'Nom', phone: 'Téléphone' }[k]}>
             {(fp) => <input {...fp} className={inputCls} value={v[k]} inputMode={k === 'phone' ? 'numeric' : undefined} onChange={(e) => setV({ ...v, [k]: e.target.value })} />}
           </Field>
         ))}

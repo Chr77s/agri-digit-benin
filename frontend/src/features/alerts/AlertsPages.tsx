@@ -52,7 +52,7 @@ export function AlertsPage() {
         {(d) => (
           <ul className="flex flex-col gap-2">
             {d.map((al: Alert) => {
-              const res = results[al.id];
+              const res = results[al.id] ?? (al.stats && al.stats.sent !== undefined ? (al.stats as SendResult) : undefined);
               const canApprove = al.status === 'en_attente_validation' && al.created_by !== user?.id && al.created_by !== user?.phone;
               const canSend = al.status !== 'en_attente_validation' && al.status !== 'envoyee' && !res;
               return (

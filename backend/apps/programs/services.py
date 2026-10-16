@@ -2,7 +2,6 @@ import sys
 from datetime import date
 
 import numpy as np
-
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 

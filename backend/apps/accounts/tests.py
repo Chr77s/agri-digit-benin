@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.alerts.models import Outbox
 from conftest import PWD, client_for
 
 
@@ -25,6 +26,7 @@ def test_otp_login_producer_and_staff(users, producer):
     c.post("/api/v1/auth/otp/request", {"phone": "0197000002"}, format="json")
     r = c.post("/api/v1/auth/otp/verify", {"phone": "0197000002", "code": _code("0197000002")}, format="json")
     assert r.status_code == 400 and r.json()["code"] == "invalid_password"
+    Outbox.objects.all().delete()  # horloge Windows ~15 ms : évite deux codes au même horodatage
     c.post("/api/v1/auth/otp/request", {"phone": "0197000002"}, format="json")
     r = c.post("/api/v1/auth/otp/verify", {"phone": "0197000002", "code": _code("0197000002"), "password": PWD},
                format="json")

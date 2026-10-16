@@ -11,7 +11,7 @@ const useApplications = () => useQuery({ queryKey: ['applications'], queryFn: as
 
 const appLabel: Record<ApplicationStatus, string> = { deposee: 'Déposée', en_instruction: 'En instruction', acceptee: 'Acceptée', refusee: 'Refusée' };
 const appTone = (s: ApplicationStatus) => (s === 'acceptee' ? 'success' : s === 'refusee' ? 'error' : 'warn');
-const isOpen = (p: Program) => p.is_open ?? new Date(p.closes_at) > new Date();
+const isOpen = (p: Program) => (p.is_closed !== undefined ? !p.is_closed : p.is_open ?? new Date(p.closes_at) > new Date());
 
 export function ProgramsPage() {
   const { user } = useAuth();
@@ -103,7 +103,7 @@ export function ApplicationsPage() {
         {(d) => (
           <Table<Application> caption="Candidatures" data={d} rowKey={(r) => r.id} exportName="candidatures" columns={[
             { key: 'program_name', label: 'Programme', render: (r) => r.program_name ?? r.program },
-            { key: 'producer_name', label: 'Producteur', render: (r) => r.producer_name ?? r.producer },
+            { key: 'producer_name', label: 'Producteur', render: (r) => r.producer_name ?? r.producer_code ?? r.producer },
             { key: 'status', label: 'Statut', render: (r) => <Badge tone={appTone(r.status)}>{appLabel[r.status]}</Badge> },
             { key: 'created_at', label: 'Déposée le', render: (r) => fmtDate(r.created_at) },
             { key: 'actions', label: 'Action', sortable: false, render: (r) => <Button variant="secondary" onClick={() => { setSel(r); setReason(''); setErr(''); decide.reset(); }}>Décider</Button> },

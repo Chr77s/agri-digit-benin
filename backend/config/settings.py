@@ -1,9 +1,11 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
 import environ
 import structlog
 
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")  # PC cible à faible mémoire
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")

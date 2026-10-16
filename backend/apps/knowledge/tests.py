@@ -15,8 +15,12 @@ def test_workflow_and_assistant(users, producer):
     assert client_for(users["auditeur"]).get("/api/v1/knowledge").status_code == 403
     p = client_for(producer.user)
     assert len(p.get("/api/v1/knowledge").json()["results"]) == 1
+    from apps.knowledge.models import KnowledgeDoc
     from apps.knowledge.services import rebuild_index
 
+    for i, (vc, t) in enumerate([("riz", "Repiquage du riz en bas-fond"), ("coton", "Démariage du coton"),
+                                 ("manioc", "Bouturage du manioc"), ("soja", "Récolte du soja")]):
+        KnowledgeDoc.objects.create(value_chain=vc, title=t, body=t + f" fiche {i}.", source="s", status="publie")
     rebuild_index()
     r = p.post("/api/v1/assistant/ask", {"question": "Quand semer le maïs à Banikoara ?"}, format="json").json()
     assert r["status"] == "answered" and r["citations"][0]["doc_id"] == doc and r["backend"]
@@ -28,7 +32,7 @@ def test_workflow_and_assistant(users, producer):
     assert r["status"] == "unknown"
     r = ag.patch(f"/api/v1/knowledge/{doc}", {"body": "Nouveau texte."}, format="json")
     assert r.json()["version"] == 2 and r.json()["status"] == "brouillon"
-    assert len(ag.get(f"/api/v1/knowledge/{doc}/versions").json()) == 4
+    assert len(ag.get(f"/api/v1/knowledge/{doc}/versions").json()) == 3
     from apps.assistant.models import AssistantLog
 
     assert not AssistantLog.objects.filter(question__contains="0197").exists()

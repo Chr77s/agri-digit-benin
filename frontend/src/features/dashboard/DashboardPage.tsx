@@ -24,10 +24,11 @@ export function DashboardPage() {
       <QueryState q={dash} empty={(d) => d.indicators.length === 0} emptyText={<EmptyState title="Aucun indicateur pour ce périmètre." />}>
         {(d) => {
           const [main, ...rest] = d.indicators;
+          const scope = typeof d.scope === 'string' ? d.scope : d.scope?.name ?? 'Bénin';
           return (
-            <section className="mb-6 flex flex-col gap-4" aria-label={`Indicateurs ${d.scope}`}>
+            <section className="mb-6 flex flex-col gap-4" aria-label={`Indicateurs ${scope}`}>
               <div className="rounded border border-border bg-surface p-4">
-                <p className="text-muted">{main.label} ({d.scope})</p>
+                <p className="text-muted">{main.label} ({scope})</p>
                 <p className="text-2xl font-semibold">{val(main.value, main.unit)}</p>
                 <p className="text-sm text-muted">Source : {main.source}, mise à jour {fmtDateTime(main.updated_at)}</p>
               </div>

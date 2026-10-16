@@ -10,6 +10,16 @@ interface AuthState {
   signIn: (access: string, user: User) => void;
   signOut: () => Promise<void>;
 }
+// Simple indicateur (aucune donnée) : évite un appel /auth/refresh en 401 quand personne n'est connecté.
+const FLAG = 'agri-session';
+const flag = (on?: boolean) => {
+  try {
+    if (on === undefined) return localStorage.getItem(FLAG) === '1';
+    if (on) localStorage.setItem(FLAG, '1'); else localStorage.removeItem(FLAG);
+  } catch { /* stockage indisponible */ }
+  return false;
+};
+
 const Ctx = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -19,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback((access: string, u: User) => {
     setAccessToken(access);
+    flag(true);
     setUser(u);
     void i18n.changeLanguage(u.language || 'fr');
   }, []);
@@ -26,20 +37,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     try { await api('/auth/logout', { method: 'POST' }); } catch { /* déjà déconnecté */ }
     setAccessToken(null);
+    flag(false);
     setUser(null);
     qc.clear();
   }, [qc]);
 
   useEffect(() => {
-    setOnAuthLost(() => setUser(null));
+    setOnAuthLost(() => { flag(false); setUser(null); });
     // Rechargement de page : le jeton d'accès est en mémoire, on le récupère via le cookie de rafraîchissement.
-    refreshAccess()
+    (flag() ? refreshAccess() : Promise.resolve(false))
       .then(async (ok) => {
         if (ok) {
           const u = await api<User>('/auth/me');
           setUser(u);
           void i18n.changeLanguage(u.language || 'fr');
-        }
+        } else flag(false);
       })
       .catch(() => undefined)
       .finally(() => setReady(true));

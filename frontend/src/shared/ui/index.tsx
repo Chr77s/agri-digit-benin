@@ -42,7 +42,7 @@ export function Field({ label, error, hint, children, id }: { label: string; err
   );
 }
 
-export const inputCls = 'min-h-touch w-full rounded border border-border bg-surface px-3 text-base text-text aria-[invalid=true]:border-error';
+export const inputCls = 'min-h-touch w-full rounded border border-muted bg-surface px-3 text-base text-text aria-[invalid=true]:border-error';
 
 export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string }[]; placeholder?: string }>(function Select({ options, placeholder, ...rest }, ref) {
   return (
