@@ -10,6 +10,16 @@ Date : 16 octobre 2026. Prototype de démonstration, données non officielles.
 
 Comptes : producteur 0197000001, agent ATDA Alibori 0197000002, agronome INRAB 0197000003, responsable de programme 0197000004, administrateur MAEP 0197000005, auditeur CoPil 0197000006, agent financier 0197000007. Inscription d'une nouvelle productrice : NPI 1000000002 (Awa SABI, née le 1990-07-01), téléphone 0197000099.
 
+**Avant la démonstration sur ce PC :**
+- Fermer les applications inutiles, ou redémarrer l'Explorateur Windows. Le poste n'a que 3,5 Go de mémoire, et l'Explorateur en occupait plus de 3 Go pendant le développement.
+- Le serveur de développement Vite tourne avec `node --no-opt` pour cette raison.
+- Le build de production (`npm run build`) a réussi à 14h05, puis a échoué faute de mémoire. Il est à relancer sur un poste normal.
+
+Vérification finale (16/10/2026, 14h35) :
+- scénario de bout en bout par l'API : 10 étapes sur 10 réussies ;
+- page de connexion servie par Vite, avec le proxy vers l'API ;
+- code de connexion affiché dans le bandeau Simulation.
+
 ## Ce qui est réel
 
 - **Backend Django :** 14 modules, chacun découpé en modèles, règles métier, lectures, API et tests.
