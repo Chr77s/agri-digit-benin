@@ -1,0 +1,55 @@
+{
+  "app": {
+    "name": "Agri-Digit Bénin",
+    "footer": "Prototype de démonstration, données non officielles",
+    "legal": "Mentions légales",
+    "logout": "Se déconnecter",
+    "skip": "Aller au contenu",
+    "offline": "Hors ligne : vos saisies sont gardées et seront envoyées au retour du réseau.",
+    "pending": "{{count}} saisie(s) en attente d'envoi",
+    "language": "Langue"
+  },
+  "nav": {
+    "home": "Accueil",
+    "parcels": "Mes parcelles",
+    "campaigns": "Mes campagnes",
+    "assistant": "Poser une question",
+    "notifications": "Mes messages",
+    "programs": "Programmes",
+    "consents": "Mes consentements",
+    "producers": "Producteurs",
+    "alerts": "Alertes",
+    "outbox": "Boîte d'envoi simulée",
+    "applications": "Candidatures",
+    "selection": "Sélections",
+    "knowledge": "Fiches techniques",
+    "admin": "Comptes",
+    "exports": "Exports",
+    "dashboard": "Tableau de bord",
+    "audit": "Journal d'audit"
+  },
+  "home": {
+    "hello": "Bonjour {{name}}",
+    "intro": "Choisissez ce que vous voulez faire.",
+    "listen": "Bonjour. Touchez un grand bouton. Mes parcelles. Mes campagnes. Poser une question. Mes messages. Programmes. Mes consentements."
+  },
+  "common": {
+    "listen": "Écouter",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement en cours",
+    "notAvailable": "non disponible"
+  },
+  "status": {
+    "en_attente": "En attente de validation",
+    "valide": "Validé",
+    "rejete": "Rejeté"
+  },
+  "stage": {
+    "semis": "Semis",
+    "croissance": "Croissance",
+    "floraison": "Floraison",
+    "recolte": "Récolte"
+  }
+}

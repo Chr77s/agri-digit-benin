@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-size: 16px; }
+  body { @apply bg-bg font-sans text-base text-text; }
+  :focus-visible { outline: 2px solid theme('colors.brand.DEFAULT'); outline-offset: 2px; }
+  a, button, input, select, textarea, summary { transition: background-color 150ms, border-color 150ms; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+}
+/* Cibles tactiles de 44 px pour le zoom de la carte. */
+.leaflet-control-zoom a { width: 44px !important; height: 44px !important; line-height: 44px !important; }
