@@ -13,3 +13,17 @@ export function useVcName() {
   const q = useValueChains();
   return (code: string) => q.data?.find((v) => v.code === code)?.name ?? code;
 }
+
+/** Nom lisible d'un code de département ou de commune (le serveur envoie des codes). */
+export function usePlaceName() {
+  const q = useDepartments();
+  return (code?: string | null) => {
+    if (!code) return '';
+    for (const d of q.data ?? []) {
+      if (d.code === code) return d.name;
+      const c = d.communes.find((x) => x.code === code);
+      if (c) return c.name;
+    }
+    return code;
+  };
+}

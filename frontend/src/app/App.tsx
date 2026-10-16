@@ -43,6 +43,8 @@ const ExportsPage = lazy(() => import('../features/admin/AdminPages').then((m) =
 const AuditPage = lazy(() => import('../features/audit/AuditPage').then((m) => ({ default: m.AuditPage })));
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 
+const CreditPage = lazy(() => import('../features/credit/CreditPage').then((m) => ({ default: m.CreditPage })));
+
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 
 export function App() {
@@ -70,7 +72,8 @@ export function App() {
         <Route path="/comptes" element={<Guard roles={['admin_maep']}><AccountsPage /></Guard>} />
         <Route path="/exports" element={<Guard roles={['admin_maep']}><ExportsPage /></Guard>} />
         <Route path="/journal" element={<Guard roles={['auditeur_copil', 'admin_maep']}><AuditPage /></Guard>} />
-        <Route path="/tableau-de-bord" element={<Guard><DashboardPage /></Guard>} />
+        <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
+        <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
         <Route path="*" element={<p>Page introuvable. <a className="text-brand underline" href="/">Retour à l'accueil</a></p>} />
       </Route>
     </Routes>

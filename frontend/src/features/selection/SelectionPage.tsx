@@ -118,6 +118,7 @@ function RunDetail({ run, onUpdated }: { run: SelectionRun; onUpdated: (r: Selec
       <div className="w-64">
         <Field label="Afficher">{(p) => <Select {...p} value={filter} onChange={(e) => setFilter(e.target.value)} options={[{ value: 'true', label: 'Retenus' }, { value: 'false', label: 'Non retenus' }]} />}</Field>
       </div>
+      <p className="text-sm text-muted">Affichage des 100 premiers candidats par rang{run.total_count ? ` sur ${fmtNum(run.total_count)} fermes évaluées` : ''}. L'export complet passe par l'administrateur.</p>
       <QueryState q={cands} empty={(d) => d.length === 0} emptyText={<EmptyState title="Aucun candidat dans cette catégorie." />}>
         {(d) => (
           <Table<Candidate> caption="Candidats" data={d} rowKey={(r) => r.farm_id} exportName="candidats" columns={[

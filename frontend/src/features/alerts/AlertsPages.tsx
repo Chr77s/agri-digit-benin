@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, Table, fmtDateTime } from '../../shared/ui';
 import type { Alert, AlertCategory, OutboxMessage, SendResult, Severity } from '../../shared/api/types';
-import { useDepartments, useValueChains } from '../../shared/api/ref';
+import { useDepartments, usePlaceName, useValueChains } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { useAlertActions, useAlerts, useOutbox } from './api';
 
@@ -14,6 +14,7 @@ export function AlertsPage() {
   const a = useAlertActions();
   const deps = useDepartments();
   const vcs = useValueChains();
+  const place = usePlaceName();
   const [v, setV] = useState({ title: '', message: '', category: 'ravageur' as AlertCategory, severity: 'avertissement' as Severity, department: user?.department ?? '', communes: [] as string[], value_chains: [] as string[] });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, SendResult>>({});
@@ -63,7 +64,7 @@ export function AlertsPage() {
                     <Badge>{statusLabel[al.status] ?? al.status}</Badge>
                   </div>
                   <p>{al.message}</p>
-                  <p className="text-sm text-muted">{al.department}{al.communes.length ? `, ${al.communes.join(', ')}` : ''}{al.created_at ? `, ${fmtDateTime(al.created_at)}` : ''}</p>
+                  <p className="text-sm text-muted">{place(al.department)}{al.communes.length ? `, ${al.communes.map(place).join(', ')}` : ''}{al.created_at ? `, ${fmtDateTime(al.created_at)}` : ''}</p>
                   <div className="flex flex-wrap gap-2">
                     {canApprove && <Button variant="secondary" busy={a.approve.isPending && a.approve.variables === al.id} onClick={() => a.approve.mutate(al.id)}>Valider (seconde validation)</Button>}
                     {al.status === 'en_attente_validation' && !canApprove && <p className="text-sm text-warn">Un autre agent ou un administrateur doit valider cette alerte urgente.</p>}

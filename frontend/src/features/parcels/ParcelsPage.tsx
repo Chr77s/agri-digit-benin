@@ -27,6 +27,17 @@ export const TENURES = [
 ];
 const label = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
+// Libellés de leaflet-draw en français (les autres textes restent ceux de la bibliothèque).
+L.drawLocal.draw.toolbar.buttons.polygon = 'Dessiner le contour de la parcelle';
+L.drawLocal.draw.toolbar.actions.text = 'Annuler';
+L.drawLocal.draw.toolbar.finish.text = 'Terminer';
+L.drawLocal.draw.toolbar.undo.text = 'Effacer le dernier point';
+L.drawLocal.draw.handlers.polygon.tooltip = { start: 'Touchez pour placer le premier coin.', cont: 'Touchez pour placer le coin suivant.', end: 'Touchez le premier coin pour fermer la parcelle.' };
+L.drawLocal.edit.toolbar.buttons.edit = 'Modifier le contour';
+L.drawLocal.edit.toolbar.buttons.remove = 'Effacer le contour';
+L.drawLocal.edit.toolbar.actions.save.text = 'Valider';
+L.drawLocal.edit.toolbar.actions.cancel.text = 'Annuler';
+
 function DrawControl({ onDrawn }: { onDrawn: (g: GeoPolygon | null) => void }) {
   const map = useMap();
   useEffect(() => {

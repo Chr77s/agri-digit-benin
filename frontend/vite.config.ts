@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: null,
+      // shortcut: service worker non minifié (la minification Workbox manque de mémoire sur le poste de dev), repasser en 'production' sur un poste normal.
+      mode: 'development',
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'Agri-Digit Bénin',

@@ -95,7 +95,7 @@ export interface Weights { confidence: number; road_distance: number; area: numb
 export interface SelectionRun {
   id: string; weights: Weights; target_count: number; status: 'proposition' | 'validee';
   selected_count: number; created_by: string; validated_by: string | null; validation_reason: string | null;
-  created_at: string; program?: string | null; department?: string | null;
+  created_at: string; program?: string | null; department?: string | null; total_count?: number;
 }
 export interface Candidate {
   farm_id: string; department: string; commune: string; score: number; rank: number; selected: boolean;

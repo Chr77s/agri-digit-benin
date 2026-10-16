@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { LogOut, WifiOff } from 'lucide-react';
@@ -25,7 +26,7 @@ export const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: '/alertes', key: 'alerts' }, { to: '/boite-envoi', key: 'outbox' }, { to: '/selection', key: 'selection' }, { to: '/journal', key: 'audit' },
   ],
   auditeur_copil: [{ to: '/journal', key: 'audit' }],
-  agent_financier: [{ to: '/tableau-de-bord', key: 'dashboard' }],
+  agent_financier: [{ to: '/credit', key: 'credit' }],
 };
 
 function OfflineBar() {
@@ -59,6 +60,7 @@ function OfflineBar() {
 export function Layout({ children }: { children?: ReactNode }) {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
+  const location = useLocation();
   const nav = user ? NAV[user.role] ?? [] : [];
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
@@ -98,7 +100,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         )}
       </header>
       <OfflineBar />
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children ?? <Outlet />}</main>
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6"><ErrorBoundary key={location.pathname}>{children ?? <Outlet />}</ErrorBoundary></main>
       <footer className="border-t border-border bg-surface">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm text-muted">
           <p>{t('app.footer')}</p>

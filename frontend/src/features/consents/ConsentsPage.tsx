@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, rows } from '../../shared/api/client';
 import type { Consent, Paginated } from '../../shared/api/types';
+import { CreditConsentBox } from '../credit/CreditPage';
 import { Badge, Button, EmptyState, Notice, PageHeader, QueryState, fmtDateTime } from '../../shared/ui';
 
 const useConsents = () =>
@@ -25,8 +26,11 @@ export function ConsentsPage() {
         {w.isSuccess && <Notice tone="success">Consentement retiré. Le retrait est enregistré avec sa date.</Notice>}
         {w.error && <Notice tone="error">{w.error.message}</Notice>}
       </div>
-      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title="Aucun consentement enregistré." />}>
+      <QueryState q={q}>
         {(d) => (
+          <>
+          <CreditConsentBox active={d.some((c) => c.type === 'credit' && !c.withdrawn_at)} />
+          {d.length === 0 && <EmptyState title="Aucun consentement enregistré." />}
           <ul className="flex flex-col gap-2">
             {d.map((c) => {
               const purpose = String(c.type ?? c.purpose ?? 'registration');
@@ -43,6 +47,7 @@ export function ConsentsPage() {
               );
             })}
           </ul>
+          </>
         )}
       </QueryState>
     </>

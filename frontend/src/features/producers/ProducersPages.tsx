@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button, Dialog, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, Table, fmtDate, fmtDateTime } from '../../shared/ui';
 import type { Producer, ProducerStatus } from '../../shared/api/types';
+import { usePlaceName } from '../../shared/api/ref';
 import { useProducer, useProducerActions, useProducers, useProducerVersions } from './api';
 
 const tone = (s: ProducerStatus) => (s === 'valide' ? 'success' : s === 'rejete' ? 'error' : 'warn');
@@ -15,6 +16,7 @@ export function StatusBadge({ s }: { s: ProducerStatus }) {
 export function ProducersListPage() {
   const [status, setStatus] = useState('en_attente');
   const q = useProducers({ status });
+  const place = usePlaceName();
   return (
     <>
       <PageHeader title="Producteurs de mon périmètre" actions={<Link to="/inscription" className="inline-flex min-h-touch items-center rounded border border-brand px-4 font-semibold text-brand">Inscrire un producteur</Link>} />
@@ -33,7 +35,7 @@ export function ProducersListPage() {
             columns={[
               { key: 'code', label: 'Code', render: (r) => <Link className="font-semibold text-brand underline" to={`/producteurs/${r.id}`}>{r.code}</Link> },
               { key: 'last_name', label: 'Nom', render: (r) => `${r.first_name} ${r.last_name}`, csv: (r) => `${r.first_name} ${r.last_name}` },
-              { key: 'commune', label: 'Commune' },
+              { key: 'commune', label: 'Commune', render: (r) => place(r.commune), csv: (r) => place(r.commune) },
               { key: 'status', label: 'Statut', render: (r) => <StatusBadge s={r.status} /> },
               { key: 'created_at', label: 'Inscrit le', render: (r) => fmtDate(r.created_at) },
             ]}
@@ -47,6 +49,7 @@ export function ProducersListPage() {
 export function ProducerDetailPage() {
   const { id = '' } = useParams();
   const q = useProducer(id);
+  const place = usePlaceName();
   const versions = useProducerVersions(id);
   const a = useProducerActions(id);
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -64,7 +67,7 @@ export function ProducerDetailPage() {
           <dl className="mb-4 grid gap-2 rounded border border-border bg-surface p-4 md:grid-cols-2">
             {[
               ['Code', p.code], ['NPI', p.npi], ['Sexe', p.sex === 'F' ? 'Femme' : 'Homme'], ['Naissance', fmtDate(p.birth_date)],
-              ['Département', p.department], ['Commune', p.commune], ['Téléphone', p.phone], ['Langue', p.language],
+              ['Département', place(p.department)], ['Commune', place(p.commune)], ['Téléphone', p.phone], ['Langue', p.language],
               ['Inscrit le', fmtDateTime(p.created_at)], ['Validé le', fmtDateTime(p.validated_at)],
             ].map(([k, v]) => (<div key={k}><dt className="text-sm text-muted">{k}</dt><dd className="font-semibold">{v}</dd></div>))}
             <div><dt className="text-sm text-muted">Statut</dt><dd><StatusBadge s={p.status} /></dd></div>

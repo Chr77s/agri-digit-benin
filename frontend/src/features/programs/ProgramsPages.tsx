@@ -19,7 +19,8 @@ export function ProgramsPage() {
   const apps = useApplications();
   const vcName = useVcName();
   const qc = useQueryClient();
-  const [result, setResult] = useState<{ id: string; ok: boolean; msg: string } | null>(null);
+  const [results, setResults] = useState<Record<string, { ok: boolean; msg: string }>>({});
+  const setResult = (r: { id: string; ok: boolean; msg: string }) => setResults((x) => ({ ...x, [r.id]: r }));
   const apply = useMutation({
     mutationFn: (id: string) => api<Application>(`/programs/${id}/apply`, { method: 'POST', body: {} }),
     onSuccess: (_d, id) => { setResult({ id, ok: true, msg: 'Candidature déposée. Vous serez prévenu à chaque changement de statut.' }); void qc.invalidateQueries({ queryKey: ['applications'] }); },
@@ -51,7 +52,7 @@ export function ProgramsPage() {
                   {isProducer && (mine
                     ? <p>Votre candidature : <Badge tone={appTone(mine.status)}>{appLabel[mine.status]}</Badge> {mine.reason && <span>Motif : {mine.reason}</span>}</p>
                     : <Button className="self-start" busy={apply.isPending && apply.variables === p.id} onClick={() => apply.mutate(p.id)}>Candidater</Button>)}
-                  <div aria-live="polite">{result?.id === p.id && <Notice tone={result.ok ? 'success' : 'error'}>{result.msg}</Notice>}</div>
+                  <div aria-live="polite">{results[p.id] && <Notice tone={results[p.id].ok ? 'success' : 'error'}>{results[p.id].msg}</Notice>}</div>
                 </li>
               );
             })}

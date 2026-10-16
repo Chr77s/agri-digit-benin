@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, rows } from '../../shared/api/client';
 import type { AdminUser, Paginated, Role } from '../../shared/api/types';
 import { Badge, Button, Dialog, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, Table, downloadBlob } from '../../shared/ui';
-import { useDepartments } from '../../shared/api/ref';
+import { useDepartments, usePlaceName } from '../../shared/api/ref';
 
 export const ROLES: { value: Role; label: string }[] = [
   { value: 'producteur', label: 'Producteur' }, { value: 'agent_atda', label: 'Agent ATDA' }, { value: 'agronome_inrab', label: 'Agronome INRAB' },
@@ -20,6 +20,7 @@ export function AccountsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
   });
   const [form, setForm] = useState<AdminUser | 'new' | null>(null);
+  const place = usePlaceName();
   return (
     <>
       <PageHeader title="Comptes" actions={<Button onClick={() => setForm('new')}>Créer un compte</Button>} />
@@ -30,7 +31,7 @@ export function AccountsPage() {
             { key: 'full_name', label: 'Nom' },
             { key: 'phone', label: 'Téléphone' },
             { key: 'role', label: 'Rôle', render: (r) => roleL(r.role) },
-            { key: 'department', label: 'Périmètre', render: (r) => [r.department, r.commune].filter(Boolean).join(', ') || 'National' },
+            { key: 'department', label: 'Périmètre', render: (r) => [place(r.department), place(r.commune)].filter(Boolean).join(', ') || 'National' },
             { key: 'is_active', label: 'État', render: (r) => <Badge tone={r.is_active ? 'success' : 'error'}>{r.is_active ? 'Actif' : 'Suspendu'}</Badge> },
             { key: 'actions', label: 'Actions', sortable: false, render: (r) => (
               <div className="flex flex-wrap gap-2">

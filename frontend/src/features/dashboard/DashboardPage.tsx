@@ -13,7 +13,7 @@ export function DashboardPage() {
   const deps = useDepartments();
   const [dep, setDep] = useState(user?.department ?? '');
   const dash = useQuery({ queryKey: ['dashboard', dep], queryFn: () => api<Dashboard>(`/dashboard${qs({ department: dep })}`) });
-  const agg = useQuery({ queryKey: ['farm-agg', dep], queryFn: async () => rows(await api<FarmAggregate[]>(`/farms/aggregates${qs({ level: 'commune', department: dep })}`)) });
+  const agg = useQuery({ queryKey: ['farm-agg', dep], queryFn: async () => rows(await api<FarmAggregate[]>(`/farms/aggregates${qs({ level: dep ? 'commune' : 'department', department: dep })}`)) });
 
   return (
     <>
@@ -44,11 +44,11 @@ export function DashboardPage() {
           );
         }}
       </QueryState>
-      <h2 className="mb-2 text-xl font-semibold">Fermes du POC par commune</h2>
+      <h2 className="mb-2 text-xl font-semibold">Fermes du POC par {dep ? 'commune' : 'département'}</h2>
       <QueryState q={agg} empty={(d) => d.length === 0} emptyText={<EmptyState title="Aucune donnée POC pour ce périmètre." />}>
         {(d) => (
           <Table<FarmAggregate> caption="Agrégats des fermes POC par commune" data={d} rowKey={(r) => r.name} exportName="fermes-par-commune" columns={[
-            { key: 'name', label: 'Commune' },
+            { key: 'name', label: dep ? 'Commune' : 'Département' },
             { key: 'farms', label: 'Fermes détectées', render: (r) => fmtNum(r.farms) },
             { key: 'maize_ha', label: 'Maïs (ha)', render: (r) => fmtNum(r.maize_ha, 1) },
             { key: 'source', label: 'Source' },
