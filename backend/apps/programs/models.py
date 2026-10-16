@@ -71,3 +71,6 @@ class Contest(models.Model):
     status = models.CharField(max_length=20, default="deposee")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
+    decision_reason = models.TextField(blank=True)
+    decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT, related_name="+")
+    decided_at = models.DateTimeField(null=True)

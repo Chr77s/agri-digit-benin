@@ -6,15 +6,22 @@ from apps.accounts import api as acc
 from apps.alerts import api as alerts
 from apps.assistant import api as assistant
 from apps.audit import api as audit
+from apps.cooperatives import api as coop
 from apps.credit import api as credit
 from apps.dashboard import api as dashboard
+from apps.diagnosis import api as diag
 from apps.exports import api as exports
 from apps.farms import api as farms
+from apps.interop import api as interop
 from apps.knowledge import api as kn
+from apps.market import api as market
 from apps.parcels import api as parcels
 from apps.producers import api as prod
+from apps.production import api as prodn
 from apps.programs import api as prog
 from apps.referentiel import api as ref
+from apps.satellite import api as sat
+from apps.translations import api as trans
 
 v1 = [
     path("auth/otp/request", acc.otp_request),
@@ -60,6 +67,37 @@ v1 = [
     path("selection-runs/<uuid:pk>/validate", prog.run_validate),
     path("selection-runs/<uuid:pk>/contest", prog.run_contests),
     path("selection-runs/<uuid:pk>/contests", prog.run_contests),
+    path("producers/<uuid:pk>/card", prod.producer_card),
+    path("verify/<str:code>", prod.verify),
+    path("contests/mine", prog.contests_mine),
+    path("contests/<uuid:pk>/decide", prog.contest_decide),
+    path("cooperatives", coop.cooperative_list),
+    path("cooperatives/<uuid:pk>", coop.cooperative_detail),
+    path("cooperatives/<uuid:pk>/members", coop.cooperative_members),
+    path("memberships/mine", coop.memberships_mine),
+    path("memberships/<uuid:pk>/end", coop.membership_end),
+    path("supports", prodn.support_list),
+    path("supports/<uuid:pk>/confirm", prodn.support_confirm),
+    path("harvests", prodn.harvest_list),
+    path("diagnoses", diag.diagnosis_list),
+    path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),
+    path("diagnoses/<uuid:pk>/image", diag.diagnosis_image),
+    path("translations", trans.entry_list),
+    path("translations/summary", trans.entry_summary),
+    path("translations/<uuid:pk>", trans.entry_detail),
+    path("translations/<uuid:pk>/review", trans.entry_review),
+    path("i18n/<str:language>.json", trans.i18n_dictionary),
+    path("offers", market.offer_list),
+    path("offers/<uuid:pk>/contact", market.offer_contact),
+    path("matches/mine", market.matches_mine),
+    path("matches/<uuid:pk>/accept", market.match_accept),
+    path("matches/<uuid:pk>/refuse", market.match_refuse),
+    path("payments", market.payment_create),
+    path("payments/<uuid:pk>", market.payment_detail),
+    path("payments/<uuid:pk>/refund", market.payment_refund),
+    path("satellite", sat.satellite),
+    path("interop/<str:partner>/aggregates", interop.aggregates),
+    path("dashboard/sea", dashboard.sea),
     path("farms/aggregates", farms.farm_aggregates),
     path("farms", farms.farm_list),
     path("dashboard", dashboard.dashboard),

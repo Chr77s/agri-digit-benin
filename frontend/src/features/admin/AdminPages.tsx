@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { api, rows } from '../../shared/api/client';
 import type { AdminUser, Paginated, Role } from '../../shared/api/types';
 import { Badge, Button, Dialog, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, Table, downloadBlob } from '../../shared/ui';
 import { useDepartments, usePlaceName } from '../../shared/api/ref';
 
-export const ROLES: { value: Role; label: string }[] = [
-  { value: 'producteur', label: 'Producteur' }, { value: 'agent_atda', label: 'Agent ATDA' }, { value: 'agronome_inrab', label: 'Agronome INRAB' },
-  { value: 'responsable_programme', label: 'Responsable de programme' }, { value: 'admin_maep', label: 'Administrateur MAEP' },
-  { value: 'auditeur_copil', label: 'Auditeur CoPil' }, { value: 'agent_financier', label: 'Agent financier' },
+/** Valeurs des rôles ; les libellés viennent de « roles.<valeur> » dans les fichiers de traduction. */
+export const ROLE_VALUES: Role[] = [
+  'producteur', 'agent_atda', 'agronome_inrab', 'responsable_programme', 'admin_maep', 'auditeur_copil',
+  'agent_financier', 'gestionnaire_cooperative', 'transformateur', 'distributeur', 'repr_mtdi',
 ];
-const roleL = (r: string) => ROLES.find((x) => x.value === r)?.label ?? r;
 
 export function AccountsPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ['admin-users'], queryFn: async () => rows(await api<Paginated<AdminUser> | AdminUser[]>('/admin/users?page_size=100')) });
   const patch = useMutation({
@@ -23,20 +24,20 @@ export function AccountsPage() {
   const place = usePlaceName();
   return (
     <>
-      <PageHeader title="Comptes" actions={<Button onClick={() => setForm('new')}>Créer un compte</Button>} />
-      <div aria-live="polite">{patch.error && <Notice tone="error">{patch.error.message}</Notice>}{patch.isSuccess && <Notice tone="success">Compte mis à jour. Action journalisée.</Notice>}</div>
-      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title="Aucun compte." />}>
+      <PageHeader title={t('nav.admin')} actions={<Button onClick={() => setForm('new')}>{t('admin.create')}</Button>} />
+      <div aria-live="polite">{patch.error && <Notice tone="error">{patch.error.message}</Notice>}{patch.isSuccess && <Notice tone="success">{t('admin.updated')}</Notice>}</div>
+      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('admin.empty')} />}>
         {(d) => (
-          <Table<AdminUser> caption="Comptes" data={d} rowKey={(r) => r.id} exportName="comptes" columns={[
-            { key: 'full_name', label: 'Nom' },
-            { key: 'phone', label: 'Téléphone' },
-            { key: 'role', label: 'Rôle', render: (r) => roleL(r.role) },
-            { key: 'department', label: 'Périmètre', render: (r) => [place(r.department), place(r.commune)].filter(Boolean).join(', ') || 'National' },
-            { key: 'is_active', label: 'État', render: (r) => <Badge tone={r.is_active ? 'success' : 'error'}>{r.is_active ? 'Actif' : 'Suspendu'}</Badge> },
-            { key: 'actions', label: 'Actions', sortable: false, render: (r) => (
+          <Table<AdminUser> caption={t('nav.admin')} data={d} rowKey={(r) => r.id} exportName="comptes" columns={[
+            { key: 'full_name', label: t('common.name') },
+            { key: 'phone', label: t('register.phone') },
+            { key: 'role', label: t('admin.role'), render: (r) => t(`roles.${r.role}`, r.role) },
+            { key: 'department', label: t('admin.scope'), render: (r) => [place(r.department), place(r.commune)].filter(Boolean).join(', ') || t('admin.national') },
+            { key: 'is_active', label: t('admin.state'), render: (r) => <Badge tone={r.is_active ? 'success' : 'error'}>{r.is_active ? t('admin.active') : t('admin.suspended')}</Badge> },
+            { key: 'actions', label: t('admin.actions'), sortable: false, render: (r) => (
               <div className="flex flex-wrap gap-2">
-                <Button variant={r.is_active ? 'danger' : 'secondary'} busy={patch.isPending && patch.variables?.id === r.id} onClick={() => patch.mutate({ id: r.id, body: { is_active: !r.is_active } })}>{r.is_active ? 'Suspendre' : 'Réactiver'}</Button>
-                <Button variant="secondary" onClick={() => setForm(r)}>Réaffecter</Button>
+                <Button variant={r.is_active ? 'danger' : 'secondary'} busy={patch.isPending && patch.variables?.id === r.id} onClick={() => patch.mutate({ id: r.id, body: { is_active: !r.is_active } })}>{r.is_active ? t('admin.suspend') : t('admin.reactivate')}</Button>
+                <Button variant="secondary" onClick={() => setForm(r)}>{t('admin.reassign')}</Button>
               </div>
             ) },
           ]} />
@@ -48,6 +49,7 @@ export function AccountsPage() {
 }
 
 function UserForm({ user, onClose }: { user: AdminUser | null; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const deps = useDepartments();
   const [v, setV] = useState({ phone: user?.phone ?? '', full_name: user?.full_name ?? '', role: user?.role ?? 'agent_atda', department: user?.department ?? '', commune: user?.commune ?? '', password: '' });
@@ -60,28 +62,31 @@ function UserForm({ user, onClose }: { user: AdminUser | null; onClose: () => vo
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); onClose(); },
   });
   return (
-    <Dialog open onClose={onClose} title={user ? `Réaffecter ${user.full_name}` : 'Créer un compte'}>
+    <Dialog open onClose={onClose} title={user ? t('admin.reassignTitle', { name: user.full_name }) : t('admin.create')}>
       <form className="flex flex-col gap-3" onSubmit={(e) => {
         e.preventDefault();
-        if (!user && (!/^01\d{8}$/.test(v.phone) || !v.full_name)) { setErr('Saisissez un nom et un téléphone de 10 chiffres commençant par 01.'); return; }
+        if (!user && (!/^01\d{8}$/.test(v.phone) || !v.full_name)) { setErr(t('admin.errUser')); return; }
         setErr(''); m.mutate();
       }}>
         {!user && <>
-          <Field label="Nom complet">{(p) => <input {...p} className={inputCls} value={v.full_name} onChange={(e) => setV({ ...v, full_name: e.target.value })} />}</Field>
-          <Field label="Téléphone" error={err}>{(p) => <input {...p} className={inputCls} inputMode="numeric" maxLength={10} value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} />}</Field>
+          <Field label={t('admin.fullName')}>{(p) => <input {...p} className={inputCls} value={v.full_name} onChange={(e) => setV({ ...v, full_name: e.target.value })} />}</Field>
+          <Field label={t('register.phone')} error={err}>{(p) => <input {...p} className={inputCls} inputMode="numeric" maxLength={10} value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} />}</Field>
         </>}
-        <Field label="Rôle">{(p) => <Select {...p} value={v.role} onChange={(e) => setV({ ...v, role: e.target.value as Role })} options={ROLES} />}</Field>
-        <Field label="Département (vide = national)">{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder="National" options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
-        <Field label="Commune (facultatif)">{(p) => <Select {...p} value={v.commune} disabled={!v.department} onChange={(e) => setV({ ...v, commune: e.target.value })} placeholder="Tout le département" options={communes.map((c) => ({ value: c.code, label: c.name }))} />}</Field>
-        {!user && v.role !== 'producteur' && <Field label="Mot de passe initial" hint="12 caractères minimum, avec chiffres et symboles">{(p) => <input {...p} type="password" autoComplete="new-password" className={inputCls} value={v.password} onChange={(e) => setV({ ...v, password: e.target.value })} />}</Field>}
+        <Field label={t('admin.role')}>{(p) => <Select {...p} value={v.role} onChange={(e) => setV({ ...v, role: e.target.value as Role })} options={ROLE_VALUES.map((r) => ({ value: r, label: t(`roles.${r}`) }))} />}</Field>
+        <Field label={t('admin.departmentNational')}>{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder={t('admin.national')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
+        <Field label={t('admin.communeOptional')}>{(p) => <Select {...p} value={v.commune} disabled={!v.department} onChange={(e) => setV({ ...v, commune: e.target.value })} placeholder={t('admin.wholeDepartment')} options={communes.map((c) => ({ value: c.code, label: c.name }))} />}</Field>
+        {!user && v.role !== 'producteur' && <Field label={t('admin.initialPassword')} hint={t('admin.passwordHint')}>{(p) => <input {...p} type="password" autoComplete="new-password" className={inputCls} value={v.password} onChange={(e) => setV({ ...v, password: e.target.value })} />}</Field>}
         {m.error && <Notice tone="error" live>{m.error.message}</Notice>}
-        <Button type="submit" busy={m.isPending}>{user ? 'Enregistrer l’affectation' : 'Créer le compte'}</Button>
+        <Button type="submit" busy={m.isPending}>{user ? t('admin.saveAssign') : t('admin.createAccount')}</Button>
       </form>
     </Dialog>
   );
 }
 
+const DATASETS = ['producers', 'parcels', 'farms_aggregates', 'cooperatives', 'harvests', 'supports'] as const;
+
 export function ExportsPage() {
+  const { t } = useTranslation();
   const [dataset, setDataset] = useState('producers');
   const [reason, setReason] = useState('');
   const [err, setErr] = useState('');
@@ -91,19 +96,19 @@ export function ExportsPage() {
   });
   return (
     <>
-      <PageHeader title="Exports CSV" />
+      <PageHeader title={t('exports.title')} />
       <form className="flex max-w-xl flex-col gap-3 rounded border border-border bg-surface p-4" onSubmit={(e) => {
         e.preventDefault();
-        if (reason.trim().length < 10) { setErr('Le motif est obligatoire (10 caractères minimum). Il est enregistré dans le journal d’audit.'); return; }
+        if (reason.trim().length < 10) { setErr(t('exports.errReason')); return; }
         setErr(''); m.mutate();
       }}>
-        <Field label="Jeu de données">{(p) => <Select {...p} value={dataset} onChange={(e) => setDataset(e.target.value)} options={[{ value: 'producers', label: 'Producteurs (données personnelles)' }, { value: 'parcels', label: 'Parcelles' }, { value: 'farms_aggregates', label: 'Agrégats des fermes POC' }]} />}</Field>
-        <Field label="Motif de l'export" error={err}>{(p) => <textarea {...p} className={`${inputCls} py-2`} value={reason} onChange={(e) => setReason(e.target.value)} />}</Field>
+        <Field label={t('exports.dataset')}>{(p) => <Select {...p} value={dataset} onChange={(e) => setDataset(e.target.value)} options={DATASETS.map((d) => ({ value: d, label: t(`exports.ds.${d}`) }))} />}</Field>
+        <Field label={t('exports.reason')} error={err}>{(p) => <textarea {...p} className={`${inputCls} py-2`} value={reason} onChange={(e) => setReason(e.target.value)} />}</Field>
         <div aria-live="polite">
           {m.error && <Notice tone="error">{m.error.message}</Notice>}
-          {m.isSuccess && <Notice tone="success">Fichier téléchargé. Le motif est enregistré dans le journal d'audit.</Notice>}
+          {m.isSuccess && <Notice tone="success">{t('exports.done')}</Notice>}
         </div>
-        <Button type="submit" busy={m.isPending} className="self-start">Exporter en CSV</Button>
+        <Button type="submit" busy={m.isPending} className="self-start">{t('exports.submit')}</Button>
       </form>
     </>
   );

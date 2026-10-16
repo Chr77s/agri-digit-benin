@@ -8,7 +8,8 @@ from .models import Department, ValueChain
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def value_chains(request):
-    return Response([{"code": v.code, "name": v.name} for v in ValueChain.objects.order_by("code")])
+    rows = ValueChain.objects.order_by("code")
+    return Response([{"code": v.code, "name": v.name, "reserve": v.reserve} for v in rows])
 
 
 @api_view(["GET"])

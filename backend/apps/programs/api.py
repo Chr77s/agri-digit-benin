@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from apps.core.errors import ApiError
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AGENT, PRODUCTEUR, RESPONSABLE, roles
+from apps.farms.models import FarmPOC
 
 from . import services
 from .models import Application, Contest, Program, SelectionCandidate, SelectionRun
@@ -68,7 +69,15 @@ class CandidateSerializer(serializers.ModelSerializer):
 class ContestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
-        fields = ["id", "run", "farm_id", "reason", "status", "created_at"]
+        fields = ["id", "run", "farm_id", "reason", "status", "decision_reason", "decided_at", "created_at"]
+
+
+class PublicRunSerializer(RunSerializer):
+    """Vue producteur : sélection validée, sans candidats ni téléphones des agents."""
+
+    class Meta(RunSerializer.Meta):
+        fields = ["id", "program", "department", "weights", "target_count", "status", "selected_count",
+                  "total_count", "validation_reason", "created_at"]
 
 
 @api_view(["GET", "POST"])
@@ -122,11 +131,13 @@ def application_decide(request, pk):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([roles(RESPONSABLE, ADMIN, AGENT)])
+@permission_classes([roles(RESPONSABLE, ADMIN, AGENT, PRODUCTEUR)])
 def run_list(request):
     if request.method == "GET":
-        return Response(RunSerializer(SelectionRun.objects.select_related("created_by", "validated_by")
-                                      .order_by("-created_at"), many=True).data)
+        qs = SelectionRun.objects.select_related("created_by", "validated_by").order_by("-created_at")
+        if request.user.role == PRODUCTEUR:
+            return Response(PublicRunSerializer(qs.filter(status="validee"), many=True).data)
+        return Response(RunSerializer(qs, many=True).data)
     if request.user.role not in MANAGERS:
         raise ApiError("Seul le responsable de programme lance une sélection.", "forbidden", 403)
     s = RunInSerializer(data=request.data)
@@ -138,8 +149,11 @@ def run_list(request):
     return Response(RunSerializer(run).data, status=201)
 
 
-def _run(pk):
-    run = SelectionRun.objects.filter(pk=pk).first()
+def _run(pk, user=None):
+    qs = SelectionRun.objects.all()
+    if user is not None and user.role == PRODUCTEUR:
+        qs = qs.filter(status="validee")  # une proposition non validée n'existe pas pour le producteur
+    run = qs.filter(pk=pk).first()
     if run is None:
         raise Http404
     return run
@@ -152,7 +166,7 @@ class CandidatePagination(Cursor):
 @api_view(["GET"])
 @permission_classes([roles(PRODUCTEUR, AGENT, RESPONSABLE, ADMIN)])
 def run_candidates(request, pk):
-    run = _run(pk)
+    run = _run(pk, request.user)
     qs = run.candidates.all()
     sel = request.query_params.get("selected")
     if sel in ("true", "false"):
@@ -173,7 +187,7 @@ def run_validate(request, pk):
 @api_view(["GET", "POST"])
 @permission_classes([roles(PRODUCTEUR, AGENT, RESPONSABLE, ADMIN)])
 def run_contests(request, pk):
-    run = _run(pk)
+    run = _run(pk, request.user)
     if request.method == "GET":
         if request.user.role not in (RESPONSABLE, ADMIN, AGENT):
             qs = run.contests.filter(created_by=request.user)
@@ -183,3 +197,25 @@ def run_contests(request, pk):
     c = services.contest(request.user, run, str(request.data.get("farm_id") or ""),
                          (request.data.get("reason") or "").strip())
     return Response(ContestSerializer(c).data, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([roles(PRODUCTEUR)])
+def contests_mine(request):
+    pg = Cursor()
+    qs = Contest.objects.filter(created_by=request.user)
+    return pg.get_paginated_response(ContestSerializer(pg.paginate_queryset(qs, request), many=True).data)
+
+
+@api_view(["POST"])
+@permission_classes([roles(AGENT, ADMIN)])
+def contest_decide(request, pk):
+    c = Contest.objects.select_related("created_by").filter(pk=pk).first()
+    if c is not None and request.user.role == AGENT:
+        dep = FarmPOC.objects.filter(farm_id=c.farm_id).values_list("department", flat=True).first()
+        c = c if dep == request.user.department else None  # hors périmètre : 404
+    if c is None:
+        raise Http404
+    c = services.decide_contest(request.user, c, request.data.get("status"),
+                                (request.data.get("reason") or "").strip())
+    return Response(ContestSerializer(c).data)

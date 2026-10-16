@@ -1,3 +1,4 @@
+import secrets
 import unicodedata
 from datetime import date
 
@@ -106,21 +107,24 @@ def register(actor, d):
 
 
 @transaction.atomic
-def update(actor, p, data):
+def update(actor, p, data, forced=False, base_version=None):
     if "npi" in data or "phone" in data:
         check_duplicates(data.get("npi", p.npi), data.get("phone", p.phone), exclude=p.pk)
     for k, v in data.items():
         setattr(p, k, v)
+    p.version += 1
     p.save()
     _version(p, actor, "correction")
-    record(actor, "producer.update", p, fields=sorted(data))
+    record(actor, "producer.update", p, fields=sorted(data), forced=forced, base_version=base_version,
+           new_version=p.version)
     return p
 
 
 @transaction.atomic
 def validate(actor, p):
     p.status, p.validated_at, p.reject_reason = "valide", timezone.now(), ""
-    p.save(update_fields=["status", "validated_at", "reject_reason"])
+    p.version += 1
+    p.save(update_fields=["status", "validated_at", "reject_reason", "version"])
     _version(p, actor, "validation")
     record(actor, "producer.validate", p)
     notify(p, "Inscription validée", f"Agri-Digit : votre inscription {p.code} est validée.")
@@ -130,7 +134,8 @@ def validate(actor, p):
 @transaction.atomic
 def reject(actor, p, reason):
     p.status, p.reject_reason = "rejete", reason
-    p.save(update_fields=["status", "reject_reason"])
+    p.version += 1
+    p.save(update_fields=["status", "reject_reason", "version"])
     _version(p, actor, "rejet")
     record(actor, "producer.reject", p, reason=reason)
     notify(p, "Inscription rejetée", f"Agri-Digit : votre inscription est rejetée. Motif : {reason}")
@@ -144,3 +149,21 @@ def withdraw_consent(actor, consent):
         consent.save(update_fields=["withdrawn_at"])
         record(actor, "consent.withdraw", consent, type=consent.type)
     return consent
+
+
+CARD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # sans 0/O ni 1/I, lisible à voix haute
+
+
+@transaction.atomic
+def issue_card(actor, p):
+    """UC-07 : carte d'une fiche validée ; le code de vérification est créé une seule fois (aléatoire, 8 car.)."""
+    if p.status != "valide":
+        raise ApiError("La carte n'est disponible que pour une fiche validée.", "not_validated", 400)
+    if not p.verification_code:
+        code = "".join(secrets.choice(CARD_ALPHABET) for _ in range(8))
+        while Producer.objects.filter(verification_code=code).exists():
+            code = "".join(secrets.choice(CARD_ALPHABET) for _ in range(8))
+        p.verification_code, p.card_issued_at = code, timezone.now()
+        p.save(update_fields=["verification_code", "card_issued_at"])
+        record(actor, "producer.card_issue", p)
+    return p

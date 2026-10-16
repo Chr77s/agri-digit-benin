@@ -9,14 +9,18 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.audit.models import RetentionPolicy
+from apps.cooperatives.models import Cooperative, Membership
 from apps.knowledge.models import KnowledgeDoc, KnowledgeDocVersion
+from apps.market.services import seed_market
 from apps.parcels.models import Campaign, Parcel
 from apps.parcels.services import area_ha
 from apps.producers.models import Consent, Producer, ProducerVersion
 from apps.producers.services import next_code, snapshot
+from apps.production.services import seed_reference_yields
 from apps.programs.models import Program
 from apps.referentiel.data import DEPARTMENTS, VALUE_CHAINS, slug
 from apps.referentiel.services import load_referentiels
+from apps.translations.services import seed_entries
 from integrations.anip import FICHES
 
 PASSWORD = "AgriDemo-2026!"
@@ -27,7 +31,10 @@ STAFF = [
     ("0197000005", "Administrateur MAEP (démo)", "admin_maep", ""),
     ("0197000006", "Auditeur CoPil (démo)", "auditeur_copil", ""),
     ("0197000007", "Agent financier (démo)", "agent_financier", ""),
+    ("0197000008", "Gestionnaire de coopérative (démo)", "gestionnaire_cooperative", "alibori"),
+    ("0197000011", "Représentant MTDI (démo)", "repr_mtdi", ""),
 ]
+COOPERATIVE = "Coopérative des producteurs de maïs de Banikoara"
 
 # Fiches de secours SANS dosage chiffré, marquées « a_sourcer » (à valider par l'INRAB).
 FALLBACK = {
@@ -90,6 +97,10 @@ class Command(BaseCommand):
             Consent.objects.create(producer=demo, type="credit", text_version="v1", channel="seed")
         self._programs()
         self._knowledge()
+        self._cooperative()
+        seed_reference_yields()
+        seed_entries()
+        seed_market(PASSWORD)
         self.stdout.write(self.style.SUCCESS(
             f"Seed OK : {User.objects.count()} comptes, {Producer.objects.count()} producteurs, "
             f"{Parcel.objects.count()} parcelles, {KnowledgeDoc.objects.count()} fiches"))
@@ -114,6 +125,15 @@ class Command(BaseCommand):
                                        tenure="coutumier", area_ha=area_ha(geom), department=dep)
         Campaign.objects.create(parcel=parcel, value_chain="mais" if i == 0 else VALUE_CHAINS[i % 10][0],
                                 season="2026-pluie-1", stage="croissance")
+
+    def _cooperative(self):
+        coop, _ = Cooperative.objects.get_or_create(name=COOPERATIVE, defaults={
+            "department": "alibori", "commune": "banikoara", "value_chains": ["mais"],
+            "manager": User.objects.get(phone="0197000008")})
+        members = Producer.objects.filter(department="alibori", status="valide").order_by("code")[:4]
+        for i, p in enumerate(members):
+            Membership.objects.get_or_create(cooperative=coop, producer=p, left_at=None,
+                                             defaults={"role": "president" if i == 0 else "membre"})
 
     def _programs(self):
         for name, desc, chains, closes in [

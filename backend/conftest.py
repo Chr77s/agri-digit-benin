@@ -32,6 +32,11 @@ def users():
         "admin": make_user("0197000005", "admin_maep"),
         "auditeur": make_user("0197000006", "auditeur_copil"),
         "financier": make_user("0197000007", "agent_financier"),
+        "gest": make_user("0197000008", "gestionnaire_cooperative", "alibori", "banikoara"),
+        "transf": make_user("0197000009", "transformateur", "borgou", "parakou"),
+        "distrib": make_user("0197000010", "distributeur", "littoral", "cotonou"),
+        "repr": make_user("0197000011", "repr_mtdi"),
+        "repr2": make_user("0197000021", "repr_mtdi"),
     }
 
 

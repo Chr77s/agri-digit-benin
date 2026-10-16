@@ -3,14 +3,16 @@ import re
 from django.conf import settings
 from django.http import Http404
 from rest_framework import serializers
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
 
 from apps.accounts.api import _phone
 from apps.core.errors import ApiError
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AGENT, PRODUCTEUR, roles
+from apps.core.versioning import check_version
 
 from . import selectors, services
 from .models import Consent, Producer
@@ -28,7 +30,7 @@ class ProducerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producer
         fields = ["id", "code", "npi", "first_name", "last_name", "sex", "birth_date", "department", "commune",
-                  "phone", "language", "status", "reject_reason", "created_at", "validated_at"]
+                  "phone", "language", "status", "reject_reason", "created_at", "validated_at", "version"]
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -89,7 +91,41 @@ def producer_detail(request, pk):
         raise ApiError("Seul un agent ou un administrateur corrige une fiche.", "forbidden", 403)
     s = PatchSerializer(data=request.data, partial=True)
     s.is_valid(raise_exception=True)
-    return Response(ProducerSerializer(services.update(request.user, p, s.validated_data)).data)
+    forced, base = check_version(request.data, p, lambda o: ProducerSerializer(o).data)
+    return Response(ProducerSerializer(services.update(request.user, p, s.validated_data, forced, base)).data)
+
+
+@api_view(["GET"])
+@permission_classes([roles(PRODUCTEUR, AGENT, ADMIN)])
+def producer_card(request, pk):
+    p = services.issue_card(request.user, selectors.get_producer(request.user, pk))
+    return Response({"code": p.code, "full_name": f"{p.first_name} {p.last_name}", "commune": p.commune,
+                     "department": p.department, "status": p.status, "verification_code": p.verification_code,
+                     "verify_url": request.build_absolute_uri(f"/api/v1/verify/{p.verification_code}"),
+                     "issued_at": p.card_issued_at})
+
+
+class VerifyThrottle(SimpleRateThrottle):
+    """Limite par adresse IP, connecté ou non (le code de 8 caractères ne doit pas être énumérable)."""
+
+    scope = "verify"
+
+    def get_rate(self):
+        return settings.VERIFY_THROTTLE_RATE
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {"scope": self.scope, "ident": self.get_ident(request)}
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+@throttle_classes([VerifyThrottle])
+def verify(request, code):
+    # tiers qui scanne la carte : statut et nom seulement (minimisation, art. 424)
+    p = Producer.objects.filter(verification_code=code.upper()).first()
+    if p is None:
+        raise Http404
+    return Response({"status": p.status, "full_name": f"{p.first_name} {p.last_name}"})
 
 
 @api_view(["POST"])

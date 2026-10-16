@@ -1,14 +1,15 @@
 import { Component, type ReactNode } from 'react';
 import { ErrorState } from '../shared/ui';
+import i18n from '../i18n';
 
 /** Affiche une erreur avec reprise si un écran plante (par exemple chargement de page échoué hors réseau). */
-export class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-  state = { error: null as Error | null };
+export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
   static getDerivedStateFromError() {
-    return { error: new Error('Cet écran n’a pas pu s’afficher. Vérifiez la connexion puis réessayez.') };
+    return { failed: true };
   }
   render() {
-    if (this.state.error) return <ErrorState error={this.state.error} onRetry={() => window.location.reload()} />;
+    if (this.state.failed) return <ErrorState error={new Error(i18n.t('app.errorScreen'))} onRetry={() => window.location.reload()} />;
     return this.props.children;
   }
 }

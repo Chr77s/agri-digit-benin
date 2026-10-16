@@ -1,15 +1,17 @@
 import { Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, EmptyState, ListenButton, Notice, PageHeader, QueryState, fmtDateTime } from '../../shared/ui';
 import { useMarkRead, useNotifications } from './api';
 
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const q = useNotifications();
   const read = useMarkRead();
   return (
     <>
-      <PageHeader title="Mes messages" listen="Mes messages. Vos alertes et les nouvelles de votre inscription." />
+      <PageHeader title={t('nav.notifications')} listen={t('notifications.listen')} />
       {read.error && <Notice tone="error" live>{read.error.message}</Notice>}
-      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title="Aucun message pour le moment.">Les alertes de votre agent et les décisions sur vos demandes apparaîtront ici.</EmptyState>}>
+      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('notifications.empty')}>{t('notifications.emptyHelp')}</EmptyState>}>
         {(d) => (
           <ul className="flex flex-col gap-2">
             {d.map((n) => {
@@ -17,12 +19,12 @@ export function NotificationsPage() {
               const text = n.body ?? n.message ?? '';
               return (
                 <li key={n.id} className={`flex flex-col gap-2 rounded border bg-surface p-3 ${unread ? 'border-brand' : 'border-border'}`}>
-                  <p className="flex items-center gap-2 font-semibold"><Bell aria-hidden size={18} /> {n.title ?? 'Message'} {unread && <span className="text-sm text-brand">(non lu)</span>}</p>
+                  <p className="flex items-center gap-2 font-semibold"><Bell aria-hidden size={18} /> {n.title ?? t('notifications.message')} {unread && <span className="text-sm text-brand">({t('notifications.unread')})</span>}</p>
                   <p>{text}</p>
                   <p className="text-sm text-muted">{fmtDateTime(n.created_at)}</p>
                   <div className="flex flex-wrap gap-2">
                     <ListenButton text={`${n.title ?? ''}. ${text}`} />
-                    {unread && <Button variant="ghost" busy={read.isPending && read.variables === n.id} onClick={() => read.mutate(n.id)}>Marquer comme lu</Button>}
+                    {unread && <Button variant="ghost" busy={read.isPending && read.variables === n.id} onClick={() => read.mutate(n.id)}>{t('notifications.markRead')}</Button>}
                   </div>
                 </li>
               );

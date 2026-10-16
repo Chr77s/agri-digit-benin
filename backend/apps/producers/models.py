@@ -31,6 +31,9 @@ class Producer(models.Model):
                                 related_name="producer")
     created_at = models.DateTimeField(auto_now_add=True)
     validated_at = models.DateTimeField(null=True, blank=True)
+    version = models.PositiveIntegerField(default=1)  # UC-25 : détection des conflits hors ligne
+    verification_code = models.CharField(max_length=8, unique=True, null=True, blank=True)  # UC-07
+    card_issued_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.code

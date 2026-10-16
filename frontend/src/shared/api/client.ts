@@ -1,4 +1,5 @@
 import type { ApiErrorBody, Paginated } from './types';
+import i18n from '../../i18n';
 
 const BASE = '/api/v1';
 let accessToken: string | null = null;
@@ -12,8 +13,8 @@ export class ApiError extends Error {
     super(
       body.detail ||
         (status === 0
-          ? 'Le serveur ne répond pas. Vérifiez la connexion puis réessayez.'
-          : `Erreur ${status}. Réessayez dans un instant.`),
+          ? i18n.t('errors.network')
+          : i18n.t('errors.http', { status })),
     );
   }
   get code() { return this.body.code; }
@@ -32,17 +33,19 @@ export function refreshAccess(): Promise<boolean> {
   return refreshing;
 }
 
-type Opts = { method?: string; body?: unknown; raw?: boolean; retry?: boolean };
+type Opts = { method?: string; body?: unknown; form?: FormData; raw?: boolean; retry?: boolean; signal?: AbortSignal };
 
 export async function api<T>(path: string, opts: Opts = {}): Promise<T> {
-  const { method = 'GET', body, raw = false, retry = true } = opts;
-  const headers: Record<string, string> = { Accept: raw ? 'text/csv' : 'application/json' };
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  const { method = 'GET', body, form, raw = false, retry = true, signal } = opts;
+  // raw : fichier (CSV, image) ; `*/*` évite un 406 de DRF quand aucun rendu ne correspond au type demandé
+  const headers: Record<string, string> = { Accept: raw ? 'text/csv, */*;q=0.1' : 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';  // multipart : le navigateur fixe la frontière
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   let res: Response;
   try {
     res = await fetch(`${BASE}${path}`, {
-      method, headers, credentials: 'include', body: body === undefined ? undefined : JSON.stringify(body),
+      method, headers, credentials: 'include', signal,
+      body: form ?? (body === undefined ? undefined : JSON.stringify(body)),
     });
   } catch {
     throw new ApiError(0, {});
@@ -76,4 +79,20 @@ export function qs(params: Record<string, string | number | boolean | undefined 
   });
   const s = p.toString();
   return s ? `?${s}` : '';
+}
+
+/** GET d'une liste (paginée ou non) ramenée à un tableau. Le serveur ne renvoie que 20 lignes par défaut : on demande 100 lignes par page et on suit les curseurs (10 pages au plus). */
+export async function list<T>(path: string): Promise<T[]> {
+  const sep = path.includes('?') ? '&' : '?';
+  const out: T[] = [];
+  let cursor = '';
+  for (let i = 0; i < 10; i++) {
+    const d = await api<Paginated<T> | T[]>(`${path}${sep}page_size=100${cursor}`);
+    if (Array.isArray(d)) return d;
+    out.push(...rows(d));
+    const next = d.next ? new URL(d.next, window.location.origin).searchParams.get('cursor') : null;
+    if (!next) break;
+    cursor = `&cursor=${encodeURIComponent(next)}`;
+  }
+  return out;
 }

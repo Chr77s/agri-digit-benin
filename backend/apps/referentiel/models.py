@@ -4,6 +4,7 @@ from django.db import models
 class ValueChain(models.Model):
     code = models.CharField(max_length=40, primary_key=True)
     name = models.CharField(max_length=80)
+    reserve = models.BooleanField(default=False)  # filière de réserve (hors des 10 principales)
 
     def __str__(self):
         return self.name

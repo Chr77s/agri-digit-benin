@@ -5,13 +5,14 @@ from rest_framework.response import Response
 
 from apps.core.errors import ApiError
 from apps.core.permissions import ADMIN, AGENT, PRODUCTEUR
+from apps.core.versioning import check_version
 from apps.producers.selectors import get_producer, producers_for
+from apps.referentiel.data import ALL_VALUE_CHAIN_CODES
 
 from . import services
 from .models import Campaign, Parcel
 
-VALUE_CHAINS = ["coton", "anacarde", "ananas", "mais", "riz", "soja", "manioc", "niebe", "elevage",
-                "peche_aquaculture"]
+VALUE_CHAINS = ALL_VALUE_CHAIN_CODES
 STAGES = ["semis", "croissance", "floraison", "recolte"]
 
 
@@ -33,7 +34,7 @@ class ParcelInSerializer(serializers.Serializer):
 class CampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
-        fields = ["id", "parcel", "value_chain", "season", "stage", "created_at"]
+        fields = ["id", "parcel", "value_chain", "season", "stage", "version", "created_at"]
 
 
 class CampaignInSerializer(serializers.Serializer):
@@ -100,4 +101,5 @@ def campaign_detail(request, pk):
     stage = request.data.get("stage")
     if stage not in STAGES:
         raise ApiError("Stade invalide.", "validation_error", 400, fields={"stage": ["Stade invalide."]})
-    return Response(CampaignSerializer(services.set_stage(request.user, c, stage)).data)
+    forced, base = check_version(request.data, c, lambda o: CampaignSerializer(o).data)
+    return Response(CampaignSerializer(services.set_stage(request.user, c, stage, forced, base)).data)

@@ -19,6 +19,13 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 | `apps/farms` | Fermes du POC (import en flux), agrégats | 22, 23 |
 | `apps/dashboard` | Indicateurs avec source et date | 22 |
 | `apps/exports` | Export CSV avec motif | 24 |
+| `apps/cooperatives` | Coopératives, adhésions avec historique | 06 |
+| `apps/production` | Appuis remis/confirmés, récoltes et écart au rendement de référence | 10, 11 |
+| `apps/diagnosis` | Diagnostic par photo simulé, EXIF retiré, relecture agronome, purge | 13 |
+| `apps/translations` | Entrées fon/bariba à valider, notes, ouverture à 80 % | 15 |
+| `apps/market` | Offres, mise en relation, paiement FakePay | 21 |
+| `apps/satellite` | NDVI et humidité de démonstration | 23 |
+| `apps/interop` | Agrégats pseudonymisés pour X-Road, SONAMA, FNDA | 24 |
 | `apps/core` | Erreurs, pagination, permissions, périmètre | |
 | `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad` | |
 | `tests/e2e_backend.py` | Scénario de démonstration rejoué par l'API | |

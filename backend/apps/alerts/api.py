@@ -6,12 +6,12 @@ from rest_framework.response import Response
 
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AGENT, roles
+from apps.referentiel.data import ALL_VALUE_CHAIN_CODES
 
 from . import services
 from .models import Alert, Notification, Outbox
 
-VALUE_CHAINS = ["coton", "anacarde", "ananas", "mais", "riz", "soja", "manioc", "niebe", "elevage",
-                "peche_aquaculture"]
+VALUE_CHAINS = ALL_VALUE_CHAIN_CODES
 
 
 class AlertSerializer(serializers.ModelSerializer):

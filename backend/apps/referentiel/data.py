@@ -8,6 +8,9 @@ VALUE_CHAINS = [
     ("peche_aquaculture", "Pêche et aquaculture"),
 ]
 
+RESERVE_VALUE_CHAINS = [("igname", "Igname"), ("maraichage", "Maraîchage"), ("palmier_huile", "Palmier à huile")]
+ALL_VALUE_CHAIN_CODES = [c for c, _ in VALUE_CHAINS + RESERVE_VALUE_CHAINS]
+
 # nom, centre approximatif (lon, lat), communes
 DEPARTMENTS = [
     ("Alibori", (2.75, 11.35), ["Banikoara", "Gogounou", "Kandi", "Karimama", "Malanville", "Segbana"]),

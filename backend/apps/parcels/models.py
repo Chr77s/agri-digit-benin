@@ -25,6 +25,7 @@ class Campaign(models.Model):
     value_chain = models.CharField(max_length=40)
     season = models.CharField(max_length=20)
     stage = models.CharField(max_length=20)
+    version = models.PositiveIntegerField(default=1)  # UC-25
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

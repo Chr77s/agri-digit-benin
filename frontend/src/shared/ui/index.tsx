@@ -1,7 +1,16 @@
 import * as RD from '@radix-ui/react-dialog';
 import { forwardRef, useId, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { AlertTriangle, ArrowDown, ArrowUp, Download, Inbox, RotateCcw, Volume2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ApiError } from '../api/client';
+import i18n from '../../i18n';
+
+const KEY_RE = /^[a-z][A-Za-z]*(\.[A-Za-z0-9_]+)+$/;
+/** Messages portés par une clé de traduction (schémas zod, erreurs choisies en code) : traduits à l'affichage. Un texte venu du serveur passe tel quel. */
+export function useMsg() {
+  const { t } = useTranslation();
+  return (m?: string) => (m && KEY_RE.test(m) ? t(m) : m);
+}
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 const variants: Record<Variant, string> = {
@@ -30,6 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
 
 export function Field({ label, error, hint, children, id }: { label: string; error?: string; hint?: string; children: (p: { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }) => ReactNode; id?: string }) {
   const gen = useId();
+  const msg = useMsg();
   const fid = id ?? gen;
   const desc = [hint && `${fid}-hint`, error && `${fid}-err`].filter(Boolean).join(' ') || undefined;
   return (
@@ -37,18 +47,22 @@ export function Field({ label, error, hint, children, id }: { label: string; err
       <label htmlFor={fid} className="font-semibold">{label}</label>
       {hint && <p id={`${fid}-hint`} className="text-sm text-muted">{hint}</p>}
       {children({ id: fid, 'aria-invalid': error ? true : undefined, 'aria-describedby': desc })}
-      {error && <p id={`${fid}-err`} className="text-sm text-error" role="alert">{error}</p>}
+      {error && <p id={`${fid}-err`} className="text-sm text-error" role="alert">{msg(error)}</p>}
     </div>
   );
 }
 
 export const inputCls = 'min-h-touch w-full rounded border border-muted bg-surface px-3 text-base text-text aria-[invalid=true]:border-error';
 
-export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string }[]; placeholder?: string }>(function Select({ options, placeholder, ...rest }, ref) {
+type Opt = { value: string; label: string };
+export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { options: Opt[]; placeholder?: string; groups?: { label: string; options: Opt[] }[] }>(function Select({ options, placeholder, groups, ...rest }, ref) {
   return (
     <select ref={ref} className={inputCls} {...rest}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      {groups?.filter((g) => g.options.length).map((g) => (
+        <optgroup key={g.label} label={g.label}>{g.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</optgroup>
+      ))}
     </select>
   );
 });
@@ -68,17 +82,19 @@ export function Notice({ tone = 'neutral', children, live }: { tone?: keyof type
 }
 
 export function SimulationBanner({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded border border-warn bg-warn-bg p-3 text-warn" role="status" aria-live="polite">
-      <p className="font-semibold">Simulation</p>
+      <p className="font-semibold">{t('common.simulation')}</p>
       {children}
     </div>
   );
 }
 
 export function Skeleton({ lines = 3 }: { lines?: number }) {
+  const { t } = useTranslation();
   return (
-    <div aria-busy="true" aria-label="Chargement en cours" className="flex flex-col gap-2">
+    <div aria-busy="true" aria-label={t('common.loading')} className="flex flex-col gap-2">
       {Array.from({ length: lines }).map((_, i) => <div key={i} className="h-6 rounded bg-border" style={{ width: `${90 - i * 12}%` }} />)}
     </div>
   );
@@ -95,11 +111,12 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 }
 
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
-  const msg = error instanceof Error ? error.message : 'Une erreur est survenue.';
+  const { t } = useTranslation();
+  const msg = error instanceof Error ? error.message : t('common.errorGeneric');
   return (
     <div role="alert" className="flex flex-col items-start gap-2 rounded border border-error bg-error-bg p-4 text-error">
       <p className="flex items-center gap-2 font-semibold"><AlertTriangle aria-hidden size={20} /> {msg}</p>
-      {onRetry && <Button variant="danger" onClick={onRetry}><RotateCcw aria-hidden size={18} /> Réessayer</Button>}
+      {onRetry && <Button variant="danger" onClick={onRetry}><RotateCcw aria-hidden size={18} /> {t('common.retry')}</Button>}
     </div>
   );
 }
@@ -125,9 +142,10 @@ export function speak(text: string) {
   window.speechSynthesis.speak(u);
 }
 
-export function ListenButton({ text, label = 'Écouter' }: { text: string; label?: string }) {
+export function ListenButton({ text, label }: { text: string; label?: string }) {
+  const { t } = useTranslation();
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
-  return <Button variant="secondary" onClick={() => speak(text)}><Volume2 aria-hidden size={20} /> {label}</Button>;
+  return <Button variant="secondary" onClick={() => speak(text)}><Volume2 aria-hidden size={20} /> {label ?? t('common.listen')}</Button>;
 }
 
 export function PageHeader({ title, listen, actions }: { title: string; listen?: string; actions?: ReactNode }) {
@@ -139,10 +157,10 @@ export function PageHeader({ title, listen, actions }: { title: string; listen?:
   );
 }
 
-export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString('fr-FR') : 'non disponible');
-export const fmtDateTime = (s?: string | null) => (s ? new Date(s).toLocaleString('fr-FR') : 'non disponible');
+export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString('fr-FR') : i18n.t('common.notAvailable'));
+export const fmtDateTime = (s?: string | null) => (s ? new Date(s).toLocaleString('fr-FR') : i18n.t('common.notAvailable'));
 export const fmtNum = (n?: number | null, digits = 0) =>
-  n === null || n === undefined ? 'non disponible' : n.toLocaleString('fr-FR', { maximumFractionDigits: digits });
+  n === null || n === undefined ? i18n.t('common.notAvailable') : n.toLocaleString('fr-FR', { maximumFractionDigits: digits });
 
 export function downloadBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
@@ -164,6 +182,7 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null);
   const [page, setPage] = useState(0);
   const sid = useId();
+  const { t } = useTranslation();
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     let d = s ? data.filter((r) => Object.values(r).some((v) => String(v ?? '').toLowerCase().includes(s))) : data;
@@ -180,15 +199,15 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-1">
-          <label htmlFor={sid} className="text-sm font-semibold">Rechercher</label>
+          <label htmlFor={sid} className="text-sm font-semibold">{t('table.search')}</label>
           <input id={sid} type="search" className={`${inputCls} w-64`} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
         </div>
         {exportName && (
           <Button variant="secondary" onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)}>
-            <Download aria-hidden size={18} /> Exporter en CSV
+            <Download aria-hidden size={18} /> {t('table.exportCsv')}
           </Button>
         )}
-        <p className="text-sm text-muted" aria-live="polite">{filtered.length} ligne(s)</p>
+        <p className="text-sm text-muted" aria-live="polite">{t('table.rows', { count: filtered.length })}</p>
       </div>
       <div className="overflow-x-auto rounded border border-border bg-surface">
         <table className="w-full border-collapse text-left">
@@ -208,7 +227,7 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
             </tr>
           </thead>
           <tbody>
-            {view.length === 0 && <tr><td className="p-3 text-muted" colSpan={columns.length}>Aucune ligne ne correspond à la recherche.</td></tr>}
+            {view.length === 0 && <tr><td className="p-3 text-muted" colSpan={columns.length}>{t('table.noMatch')}</td></tr>}
             {view.map((r) => (
               <tr key={rowKey(r)} className="block border-b border-border p-2 md:table-row md:p-0">
                 {columns.map((c) => (
@@ -223,10 +242,10 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
         </table>
       </div>
       {pages > 1 && (
-        <nav aria-label="Pagination" className="flex items-center gap-2">
-          <Button variant="secondary" disabled={cur === 0} onClick={() => setPage(cur - 1)}>Précédent</Button>
-          <span>Page {cur + 1} sur {pages}</span>
-          <Button variant="secondary" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>Suivant</Button>
+        <nav aria-label={t('table.pagination')} className="flex items-center gap-2">
+          <Button variant="secondary" disabled={cur === 0} onClick={() => setPage(cur - 1)}>{t('table.prev')}</Button>
+          <span>{t('table.page', { page: cur + 1, pages })}</span>
+          <Button variant="secondary" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>{t('table.next')}</Button>
         </nav>
       )}
     </div>
@@ -234,6 +253,7 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
 }
 
 export function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  const { t } = useTranslation();
   return (
     <RD.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <RD.Portal>
@@ -241,7 +261,7 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
         <RD.Content className="fixed left-1/2 top-1/2 z-[1001] max-h-[90vh] w-[min(560px,94vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded border border-border bg-surface p-4 shadow" aria-describedby={undefined}>
           <RD.Title className="mb-3 text-xl font-semibold">{title}</RD.Title>
           {children}
-          <RD.Close asChild><Button variant="ghost" className="mt-3">Fermer</Button></RD.Close>
+          <RD.Close asChild><Button variant="ghost" className="mt-3">{t('common.close')}</Button></RD.Close>
         </RD.Content>
       </RD.Portal>
     </RD.Root>

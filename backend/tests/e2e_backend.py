@@ -1,9 +1,12 @@
 """Scénario de démonstration (section 15, étapes 1 à 10) rejoué contre un serveur lancé sur 127.0.0.1:8000.
 Usage : python tests/e2e_backend.py [base_url]   (nécessite DEMO_MODE=true, seed_demo et import_poc_farms)."""
+import io
 import re
 import sys
+import time
 
 import httpx
+from PIL import Image
 
 BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000") + "/api/v1"
 PWD = "AgriDemo-2026!"
@@ -38,6 +41,11 @@ def step(name):
 
 
 ctx = {}
+
+
+def first_campaign():
+    body = c.get(f"{BASE}/campaigns", headers=ctx["prod"]).json()  # liste simple ou page, selon le contrat
+    return (body["results"] if isinstance(body, dict) else body)[0]
 
 
 @step("1. Inscription d'un producteur (NPI valide, consentement, en attente)")
@@ -170,6 +178,114 @@ def s10():
     inds = r.json()["indicators"]
     assert inds and all("source" in i and "updated_at" in i for i in inds), inds
     assert any(i["key"] == "farms_detected" and i["value"] for i in inds), inds
+
+
+@step("11. Carte du producteur, vérification publique sans donnée personnelle")
+def s11():
+    r = c.get(f"{BASE}/producers/{ctx['producer_id']}/card", headers=ctx["prod"])
+    assert r.status_code == 200 and len(r.json()["verification_code"]) == 8, r.text
+    pub = c.get(f"{BASE}/verify/{r.json()['verification_code']}")
+    assert pub.status_code == 200 and set(pub.json()) == {"status", "full_name"}, pub.text
+    assert c.get(f"{BASE}/verify/ZZZZZZZZ").status_code == 404
+
+
+@step("12. Coopérative : le gestionnaire inscrit le producteur comme membre")
+def s12():
+    hg = ctx["gest"] = login("0197000008", PWD)
+    coops = c.get(f"{BASE}/cooperatives", headers=hg).json()["results"]
+    assert len(coops) == 1 and "Banikoara" in coops[0]["name"], coops
+    code = c.get(f"{BASE}/producers/{ctx['producer_id']}", headers=ctx["agent"]).json()["code"]
+    r = c.post(f"{BASE}/cooperatives/{coops[0]['id']}/members", headers=hg, json={"producer": code, "role": "membre"})
+    assert r.status_code in (201, 409), r.text  # 409 si le scénario a déjà été rejoué
+    mine = c.get(f"{BASE}/memberships/mine", headers=ctx["prod"]).json()["results"]
+    assert mine and mine[0]["left_at"] is None, mine
+
+
+@step("13. Appui remis puis confirmé ; récolte très éloignée du rendement de référence signalée")
+def s13():
+    r = c.post(f"{BASE}/supports", headers=ctx["agent"], json={
+        "producer": ctx["producer_id"], "item": "Semences de maïs", "quantity": 25, "unit": "kg", "value_xof": 30000,
+        "repayable": False})
+    assert r.status_code == 201 and r.json()["status"] == "remis", r.text
+    r = c.post(f"{BASE}/supports/{r.json()['id']}/confirm", headers=ctx["prod"])
+    assert r.status_code == 200 and r.json()["status"] == "confirme", r.text
+    camp = first_campaign()["id"]
+    r = c.post(f"{BASE}/harvests", headers=ctx["prod"], json={
+        "campaign": camp, "harvested_at": "2026-10-10", "quantity_kg": 900000, "stored_kg": 100, "sold_kg": 100})
+    assert r.status_code == 201 and r.json()["flagged"] is True, r.text
+    flagged = c.get(f"{BASE}/harvests", headers=ctx["agent"], params={"flagged": "true"}).json()["results"]
+    assert flagged, flagged
+
+
+@step("14. Marché : offre, mise en relation, acceptation, paiement FakePay réussi avec reçu")
+def s14():
+    hs, hb = login("0197000009", PWD), login("0197000010", PWD)
+    r = c.post(f"{BASE}/offers", headers=hs, json={
+        "type": "offre", "value_chain": "mais", "quantity_kg": 2000, "price_xof_per_kg": 240, "department": "borgou",
+        "commune": "parakou", "description": "e2e"})
+    assert r.status_code == 201, r.text
+    m = c.post(f"{BASE}/offers/{r.json()['id']}/contact", headers=hb, json={"message": "Intéressé"}).json()
+    assert "*" in m["counterpart_phone"], m  # numéro masqué avant acceptation
+    acc = c.post(f"{BASE}/matches/{m['id']}/accept", headers=hs).json()
+    assert acc["status"] == "acceptee" and acc["counterpart_phone"] == "0197000010", acc
+    p = c.post(f"{BASE}/payments", headers=hb, json={"match": m["id"], "amount_xof": 100000,
+                                                      "payer_phone": "0197000011"})
+    assert p.status_code == 201 and p.json()["status"] == "en_attente", p.text
+    for _ in range(20):
+        got = c.get(f"{BASE}/payments/{p.json()['id']}", headers=hb).json()
+        if got["status"] != "en_attente":
+            break
+        time.sleep(0.5)
+    assert got["status"] == "reussi" and got["receipt"]["amount_xof"] == 100000, got
+    over = c.post(f"{BASE}/payments", headers=hb, json={"match": m["id"], "amount_xof": 600000,
+                                                         "payer_phone": "0197000011"})
+    assert over.status_code == 400 and over.json()["code"] == "amount_over_limit", over.text
+
+
+@step("15. Diagnostic par photo simulé : métadonnées retirées, résultat marqué simulation")
+def s15():
+    img = Image.new("RGB", (32, 32), (40, 150, 60))
+    exif = Image.Exif()
+    exif[0x8825] = {1: "N"}
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", exif=exif)
+    r = c.post(f"{BASE}/diagnoses", headers=ctx["prod"], data={"value_chain": "mais"},
+               files={"image": ("plante.jpg", buf.getvalue(), "image/jpeg")})
+    assert r.status_code == 201 and r.json()["simulation"] is True, r.text
+    assert r.json()["status"] in ("auto", "transmis_agronome"), r.json()
+    stored = c.get(f"{BASE}/diagnoses/{r.json()['id']}/image", headers=ctx["prod"])
+    assert stored.status_code == 200 and not Image.open(io.BytesIO(stored.content)).getexif()
+    bad = c.post(f"{BASE}/diagnoses", headers=ctx["prod"], data={"value_chain": "mais"},
+                 files={"image": ("x.jpg", b"pas une image", "image/jpeg")})
+    assert bad.status_code == 400, bad.text
+
+
+@step("16. Validation linguistique : entrées à traduire, langue fermée aux producteurs")
+def s16():
+    hr = login("0197000011", PWD)
+    summary = c.get(f"{BASE}/translations/summary", headers=hr).json()
+    fon = next(s for s in summary if s["language"] == "fon")
+    assert fon["total"] > 0 and fon["open_to_producers"] is False, fon
+    assert c.get(f"{BASE}/i18n/fon.json").json() == {}  # aucune traduction inventée : repli sur le français
+    assert c.get(f"{BASE}/translations", headers=ctx["prod"]).status_code == 403
+
+
+@step("17. Satellite, indicateurs SEA, interopérabilité et conflit hors ligne")
+def s17():
+    sat = c.get(f"{BASE}/satellite", headers=ctx["admin"]).json()
+    assert "non officielles" in sat["source"] and len(sat["results"]) == 12, sat["source"]
+    sea = c.get(f"{BASE}/dashboard/sea", headers=ctx["admin"]).json()["indicators"]
+    assert all("source" in i and "updated_at" in i for i in sea) and len(sea) >= 10, sea
+    assert c.get(f"{BASE}/interop/xroad/aggregates").status_code == 401
+    r = c.get(f"{BASE}/interop/xroad/aggregates", headers=ctx["admin"])
+    assert r.status_code == 200 and "phone" not in r.text and "0197" not in r.text, r.text[:200]
+    camp = first_campaign()
+    stale = c.patch(f"{BASE}/campaigns/{camp['id']}", headers=ctx["agent"],
+                    json={"stage": "croissance", "base_version": camp["version"] - 1})
+    assert stale.status_code == 409 and stale.json()["code"] == "conflict", stale.text
+    forced = c.patch(f"{BASE}/campaigns/{camp['id']}", headers=ctx["agent"],
+                     json={"stage": "croissance", "base_version": camp["version"] - 1, "force": True})
+    assert forced.status_code == 200, forced.text
 
 
 ok = sum(1 for _, s, _ in results if s)

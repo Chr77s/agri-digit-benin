@@ -126,3 +126,24 @@ def contest(actor, run, farm_id, reason):
     c = Contest.objects.create(run=run, farm_id=farm_id, reason=reason, created_by=actor)
     record(actor, "selection.contest", c, farm_id=farm_id)
     return c
+
+
+@transaction.atomic
+def decide_contest(actor, c, status, reason):
+    """UC-17 : décision humaine motivée sur une contestation (art. 401), notifiée au producteur."""
+    if status not in ("acceptee", "rejetee"):
+        raise ApiError("Statut invalide.", "validation_error", 400, fields={"status": ["acceptee ou rejetee."]})
+    if not reason:
+        raise ApiError("Le motif de la décision est obligatoire.", "reason_required", 400,
+                       fields={"reason": ["Obligatoire."]})
+    if c.status != "deposee":
+        raise ApiError("Contestation déjà traitée.", "invalid_status", 400)
+    c.status, c.decision_reason, c.decided_by, c.decided_at = status, reason, actor, timezone.now()
+    c.save(update_fields=["status", "decision_reason", "decided_by", "decided_at"])
+    record(actor, "selection.contest_decide", c, status=status, reason=reason)
+    producer = getattr(c.created_by, "producer", None)
+    label = "acceptée" if status == "acceptee" else "rejetée"
+    if producer is not None:
+        notify(producer, "Contestation", f"Agri-Digit : votre contestation (ferme {c.farm_id}) est {label}. "
+                                         f"Motif : {reason}")
+    return c

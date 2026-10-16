@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from './client';
 import type { Department, ValueChain } from './types';
+import i18n from '../../i18n';
 
 export const useValueChains = () =>
   useQuery({ queryKey: ['ref', 'value-chains'], queryFn: () => api<ValueChain[]>('/ref/value-chains'), staleTime: Infinity });
@@ -25,5 +26,16 @@ export function usePlaceName() {
       if (c) return c.name;
     }
     return code;
+  };
+}
+
+/** Props pour <Select> : filières principales, puis « Filières de réserve » dans un groupe à part. */
+export const useVcSelect = () => vcSelect(useValueChains().data);
+export function vcSelect(data?: ValueChain[]) {
+  const all = data ?? [];
+  const opt = (v: ValueChain) => ({ value: v.code, label: v.name });
+  return {
+    options: all.filter((v) => !v.reserve).map(opt),
+    groups: [{ label: i18n.t('common.reserveChains'), options: all.filter((v) => v.reserve).map(opt) }],
   };
 }

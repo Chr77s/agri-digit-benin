@@ -42,6 +42,13 @@ INSTALLED_APPS = [
     "apps.dashboard",
     "apps.exports",
     "apps.credit",
+    "apps.diagnosis",
+    "apps.translations",
+    "apps.market",
+    "apps.satellite",
+    "apps.cooperatives",
+    "apps.production",
+    "apps.interop",
 ]
 
 MIDDLEWARE = [
@@ -72,8 +79,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {"default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")}
 # Un chemin SQLite relatif part de backend/, quel que soit le dossier de lancement.
-if DATABASES["default"]["ENGINE"].endswith("sqlite3") and DATABASES["default"]["NAME"] != ":memory:" and not Path(DATABASES["default"]["NAME"]).is_absolute():
-    DATABASES["default"]["NAME"] = str(BASE_DIR / DATABASES["default"]["NAME"])
+_db = DATABASES["default"]
+if _db["ENGINE"].endswith("sqlite3") and _db["NAME"] != ":memory:" and not Path(_db["NAME"]).is_absolute():
+    _db["NAME"] = str(BASE_DIR / _db["NAME"])
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
@@ -118,6 +126,17 @@ ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
 ASSISTANT_MIN_SCORE = env.float("ASSISTANT_MIN_SCORE", default=1.0)
 AUDIT_RETENTION_DAYS = env.int("AUDIT_RETENTION_DAYS", default=1825)
+# UC-24 : clés des partenaires d'interopérabilité (vide = partenaire désactivé)
+INTEROP_KEYS = {p: env(f"INTEROP_KEY_{p.upper()}", default="") for p in ("xroad", "sonama", "fnda")}
+VERIFY_THROTTLE_RATE = env("VERIFY_THROTTLE_RATE", default="30/min")
+# P1/P2 : diagnostic, langues, marché (agent B)
+MEDIA_ROOT = Path(env("MEDIA_ROOT", default=str(BASE_DIR / "media")))
+DIAGNOSIS_THRESHOLD = env.float("DIAGNOSIS_THRESHOLD", default=0.6)
+DIAGNOSIS_MAX_BYTES = env.int("DIAGNOSIS_MAX_BYTES", default=5 * 1024 * 1024)
+DIAGNOSIS_RETENTION_DAYS = env.int("DIAGNOSIS_RETENTION_DAYS", default=90)
+LANGUAGE_OPEN_THRESHOLD = env.float("LANGUAGE_OPEN_THRESHOLD", default=0.8)
+PAYMENT_MAX_XOF = env.int("PAYMENT_MAX_XOF", default=500000)
+FAKEPAY_DELAY_S = env.float("FAKEPAY_DELAY_S", default=3.0)
 
 structlog.configure(
     processors=[

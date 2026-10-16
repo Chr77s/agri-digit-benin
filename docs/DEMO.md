@@ -15,6 +15,10 @@ Connexion : saisir le téléphone, demander le code ; le code à 6 chiffres s'af
 | admin_maep | 0197000005 | AgriDemo-2026! | national |
 | auditeur_copil | 0197000006 | AgriDemo-2026! | national |
 | agent_financier | 0197000007 | AgriDemo-2026! | national |
+| gestionnaire_cooperative | 0197000008 | AgriDemo-2026! | Coopérative des producteurs de maïs de Banikoara |
+| transformateur | 0197000009 | AgriDemo-2026! | Parakou, Borgou |
+| distributeur | 0197000010 | AgriDemo-2026! | Cotonou, Littoral |
+| repr_mtdi | 0197000011 | AgriDemo-2026! | national |
 
 NPI pour l'inscription : `1000000002` (Awa SABI, née le 1990-07-01). Autres cas : `MOCKS.md`.
 
@@ -30,6 +34,13 @@ NPI pour l'inscription : `1000000002` (Awa SABI, née le 1990-07-01). Autres cas
 8. **Crédit (P1).** Producteur : donner le consentement au partage du profil. Agent financier (`0197000007`) : consulter le score et ses facteurs. La consultation apparaît dans le journal d'audit.
 9. **Audit et export.** Auditeur (`0197000006`) : lire le journal (inscription, validation, alerte, sélection, consultation du score). Administrateur (`0197000005`) : exporter les producteurs en CSV avec un motif d'au moins 10 caractères ; l'export apparaît dans le journal avec son motif.
 10. **Tableau de bord.** Administrateur : tableau de bord, filtre Alibori. Chaque chiffre affiche sa source et sa date ; les données POC sont marquées "données de démonstration" ; une valeur absente affiche "non disponible".
+11. **Carte producteur (UC-07).** Producteur : « Ma carte » affiche le code de vérification à 8 caractères et l'adresse de vérification. Ouvrir `/verification/<code>` sans être connecté : seuls le statut et le nom apparaissent. Une fiche non validée n'a pas de carte.
+12. **Coopérative (UC-06).** Gestionnaire (`0197000008`) : ouvrir sa coopérative, ajouter un producteur de l'Alibori par son code, puis mettre fin à l'adhésion avec un motif : l'historique reste visible (vue « Historique (adhésions terminées) »). Le producteur voit ses adhésions dans « Mes coopératives ».
+13. **Appuis et récoltes (UC-10, UC-11).** Agent ATDA : « Appuis », remettre des semences à un producteur validé. Producteur : « Mes appuis », confirmer la réception (l'agent est notifié). Producteur : déclarer une récolte dans « Mes campagnes » ; si elle s'écarte de plus de 50 % du rendement de référence (valeurs de démonstration), elle apparaît dans « Récoltes signalées » de l'agent.
+14. **Marché et paiement simulé (UC-21).** Transformateur (`0197000009`) : publier une offre. Distributeur (`0197000010`) : prendre contact. Le téléphone reste masqué jusqu'à l'acceptation par le transformateur. Distributeur : payer (plafond 500 000 XOF) ; le statut passe de « en attente » à « réussi » en 3 secondes environ et un reçu apparaît. Un numéro de payeur qui finit par 0 échoue, pour la démonstration. Bandeau « Simulation FakePay » : aucun argent réel.
+15. **Diagnostic par photo (UC-13).** Producteur : « Photo de plante », envoyer une image JPEG ou PNG (5 Mo au plus). Le résultat est simulé ; sous 0,6 de confiance il part à l'agronome (`0197000003`, « Diagnostics à revoir »), qui le relit ; le producteur est notifié. Les métadonnées de la photo, dont le GPS, sont supprimées.
+16. **Validation linguistique (UC-15).** Représentant MTDI (`0197000011`) : « Traductions », proposer un texte en fon ou en bariba, puis le faire noter par un autre représentant. Une langue s'ouvre aux producteurs quand 80 % des clés sont validées. Aucune traduction n'est fournie par l'application.
+17. **Satellite, indicateurs SEA, conflits (UC-23, UC-22, UC-25).** « Suivi satellite » : NDVI et humidité de démonstration, datés. « Indicateurs SEA » : chaque chiffre a sa source ; sans source : « non disponible ». Hors ligne : modifier la même campagne sur deux appareils ; au rejeu, l'agent choisit entre la version du serveur et la sienne (le choix est journalisé).
 
 ## Où lire le code (bandeau Simulation)
 

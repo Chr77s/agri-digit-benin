@@ -65,8 +65,10 @@ def create_campaign(actor, parcel, d):
 
 
 @transaction.atomic
-def set_stage(actor, campaign, stage):
+def set_stage(actor, campaign, stage, forced=False, base_version=None):
     campaign.stage = stage
-    campaign.save(update_fields=["stage"])
-    record(actor, "campaign.stage", campaign, stage=stage)
+    campaign.version += 1
+    campaign.save(update_fields=["stage", "version"])
+    record(actor, "campaign.stage", campaign, stage=stage, forced=forced, base_version=base_version,
+           new_version=campaign.version)
     return campaign

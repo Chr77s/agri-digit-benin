@@ -1,10 +1,12 @@
-from .data import DEPARTMENTS, VALUE_CHAINS, slug
+from .data import DEPARTMENTS, RESERVE_VALUE_CHAINS, VALUE_CHAINS, slug
 from .models import Commune, Department, ValueChain
 
 
 def load_referentiels():
     for code, name in VALUE_CHAINS:
-        ValueChain.objects.update_or_create(code=code, defaults={"name": name})
+        ValueChain.objects.update_or_create(code=code, defaults={"name": name, "reserve": False})
+    for code, name in RESERVE_VALUE_CHAINS:
+        ValueChain.objects.update_or_create(code=code, defaults={"name": name, "reserve": True})
     for name, (lon, lat), communes in DEPARTMENTS:
         dep, _ = Department.objects.update_or_create(code=slug(name), defaults={"name": name, "lon": lon, "lat": lat})
         for c in communes:

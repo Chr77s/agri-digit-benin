@@ -46,6 +46,7 @@ def test_export_with_reason_and_dashboard(users, producer, farms):
 
 def test_referentiels_public():
     c = client_for()
-    assert len(c.get("/api/v1/ref/value-chains").json()) == 10
+    chains = c.get("/api/v1/ref/value-chains").json()
+    assert len(chains) == 13 and sum(not v["reserve"] for v in chains) == 10
     deps = c.get("/api/v1/ref/departments").json()
     assert len(deps) == 12 and sum(len(d["communes"]) for d in deps) == 77
