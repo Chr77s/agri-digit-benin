@@ -474,6 +474,89 @@
                 }
             }
         },
+        "/api/v1/credit/consent": {
+            "post": {
+                "operationId": "api_v1_credit_consent_create",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/credit/consent/withdraw": {
+            "post": {
+                "operationId": "api_v1_credit_consent_withdraw_create",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/credit/consented-producers": {
+            "get": {
+                "operationId": "api_v1_credit_consented_producers_retrieve",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/credit/scores/{producer_id}": {
+            "get": {
+                "operationId": "api_v1_credit_scores_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "producer_id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
         "/api/v1/dashboard": {
             "get": {
                 "operationId": "api_v1_dashboard_retrieve",

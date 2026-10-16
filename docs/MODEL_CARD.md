@@ -35,7 +35,7 @@ Limites :
 | Appuis remboursés | `input_support` à rembourser | part remboursée ; neutre (0,5) si aucun appui | 0,25 |
 | Diversification | nombre de filières | 1 filière : 0 ; 2 ou plus : 1 | 0,1 |
 
-Score affiché sur 100 avec, pour chaque facteur : nom, poids, valeur, contribution. Mention affichée : "Le score est une aide. La décision revient à une personne."
+Score affiché sur 100 avec, pour chaque facteur : nom, poids, valeur (0 à 1), contribution (points sur 100). Mention renvoyée par l'API : "Aide à la décision. La décision de crédit revient à une personne (art. 401)." Implémentation : `backend/apps/credit/services.py`. Superficie plafonnée à 10 ha ; ancienneté = min(1, nombre de campagnes / 3) si la fiche est validée ; sans campagne, facteur récolte neutre (0,5). Le prototype n'a pas de module d'appuis (UC-10) : le facteur "Appuis remboursés" vaut toujours 0,5 (neutre).
 
 Données jamais utilisées : sexe, âge, langue, commune en tant que telle, données sensibles (art. 394), contenu des questions à l'assistant.
 

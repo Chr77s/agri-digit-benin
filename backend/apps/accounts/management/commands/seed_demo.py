@@ -85,6 +85,9 @@ class Command(BaseCommand):
         for i in range(5, 46):
             name, _, communes = DEPARTMENTS[i % 12]
             self._producer(f"10000000{i:02d}", f"01960000{i:02d}", slug(name), slug(communes[i % len(communes)]), i)
+        demo = Producer.objects.get(npi="1000000001")  # producteur de démo : consentement crédit déjà donné
+        if not demo.consents.filter(type="credit", withdrawn_at__isnull=True).exists():
+            Consent.objects.create(producer=demo, type="credit", text_version="v1", channel="seed")
         self._programs()
         self._knowledge()
         self.stdout.write(self.style.SUCCESS(

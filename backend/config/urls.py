@@ -6,6 +6,7 @@ from apps.accounts import api as acc
 from apps.alerts import api as alerts
 from apps.assistant import api as assistant
 from apps.audit import api as audit
+from apps.credit import api as credit
 from apps.dashboard import api as dashboard
 from apps.exports import api as exports
 from apps.farms import api as farms
@@ -63,6 +64,10 @@ v1 = [
     path("farms", farms.farm_list),
     path("dashboard", dashboard.dashboard),
     path("exports", exports.export),
+    path("credit/consent", credit.consent),
+    path("credit/consent/withdraw", credit.consent_withdraw),
+    path("credit/consented-producers", credit.consented_producers),
+    path("credit/scores/<uuid:producer_id>", credit.score),
 ]
 
 urlpatterns = [

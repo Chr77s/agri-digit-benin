@@ -63,7 +63,7 @@ def run_selection(actor, program, department, target_count, weights):
     if total_w <= 0:
         raise ApiError("Les pondérations doivent être positives.", "validation_error", 400)
     w = {k: v / total_w for k, v in weights.items()}
-    qs = FarmPOC.objects.all()
+    qs = FarmPOC.objects.filter(is_maize=True)  # MODEL_CARD : maïs détecté seulement
     if department:
         qs = qs.filter(department=department)
     # mémoire contenue (~200 000 fermes) : colonnes numériques en tableaux numpy, lecture par itérateur
@@ -79,6 +79,7 @@ def run_selection(actor, program, department, target_count, weights):
     if not ids:
         raise ApiError("Aucune ferme disponible pour ce périmètre (lancez import_poc_farms).", "no_data", 400)
     conf, road, area = np.array(conf), np.array(road), np.array(area)
+    area = np.minimum(area, np.percentile(area, 99))  # plafond au 99e centile (MODEL_CARD)
     scores = w["confidence"] * _norm(conf) + w["road_distance"] * _norm(road, invert=True) + w["area"] * _norm(area)
     order = np.argsort(-scores, kind="stable")
     n = len(ids)

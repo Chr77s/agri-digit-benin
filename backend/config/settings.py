@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.farms",
     "apps.dashboard",
     "apps.exports",
+    "apps.credit",
 ]
 
 MIDDLEWARE = [

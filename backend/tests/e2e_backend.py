@@ -1,4 +1,4 @@
-"""Scénario de démonstration (section 15, étapes 1-7, 9, 10) rejoué contre un serveur lancé sur 127.0.0.1:8000.
+"""Scénario de démonstration (section 15, étapes 1 à 10) rejoué contre un serveur lancé sur 127.0.0.1:8000.
 Usage : python tests/e2e_backend.py [base_url]   (nécessite DEMO_MODE=true, seed_demo et import_poc_farms)."""
 import re
 import sys
@@ -133,6 +133,21 @@ def s7():
     r = c.post(f"{BASE}/programs/{progs['Appui coton 2025']['id']}/apply", headers=h)
     assert r.status_code == 400 and r.json()["code"] == "program_closed", r.text
     assert "31/12/2025" in r.json()["detail"]
+
+
+@step("8. Consentement crédit, l'agent financier consulte le score, consultation journalisée")
+def s8():
+    r = c.post(f"{BASE}/credit/consent", headers=ctx["prod"])
+    assert r.status_code == 201, r.text
+    hf = login("0197000007", PWD)
+    lst = c.get(f"{BASE}/credit/consented-producers", headers=hf).json()["results"]
+    assert any(p["id"] == ctx["producer_id"] for p in lst), lst
+    r = c.get(f"{BASE}/credit/scores/{ctx['producer_id']}", headers=hf)
+    assert r.status_code == 200 and len(r.json()["factors"]) == 5 and "401" in r.json()["disclaimer"], r.text
+    assert c.get(f"{BASE}/credit/scores/{ctx['producer_id']}", headers=ctx["agent"]).status_code == 403
+    ha = login("0197000006", PWD)
+    logs = c.get(f"{BASE}/audit-logs", headers=ha, params={"action": "credit.score_view"}).json()["results"]
+    assert logs and logs[0]["object_id"] == ctx["producer_id"], logs[:1]
 
 
 @step("9. L'auditeur lit le journal ; l'administrateur exporte un CSV avec motif")
