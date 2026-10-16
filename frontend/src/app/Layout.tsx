@@ -2,6 +2,7 @@ import * as RD from '@radix-ui/react-dialog';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './ErrorBoundary';
+import { LEGAL_DOCS } from '../features/legal/LegalPage';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { LogOut, Menu, WifiOff, X } from 'lucide-react';
@@ -174,7 +175,9 @@ export function Layout({ children }: { children?: ReactNode }) {
       <footer className="border-t border-border bg-surface">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm text-muted">
           <p>{t('app.footer')}</p>
-          <Link to="/mentions-legales" className="inline-flex min-h-touch items-center font-semibold text-brand underline">{t('app.legal')}</Link>
+          <nav aria-label={t('legal.nav')} className="flex flex-wrap gap-x-4">
+            {LEGAL_DOCS.map(({ doc, to }) => <Link key={doc} to={to} className="inline-flex min-h-touch items-center font-semibold text-brand underline">{t(`legal.${doc}.title`)}</Link>)}
+          </nav>
         </div>
       </footer>
     </div>

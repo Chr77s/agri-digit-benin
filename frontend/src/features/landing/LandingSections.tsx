@@ -56,6 +56,8 @@ export function LandingFooter({ calm, onToggleCalm }: { calm: boolean; onToggleC
             <h2>{t('landing.footer.info')}</h2>
             <ul>
               <li><Link className="lps-footer-link" to="/mentions-legales">{t('landing.footer.legal')}</Link></li>
+              <li><Link className="lps-footer-link" to="/confidentialite">{t('landing.footer.links.privacy')}</Link></li>
+              <li><Link className="lps-footer-link" to="/conditions-utilisation">{t('landing.footer.links.terms')}</Link></li>
               <li>
                 <button type="button" className="lps-footer-link" aria-pressed={calm} onClick={onToggleCalm}>
                   {t(calm ? 'landing.motion.enable' : 'landing.motion.reduce')}

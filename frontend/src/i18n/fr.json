@@ -667,24 +667,188 @@
     "details": "Détails"
   },
   "legal": {
-    "listen": "Mentions légales. Le ministère de l'Agriculture, de l'Élevage et de la Pêche est responsable du traitement de vos données. Vous pouvez demander l'accès, la correction ou la suppression de vos données.",
+    "nav": "Documents légaux",
     "prototype": "Prototype de démonstration, données non officielles.",
-    "publisherTitle": "Éditeur et responsable du traitement",
-    "publisherText": "Ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), République du Bénin, Cotonou. Le prestataire technique agit en qualité de sous-traitant pour le compte du MAEP (loi n° 2017-20 portant Code du numérique, art. 328).",
-    "hosting": "Hébergement : à décider avec le comité de pilotage (CoPil). Aucune donnée personnelle n'est transférée hors du Bénin (art. 391).",
-    "dataTitle": "Données traitées",
-    "dataIdentity": "Identité : NPI, prénom, nom, sexe, date de naissance (vérifiés auprès de l'ANIP).",
-    "dataContact": "Contact et localisation : téléphone, département, commune, langue préférée.",
-    "dataFarm": "Exploitation : parcelles (contour, surface, statut foncier), campagnes, candidatures aux programmes.",
-    "dataAssistant": "Questions posées à l'assistant (sans donnée de santé ni photo de visage).",
-    "dataNone": "Aucune donnée biométrique, ethnique, religieuse ou politique n'est collectée (art. 394).",
-    "purposeTitle": "Finalités et base légale",
-    "purposeText": "Conseil agricole, alertes, accès aux programmes d'appui et pilotage du secteur. Traitement fondé sur votre consentement explicite, donné séparément et retirable à tout moment (art. 389 et 390). Pour un enfant de moins de 16 ans, le consentement d'un titulaire de l'autorité parentale est requis (art. 446).",
-    "noAutomated": "Aucune décision qui vous affecte (sélection, crédit) n'est prise par un traitement automatisé seul : un agent valide et motive, et vous pouvez contester (art. 401).",
-    "rightsTitle": "Vos droits",
-    "rightsText": "Vous pouvez demander l'accès à vos données, leur correction, leur suppression, et retirer votre consentement dans « Mes consentements ». Les données sont conservées pour la durée nécessaire à la finalité (art. 433). Vous pouvez saisir l'Autorité de protection des données personnelles (APDP).",
-    "contactTitle": "Contact",
-    "contactText": "Délégué à la protection des données du MAEP : <b>à désigner</b>."
+    "updated": "Dernière mise à jour : 16 octobre 2026. Les mentions « à compléter » seront renseignées par le MAEP avant la mise en service.",
+    "notice": {
+      "title": "Mentions légales",
+      "intro": "Qui édite Agri-Digit Bénin, qui l'héberge et à qui appartiennent ses contenus.",
+      "sections": [
+        {
+          "h": "Éditeur et responsable du traitement",
+          "p": [
+            "Ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), République du Bénin, Cotonou. Le prestataire technique agit en qualité de sous-traitant pour le compte du MAEP (loi n° 2017-20 portant Code du numérique, art. 328).",
+            "Directeur ou directrice de la publication : à compléter par le MAEP."
+          ]
+        },
+        {
+          "h": "Conception et réalisation",
+          "p": [
+            "Prestataire technique agissant comme sous-traitant du MAEP : identité à compléter. Il n'utilise les données que sur instruction du MAEP."
+          ]
+        },
+        {
+          "h": "Hébergement",
+          "p": [
+            "Hébergement : à décider avec le comité de pilotage (CoPil). Aucune donnée personnelle n'est transférée hors du Bénin (art. 391)."
+          ]
+        },
+        {
+          "h": "Propriété intellectuelle",
+          "p": [
+            "Les textes, le logo, les illustrations et le code de la plateforme sont la propriété du MAEP, sous réserve du contrat avec le prestataire. Toute reproduction demande son accord.",
+            "Les fiches techniques de l'assistant citent leurs sources ; elles restent soumises aux droits de leurs auteurs."
+          ]
+        },
+        {
+          "h": "Crédits photographiques",
+          "p": [
+            "Galerie « Le Bénin agricole », photos publiées sur Wikimedia Commons sous licence CC BY-SA 4.0 : champ de maïs à Pobé, Rachad Sanoussi ; champ de coton dans l'Atakora, Ji-Elle ; battage du fonio près de Natitingou, Crop Trust.",
+            "Carte du relief : fermes du prototype regroupées par carré d'environ 5 km, données non officielles."
+          ]
+        },
+        {
+          "h": "Contact",
+          "p": [
+            "Pour toute question sur la plateforme, adressez-vous à votre agent ATDA. Délégué à la protection des données du MAEP : à désigner."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "intro": "Mentions légales. Le ministère de l'Agriculture, de l'Élevage et de la Pêche est responsable du traitement de vos données. Vous pouvez demander l'accès, la correction ou la suppression de vos données.",
+      "sections": [
+        {
+          "h": "Responsable du traitement",
+          "p": [
+            "Le ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), dans le cadre de la loi n° 2017-20 portant Code du numérique."
+          ]
+        },
+        {
+          "h": "Données traitées",
+          "p": [
+            "Identité : NPI, prénom, nom, sexe, date de naissance (vérifiés auprès de l'ANIP).",
+            "Contact et localisation : téléphone, département, commune, langue préférée.",
+            "Exploitation : parcelles (contour, surface, statut foncier), campagnes, candidatures aux programmes.",
+            "Questions posées à l'assistant (sans donnée de santé ni photo de visage).",
+            "Aucune donnée biométrique, ethnique, religieuse ou politique n'est collectée (art. 394)."
+          ]
+        },
+        {
+          "h": "Finalités et base légale",
+          "p": [
+            "Conseil agricole, alertes, accès aux programmes d'appui et pilotage du secteur. Traitement fondé sur votre consentement explicite, donné séparément et retirable à tout moment (art. 389 et 390). Pour un enfant de moins de 16 ans, le consentement d'un titulaire de l'autorité parentale est requis (art. 446).",
+            "Aucune décision qui vous affecte (sélection, crédit) n'est prise par un traitement automatisé seul : un agent valide et motive, et vous pouvez contester (art. 401)."
+          ]
+        },
+        {
+          "h": "Qui voit vos données",
+          "p": [
+            "Votre agent ATDA et les responsables des programmes auxquels vous postulez, chacun dans son périmètre.",
+            "Un organisme de crédit ne voit vos informations qu'avec votre accord explicite, que vous pouvez retirer à tout moment.",
+            "Les tableaux de bord du ministère n'affichent que des chiffres agrégés, sans nom ni téléphone."
+          ]
+        },
+        {
+          "h": "Durée de conservation",
+          "p": [
+            "Chaque type de donnée a une durée de conservation, après laquelle il est supprimé (art. 433). Les durées seront fixées avec le délégué à la protection des données."
+          ]
+        },
+        {
+          "h": "Sécurité",
+          "p": [
+            "Connexion par un code à usage unique envoyé sur votre téléphone, accès limité selon le rôle de chacun, et journal non modifiable de chaque consultation et de chaque export."
+          ]
+        },
+        {
+          "h": "Stockage sur votre appareil",
+          "p": [
+            "Agri-Digit n'utilise ni cookie publicitaire ni outil de mesure d'audience. Il garde seulement sur votre appareil : un cookie de session pour rester connecté, votre langue, votre thème, votre choix d'animations, et les saisies faites hors connexion jusqu'à leur envoi."
+          ]
+        },
+        {
+          "h": "Transferts hors du Bénin",
+          "p": [
+            "Aucune donnée personnelle n'est transférée hors du Bénin (art. 391). Les services externes éventuels ne reçoivent que des questions anonymes, après avis de l'APDP."
+          ]
+        },
+        {
+          "h": "Vos droits",
+          "p": [
+            "Vous pouvez demander l'accès à vos données, leur correction, leur suppression, et retirer votre consentement dans « Mes consentements ». Les données sont conservées pour la durée nécessaire à la finalité (art. 433). Vous pouvez saisir l'Autorité de protection des données personnelles (APDP)."
+          ]
+        },
+        {
+          "h": "Contact",
+          "p": [
+            "Délégué à la protection des données du MAEP : à désigner. En attendant, adressez votre demande à votre agent ATDA."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "intro": "Les règles d'usage d'Agri-Digit Bénin, pour les producteurs, les agents et les partenaires.",
+      "sections": [
+        {
+          "h": "Objet",
+          "p": [
+            "Agri-Digit Bénin réunit le suivi des parcelles et des campagnes, le conseil agricole, les alertes, l'accès aux programmes d'appui et la mise en relation sur le marché. Utiliser la plateforme vaut acceptation de ces conditions."
+          ]
+        },
+        {
+          "h": "Compte",
+          "p": [
+            "Le compte est créé avec votre numéro de téléphone ; un code à usage unique vous est envoyé à chaque connexion. Vous vous engagez à fournir des informations exactes. Votre fiche est validée par un agent ATDA.",
+            "Le compte est personnel : ne communiquez jamais vos codes de connexion."
+          ]
+        },
+        {
+          "h": "Bon usage",
+          "p": [
+            "Il est interdit d'usurper l'identité d'une autre personne, de déclarer des parcelles ou des récoltes fausses, de publier des offres trompeuses ou d'utiliser les données d'autrui hors du cadre prévu. Tout manquement peut entraîner la suspension du compte."
+          ]
+        },
+        {
+          "h": "Conseils et diagnostics",
+          "p": [
+            "Les réponses de l'assistant et les diagnostics photo sont indicatifs. Vérifiez-les avec votre agent ATDA avant d'agir. Pour toute dose de produit, l'assistant vous renvoie vers un agent."
+          ]
+        },
+        {
+          "h": "Programmes d'appui",
+          "p": [
+            "Chaque décision de sélection est prise et motivée par un agent, jamais par un traitement automatisé seul. Vous pouvez la contester depuis votre espace."
+          ]
+        },
+        {
+          "h": "Marché",
+          "p": [
+            "La plateforme met en relation vendeurs et acheteurs. Le prix, la qualité et la livraison relèvent de l'accord entre les parties ; signalez tout abus à votre agent ATDA."
+          ]
+        },
+        {
+          "h": "Disponibilité",
+          "p": [
+            "Le service est accessible sans interruption autant que possible, y compris en saisie hors connexion. Des interruptions pour maintenance peuvent survenir."
+          ]
+        },
+        {
+          "h": "Évolution des conditions",
+          "p": [
+            "Ces conditions peuvent évoluer ; la date de mise à jour figure en bas de page. Les changements importants vous sont signalés dans l'application."
+          ]
+        },
+        {
+          "h": "Droit applicable",
+          "p": [
+            "Ces conditions relèvent du droit béninois, notamment de la loi n° 2017-20 portant Code du numérique."
+          ]
+        }
+      ]
+    }
   },
   "dashboard": {
     "allCountry": "Tout le Bénin",
@@ -1131,7 +1295,9 @@
         "qui": "Pour qui",
         "faq": "Questions fréquentes",
         "register": "Créer un compte producteur",
-        "login": "Se connecter"
+        "login": "Se connecter",
+        "privacy": "Confidentialité",
+        "terms": "Conditions d'utilisation"
       }
     },
     "lang": {

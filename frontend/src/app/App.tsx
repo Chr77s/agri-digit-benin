@@ -5,7 +5,7 @@ import { useAuth } from '../features/auth/AuthContext';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/producers/RegisterPage';
 import { ProducerHome } from '../features/producers/ProducerHome';
-import { LegalPage } from '../features/legal/LegalPage';
+import { LEGAL_DOCS, LegalPage } from '../features/legal/LegalPage';
 import { Layout, NAV } from './Layout';
 import { Skeleton } from '../shared/ui';
 import type { Role } from '../shared/api/types';
@@ -76,7 +76,7 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/connexion" element={ready && user ? <Navigate to="/" replace /> : <LoginPage />} />
         <Route path="/inscription" element={<RegisterPage />} />
-        <Route path="/mentions-legales" element={<LegalPage />} />
+        {LEGAL_DOCS.map(({ doc, to }) => <Route key={doc} path={to} element={<LegalPage doc={doc} />} />)}
         <Route path="/parcelles" element={<Guard roles={['producteur']}><ParcelsPage /></Guard>} />
         <Route path="/campagnes" element={<Guard roles={['producteur', 'agent_atda']}><CampaignsPage /></Guard>} />
         <Route path="/assistant" element={<Guard><AssistantPage /></Guard>} />
