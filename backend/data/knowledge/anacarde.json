@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "anacarde",
+    "title": "Création de plantations d'anacardiers avec des plants greffés",
+    "body": "Les greffons sont prélevés sur des arbres élites identifiés par l'INRAB. Le porte-greffe est un jeune plant issu de graine saine pré-germée en pépinière ; le greffage se fait en fente terminale sur des plants de moins d'un mois. Il faut environ trois mois pour obtenir un plant greffé transplantable. Plantation au champ à 10 m x 10 m. Zones : Collines, Borgou, Donga, Zou, Atacora, Alibori, Plateau nord, Couffo nord.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche A-1, p. 25 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Réhabilitation des anciennes plantations d'anacardiers",
+    "body": "Éclaircir les plantations trop denses en éliminant les arbres improductifs, élaguer les branches touffues, surgreffer les rejets des souches improductives. Après éclaircie, associer des légumineuses (soja, arachide, voandzou, pois de terre) pour contrôler les mauvaises herbes. Éviter le niébé, le pois d'Angole et les céréales en association.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche A-2, p. 26 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Entretien de la plantation d'anacardiers par cultures associées",
+    "body": "Les légumineuses associées après l'éclaircie et l'élagage limitent l'enherbement et économisent du temps et des intrants. Les associations à éviter sont le niébé, le pois d'Angole et les céréales.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche A-2, p. 26 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Préparation du terrain pour l'anacardier",
+    "body": "Défricher en gardant les arbres utiles, piqueter, creuser les trous de plantation avant les pluies. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Plantation de l'anacardier",
+    "body": "Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles. Planter les plants greffés en début de saison des pluies, quand le sol est humide. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Fertilisation de l'anacardier",
+    "body": "Apporter de la matière organique au trou de plantation. Les apports d'engrais se décident avec l'agent ; aucune dose n'est donnée dans cette fiche de démonstration.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Ravageurs et maladies de l'anacardier",
+    "body": "Surveiller l'anthracnose sur les jeunes pousses et les fleurs, et les insectes piqueurs. Entretenir des pare-feu autour de la plantation. Les produits de traitement et leurs doses ne sont pas donnés ici : ils doivent être prescrits par un agent ATDA ou un technicien agréé.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "anacarde",
+    "title": "Récolte et séchage des noix de cajou",
+    "body": "Ramasser les noix tombées au sol régulièrement, séparer la noix de la pomme, sécher les noix au soleil sur une bâche puis les stocker en sacs de jute sur palettes, dans un local sec et aéré. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

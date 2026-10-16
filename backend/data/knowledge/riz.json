@@ -1,0 +1,74 @@
+[
+  {
+    "value_chain": "riz",
+    "title": "Variété de riz NERICA 1",
+    "body": "Variété de l'INRAB et AfricaRice : bon tallage, précoce, rendement potentiel 4,5 t/ha (environ 2 t/ha en milieu paysan). Résistance assez bonne à la pyriculariose, moyenne aux insectes et à la verse, sensible à la sécheresse. Grain long, aromatique, bonne qualité de cuisson. Zone : tout le Bénin.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche E-1, p. 107 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Battage du riz paddy : batteuse-vanneuse",
+    "body": "Une batteuse-vanneuse à moteur, avec vannage et tamis vibrant, permet un battage beaucoup plus rapide que la pratique manuelle. Contraintes : coût élevé, machine lourde à tracter dans les bas-fonds.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche E-20, p. 126 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Séchage mixte du riz paddy",
+    "body": "Sécher le paddy au soleil jusqu'à environ 16 % d'humidité, puis le mettre à l'ombre sous un hangar jusqu'à environ 12 %. Le rendement au décorticage augmente et la part de brisures baisse, mais le séchage est plus long qu'au soleil seul.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche E-27, p. 133 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Préparation du sol pour le riz de bas-fond",
+    "body": "Aménager la parcelle pour retenir et évacuer l'eau (diguettes, planage). Nettoyer et labourer avant la mise en boue. Fiche de démonstration à valider par l'INRAB et l'ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Semis et repiquage du riz",
+    "body": "Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles. Le riz peut être semé directement ou repiqué depuis une pépinière. Utiliser des semences certifiées. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Fertilisation du riz",
+    "body": "Apporter une fumure de fond puis des apports fractionnés selon le stade, d'après la recommandation de l'ATDA pour votre bas-fond. Aucune dose n'est fixée dans cette fiche de démonstration.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Entretien du riz : eau et désherbage",
+    "body": "Maintenir une lame d'eau régulière pendant le tallage, désherber tôt, surveiller les diguettes. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Ravageurs et maladies du riz",
+    "body": "Surveiller les foreurs de tiges, les oiseaux à la maturation et la pyriculariose (taches en losange sur les feuilles). Choisir une variété résistante et signaler toute attaque à l'agent ATDA. Les produits de traitement et leurs doses ne sont pas donnés ici : ils doivent être prescrits par un agent ATDA ou un technicien agréé.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "riz",
+    "title": "Récolte et stockage du riz",
+    "body": "Récolter quand la majorité des grains de la panicule sont jaunes et durs. Battre rapidement, sécher, puis stocker en sacs propres sur palettes dans un local aéré. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

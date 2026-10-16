@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "coton",
+    "title": "Variété de cotonnier H 279-1",
+    "body": "Variété du CRA-CF/INRAB, cycle semis-maturité d'environ 180 jours, rendement potentiel 4 t/ha, rendement à l'égrenage d'environ 43 %. Tolérante à la bactériose. Variété largement adoptée mais progressivement délaissée.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche G-1, p. 151 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Variété de cotonnier ANG 956 (Alibori, Atacora)",
+    "body": "Variété du CRA-CF/INRAB, cycle d'environ 180 jours, rendement potentiel 4,5 t/ha, rendement à l'égrenage d'environ 44 %, peu sensible à la bactériose. Zone : Alibori et Atacora.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche G-2, p. 152 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Préparation du sol pour le coton",
+    "body": "Nettoyer la parcelle, labourer ou billonner avant le semis. Fiche de démonstration à valider par l'INRAB et l'ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Semis du coton",
+    "body": "Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles. Le coton est surtout cultivé au nord et au centre. Semer en lignes avec des semences fournies par la filière. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Fertilisation du coton",
+    "body": "Les engrais du coton sont fournis par la filière avec un calendrier d'apport. Suivre la recommandation de l'agent ; aucune dose n'est donnée dans cette fiche de démonstration.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Entretien du coton",
+    "body": "Sarcler tôt, démarier, buttage selon le système pratiqué. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Ravageurs du coton",
+    "body": "Surveiller régulièrement les chenilles des capsules, les pucerons et les punaises. Les traitements suivent le programme de la filière. Les produits de traitement et leurs doses ne sont pas donnés ici : ils doivent être prescrits par un agent ATDA ou un technicien agréé.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "coton",
+    "title": "Récolte et stockage du coton graine",
+    "body": "Récolter les capsules bien ouvertes, par temps sec, en séparant le coton propre du coton sale. Stocker sur une bâche ou un plancher propre, à l'abri de la pluie et de la poussière, jusqu'à l'enlèvement. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

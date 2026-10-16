@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "ananas",
+    "title": "Production d'ananas biologique",
+    "body": "L'INRAB et ses partenaires ont décrit un itinéraire de production d'ananas biologique selon les normes du commerce équitable, avec les apports de fumure organique et les traitements autorisés. Zones : Atlantique, Ouémé, Plateau, Couffo, Mono. Contrainte : peu de formation disponible pour les producteurs.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche B-1, p. 33 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Paillage plastique contre les mauvaises herbes en ananas",
+    "body": "Après la préparation du sol, couvrir le sol d'un film polyéthylène puis planter les rejets. Le film empêche les mauvaises herbes et limite l'évaporation. Contrainte : film peu disponible et coûteux sur le marché béninois.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche B-2, p. 34 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Production rapide de rejets d'ananas après la récolte",
+    "body": "Après la récolte des fruits : désherber, rabattre les feuilles deux à quatre semaines après la récolte par temps humide pour stimuler les rejets, protéger les plants, puis récolter les rejets et les mettre en pépinière. On obtient 9 à 10 rejets par souche. Les produits de traitement sont à prescrire par l'agent.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche B-3, p. 35 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Préparation du matériel de plantation d'ananas",
+    "body": "Planter des rejets sains et calibrés (les rejets de bonne qualité pèsent 350 à 400 g selon la fiche INRAB), issus de souches entretenues, de préférence des variétés Cayenne lisse ou MD2.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche B-3, p. 35 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Préparation du sol pour l'ananas",
+    "body": "Défricher, labourer et confectionner des planches ou billons. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Plantation de l'ananas",
+    "body": "L'ananas est cultivé surtout au sud, où il y a deux saisons des pluies. Planter en début de saison des pluies sur sol humide. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Induction florale et entretien de l'ananas",
+    "body": "Désherber régulièrement si le sol n'est pas paillé. Le traitement d'induction florale se fait selon la recommandation de l'agent ; aucune dose n'est donnée ici.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "ananas",
+    "title": "Récolte et conservation de l'ananas",
+    "body": "Récolter selon la coloration attendue par le marché, manipuler les fruits sans choc, les garder à l'ombre et les écouler vite. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

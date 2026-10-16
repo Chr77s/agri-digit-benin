@@ -1,0 +1,51 @@
+# Fiche descriptive des grilles de score
+
+Deux grilles transparentes, sans apprentissage automatique en v1 : (1) score de sélection des bénéficiaires (UC-17), (2) score de crédit (UC-19, UC-20). Les poids ci-dessous sont les valeurs par défaut du prototype, **non calibrées sur des données réelles**. Si le code (`backend/apps/programs`) diffère, le code fait foi et ce document doit être mis à jour.
+
+## 1. Score de sélection des bénéficiaires
+
+- Usage prévu : classer des exploitations pour proposer une liste de bénéficiaires à un agent. Le résultat est une **proposition** (statut `proposition`) ; un agent différent du lanceur la valide avec un motif (art. 401).
+- Usage exclu : décision automatique, exclusion définitive, évaluation d'une personne.
+- Données : exploitations du POC (`farms_analyzed.json`) : `conf`, `road`, `a`, `maize`. Filtre par défaut : `maize = 1` (maïs détecté) et, si fourni, département.
+
+| Facteur | Champ source | Transformation | Poids par défaut | Sens |
+| --- | --- | --- | --- | --- |
+| Confiance de détection | `conf` | normalisation min-max sur les candidats | 0,4 | plus la détection est sûre, plus le score monte |
+| Distance à la route | `road` (m) | 1 - normalisation min-max | 0,3 | plus l'exploitation est proche d'une route, plus le score monte |
+| Taille de l'exploitation | `a` (ha) | normalisation min-max, plafonnée au 99e centile | 0,3 | plus l'exploitation est grande, plus le score monte |
+
+Score = somme des contributions (poids x valeur normalisée), entre 0 et 1. Rang par score décroissant ; les `target_count` premiers sont `selected`. Les poids sont fixés avant le calcul, enregistrés avec le résultat (`selection_run.weights`) et modifiables par le responsable de programme (somme ramenée à 1).
+
+Limites :
+- Le critère distance favorise les exploitations proches des routes : il peut écarter les plus isolées, souvent les plus vulnérables. À discuter avec le MAEP selon l'objectif du programme (efficacité logistique ou équité).
+- Le critère superficie favorise les grandes exploitations. Pour un programme d'appui aux petits producteurs, inverser ou retirer ce poids.
+- Détection satellite d'origine non documentée, date d'acquisition inconnue, erreurs possibles sur cultures associées.
+- Exploitation non rattachée à un producteur identifié dans le prototype.
+
+## 2. Score de crédit
+
+- Usage prévu : aide à l'appréciation par un agent financier d'un producteur qui a donné un consentement explicite et révocable. La décision de crédit reste hors plateforme.
+- Accès : seulement si le consentement est actif ; chaque consultation est journalisée et visible par l'auditeur.
+
+| Facteur | Source | Transformation | Poids par défaut |
+| --- | --- | --- | --- |
+| Fiche validée et ancienneté | `producer.validated_at` | 0 si non validée, puis croissant jusqu'à 3 campagnes | 0,2 |
+| Superficie cultivée | somme `parcel.area_ha` (calculée serveur) | plafonnée, normalisée | 0,2 |
+| Campagnes suivies jusqu'à la récolte | `campaign.stage = recolte` | part des campagnes complètes | 0,25 |
+| Appuis remboursés | `input_support` à rembourser | part remboursée ; neutre (0,5) si aucun appui | 0,25 |
+| Diversification | nombre de filières | 1 filière : 0 ; 2 ou plus : 1 | 0,1 |
+
+Score affiché sur 100 avec, pour chaque facteur : nom, poids, valeur, contribution. Mention affichée : "Le score est une aide. La décision revient à une personne."
+
+Données jamais utilisées : sexe, âge, langue, commune en tant que telle, données sensibles (art. 394), contenu des questions à l'assistant.
+
+Limites : aucune calibration sur des remboursements réels ; peu de données pour un nouveau producteur (score neutre, pas défavorable) ; les données déclaratives non vérifiées peuvent biaiser le score.
+
+## 3. Contestation
+
+- Sélection : un producteur ou un agent pour son compte conteste via `POST /selection-runs/{id}/contest` (`farm_id`, motif). Statut `deposee`, traitée par un agent qui motive sa réponse ; journalisé.
+- Crédit : le producteur voit ses facteurs, peut signaler une donnée inexacte (correction par l'agent, nouvelle version de la fiche) et retirer son consentement à tout moment.
+
+## 4. Évolution
+
+Calibration sur données réelles avec scikit-learn seulement après AIPD finale (art. 428), en gardant un modèle explicable (régression logistique) et un suivi des écarts par département et par sexe.

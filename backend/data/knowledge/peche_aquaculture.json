@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Tilapia souche S2 INRAB",
+    "body": "Souche de tilapia Oreochromis niloticus de couleur gris brillant, pouvant atteindre 250 à 300 g en un cycle de 4 à 5 mois ; rendement de 1,5 à 2 t/ha en bassin en parpaing. Zones : sud et centre. Contraintes : qualité des aliments, disponibilité des alevins.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche J-1, p. 191 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Aliment local pour tilapia à base de son de maïs",
+    "body": "Granulés locaux à base de son de maïs jaune et d'autres ingrédients, avec environ 20 % de protéines, adaptés aux juvéniles en grossissement. Contrainte : disponibilité et qualité du son de maïs.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche J-2, p. 192 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Élevage de poissons-chats en whedo",
+    "body": "Les whedos (trous à poissons des plaines inondables) compartimentés permettent d'élever des poissons-chats. L'INRAB et l'UAC ont comparé plusieurs densités de mise en charge pour trouver la densité optimale. Contrainte : coût et rareté des aliments pour poisson.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche J-3, p. 193 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Vers de terre pour nourrir les poissons",
+    "body": "La production de vers de fumier et de vers de terreau, puis leur transformation en farine, fournit une source de protéines pour l'alimentation des poissons.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche S-4 et S-5, p. 282-283 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Préparation de l'étang ou du bassin",
+    "body": "Vérifier l'étanchéité, l'arrivée et la sortie d'eau, nettoyer le fond avant la mise en eau. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Empoissonnement",
+    "body": "Acheter des alevins sains auprès d'une écloserie connue, les acclimater progressivement à l'eau du bassin. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Suivi sanitaire des poissons",
+    "body": "Observer chaque jour le comportement des poissons ; une mortalité soudaine ou des poissons qui respirent en surface demandent l'appel d'un technicien. Aucun médicament ni dose n'est indiqué ici : le traitement doit être prescrit par un vétérinaire ou un agent d'élevage.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "peche_aquaculture",
+    "title": "Récolte et conservation du poisson",
+    "body": "Pêcher tôt le matin, garder le poisson au frais (glace) ou le transformer (fumage, séchage) sur des claies propres. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

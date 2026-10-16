@@ -1,0 +1,121 @@
+%% Modèle de domaine (section 7 du MASTER_PROMPT). Identifiants UUID partout, non répétés ici.
+classDiagram
+  direction LR
+
+  class User {
+    phone
+    full_name
+    role
+    department
+    commune
+    language
+    is_active
+  }
+  class Producer {
+    code
+    npi
+    first_name
+    last_name
+    sex
+    birth_date
+    commune
+    status
+    reject_reason
+  }
+  class ProducerVersion {
+    data
+    created_at
+  }
+  class Consent {
+    type
+    text_version
+    channel
+    given_at
+    withdrawn_at
+  }
+  class Parcel {
+    geometry
+    area_ha
+    land_type
+    tenure
+  }
+  class Campaign {
+    season
+    stage
+  }
+  class ValueChain {
+    code
+    name
+  }
+  class KnowledgeDoc {
+    title
+    body
+    source
+    version
+    status
+    language
+    language_validation
+  }
+  class AssistantLog {
+    question
+    cited_docs
+    escalated
+  }
+  class Alert {
+    category
+    severity
+    status
+  }
+  class Notification {
+    channel
+    status
+  }
+  class Program {
+    name
+    closes_at
+  }
+  class Application {
+    status
+    reason
+  }
+  class SelectionRun {
+    weights
+    target_count
+    status
+    validation_reason
+  }
+  class Farm {
+    poc_id
+    area_ha
+    maize
+    confidence
+    road_distance_m
+    geometry
+  }
+  class CreditScore {
+    score
+    factors
+  }
+  class AuditLog {
+    at
+    action
+    object_type
+    object_id
+    details
+  }
+
+  User "1" -- "0..1" Producer : compte de
+  Producer "1" -- "1..*" ProducerVersion : historise
+  Producer "1" -- "1..*" Consent : donne
+  Producer "1" -- "0..*" Parcel : exploite
+  Parcel "1" -- "0..*" Campaign : porte
+  Campaign "0..*" -- "1" ValueChain : culture
+  KnowledgeDoc "0..*" -- "1" ValueChain : concerne
+  AssistantLog "0..*" -- "0..*" KnowledgeDoc : cite
+  Alert "1" -- "0..*" Notification : produit
+  Program "1" -- "0..*" Application : reçoit
+  Producer "1" -- "0..*" Application : dépose
+  SelectionRun "0..*" -- "0..1" Program : propose pour
+  SelectionRun "1" -- "0..*" Farm : classe
+  Producer "1" -- "0..*" CreditScore : évalué par
+  User "1" -- "0..*" AuditLog : auteur de

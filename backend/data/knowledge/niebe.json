@@ -1,0 +1,74 @@
+[
+  {
+    "value_chain": "niebe",
+    "title": "Variété de niébé IT 98D-1399",
+    "body": "Variété du CRA-Sud/INRAB, port érigé, cycle de 75 à 80 jours, rendement potentiel 2,5 t/ha, grain blanchâtre, cuisson rapide. Zones : Sud-Bénin, Zou-Collines, Atacora, Donga.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche M-1, p. 211 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Extrait de feuilles de neem ou de papayer contre les ravageurs du niébé",
+    "body": "Un extrait aqueux de feuilles de neem ou de papayer, préparé la veille et filtré, est pulvérisé dès l'apparition des boutons floraux puis à intervalles réguliers jusqu'à la récolte. Les quantités et le calendrier de traitement sont dans la fiche INRAB et doivent être expliqués par l'agent ATDA.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche M-11, p. 221 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Désinfection solaire du niébé avant stockage",
+    "body": "Étaler de la paille au sol, poser une bâche plastique noire, étaler les graines dessus, couvrir d'une bâche transparente et joindre les bords. La chaleur désinfecte les graines avant le stockage.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche M-12, p. 222 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Silo métallique pour stocker le niébé",
+    "body": "Structure de stockage en tôle galvanisée. Les pertes sans traitement des grains restent faibles (de l'ordre de 3 à 5 %). Contrainte : coût et fabrication par un artisan équipé.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche M-13, p. 223 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Sac PICS (triple ensachage) pour le niébé",
+    "body": "Le sac PICS associe un sac en polypropylène tissé et deux sacs en polyéthylène épais : le stockage est hermétique, ce qui limite les insectes. Bien fermer chaque sac l'un après l'autre.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche M-15, p. 225 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Préparation du sol pour le niébé",
+    "body": "Le niébé demande un sol bien drainé ; labour léger ou semis sur billons. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Semis du niébé",
+    "body": "Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles. Semer en lignes des semences saines. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Fertilisation et entretien du niébé",
+    "body": "Le niébé fixe l'azote ; un apport organique modéré suffit souvent. Sarcler tôt. Aucune dose d'engrais n'est donnée dans cette fiche de démonstration.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "niebe",
+    "title": "Récolte du niébé",
+    "body": "Récolter les gousses sèches au fur et à mesure, battre et sécher les graines avant la désinfection et le stockage. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

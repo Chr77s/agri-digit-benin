@@ -1,0 +1,51 @@
+%% Diagramme de cas d'utilisation (Mermaid n'a pas de type "use case" : flowchart, acteurs à gauche/droite, cas dans le cadre du système)
+flowchart LR
+  producteur([Producteur])
+  agent([Agent ATDA])
+  agronome([Agronome INRAB])
+  mtdi([Représentant MTDI])
+  resp([Responsable de programme])
+  financier([Agent financier])
+  admin([Administrateur MAEP])
+  auditeur([Auditeur CoPil])
+  anip[[ANIP - simulé]]
+  sms[[SMS / vocal - simulés]]
+  pay[[Mobile Money - FakePay]]
+
+  subgraph SYS[Agri-Digit Bénin]
+    UC01((UC-01 Se connecter par code))
+    UC02((UC-02 Gérer les comptes))
+    UC03((UC-03 Consulter le journal d'audit))
+    UC04((UC-04 S'inscrire avec NPI et consentement))
+    UC05((UC-05 Valider ou rejeter une inscription))
+    UC08((UC-08 Dessiner une parcelle))
+    UC09((UC-09 Suivre une campagne))
+    UC12((UC-12 Interroger l'assistant))
+    UC13((UC-13 Diagnostic par photo))
+    UC14((UC-14 Publier une fiche))
+    UC15((UC-15 Noter les traductions))
+    UC16((UC-16 Envoyer une alerte))
+    UC17((UC-17 Sélectionner des bénéficiaires))
+    UC18((UC-18 Candidater à un programme))
+    UC19((UC-19 Consentir au score de crédit))
+    UC20((UC-20 Consulter un score))
+    UC21((UC-21 Vendre et payer))
+    UC22((UC-22 Tableau de bord))
+    UC24((UC-24 Exporter en CSV))
+  end
+
+  producteur --- UC01 & UC04 & UC08 & UC09 & UC12 & UC13 & UC18 & UC19 & UC21
+  agent --- UC01 & UC05 & UC08 & UC09 & UC16 & UC17 & UC22
+  agronome --- UC14
+  mtdi --- UC15
+  resp --- UC17 & UC18 & UC22
+  financier --- UC20
+  admin --- UC02 & UC03 & UC22 & UC24
+  auditeur --- UC03
+
+  UC04 -. include .-> anip
+  UC01 -. include .-> sms
+  UC16 -. include .-> sms
+  UC21 -. include .-> pay
+  UC20 -. requiert .-> UC19
+  UC12 -. lit les fiches publiées .-> UC14

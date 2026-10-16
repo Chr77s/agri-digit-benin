@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "soja",
+    "title": "Variété de soja TGX 1910-10F",
+    "body": "Variété à cycle de 90 à 100 jours, gousses non déhiscentes, graines ovales jaune beurré appréciées des commerçants. Adaptée au sud, au centre et au nord du Bénin. Rendement de la technologie : 2 500 kg/ha.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche K-1, p. 197 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Inoculum à base de Rhizobium pour le soja",
+    "body": "Engrais biologique pour légumineuses : il augmente la fixation de l'azote de l'air par la plante, la biomasse et le rendement en graines. Zones : sud, centre et nord. Toutes les variétés n'ont pas le même pouvoir de nodulation.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche K-6, p. 202 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Soja associé aux anacardiers",
+    "body": "Le soja fait partie des légumineuses recommandées en association dans les plantations d'anacardiers réhabilitées, pour contrôler les mauvaises herbes.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche A-2, p. 26 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Préparation du sol pour le soja",
+    "body": "Choisir un sol bien drainé, labourer ou billonner, semer sur sol propre. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Semis du soja",
+    "body": "Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles. Semer en lignes des semences de bonne qualité, inoculées si possible. Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Entretien du soja",
+    "body": "Sarcler deux fois pendant les premières semaines. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Ravageurs du soja",
+    "body": "Surveiller les chenilles défoliatrices et les punaises des gousses. Signaler les attaques à l'agent. Les produits de traitement et leurs doses ne sont pas donnés ici : ils doivent être prescrits par un agent ATDA ou un technicien agréé.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "soja",
+    "title": "Récolte et stockage du soja",
+    "body": "Récolter quand les feuilles sont tombées et les gousses sèches, sans attendre trop longtemps. Battre, vanner, sécher et stocker en sacs propres sur palettes. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

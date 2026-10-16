@@ -1,0 +1,66 @@
+[
+  {
+    "value_chain": "manioc",
+    "title": "Variété de manioc BEN 86052",
+    "body": "Variété du CRA-Sud/INRAB, cycle de 12 mois, rendement potentiel 20 t/ha de racines fraîches. Résistante à la mosaïque et à l'anthracnose, tolérante à la cochenille farineuse et aux acariens verts, sensible à la bactériose. Tolère la sécheresse. Type doux, apte au gari, au tapioca, au lafou et aux cossettes. Zone : toutes les régions productrices.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche F-1, p. 137 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Manioc en système sédentarisé avec Gliricidia et Aeschynomene",
+    "body": "Des arbustes de Gliricidia sepium plantés à écartement large, complétés dès la deuxième année par la légumineuse Aeschynomene histrix, produisent de la biomasse qui fertilise le sol. Les arbustes sont coupés à environ 1,5 m et élagués deux à trois fois par cycle. Zone : sud et centre.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche F-10, p. 146 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Fumier de ferme pour le manioc",
+    "body": "Les producteurs qui ont des animaux de trait peuvent fertiliser le manioc avec du fumier d'étable apporté en poquet, par exemple sur BEN 86052 installé en relais après le maïs. Contraintes : transport et épandage du fumier.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche F-11, p. 147 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Maladies du manioc : choisir une variété résistante",
+    "body": "La mosaïque, l'anthracnose, la bactériose, la cochenille farineuse et les acariens verts sont les principaux problèmes cités. Le premier moyen de lutte est la variété : BEN 86052 résiste à la mosaïque et à l'anthracnose mais reste sensible à la bactériose. Utiliser des boutures saines.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche F-1, p. 137 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Préparation du sol et plantation du manioc",
+    "body": "Labourer ou faire des buttes ou billons. Planter des boutures saines prélevées sur des tiges mûres. Au Bénin, le calendrier dépend de la zone : le nord connaît une seule saison des pluies (semis en général à l'installation des pluies, vers juin-juillet) ; le sud connaît deux saisons des pluies, donc deux périodes de semis possibles.  Demandez la date adaptée à votre commune à votre agent ATDA.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Entretien du manioc",
+    "body": "Sarcler les premiers mois, tant que le feuillage ne couvre pas le sol. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Récolte du manioc",
+    "body": "Récolter à maturité selon la variété, en soulevant les racines sans les blesser. Transformer vite, car les racines fraîches se conservent mal. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "manioc",
+    "title": "Conservation et transformation du manioc",
+    "body": "Les racines fraîches s'abîment en quelques jours : les transformer en gari, cossettes ou tapioca, puis conserver les produits secs dans des sacs propres à l'abri de l'humidité. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]

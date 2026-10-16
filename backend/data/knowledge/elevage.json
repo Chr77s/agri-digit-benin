@@ -1,0 +1,74 @@
+[
+  {
+    "value_chain": "elevage",
+    "title": "Ration locale pour poussins",
+    "body": "Une ration composée de son de maïs, cossettes de manioc, galette d'arachide (kluiklui), farine de débris de poisson, farine de Boerhavia diffusa, kaolin, sel et huile rouge s'est montrée plus rentable que l'aliment commercial. Zones : sud, centre et nord.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-1, p. 171 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Pondoirs pour améliorer la ponte des poules locales",
+    "body": "Des pondoirs en bois de 30 cm x 20 cm x 15 cm, ouverts sur une face, sont mis à la disposition de chaque poule en début de ponte. Le taux de ponte passe d'environ 60 % à 90 % selon la fiche. Toutes les communes.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-2, p. 172 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Élevage des poussins sous panier",
+    "body": "Laissés en divagation derrière la mère, très peu de poussins survivent. Garder les poussins sous des paniers pendant 8 semaines réduit fortement la mortalité.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-4, p. 174 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Parasites de la volaille locale : méthode à base de plantes",
+    "body": "L'INRAB a mis au point une méthode à base d'extraits de plantes contre les parasites internes et externes des poulets locaux. La préparation et l'usage doivent être expliqués par un agent d'élevage. Aucun médicament ni dose n'est indiqué ici : le traitement doit être prescrit par un vétérinaire ou un agent d'élevage.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-3, p. 173 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Gale des petits ruminants",
+    "body": "La gale se reconnaît à des démangeaisons, des croûtes et une perte de poils. Des méthodes traditionnelles et modernes de traitement existent (fiche INRAB). Aucun médicament ni dose n'est indiqué ici : le traitement doit être prescrit par un vétérinaire ou un agent d'élevage.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-5, p. 175 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Habitat des petits ruminants en zone inondable",
+    "body": "Dans les zones lacustres et les vallées, un habitat surélevé et adapté évite les noyades et les maladies, et facilite l'alimentation des animaux en période de crue.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-10, p. 180 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Alimentation des bœufs de trait en saison sèche",
+    "body": "Installer des cultures fourragères et les incorporer à la ration des bœufs de trait pendant la saison sèche. Zones : Borgou, Atacora, Donga, Alibori.",
+    "source": "INRAB, « Recueil des technologies agricoles prometteuses développées par le système national de recherche agricole », fiche I-12, p. 182 (https://www.inrab.bj/uploads_files/categories/files/Recueil-des-technologies-agricoles-prometteuses-d-velopp-es-par-le-syst-me-national-de-recherche-agricole-5fd745412517e.pdf)",
+    "status": "publie",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Vaccination et suivi sanitaire des animaux",
+    "body": "Respecter le calendrier de vaccination fixé par les services vétérinaires (par exemple contre la maladie de Newcastle chez la volaille). Isoler les animaux malades et appeler l'agent. Aucun médicament ni dose n'est indiqué ici : le traitement doit être prescrit par un vétérinaire ou un agent d'élevage.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  },
+  {
+    "value_chain": "elevage",
+    "title": "Abreuvement et hygiène",
+    "body": "Donner de l'eau propre en permanence, nettoyer abreuvoirs et mangeoires, renouveler la litière. Fiche de démonstration à valider.",
+    "source": "a_sourcer",
+    "status": "brouillon_non_valide",
+    "language": "fr"
+  }
+]
