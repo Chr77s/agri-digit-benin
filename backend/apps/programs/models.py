@@ -32,6 +32,9 @@ class Application(models.Model):
     status = models.CharField(max_length=20, default="deposee")
     reason = models.TextField(blank=True)
     decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    decided_at = models.DateTimeField(null=True, blank=True)
+    contest_reason = models.TextField(blank=True)  # le producteur conteste un refus (une seule fois, sous 15 jours)
+    contested_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

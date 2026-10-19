@@ -70,6 +70,7 @@ v1 = [
     path("programs/<uuid:pk>/apply", prog.program_apply),
     path("applications", prog.application_list),
     path("applications/<uuid:pk>/decide", prog.application_decide),
+    path("applications/<uuid:pk>/contest", prog.application_contest),
     path("selection-runs", prog.run_list),
     path("selection-runs/<uuid:pk>/candidates", prog.run_candidates),
     path("selection-runs/<uuid:pk>/validate", prog.run_validate),

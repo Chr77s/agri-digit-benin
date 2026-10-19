@@ -104,7 +104,8 @@ def decide(actor, app, status, reason):
     if status == "refusee" and not reason:
         raise ApiError("Le motif est obligatoire pour un refus.", "reason_required", 400)
     app.status, app.reason, app.decided_by = status, reason, actor
-    app.save(update_fields=["status", "reason", "decided_by"])
+    app.decided_at = None if status == "en_instruction" else timezone.now()
+    app.save(update_fields=["status", "reason", "decided_by", "decided_at"])
     record(actor, "application.decide", app, status=status, reason=reason)
     notify(app.producer, "Candidature", f"Agri-Digit : votre candidature « {app.program.name} » est {status}.")
     return app
@@ -169,6 +170,34 @@ def validate_run(actor, run, reason):
     run.save(update_fields=["status", "validated_by", "validation_reason", "validated_at"])
     record(actor, "selection.validate", run, reason=reason)
     return run
+
+
+CONTEST_DAYS = 15  # délai pour contester un refus (art. 401, comme la contestation d'une sélection)
+
+
+@transaction.atomic
+def contest_application(actor, app, reason):
+    """Le producteur conteste un refus : la candidature repasse en instruction avec son motif, les agents du secteur
+    sont prévenus. Une seule fois, sous 15 jours ; sans date de décision connue (anciens refus), pas de délai."""
+    if not reason:
+        raise ApiError("Dites en une phrase pourquoi vous contestez.", "reason_required", 400,
+                       fields={"reason": ["Obligatoire."]})
+    if app.status != "refusee":
+        raise ApiError("Seul un refus peut être contesté.", "invalid_status", 400)
+    if app.contested_at:
+        raise ApiError("Ce refus a déjà été contesté.", "already_contested", 400)
+    if app.decided_at and timezone.now() - app.decided_at > timedelta(days=CONTEST_DAYS):
+        raise ApiError(f"Le délai de {CONTEST_DAYS} jours pour contester est dépassé.", "contest_window_closed", 400)
+    app.status, app.contest_reason, app.contested_at, app.decided_at = "en_instruction", reason, timezone.now(), None
+    app.save(update_fields=["status", "contest_reason", "contested_at", "decided_at"])
+    record(actor, "application.contest", app, reason=reason)
+    from apps.accounts.models import User
+    from integrations.notifications import get_channel
+
+    body = f"{app.producer.code} conteste le refus de « {app.program.name} » : « {reason[:300]} »."
+    for agent in User.objects.filter(role="agent_atda", is_active=True, department=app.producer.department):
+        get_channel("in_app").send(agent.phone, body, user=agent, title="Refus contesté")
+    return app
 
 
 @transaction.atomic

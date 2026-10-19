@@ -112,6 +112,7 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /programs` accepte `status: "brouillon"` (incomplet permis). Publier exige au moins une filière et une clôture au moins 14 jours après l'ouverture : sinon 400 avec `fields`.
 - `PATCH /programs/{id}` (responsable, administrateur) : brouillon seulement (409 `published` sinon) ; `{"status": "publie"}` publie.
 - `POST /programs/estimate {value_chains, departments, max_area_ha, require_campaign}` -> `{count}` de fiches validées qui remplissent ces critères.
+- `POST /applications/{id}/contest {reason}` (producteur concerné) : conteste un refus, une seule fois et sous 15 jours après la décision (`decided_at`) ; la candidature repasse `en_instruction`, `contest_reason` et `contested_at` sont renseignés, les agents du département sont prévenus. 400 `invalid_status` (pas un refus), `already_contested`, `contest_window_closed`, `reason_required`. L'agent ou le responsable tranche de nouveau avec `decide`.
 - Le producteur ne voit que les programmes publiés. `POST /programs/{id}/apply` refuse `not_published`, `not_open_yet`, `not_eligible` (critères non remplis).
 
 ## Téléphone simple : USSD et SMS (simulés)

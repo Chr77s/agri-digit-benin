@@ -52,7 +52,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ["id", "program", "program_name", "producer", "producer_code", "status", "reason", "created_at"]
+        fields = ["id", "program", "program_name", "producer", "producer_code", "status", "reason", "decided_at",
+                  "contest_reason", "contested_at", "created_at"]
 
 
 class RunSerializer(serializers.ModelSerializer):
@@ -158,6 +159,16 @@ def applications_for(user):
 @api_view(["GET"])
 def application_list(request):
     return Response(ApplicationSerializer(applications_for(request.user).order_by("-created_at"), many=True).data)
+
+
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+def application_contest(request, pk):
+    app = applications_for(request.user).filter(pk=pk).first()
+    if app is None:
+        raise Http404
+    return Response(ApplicationSerializer(services.contest_application(
+        request.user, app, (request.data.get("reason") or "").strip())).data)
 
 
 @api_view(["POST"])
