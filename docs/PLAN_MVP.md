@@ -36,7 +36,7 @@ La vague 2 attend la coque mobile du lot 1. Une session à la fois : le poste de
 | 2. Champ | fait | viseur plein écran, analyse en étapes, plusieurs photos et photo hors ligne du diagnostic |
 | 3. Marché, appuis, programmes, coopératives, carte | fait | photo et négociation par propositions sur les annonces, offre groupée avec la part de chaque membre, QR code, enregistrement de la carte en image |
 | 4. Mode agent terrain | fait | secteur entier disponible hors ligne (à instruire avec l'APDP), photo du producteur, position du domicile, carte scannée, preuve de remise (photo et signature) |
-| 7. Intégration et livraison | en partie | spécifications Playwright à exécuter sur un poste qui peut installer le navigateur ; `docker-compose` non rejoué ; mise à jour de `DEMO.md`, `PROJECT_MAP.md` et `RAPPORT_FINAL.md` faite |
+| 7. Intégration et livraison | en partie | spécifications Playwright à exécuter sur un poste qui peut installer le navigateur ; Docker non utilisé ; mise à jour de `DEMO.md`, `PROJECT_MAP.md` et `RAPPORT_FINAL.md` faite |
 
 Ajouts hors liste, trouvés en comparant les maquettes aux pages : récoltes signalées vérifiées par l'agent (confirmée, corrigée, visite), contestation d'un refus de candidature, demandes d'adhésion aux coopératives, signalement d'un appui incomplet, « Pas sûr ? » du diagnostic.
 

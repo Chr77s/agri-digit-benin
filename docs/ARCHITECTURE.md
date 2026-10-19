@@ -2,7 +2,7 @@
 
 ## Style
 
-Monolithe modulaire, un dépôt : `backend/` (Django 5 LTS, Django REST Framework), `frontend/` (React, Vite, TypeScript), `infra/` (Docker), `docs/`. Un seul déploiement, simple à transférer aux équipes du MAEP ; chaque module peut être extrait plus tard.
+Monolithe modulaire, un dépôt : `backend/` (Django 5 LTS, Django REST Framework), `frontend/` (React, Vite, TypeScript), `infra/` (Docker et Nginx, non utilisés par la démonstration), `docs/`. Un seul déploiement, simple à transférer aux équipes du MAEP ; chaque module peut être extrait plus tard.
 
 ```
 navigateur (PWA)  --/api-->  nginx (web)  --proxy-->  api Django (gunicorn :8000)  -->  PostgreSQL 16 (db)

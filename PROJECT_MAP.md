@@ -37,4 +37,4 @@ Une fonctionnalité par dossier de `src/features/` (accès, producteur, agent, p
 
 ## Infra et docs
 
-`infra/` (docker-compose PostgreSQL + API + Nginx), `.github/workflows/ci.yml`, `docs/` (contrat d'API, décisions, conformité, mocks, UML, démo), `start.bat` / `start.sh`.
+`infra/` (fichiers Docker et Nginx pour plus tard, non utilisés), `.github/workflows/ci.yml`, `docs/` (contrat d'API, décisions, conformité, mocks, UML, démo), `start.bat` / `start.sh`.

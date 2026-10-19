@@ -27,6 +27,6 @@ Sur le PC de développement, la protection contre les rançongiciels de Windows 
 
 ## Autres points constatés
 
-- Docker est installé mais son démon était arrêté : le prototype tourne sur SQLite. Démarrer Docker Desktop pour tester `infra/docker-compose.yml`.
+- Le prototype n'utilise pas Docker : il tourne sur SQLite. Les fichiers de `infra/` sont gardés pour un déploiement ultérieur et n'ont pas été testés.
 - Le fichier POC fait 77,5 Mo (et non 17,8 Mo) ; l'import doit se faire en flux sur un poste à faible mémoire.
 - Le passage "quand semer le maïs à Banikoara" s'appuie sur un extrait WOCAT non ouvert directement : à confirmer par l'ATDA Alibori.
