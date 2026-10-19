@@ -226,7 +226,9 @@ function HarvestSummary({ campaign }: { campaign: string }) {
                   <div><span className="small muted">{t('campaigns.estimate')}</span><b className="num">{h.estimated_kg === null ? t('common.notAvailable') : t('common.kg', { n: fmtNum(h.estimated_kg) })}</b></div>
                   <div><span className="small muted">{t('campaigns.sold')}</span><b className="num">{t('common.kg', { n: fmtNum(h.sold_kg) })}</b></div>
                 </div>
-                {h.flagged && <Alert tone="warn" icon="flag">{t('harvest.flagged')}</Alert>}
+                {h.flagged && h.check_status !== 'confirmee' && h.check_status !== 'corrigee' && <Alert tone="warn" icon="flag">{t('harvest.flagged')}</Alert>}
+                {h.check_status === 'confirmee' && <Alert tone="ok" icon="check-circle">{t('harvest.confirmedByAgent')}</Alert>}
+                {h.check_status === 'corrigee' && <Alert tone="info" icon="edit">{t('harvest.correctedByAgent', { q: fmtNum(h.declared_kg), reason: h.check_reason })}</Alert>}
                 {h.deviation_pct !== null && !h.flagged && <Badge tone="ok">{t('campaigns.deviation', { d: `${h.deviation_pct > 0 ? '+' : ''}${fmtNum(h.deviation_pct, 1)}` })}</Badge>}
               </div>
             ))}

@@ -124,7 +124,8 @@ export interface ProducerCard { code: string; full_name: string; commune: string
 export interface VerifyResult { status: ProducerStatus; full_name: string }
 // quantity : décimal que DRF sérialise en chaîne ("50.00") ; producer_code et program_name viennent du serveur (pas de nom de producteur).
 export interface Support { id: string; producer: string; producer_code?: string; program?: string | null; program_name?: string | null; item: string; quantity: string; unit: string; value_xof: number; repayable: boolean; status: 'remis' | 'confirme'; created_at?: string; confirmed_at?: string | null }
-export interface Harvest { id: string; campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number | null; estimated_kg: number | null; deviation_pct: number | null; flagged: boolean; producer_code?: string; value_chain?: string }
+export interface Harvest { id: string; campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number | null; estimated_kg: number | null; deviation_pct: number | null; flagged: boolean; producer_code?: string; value_chain?: string;
+  check_status?: 'a_verifier' | 'visite' | 'confirmee' | 'corrigee'; check_reason?: string; checked_at?: string | null; declared_kg?: number | null }
 export interface Diagnosis { id: string; pathology: string; pathology_label: string; confidence: number; status: 'auto' | 'transmis_agronome' | 'revu'; advice: string; simulation: boolean; value_chain?: string; created_at?: string; review_comment?: string | null; reviewed_at?: string | null; producer_note?: string; image_url?: string; help?: string }
 export type TrLang = 'fon' | 'bba' | 'yo' | 'dnd';
 export type TrStatus = 'a_traduire' | 'propose' | 'valide' | 'rejete';

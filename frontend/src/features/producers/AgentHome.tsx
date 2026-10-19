@@ -41,7 +41,7 @@ export function AgentHome() {
   const pending = useProducers({ status: 'en_attente' });
   const alerts = useAlerts();
   const supports = useSupports();
-  const harvests = useHarvests({ flagged: true });
+  const harvests = useHarvests({ to_check: true });
   const contests = useOpenContests();
   const coops = useCooperatives({ department: user?.department ?? undefined });
   const valid = useValidCount();
