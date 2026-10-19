@@ -32,6 +32,13 @@ def test_workflow_and_assistant(users, producer):
     r = p.post("/api/v1/assistant/ask", {"question": "Quelle dose d'insecticide pour la chenille ?"},
                format="json").json()
     assert r["status"] == "escalated" and not r["citations"]
+    # la question est réellement transmise à l'agent du secteur (Alibori), avec de quoi rappeler le producteur
+    from apps.alerts.models import Notification
+
+    n = Notification.objects.get(user=users["agent"], title="Question de dosage à traiter")
+    assert producer.code in n.body and producer.phone in n.body and "chenille" in n.body
+    assert not Notification.objects.filter(user=users["agent_zou"]).exists()
+    assert "transmise à l'agent ATDA de votre secteur" in r["answer"]
     r = p.post("/api/v1/assistant/ask", {"question": "Prix du ciment à Lagos"}, format="json").json()
     assert r["status"] == "unknown"
     r = ag.patch(f"/api/v1/knowledge/{doc}", {"body": "Nouveau texte."}, format="json")

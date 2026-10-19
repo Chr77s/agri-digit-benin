@@ -6,6 +6,7 @@ from django.conf import settings
 
 from apps.knowledge.services import search
 from integrations.llm import ExtractiveBackend, get_backend
+from integrations.notifications import get_channel
 
 from .models import AssistantLog
 
@@ -32,13 +33,31 @@ def _redact(q):
     return re.sub(r"\d{8,}", "[numéro retiré]", q)
 
 
+def escalate(user, question):
+    """Question de dosage : transmise aux agents ATDA du département du producteur (notification dans l'application).
+    Renvoie le nombre d'agents prévenus ; 0 si le compte n'a pas de fiche producteur ou aucun agent dans le secteur."""
+    from apps.accounts.models import User
+
+    producer = getattr(user, "producer", None)
+    if producer is None:
+        return 0
+    agents = User.objects.filter(role="agent_atda", is_active=True, department=producer.department)
+    body = f"{producer.code} ({producer.commune}) demande : « {question[:300]} ». Rappelez-le au {producer.phone}."
+    for a in agents:
+        get_channel("in_app").send(a.phone, body, user=a, title="Question de dosage à traiter")
+    return len(agents)
+
+
 def ask(user, question, value_chain=None, language="fr"):
     result = {"citations": [], "disclaimer": DISCLAIMER, "backend": "extractive"}
     top = None
     if is_dosage_question(question):
+        sent = escalate(user, question)
         result.update(status="escalated",
                       answer="Les questions de dosage de produits phytosanitaires ou vétérinaires ne reçoivent "
-                             "pas de réponse automatique. Votre question est transmise à un agent ATDA.")
+                             "pas de réponse automatique. " + (
+                                 "Votre question est transmise à l'agent ATDA de votre secteur, qui vous contactera."
+                                 if sent else "Posez-la à votre agent ATDA."))
     else:
         hits = search(question, value_chain)
         top = hits[0][0] if hits else None

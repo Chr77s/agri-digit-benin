@@ -93,6 +93,9 @@ def handle(phone, text):
         if not rest or not rest[0].strip():
             return con("CONSEIL\nEcrivez votre question en quelques mots.")
         r = ask(user, rest[0].strip())
+        if r["status"] == "escalated":
+            return end("Question de dosage : pas de reponse automatique. Transmise a votre agent ATDA, "
+                       "qui vous contactera.")
         if r["status"] != "answered":
             return end("Pas de reponse sure pour cette question. Posez-la a votre agent ATDA.")
         return end(f"{r['answer']}\nConseil indicatif, voir agent ATDA.")
