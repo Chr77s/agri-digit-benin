@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -8,15 +9,20 @@ import turfArea from '@turf/area';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Badge, Button, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Button, Chips, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table, buttonCls, fmtNum } from '../../shared/ui';
 import type { GeoPolygon, Parcel } from '../../shared/api/types';
+import { useVcName } from '../../shared/api/ref';
 import i18n from '../../i18n';
-import { useCreateParcel, useParcels } from './api';
+import { ListenGhost } from '../producers/producerKit';
+import { useCampaigns, useCreateParcel, useParcels } from './api';
+import { ParcelDetail } from './ParcelDetail';
 
 export const LAND_TYPES = ['pluvial_plateau', 'bas_fond', 'irrigue'] as const;
 export const TENURES = ['propriete', 'location', 'pret', 'coutumier', 'autre'] as const;
+export const MAP_CENTER: [number, number] = [11.298, 2.438];
+export const OSM = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+export const osmAttribution = () => `&copy; ${i18n.t('parcels.mapContributors')} <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>`;
 
 // Libellés de leaflet-draw dans la langue courante (les autres textes restent ceux de la bibliothèque). Appelé à chaque création de la barre d'outils.
 function applyDrawLocale() {
@@ -72,80 +78,138 @@ const schema = z.object({
   tenure: z.string().min(1, 'parcels.errTenure'),
 });
 
+/** /parcelles : carte, formulaire et liste ; /parcelles?parcelle=<id> : fiche d'une parcelle. */
 export function ParcelsPage() {
+  const [params] = useSearchParams();
+  const id = params.get('parcelle');
+  return id ? <ParcelDetail id={id} /> : <ParcelsList />;
+}
+
+function ParcelsList() {
   const { t } = useTranslation();
   const q = useParcels();
+  const count = q.data?.length;
+  return (
+    <>
+      <PageHeader title={t('nav.parcels')} desc={t('parcels.desc')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.parcels') }]}
+        actions={<>
+          <ListenGhost text={t('parcels.listen')} />
+          {!!count && <a className={buttonCls({ variant: 'secondary' })} href="#t-liste"><Icon name="list-check" />{t('parcels.seeAll', { count })}</a>}
+        </>} />
+      <div className="stack" style={{ ['--gap' as string]: '20px' }}>
+        <NewParcel parcels={q.data ?? []} />
+        <QueryState q={q} empty={(d) => d.length === 0}
+          emptyText={<div className="card"><EmptyState icon="parcel" title={t('parcels.empty')}>{t('parcels.emptyHelp')}</EmptyState></div>}>
+          {(d) => <ParcelTable data={d} />}
+        </QueryState>
+      </div>
+    </>
+  );
+}
+
+function NewParcel({ parcels }: { parcels: Parcel[] }) {
+  const { t } = useTranslation();
   const create = useCreateParcel();
   const [geom, setGeom] = useState<GeoPolygon | null>(null);
-  const [geomErr, setGeomErr] = useState('');
+  const [geomErr, setGeomErr] = useState(false);
   const [result, setResult] = useState<Parcel | 'queued' | null>(null);
   const f = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { land_type: '', tenure: '' } });
+  // Fonction stable : sinon la barre de dessin est recréée (et le tracé effacé) à chaque rendu.
+  const onDrawn = useCallback((g: GeoPolygon | null) => { setGeom(g); setGeomErr(false); setResult(null); }, []);
   const preview = geom ? turfArea({ type: 'Feature', properties: {}, geometry: geom }) / 10000 : null;
 
   const onSubmit = f.handleSubmit(async (v) => {
-    if (!geom) { setGeomErr(t('parcels.errGeom')); return; }
+    if (!geom) { setGeomErr(true); return; }
     try {
       const r = await create.mutateAsync({ ...v, land_type: v.land_type as Parcel['land_type'], tenure: v.tenure as Parcel['tenure'], geometry: geom });
       setResult(r);
       f.reset();
     } catch { /* affiché */ }
-  });
+  }, () => { if (!geom) setGeomErr(true); });
 
   return (
-    <>
-      <PageHeader title={t('nav.parcels')} listen={t('parcels.listen')} />
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="h-[min(420px,50vh)] min-h-[240px] overflow-hidden rounded border border-border" aria-label={t('parcels.mapLabel')} role="region">
-          <MapContainer center={[11.298, 2.438]} zoom={14} className="h-full w-full">
-            <TileLayer attribution={`&copy; ${t('parcels.mapContributors')} <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>`} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <DrawControl onDrawn={(g) => { setGeom(g); setGeomErr(''); setResult(null); }} />
-            {q.data?.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#8A5A00' : '#1F5B3A', weight: 2 }} />)}
+    <div className="split">
+      <section aria-labelledby="t-carte">
+        <h2 className="sr-only" id="t-carte">{t('parcels.mapLabel')}</h2>
+        <div className="map" role="region" aria-label={t('parcels.mapLabel')}>
+          <MapContainer center={MAP_CENTER} zoom={14} className="map-canvas">
+            <TileLayer attribution={osmAttribution()} url={OSM} />
+            <DrawControl onDrawn={onDrawn} />
+            {parcels.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#B4532D' : '#1F5A32', weight: 2, dashArray: p.overlap_warning ? '5 4' : undefined }} />)}
           </MapContainer>
-        </div>
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3 rounded border border-border bg-surface p-4">
-          <h2 className="text-xl font-semibold">{t('parcels.new')}</h2>
-          <p aria-live="polite">
-            <Trans i18nKey="parcels.area" values={{ value: preview === null ? t('parcels.drawFirst') : t('parcels.ha', { n: fmtNum(preview, 2) }) }} components={{ b: <strong /> }} />
-            {preview !== null && <span className="block text-sm text-muted">{t('parcels.previewNote')}</span>}
-          </p>
-          {geomErr && <p role="alert" className="text-sm text-error">{geomErr}</p>}
-          <Field label={t('parcels.name')} error={f.formState.errors.name?.message}>
-            {(p) => <input {...p} {...f.register('name')} className={inputCls} />}
-          </Field>
-          <Field label={t('parcels.landTypeLabel')} error={f.formState.errors.land_type?.message}>
-            {(p) => <Select {...p} {...f.register('land_type')} placeholder={t('common.choose')} options={LAND_TYPES.map((v) => ({ value: v, label: t(`parcels.landType.${v}`) }))} />}
-          </Field>
-          <Field label={t('parcels.tenureLabel')} error={f.formState.errors.tenure?.message}>
-            {(p) => <Select {...p} {...f.register('tenure')} placeholder={t('common.choose')} options={TENURES.map((v) => ({ value: v, label: t(`parcels.tenure.${v}`) }))} />}
-          </Field>
-          {create.error && <Notice tone="error" live>{create.error.message}</Notice>}
-          <Button type="submit" busy={create.isPending}>{t('parcels.save')}</Button>
-          <div aria-live="polite">
-            {result === 'queued' && <Notice tone="warn">{t('parcels.queued')}</Notice>}
-            {result && result !== 'queued' && (
-              <Notice tone={result.overlap_warning ? 'warn' : 'success'}>
-                <p><Trans i18nKey="parcels.saved" values={{ area: fmtNum(result.area_ha, 2) }} components={{ b: <strong /> }} /></p>
-                {result.overlap_warning && <p className="flex items-center gap-2 font-semibold"><AlertTriangle aria-hidden size={18} /> {t('parcels.overlap')}</p>}
-                <p>{t('parcels.next')}</p>
-              </Notice>
-            )}
+          <div className="map-legend">
+            <ul className="legend">
+              <li><span className="sw" />{t('parcels.legendSaved')}</li>
+              <li><span className="sw sw--4" />{t('parcels.overlapBadge')}</li>
+            </ul>
           </div>
-        </form>
-      </div>
-      <h2 className="mb-2 mt-6 text-xl font-semibold">{t('parcels.list')}</h2>
-      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('parcels.empty')}>{t('parcels.emptyHelp')}</EmptyState>}>
-        {(d) => (
-          <ul className="grid gap-2 md:grid-cols-2">
-            {d.map((p) => (
-              <li key={p.id} className="rounded border border-border bg-surface p-3">
-                <p className="text-lg font-semibold">{p.name}</p>
-                <p>{t('parcels.line', { area: fmtNum(p.area_ha, 2), landType: t(`parcels.landType.${p.land_type}`, p.land_type), tenure: t(`parcels.tenure.${p.tenure}`, p.tenure) })}</p>
-                {p.overlap_warning && <Badge tone="warn">{t('parcels.overlapBadge')}</Badge>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </QueryState>
-    </>
+        </div>
+        <p className="hint mt-2.5">{t('parcels.mapHint')}</p>
+      </section>
+
+      <form onSubmit={onSubmit} noValidate className="card stack" style={{ ['--gap' as string]: '14px' }} aria-labelledby="t-nouvelle">
+        <h2 className="card-title" id="t-nouvelle">{t('parcels.new')}</h2>
+        <div className="area-out" aria-live="polite">
+          <span className="muted">{t('parcels.areaLabel')}</span>
+          <b className="num">{preview === null ? t('parcels.drawFirst') : t('parcels.ha', { n: fmtNum(preview, 2) })}</b>
+          <span className="hint" style={{ flexBasis: '100%' }}>{t('parcels.previewNote')}</span>
+        </div>
+        {geomErr && <Alert tone="danger" live title={t('parcels.errGeomTitle')}>{t('parcels.errGeom')}</Alert>}
+        <Field label={t('parcels.name')} error={f.formState.errors.name?.message}>
+          {(p) => <Input {...p} {...f.register('name')} autoComplete="off" />}
+        </Field>
+        <Field label={t('parcels.landTypeLabel')} error={f.formState.errors.land_type?.message}>
+          {(p) => <Select {...p} {...f.register('land_type')} placeholder={t('common.choose')} options={LAND_TYPES.map((v) => ({ value: v, label: t(`parcels.landType.${v}`) }))} />}
+        </Field>
+        <Field label={t('parcels.tenureLabel')} error={f.formState.errors.tenure?.message}>
+          {(p) => <Select {...p} {...f.register('tenure')} placeholder={t('common.choose')} options={TENURES.map((v) => ({ value: v, label: t(`parcels.tenure.${v}`) }))} />}
+        </Field>
+        {create.error && <Alert tone="danger" live>{create.error.message}</Alert>}
+        <Button type="submit" block icon="check" busy={create.isPending}>{t('parcels.save')}</Button>
+        <p className="hint">{t('parcels.offlineHint')}</p>
+        <div aria-live="polite">
+          {result === 'queued' && <Alert tone="warn" icon="wifi-off">{t('parcels.queued')}</Alert>}
+          {result && result !== 'queued' && (
+            <Alert tone={result.overlap_warning ? 'warn' : 'ok'} title={result.overlap_warning ? t('parcels.overlap') : undefined}>
+              <p><Trans i18nKey="parcels.saved" values={{ area: fmtNum(result.area_ha, 2) }} components={{ b: <b className="num" /> }} /></p>
+              <p>{t('parcels.nextPrefix')} <Link to={`/campagnes?parcelle=${result.id}`}>{t('parcels.nextLink')}</Link>.</p>
+            </Alert>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}
+
+type Row = Parcel & { crop: string };
+
+function ParcelTable({ data }: { data: Parcel[] }) {
+  const { t } = useTranslation();
+  const camps = useCampaigns();
+  const vcName = useVcName();
+  const [filter, setFilter] = useState(['all']);
+  const rows: Row[] = data.map((p) => {
+    const c = camps.data?.find((x) => x.parcel === p.id);
+    return { ...p, crop: c ? `${vcName(c.value_chain)} · ${t(`stage.${c.stage}`).toLowerCase()}` : '' };
+  });
+  const flagged = rows.filter((r) => r.overlap_warning).length;
+  const shown = filter[0] === 'check' ? rows.filter((r) => r.overlap_warning) : rows;
+  const total = data.reduce((s, p) => s + p.area_ha, 0);
+  return (
+    <div id="t-liste" className="stack" style={{ ['--gap' as string]: '8px' }}>
+      <Table<Row> title={t('parcels.list')} caption={t('parcels.caption')} rowKey={(r) => r.id} data={shown}
+        toolbar={<Chips single label={t('parcels.filter')} value={filter} onChange={setFilter}
+          options={[{ value: 'all', label: t('common.allF'), count: rows.length }, { value: 'check', label: t('parcels.toCheck'), count: flagged }]} />}
+        columns={[
+          { key: 'name', label: t('parcels.colName'), render: (r) => <><span className="cell-main">{r.name}</span><span className="cell-sub">{t('parcels.gps')}</span></> },
+          { key: 'crop', label: t('parcels.colCrop'), render: (r) => r.crop || <span className="muted">{t('parcels.noCampaign')}</span> },
+          { key: 'area_ha', label: t('parcels.colArea'), num: true, render: (r) => fmtNum(r.area_ha, 2), csv: (r) => r.area_ha },
+          { key: 'land_type', label: t('parcels.landTypeLabel'), render: (r) => t(`parcels.landType.${r.land_type}`, r.land_type) },
+          { key: 'tenure', label: t('parcels.tenureLabel'), render: (r) => t(`parcels.tenure.${r.tenure}`, r.tenure) },
+          { key: 'overlap_warning', label: t('parcels.colState'), render: (r) => (r.overlap_warning ? <Badge tone="wait">{t('parcels.overlapBadge')}</Badge> : <Badge tone="ok">{t('parcels.noOverlap')}</Badge>) },
+          { key: 'open', label: t('ui.actions'), actions: true, render: (r) => <Link className={buttonCls({ variant: 'ghost', size: 'sm' })} to={`/parcelles?parcelle=${r.id}`} aria-label={t('parcels.openNamed', { name: r.name })}>{t('parcels.open')}</Link> },
+        ]} />
+      <p className="small muted num">{t('parcels.total', { count: data.length, area: fmtNum(total, 2) })}</p>
+    </div>
   );
 }
