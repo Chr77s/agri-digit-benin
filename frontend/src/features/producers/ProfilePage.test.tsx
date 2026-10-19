@@ -8,8 +8,8 @@ import i18n from '../../i18n';
 import { mockFetch } from '../../test-utils';
 import { ProfilePage } from './ProfilePage';
 
-const auth = vi.hoisted(() => ({ user: null as null | Record<string, unknown> }));
-vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: auth.user }), AuthProvider: ({ children }: { children: ReactNode }) => children }));
+const auth = vi.hoisted(() => ({ user: null as null | Record<string, unknown>, signIn: vi.fn() }));
+vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: auth.user, signIn: auth.signIn }), AuthProvider: ({ children }: { children: ReactNode }) => children }));
 
 const page = () => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -37,6 +37,33 @@ describe('Mon profil', () => {
     expect(i18n.language).toBe('fon');
   });
 
+  it('change le numéro avec un code SMS envoyé au nouveau numéro, puis reconnecte avec la nouvelle session', async () => {
+    auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi', phone: '0197214408', producer_id: 'p1' };
+    const sent: unknown[] = [];
+    mockFetch((u, init) => {
+      if (u.includes('/phone-change/request')) { sent.push(JSON.parse(String(init?.body))); return { body: { detail: 'ok' } }; }
+      if (u.includes('/phone-change/confirm')) return JSON.parse(String(init?.body)).code === '123456'
+        ? { body: { access: 'tok', user: { ...auth.user, phone: '0196123456' } } }
+        : { status: 400, body: { detail: 'Code incorrect.', code: 'invalid_code' } };
+      if (u.includes('/demo/otp-inbox')) return { body: [{ body: 'Agri-Digit : votre code de confirmation du nouveau numéro est 123456.', created_at: '2026-10-19T10:00:00Z' }] };
+      return u.includes('/producers/p1') ? { body: producer } : u.includes('/ref/') ? { body: [] } : undefined;
+    });
+    const user = userEvent.setup();
+    page();
+    await user.click(screen.getByRole('button', { name: 'Recevoir un code par SMS' }));
+    expect(await screen.findByText(/Saisissez 10 chiffres/)).toBeInTheDocument();
+    expect(sent).toEqual([]);
+    await user.type(screen.getByLabelText('Nouveau numéro'), '0196123456');
+    await user.click(screen.getByRole('button', { name: 'Recevoir un code par SMS' }));
+    expect(await screen.findByText(/Code envoyé au 01 96 •• •• 56/)).toBeInTheDocument();
+    expect(sent).toEqual([{ new_phone: '0196123456' }]);
+    expect(await screen.findByText(/code de confirmation du nouveau numéro est 123456/)).toBeInTheDocument();
+    for (const d of '123456') await user.type(screen.getByRole('textbox', { name: `Chiffre ${'123456'.indexOf(d) + 1} sur 6` }), d);
+    await user.click(screen.getByRole('button', { name: 'Confirmer le nouveau numéro' }));
+    expect(await screen.findByText('Numéro changé. Utilisez-le désormais pour vous connecter.')).toBeInTheDocument();
+    expect(auth.signIn).toHaveBeenCalledWith('tok', expect.objectContaining({ phone: '0196123456' }));
+  });
+
   it('sur téléphone : un menu, puis une rubrique par écran avec retour au profil', async () => {
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: true, media: q, addEventListener: () => undefined, removeEventListener: () => undefined }));
     auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi', phone: '0197214408', producer_id: 'p1' };
@@ -48,7 +75,7 @@ describe('Mon profil', () => {
     );
     const { unmount } = at('/profil');
     expect(await screen.findByText('BJ-AGR-2026-000001')).toBeInTheDocument();
-    for (const [name, href] of [['Langue et lecture', '/profil/langue'], ['Données hors ligne', '/profil/donnees'], ["File d'envoi", '/profil/envoi'], ['Aide et mon agent', '/profil/aide']]) {
+    for (const [name, href] of [['Téléphone', '/profil/numero'], ['Langue et lecture', '/profil/langue'], ['Données hors ligne', '/profil/donnees'], ["File d'envoi", '/profil/envoi'], ['Aide et mon agent', '/profil/aide']]) {
       expect(screen.getByRole('link', { name: new RegExp(name) })).toHaveAttribute('href', href);
     }
     unmount();

@@ -120,6 +120,14 @@ def update(actor, p, data, forced=False, base_version=None):
     return p
 
 
+def change_phone(actor, p, phone):
+    """Changement de numéro confirmé par code SMS (accounts) : visible dans l'historique de la fiche."""
+    p.phone = phone
+    p.version += 1
+    p.save(update_fields=["phone", "version"])
+    _version(p, actor, "changement de numéro (code SMS)")
+
+
 @transaction.atomic
 def validate(actor, p):
     p.status, p.validated_at, p.reject_reason = "valide", timezone.now(), ""

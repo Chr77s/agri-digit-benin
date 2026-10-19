@@ -9,12 +9,12 @@ import { useAuth } from '../auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../outbox/offlineQueue';
 import { useProducer } from './api';
 import { StatusBadge } from './ProducersPages';
+import { PhoneChangeCard, maskPhone } from './PhoneChange';
 import './producteur.css';
 
 const LANGS = ['fr', 'fon', 'bba', 'yo', 'dnd'];
-const maskPhone = (p: string) => (p.length === 10 ? `${p.slice(0, 2)} ${p.slice(2, 4)} •• •• ${p.slice(-2)}` : p);
 
-/** /profil (producteur) : identité lue sur la fiche, langue, saisies gardées sur le téléphone. Le serveur n'offre pas encore de changement de numéro ni de suppression en libre-service : la page l'explique au lieu de le simuler. */
+/** /profil (producteur) : identité lue sur la fiche, langue, saisies gardées sur le téléphone. Numéro changé avec un code SMS ; pas de suppression en libre-service : la page renvoie vers « Mes consentements ». */
 export function ProfilePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -28,12 +28,7 @@ export function ProfilePage() {
       <div className="split">
         <div className="stack" style={{ ['--gap' as string]: '20px' }}>
           {user?.producer_id ? <Identity id={user.producer_id} /> : <Alert tone="warn">{t('profile.noProducer')}</Alert>}
-          {user && (
-            <Card title={t('profile.phoneTitle')}>
-              <p>{t('profile.phoneNow')} <b className="num">{maskPhone(user.phone)}</b></p>
-              <p className="hint mt-2">{t('profile.phoneHelp')}</p>
-            </Card>
-          )}
+          <PhoneChangeCard />
           <LanguageCard />
         </div>
         <div className="stack" style={{ ['--gap' as string]: '20px' }}>
@@ -119,12 +114,13 @@ function OfflineCard() {
 }
 
 /* ---------- Téléphone (maquettes/mobile : profil, reglage-langue, donnees-hors-ligne, file-envoi, aide) ---------- */
-const SECTIONS = ['langue', 'donnees', 'envoi', 'aide'];
+const SECTIONS = ['numero', 'langue', 'donnees', 'envoi', 'aide'];
 const mb = (n: number) => fmtNum(n / 1_048_576, n < 10_485_760 ? 1 : 0);
 
 function MobileProfile({ section }: { section?: string }) {
   const { t } = useTranslation();
   const back = [{ label: t('profile.title'), to: '/profil' }];
+  if (section === 'numero') return <><PageHeader title={t('profile.phoneTitle')} crumbs={back} /><PhoneChangeCard /></>;
   if (section === 'langue') return <><PageHeader title={t('mobile.prof.lang')} crumbs={back} /><MobileLanguage /></>;
   if (section === 'donnees') return <><PageHeader title={t('profile.offTitle')} crumbs={back} /><MobileStorage /></>;
   if (section === 'envoi') return <MobileQueue />;
@@ -158,6 +154,7 @@ function MobileMenu({ unknown }: { unknown: boolean }) {
         <ul className="list card">
           <MRow to="/ma-carte" icon="id-card" title={t('nav.card')} />
           <MRow to="/mes-cooperatives" icon="users" title={t('nav.myCoops')} />
+          <MRow to="/profil/numero" icon="phone" title={t('profile.phoneTitle')} sub={user ? maskPhone(user.phone) : undefined} />
           <MRow to="/profil/langue" icon="globe" title={t('mobile.prof.lang')} sub={LANG_NAMES.find(([c]) => c === i18n.language)?.[1]} />
           <MRow to="/consentements" icon="shield-check" title={t('nav.consents')} />
           <MRow to="/profil/donnees" icon="download" title={t('profile.offTitle')} sub={used ? t('mobile.prof.used', { mb: mb(used.usage) }) : undefined} />

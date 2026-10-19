@@ -1,6 +1,7 @@
 import re
 
 from django.conf import settings
+from django.db.models import Q
 from django.http import Http404
 from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
@@ -11,7 +12,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core.errors import ApiError
-from apps.core.permissions import ADMIN, roles
+from apps.core.permissions import ADMIN, PRODUCTEUR, roles
 
 from . import services
 from .models import ROLES, User
@@ -115,8 +116,42 @@ def otp_inbox(request):
     from apps.alerts.models import Outbox
 
     phone = request.query_params.get("phone", "")
-    rows = Outbox.objects.filter(to=phone, channel="sms", body__contains="code de connexion").order_by("-created_at")
+    codes = Q(body__contains="code de connexion") | Q(body__contains="code de confirmation")
+    rows = Outbox.objects.filter(codes, to=phone, channel="sms").order_by("-created_at")
     return Response([{"body": o.body, "created_at": o.created_at} for o in rows[:5]])
+
+
+class PhoneChangeRequestSerializer(serializers.Serializer):
+    new_phone = serializers.CharField(validators=[_phone])
+
+
+class PhoneChangeConfirmSerializer(serializers.Serializer):
+    code = serializers.RegexField(r"^\d{6}$")
+
+
+def _session(user):
+    refresh = RefreshToken.for_user(user)
+    return {"access": str(refresh.access_token), "user": UserSerializer(user).data}
+
+
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+@throttle_classes([OtpThrottle])
+def phone_change_request(request):
+    """Producteur : code envoyé par SMS (simulé) au nouveau numéro. Les comptes du personnel passent par l'admin."""
+    s = PhoneChangeRequestSerializer(data=request.data)
+    s.is_valid(raise_exception=True)
+    services.request_phone_change(request.user, s.validated_data["new_phone"])
+    return Response({"detail": "Code envoyé au nouveau numéro"})
+
+
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+@throttle_classes([OtpThrottle])
+def phone_change_confirm(request):
+    s = PhoneChangeConfirmSerializer(data=request.data)
+    s.is_valid(raise_exception=True)
+    return Response(_session(services.confirm_phone_change(request.user, s.validated_data["code"])))
 
 
 class AdminUserSerializer(serializers.Serializer):

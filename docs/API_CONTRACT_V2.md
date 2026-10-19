@@ -88,3 +88,8 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 
 - `PATCH /producers/{id}` et `PATCH /campaigns/{id}` acceptent `base_version` (entier, version lue par le client). Si la version serveur est plus récente : 409 `{code: "conflict", server: <objet courant>, server_version}`. Le client renvoie avec `force: true` après choix de l'agent (le choix est journalisé).
 - Chaque objet renvoie `version` (entier).
+
+## UC-01 Changement de numéro (producteur)
+
+- `POST /auth/phone-change/request {new_phone}` (producteur, limité en débit comme la connexion) -> code SMS (simulé) envoyé au nouveau numéro. 400 si le numéro est mal formé ou `same_phone` ; 409 `duplicate` s'il est déjà utilisé. Le personnel passe par l'administrateur (403).
+- `POST /auth/phone-change/confirm {code}` (producteur) -> `{access, user}` : nouvelle session. 400 `no_pending_change`, `code_expired`, `invalid_code` (5 échecs = blocage, comme la connexion). La fiche producteur prend le numéro, avec une version « changement de numéro (code SMS) » ; l'ancien numéro reçoit un SMS d'avertissement ; action journalisée `user.phone_change`.
