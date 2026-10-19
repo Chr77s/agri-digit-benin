@@ -6,7 +6,7 @@ from PIL import Image
 
 from apps.diagnosis.models import Diagnosis
 from apps.diagnosis.services import image_path, purge
-from conftest import client_for
+from conftest import client_for, make_user
 
 
 def _jpeg_with_gps():
@@ -48,6 +48,30 @@ def test_high_confidence_is_auto_and_bad_files_refused(users, producer, settings
     assert _post(producer.user).json()["status"] == "auto"
     assert _post(producer.user, b"pas une image").status_code == 400
     assert client_for(users["agronome"]).get("/api/v1/diagnoses").json()["results"] == []  # rien à relire
+
+
+def test_unsure_producer_asks_an_agronomist_with_a_note(users, producer, settings):
+    settings.DIAGNOSIS_THRESHOLD = 0
+    d_id = _post(producer.user).json()["id"]
+    assert client_for(users["agronome"]).get("/api/v1/diagnoses").json()["results"] == []
+    url = f"/api/v1/diagnoses/{d_id}/ask-agronome"
+    assert client_for(users["agent"]).post(url, {}, format="json").status_code == 403  # réservé au producteur
+    r = client_for(producer.user).post(url, {"note": "Les feuilles du centre sont trouées."}, format="json")
+    assert r.status_code == 200 and r.json()["status"] == "transmis_agronome"
+    queue = client_for(users["agronome"]).get("/api/v1/diagnoses").json()["results"]
+    assert [q["producer_note"] for q in queue] == ["Les feuilles du centre sont trouées."]
+    assert client_for(producer.user).post(url, {}, format="json").status_code == 400  # déjà transmis, pas deux fois
+    rev = client_for(users["agronome"]).post(f"/api/v1/diagnoses/{d_id}/review",
+                                             {"pathology": "autre", "comment": "ok"}, format="json")
+    assert rev.json()["status"] == "revu"
+    assert client_for(producer.user).post(url, {}, format="json").status_code == 400  # ni après la relecture
+
+
+def test_ask_agronomist_refuses_someone_elses_diagnosis(users, producer, settings):
+    settings.DIAGNOSIS_THRESHOLD = 0
+    d_id = _post(producer.user).json()["id"]
+    other = make_user("0197000098", "producteur")
+    assert client_for(other).post(f"/api/v1/diagnoses/{d_id}/ask-agronome", {}, format="json").status_code == 404
 
 
 def test_retention_purge(producer):

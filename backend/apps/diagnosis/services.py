@@ -82,6 +82,17 @@ def review(actor, d, pathology, comment):
     return d
 
 
+@transaction.atomic
+def ask_agronome(actor, d, note):
+    """« Pas sûr ? » : un diagnostic automatique passe chez l'agronome, avec le mot du producteur."""
+    if d.status != "auto":
+        raise ApiError("Ce diagnostic est déjà chez un agronome ou a été relu.", "invalid_status", 400)
+    d.status, d.producer_note = "transmis_agronome", note
+    d.save(update_fields=["status", "producer_note"])
+    record(actor, "diagnosis.ask_agronome", d)
+    return d
+
+
 def purge(days):
     """Supprime images et diagnostics plus anciens que `days` jours. Renvoie le nombre supprimé."""
     old = Diagnosis.objects.filter(created_at__lt=timezone.now() - timedelta(days=days))

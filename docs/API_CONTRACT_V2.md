@@ -46,6 +46,7 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /diagnoses` multipart `{image (jpeg|png, 5 Mo max), value_chain}` -> `{id, pathology, pathology_label, confidence, status: auto|transmis_agronome|revu, advice, simulation: true}`. Seuil 0,6 (`DIAGNOSIS_THRESHOLD`) : en dessous, `transmis_agronome`. Les métadonnées EXIF (dont GPS) sont supprimées avant stockage. Aucune détection de visage : le texte d'aide demande de ne photographier que la plante.
 - `GET /diagnoses` (producteur : les siens ; agronome : tous ceux `transmis_agronome`).
 - `POST /diagnoses/{id}/review {pathology, comment}` (agronome) -> `revu`, notification au producteur.
+- `POST /diagnoses/{id}/ask-agronome {note?}` (producteur propriétaire, note de 500 caractères au plus) : un diagnostic `auto` passe à `transmis_agronome` avec `producer_note`, lisible de l'agronome ; 400 `invalid_status` s'il est déjà transmis ou revu. Action journalisée (`diagnosis.ask_agronome`).
 - Image servie seulement à son propriétaire et à l'agronome : `GET /diagnoses/{id}/image`. Suppression automatique par `purge_retention` (90 jours par défaut).
 
 ## UC-15 Validation linguistique

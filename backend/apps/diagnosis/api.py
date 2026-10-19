@@ -20,6 +20,7 @@ class DiagnosisSerializer(serializers.Serializer):
     status = serializers.CharField()
     advice = serializers.CharField()
     review_comment = serializers.CharField()
+    producer_note = serializers.CharField()
     reviewed_at = serializers.DateTimeField()
     created_at = serializers.DateTimeField()
     image_url = serializers.SerializerMethodField()
@@ -44,6 +45,10 @@ class DiagnosisInSerializer(serializers.Serializer):
         if not ValueChain.objects.filter(code=v).exists():
             raise serializers.ValidationError("Filière inconnue.")
         return v
+
+
+class AskInSerializer(serializers.Serializer):
+    note = serializers.CharField(max_length=500, allow_blank=True, required=False, default="")
 
 
 class ReviewInSerializer(serializers.Serializer):
@@ -75,6 +80,16 @@ def diagnosis_review(request, pk):
     s = ReviewInSerializer(data=request.data)
     s.is_valid(raise_exception=True)
     return Response(DiagnosisSerializer(services.review(request.user, d, **s.validated_data)).data)
+
+
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+@parser_classes([JSONParser, FormParser])
+def diagnosis_ask_agronome(request, pk):
+    d = selectors.get_visible(request.user, pk) or _404()
+    s = AskInSerializer(data=request.data)
+    s.is_valid(raise_exception=True)
+    return Response(DiagnosisSerializer(services.ask_agronome(request.user, d, s.validated_data["note"])).data)
 
 
 @api_view(["GET"])

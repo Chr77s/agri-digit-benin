@@ -89,6 +89,7 @@ v1 = [
     path("harvests", prodn.harvest_list),
     path("diagnoses", diag.diagnosis_list),
     path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),
+    path("diagnoses/<uuid:pk>/ask-agronome", diag.diagnosis_ask_agronome),
     path("diagnoses/<uuid:pk>/image", diag.diagnosis_image),
     path("translations", trans.entry_list),
     path("translations/summary", trans.entry_summary),

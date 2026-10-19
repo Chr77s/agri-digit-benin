@@ -21,5 +21,6 @@ class Diagnosis(models.Model):
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
                                     related_name="+")
     review_comment = models.TextField(blank=True)
+    producer_note = models.TextField(blank=True)  # « Pas sûr ? » : ce que le producteur voit, écrit pour l'agronome
     reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
