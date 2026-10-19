@@ -1,0 +1,272 @@
+{
+  "pilotage": {
+    "crumb": "Pilotage",
+    "crumbGov": "Gouvernance",
+    "accounts": {
+      "title": "Comptes et rôles",
+      "desc": "Qui accède à quoi, et sur quel périmètre. Un compte n'est jamais supprimé : il est suspendu, pour garder la trace dans le journal d'audit.",
+      "journal": "Journal des changements",
+      "caption": "Comptes : nom, téléphone, rôle, périmètre, état et actions",
+      "allRoles": "Tous les rôles",
+      "filterState": "Filtrer par état",
+      "actives": "Actifs",
+      "suspendeds": "Suspendus",
+      "you": "Vous",
+      "yours": "Votre compte",
+      "rolesTitle": "Ce que chaque rôle peut faire",
+      "roleRef": {
+        "agent_atda": {
+          "t": "Agent ATDA",
+          "d": "Valide les fiches et trace les remises de son seul département."
+        },
+        "agronome_inrab": {
+          "t": "Agronome INRAB",
+          "d": "Rédige les fiches techniques, revoit les diagnostics peu sûrs."
+        },
+        "responsable_programme": {
+          "t": "Responsable de programme",
+          "d": "Crée les programmes et tranche les candidatures."
+        },
+        "auditeur_copil": {
+          "t": "Auditeur CoPil",
+          "d": "Lit le journal d'audit, sans rien pouvoir modifier."
+        },
+        "agent_financier": {
+          "t": "Agent financier",
+          "d": "Voit le score des seuls producteurs qui ont consenti."
+        },
+        "gestionnaire_cooperative": {
+          "t": "Gestionnaire de coopérative",
+          "d": "Gère les membres et l'offre groupée ; pas d'accès au registre."
+        },
+        "marche": {
+          "t": "Transformateur, distributeur",
+          "d": "Marché : offres, mises en relation, paiement simulé."
+        },
+        "repr_mtdi": {
+          "t": "Représentant MTDI",
+          "d": "Propose et note les traductions en langues nationales."
+        }
+      },
+      "suspendTitle": "Suspendre le compte de {{name}} ?",
+      "suspendText": "La personne ne pourra plus se connecter. Ses actions passées restent au journal. Vous pourrez réactiver le compte à tout moment.",
+      "suspendedMsg": "Le compte de {{name}} est suspendu. Ses actions passées restent au journal.",
+      "reactivated": "Le compte de {{name}} est réactivé.",
+      "reassigned": "Affectation de {{name}} mise à jour : {{scope}}.",
+      "created": "Compte créé pour {{name}}.",
+      "errName": "Saisissez le nom complet.",
+      "errPhone": "Saisissez un téléphone de 10 chiffres commençant par 01.",
+      "phoneHint": "10 chiffres, commençant par 01."
+    },
+    "exports": {
+      "desc": "Chaque export dit pourquoi il est fait. Le motif, le jeu de données et votre nom sont inscrits au journal d'audit, lisible par le comité de pilotage.",
+      "new": "Nouvel export",
+      "personal": "Données personnelles",
+      "personalShort": "Personnel",
+      "ds": {
+        "producers": {
+          "t": "Producteurs",
+          "d": "Nom, NPI, téléphone, commune"
+        },
+        "parcels": {
+          "t": "Parcelles",
+          "d": "Surface, culture, commune"
+        },
+        "farms_aggregates": {
+          "t": "Agrégats des fermes POC",
+          "d": "Par commune, sans donnée personnelle"
+        },
+        "cooperatives": {
+          "t": "Coopératives et adhésions",
+          "d": "Coopératives, membres et historique des adhésions"
+        },
+        "harvests": {
+          "t": "Récoltes déclarées",
+          "d": "Quantités par campagne"
+        },
+        "supports": {
+          "t": "Appuis remis",
+          "d": "Remises signées"
+        }
+      },
+      "reasonHint": "Soyez précis : un auditeur doit comprendre la raison sans vous appeler.",
+      "counter": "{{n}} / {{min}} caractères minimum",
+      "reasonPh": "Ex. : préparation du comité de pilotage du 22 octobre",
+      "personalTitle": "Fichier contenant des données personnelles",
+      "personalText": "Loi n° 2017-20 : conservez-le sur un poste du MAEP, ne le transmettez pas hors du Bénin, supprimez-le après usage.",
+      "recordedTitle": "Ce qui est enregistré",
+      "who": "Qui",
+      "what": "Quoi",
+      "why": "Pourquoi",
+      "whyV": "Votre motif, tel quel",
+      "when": "Quand",
+      "whenV": "Heure du serveur, à la seconde",
+      "before": "L'inscription au journal est faite avant la création du fichier : si elle échoue, aucun fichier n'est produit.",
+      "histTitle": "Mes derniers exports",
+      "histCaption": "Exports réalisés : date, jeu de données, motif, lignes",
+      "histEmpty": "Aucun export pour l'instant",
+      "seeJournal": "Voir au journal",
+      "rows": "Lignes"
+    },
+    "audit": {
+      "desc": "Lecture seule. Le journal n'est pas modifiable : qui, quoi, quand, sur quelle donnée.",
+      "appendTitle": "Journal en ajout seul",
+      "appendText": "Une entrée ne peut être ni modifiée ni supprimée, y compris par un administrateur. Les corrections se font par une nouvelle entrée.",
+      "filters": "Filtrer le journal",
+      "actionPh": "ex. export.csv",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer les filtres",
+      "entries": "Entrées",
+      "caption": "Journal d'audit filtré : date, acteur, rôle, action, objet, détails",
+      "readOnly": "Aucune modification possible",
+      "detail": "Détail",
+      "more": "Charger les entrées suivantes",
+      "entryTitle": "Entrée du journal",
+      "id": "Identifiant",
+      "obj": {
+        "Producer": "Producteur",
+        "dataset": "Export",
+        "User": "Compte",
+        "partner": "Partenaire",
+        "Payment": "Paiement",
+        "KnowledgeDoc": "Fiche technique",
+        "Parcel": "Parcelle",
+        "Application": "Candidature",
+        "Support": "Appui"
+      }
+    },
+    "crumbFollow": "Suivi",
+    "demo": "Démonstration",
+    "demoTitle": "Données de démonstration",
+    "sim": "Simulé",
+    "noSource": "aucune source",
+    "noSourceYet": "Aucune source n'est encore reliée à cet indicateur",
+    "tableView": "Voir en tableau",
+    "srcLine": "Source : {{source}} · {{date}}",
+    "srcOnly": "Source : {{source}}",
+    "offline": "Hors ligne. Indicateurs lus le {{date}} ; ils seront rafraîchis au retour du réseau.",
+    "dash": {
+      "title": "Tableau de bord national",
+      "desc": "Les indicateurs du registre et du suivi satellite, par département et par filière. Chaque chiffre porte sa source et sa date ; sans source, il est marqué « non disponible », jamais zéro.",
+      "export": "Exporter (motif requis)",
+      "filters": "Filtrer le tableau de bord",
+      "readAt": "Données lues le {{date}} · périmètre : {{scope}}",
+      "demoText": "Registre fictif du prototype et fermes POC détectées par satellite (non officielles). Aucun chiffre de cette page n'est une statistique du MAEP.",
+      "farmsSub": "Nombre de fermes détectées par satellite (POC)",
+      "farmsUnit": "fermes",
+      "farmsSrc": "Source : {{source}} (données de démonstration, non officielles), mise à jour {{date}} · total {{total}} fermes",
+      "byChain": "Par filière",
+      "byChainSub": "Producteurs validés, surface et rendement par filière",
+      "byChainEmpty": "Aucune campagne déclarée sur ce périmètre.",
+      "validated": "Producteurs validés",
+      "areaHa": "Surface (ha)",
+      "yield": "Rendement (t/ha)",
+      "registered": "Inscrits",
+      "women": "Productrices",
+      "ofRegistered": "{{pct}} % des inscrits",
+      "indCaption": "Indicateurs de pilotage, avec valeur, source et date de mise à jour"
+    },
+    "sea": {
+      "title": "Indicateurs de suivi-évaluation",
+      "desc": "Les indicateurs demandés par les termes de référence, regroupés par question de suivi. Chaque valeur porte sa source et sa date de mise à jour.",
+      "export": "Exporter",
+      "noteTitle": "Calculé sur les données fictives du prototype",
+      "noteText": "La mention « non disponible » signifie qu'aucune source n'existe encore : ce n'est pas zéro.",
+      "mfcfa": "M FCFA",
+      "q": {
+        "coverage": "Qui et combien suit-on ?",
+        "inclusion": "Les femmes et les jeunes participent-ils ?",
+        "production": "Où en est la production ?",
+        "access": "Les producteurs accèdent-ils aux intrants et au crédit ?",
+        "advice": "Le conseil est-il utilisé et adopté ?",
+        "alerts": "Les alertes arrivent-elles ?",
+        "others": "Autres indicateurs"
+      },
+      "na": {
+        "maize_yield": {
+          "label": "Rendement moyen, maïs",
+          "why": "Aucune pesée de récolte n'est encore reliée. Les prévisions simulées sont dans « Prévisions »."
+        },
+        "credits_granted": {
+          "label": "Crédits accordés",
+          "why": "La décision se prend hors plateforme ; le connecteur FNDA ne renvoie pas encore les décisions."
+        },
+        "adoption": {
+          "label": "Adoption des pratiques recommandées",
+          "why": "Exige une enquête terrain ATDA, pas encore saisie dans la plateforme."
+        }
+      }
+    },
+    "fc": {
+      "title": "Prévisions de rendement et risques",
+      "desc": "Une aide pour anticiper les appuis et les alertes. Ces prévisions sont simulées : elles ne remplacent ni l'avis de l'agent ATDA ni celui de l'INRAB.",
+      "simTitle": "Calcul simulé",
+      "simText": "Aucun modèle réel n'est branché : pluie, indice de végétation et historique sont générés pour la démonstration. Ne prenez aucune décision sur ces seuls chiffres.",
+      "params": "Paramètres de la prévision",
+      "horizon": "Horizon",
+      "endOf": "Fin de campagne {{year}}",
+      "season": "Campagne {{year}}",
+      "simBadge": "Simulé",
+      "loadingRef": "Chargement des départements et des filières…",
+      "chartTitle": "Rendement · {{vc}}, {{place}}",
+      "chartSub": "Tonnes par hectare · observé puis prévu",
+      "simForecast": "Prévision simulée",
+      "headline": "Campagne {{year}} : {{value}} t/ha attendus, fourchette probable de {{low}} à {{high}} (simulé).",
+      "year": "Année",
+      "nature": "Nature",
+      "methodTitle": "Comment c'est calculé",
+      "method": {
+        "rain": {
+          "k": "Pluie",
+          "v": "cumul décadaire simulé, comparé à la normale 1991–2020."
+        },
+        "ndvi": {
+          "k": "Végétation",
+          "v": "indice NDVI simulé sur les parcelles tracées."
+        },
+        "history": {
+          "k": "Historique",
+          "v": "rendements déclarés des 5 dernières campagnes."
+        },
+        "pests": {
+          "k": "Ravageurs",
+          "v": "signalements des diagnostics photo et des agents."
+        }
+      },
+      "noAuto": "Aucune décision automatique : une alerte part seulement après double validation d'un agent ou d'un administrateur.",
+      "riskTitle": "Risques par commune · 30 prochains jours",
+      "riskCaption": "Niveau de risque simulé par commune : sécheresse, inondation, ravageurs",
+      "filterRisk": "Filtrer par risque",
+      "risk": {
+        "drought": "Sécheresse",
+        "flood": "Inondation",
+        "pests": "Ravageurs"
+      },
+      "level": {
+        "faible": "Faible",
+        "modere": "Modéré",
+        "eleve": "Élevé"
+      },
+      "yieldForecast": "Rendement prévu",
+      "riskFoot": "Niveaux simulés. Une commune sans rendement affiché compte trop peu de parcelles tracées pour l'estimer.",
+      "chartAria": "Courbe du rendement par année : historique simulé, puis prévision avec sa fourchette",
+      "historySim": "Observé (démonstration)",
+      "forecastSim": "Prévision simulée",
+      "range": "Fourchette probable",
+      "tip": "{{year}} : {{value}} t/ha ({{kind}})",
+      "hoverHint": "Survolez un point pour lire sa valeur."
+    },
+    "tr": {
+      "crumb": "Corpus des langues",
+      "crumbValidation": "Validation",
+      "desc": "Les textes de l'application sont traduits et notés par des locuteurs natifs du MTDI. Une proposition est validée par un autre représentant que son auteur.",
+      "reminderText": "Le MTDI saisit et valide les textes. Aucun texte en langue nationale n'est inventé : tant qu'une langue n'est pas ouverte, l'interface reste en français.",
+      "notOpen": "Pas encore ouverte",
+      "proposedIn": "Texte proposé en {{lang}}",
+      "filterStatus": "Filtrer par statut",
+      "shown_one": "{{count}} texte affiché",
+      "shown_other": "{{count}} textes affichés"
+    }
+  }
+}

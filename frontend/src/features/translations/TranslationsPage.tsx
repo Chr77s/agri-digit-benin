@@ -3,13 +3,15 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useTranslation } from 'react-i18next';
 import { api, ApiError, list, qs } from '../../shared/api/client';
 import type { Paginated, TrLang, TrStatus, TranslationEntry, TranslationSummary } from '../../shared/api/types';
-import { Badge, Button, Dialog, EmptyState, Field, Notice, PageHeader, QueryState, Select, fmtNum, inputCls } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Notice, PageHeader, QueryState, Select, fmtNum, inputCls } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
+import '../dashboard/pilotage.css';
+import './translations.css';
 
 const LANGS: TrLang[] = ['fon', 'bba', 'yo', 'dnd'];
 const STATUSES: TrStatus[] = ['a_traduire', 'propose', 'valide', 'rejete'];
 const OPEN_THRESHOLD_PCT = 80; // LANGUAGE_OPEN_THRESHOLD côté serveur (UC-15)
-const TONE: Record<TrStatus, 'neutral' | 'warn' | 'success' | 'error'> = { a_traduire: 'neutral', propose: 'warn', valide: 'success', rejete: 'error' };
+const TONE: Record<TrStatus, 'draft' | 'wait' | 'ok' | 'bad'> = { a_traduire: 'draft', propose: 'wait', valide: 'ok', rejete: 'bad' };
 
 /** L'API renvoie `next` sous forme d'URL absolue : seul le paramètre `cursor` nous intéresse. */
 function cursorOf(next: string | null): string | undefined {
@@ -48,19 +50,18 @@ function SummaryCard({ s }: { s: TranslationSummary }) {
   const pct = s.total > 0 ? Math.round((100 * s.valide) / s.total) : 0;
   const lang = t(`translations.lang.${s.language}`, { defaultValue: s.language });
   return (
-    <li className="rounded border border-border bg-surface p-4">
-      <h3 className="text-lg font-semibold">{lang}</h3>
-      <p className="mt-1 flex flex-wrap items-center gap-2">
-        <span>{t('translations.open')} :</span>
-        <Badge tone={s.open_to_producers ? 'success' : 'warn'}>{s.open_to_producers ? t('common.yes') : t('common.no')}</Badge>
-      </p>
-      <div className="relative mt-3 h-4 w-full rounded border border-border bg-bg" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={t('translations.progressLabel', { lang })}>
-        <div className="h-full rounded-l bg-brand" style={{ width: `${pct}%` }} />
-        <span aria-hidden className="absolute top-0 h-full w-0.5 bg-text" style={{ left: `${OPEN_THRESHOLD_PCT}%` }} />
+    <li className="card lang">
+      <div className="card-head" style={{ marginBottom: 4 }}>
+        <h3>{lang}</h3>
+        {s.open_to_producers ? <Badge tone="ok">{t('translations.open')}</Badge> : <Badge tone="wait">{t('pilotage.tr.notOpen')}</Badge>}
       </div>
-      <p className="mt-1 font-semibold">{t('translations.progressText', { valide: s.valide, total: s.total, pct })}</p>
-      <p className="text-sm text-muted">{t('translations.threshold', { pct: OPEN_THRESHOLD_PCT })}</p>
-      <p className="text-sm text-muted">{t('translations.avg')} : {s.average_score === null ? t('common.notAvailable') : `${fmtNum(s.average_score, 1)} / 5`}</p>
+      <div className="gauge" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={t('translations.progressLabel', { lang })}>
+        <span style={{ '--v': `${pct}%` } as React.CSSProperties} />
+        <i style={{ left: `${OPEN_THRESHOLD_PCT}%` }} />
+        <b style={{ left: `${OPEN_THRESHOLD_PCT}%` }} aria-hidden>{OPEN_THRESHOLD_PCT}&nbsp;%</b>
+      </div>
+      <p className="num"><b>{t('translations.progressText', { valide: s.valide, total: s.total, pct })}</b></p>
+      <p className="small muted num">{t('translations.avg')} : {s.average_score === null ? <span className="na">{t('common.notAvailable')}</span> : `${fmtNum(s.average_score, 1)} / 5`}</p>
     </li>
   );
 }
@@ -138,26 +139,28 @@ function ReviewDialog({ e, onClose, onDone }: { e: TranslationEntry; onClose: ()
 
 function EntryCard({ e, canEdit, onPropose, onReview }: { e: TranslationEntry; canEdit: boolean; onPropose: () => void; onReview: () => void }) {
   const { t } = useTranslation();
+  const lang = t(`translations.lang.${e.language}`, { defaultValue: e.language });
   return (
-    <li className="rounded border border-border bg-surface p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge>{t(`translations.lang.${e.language}`, { defaultValue: e.language })}</Badge>
+    <li className="entry">
+      <div className="entry-head">
+        <Badge>{lang}</Badge>
         <Badge tone={TONE[e.status]}>{t(`translations.status.${e.status}`)}</Badge>
-        <span className="break-all font-mono text-sm text-muted">{e.key}</span>
+        <span className="key">{e.key}</span>
       </div>
-      <p className="mt-2 text-sm text-muted">{t('translations.source')}</p>
-      <p className="break-words font-semibold">{e.source_text}</p>
-      <p className="mt-2 text-sm text-muted">{t('translations.current')}</p>
-      <p className="break-words font-semibold">{e.text || t('translations.noText')}</p>
-      <p className="mt-1 text-sm text-muted">
-        {t('translations.avg')} : {e.average_score === null ? t('common.notAvailable') : `${fmtNum(e.average_score, 1)} / 5`} ({t('translations.reviewsCount', { count: e.reviews_count })})
-      </p>
-      {canEdit && (
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={onPropose}>{e.text ? t('translations.edit') : t('translations.propose')}</Button>
-          {e.text && <Button onClick={onReview}>{t('translations.review')}</Button>}
-        </div>
-      )}
+      <div className="txt"><small>{t('translations.source')}</small>{e.source_text}</div>
+      <div className="txt"><small>{t('pilotage.tr.proposedIn', { lang })}</small>{e.text ? <span lang={e.language}>{e.text}</span> : <span className="muted">{t('translations.noText')}</span>}</div>
+      <div className="entry-foot">
+        {e.text && (
+          <span className="small muted num">
+            {t('translations.avg')} : {e.average_score === null ? <span className="na">{t('common.notAvailable')}</span> : `${fmtNum(e.average_score, 1)} / 5`} ({t('translations.reviewsCount', { count: e.reviews_count })})
+          </span>
+        )}
+        <span style={{ flex: 1 }} />
+        {canEdit && <>
+          <Button size="sm" variant={e.text ? 'secondary' : 'primary'} onClick={onPropose}>{e.text ? t('translations.edit') : t('translations.propose')}</Button>
+          {e.text && <Button size="sm" onClick={onReview}>{t('translations.review')}</Button>}
+        </>}
+      </div>
     </li>
   );
 }
@@ -174,50 +177,57 @@ export function TranslationsPage() {
   const summary = useSummary();
   const entries = useEntries(language, status);
   return (
-    <>
-      <PageHeader title={t('translations.title')} />
-      <Notice tone="warn">{t('translations.reminder')}</Notice>
-      {!canEdit && <p className="mt-3 text-muted">{t('translations.readOnly')}</p>}
-      <div aria-live="polite" className="my-3">{msg && <Notice tone="success">{msg}</Notice>}</div>
+    <div className="pv">
+      <PageHeader title={t('translations.title')} crumbs={[{ label: t('pilotage.tr.crumb') }, { label: t('pilotage.tr.crumbValidation') }]} desc={t('pilotage.tr.desc')} />
+      <div className="stack" style={{ '--gap': '24px' } as React.CSSProperties}>
+        <Alert tone="warn" title={t('translations.reminder')}>{t('pilotage.tr.reminderText')}</Alert>
+        {!canEdit && <Alert tone="info">{t('translations.readOnly')}</Alert>}
+        <div aria-live="polite">{msg && <Alert tone="ok">{msg}</Alert>}</div>
 
-      <h2 className="mb-2 mt-2 text-xl font-semibold">{t('translations.summaryTitle')}</h2>
-      <QueryState q={summary} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('translations.summaryEmpty')} />}>
-        {(d) => <ul className="mb-6 grid gap-3 md:grid-cols-2">{d.map((s) => <SummaryCard key={s.language} s={s} />)}</ul>}
-      </QueryState>
+        <section aria-labelledby="h-sum">
+          <h2 className="section-title mb-3" id="h-sum">{t('translations.summaryTitle')}</h2>
+          <QueryState q={summary} empty={(d) => d.length === 0} emptyText={<EmptyState icon="languages" title={t('translations.summaryEmpty')} />}>
+            {(d) => <ul className="lang-grid">{d.map((s) => <SummaryCard key={s.language} s={s} />)}</ul>}
+          </QueryState>
+          <p className="hint mt-2.5">{t('translations.threshold', { pct: OPEN_THRESHOLD_PCT })}</p>
+        </section>
 
-      <h2 className="mb-2 text-xl font-semibold">{t('translations.entriesTitle')}</h2>
-      <div className="mb-4 flex flex-wrap gap-3">
-        <div className="w-full max-w-xs">
-          <Field label={t('translations.language')}>
-            {(p) => <Select {...p} value={language} onChange={(e) => setLanguage(e.target.value)} placeholder={t('common.all')} options={LANGS.map((l) => ({ value: l, label: t(`translations.lang.${l}`) }))} />}
-          </Field>
-        </div>
-        <div className="w-full max-w-xs">
-          <Field label={t('common.status')}>
-            {(p) => <Select {...p} value={status} onChange={(e) => setStatus(e.target.value)} placeholder={t('common.all')} options={STATUSES.map((s) => ({ value: s, label: t(`translations.status.${s}`) }))} />}
-          </Field>
-        </div>
+        <Card title={t('translations.entriesTitle')}>
+          <div className="cluster mb-2" style={{ alignItems: 'flex-end' }}>
+            <div style={{ minWidth: 'min(100%, 200px)' }}>
+              <Field label={t('translations.language')}>
+                {(p) => <Select {...p} value={language} onChange={(e) => setLanguage(e.target.value)} placeholder={t('common.allF')} options={LANGS.map((l) => ({ value: l, label: t(`translations.lang.${l}`) }))} />}
+              </Field>
+            </div>
+            <Chips single label={t('pilotage.tr.filterStatus')} value={[status]} onChange={(v) => setStatus(v[0])}
+              options={[{ value: '', label: t('common.all') }, ...STATUSES.map((s) => ({ value: s, label: t(`translations.status.${s}`) }))]} />
+          </div>
+          <QueryState q={entries} empty={(d) => d.pages.every((pg) => pg.results.length === 0)} emptyText={<EmptyState icon="languages" title={t('translations.entriesEmpty')} />}>
+            {(d) => {
+              const items = d.pages.flatMap((pg) => pg.results);
+              return (
+                <>
+                  <ul className="entries">
+                    {items.map((e) => (
+                      <EntryCard key={e.id} e={e} canEdit={canEdit} onPropose={() => { setMsg(''); setProposing(e); }} onReview={() => { setMsg(''); setReviewing(e); }} />
+                    ))}
+                  </ul>
+                  <div className="card-foot">
+                    <span className="small muted num">{t('pilotage.tr.shown', { count: items.length })}</span>
+                    {entries.hasNextPage && <Button variant="secondary" busy={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>{t('translations.loadMore')}</Button>}
+                  </div>
+                </>
+              );
+            }}
+          </QueryState>
+        </Card>
       </div>
-      <QueryState q={entries} empty={(d) => d.pages.every((pg) => pg.results.length === 0)} emptyText={<EmptyState title={t('translations.entriesEmpty')} />}>
-        {(d) => (
-          <>
-            <ul className="flex flex-col gap-2">
-              {d.pages.flatMap((pg) => pg.results).map((e) => (
-                <EntryCard key={e.id} e={e} canEdit={canEdit} onPropose={() => { setMsg(''); setProposing(e); }} onReview={() => { setMsg(''); setReviewing(e); }} />
-              ))}
-            </ul>
-            {entries.hasNextPage && (
-              <Button variant="secondary" className="mt-3" busy={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>{t('translations.loadMore')}</Button>
-            )}
-          </>
-        )}
-      </QueryState>
 
       {proposing && <ProposeDialog e={proposing} onClose={() => setProposing(null)} onDone={() => { setProposing(null); setMsg(t('translations.proposed')); }} />}
       {reviewing && (
         <ReviewDialog e={reviewing} onClose={() => setReviewing(null)}
           onDone={(r) => { setReviewing(null); setMsg(t('translations.reviewed', { status: t(`translations.status.${r.status}`) })); }} />
       )}
-    </>
+    </div>
   );
 }
