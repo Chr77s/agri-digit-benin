@@ -59,5 +59,12 @@
       "joinSend": "Envoyer la demande",
       "joinSent": "Demande envoyée. Vous serez prévenu de la décision."
     }
+  },
+  "card": {
+    "share": "Partager le lien",
+    "shareTitle": "Carte de producteur Agri-Digit",
+    "shareText": "Vérifiez la carte de producteur de {{name}} : seuls le nom, le code et la commune s'affichent.",
+    "linkCopied": "Lien de vérification copié.",
+    "shareFail": "Le partage n'a pas pu se faire."
   }
 }

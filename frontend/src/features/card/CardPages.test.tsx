@@ -64,6 +64,18 @@ describe('Carte du producteur (vue agent)', () => {
     expect(screen.getByRole('button', { name: 'Imprimer la carte' })).toBeInTheDocument();
   });
 
+  it('partage le lien public de vérification avec la feuille de partage du téléphone', async () => {
+    const share = vi.fn(async () => undefined);
+    vi.stubGlobal('navigator', { ...navigator, share });
+    mockFetch((u) => (u.includes('/producers/p1/card')
+      ? { body: { code: 'BJ-AGR-2026-000001', full_name: 'Bio GOUNOU', commune: 'banikoara', department: 'alibori', status: 'valide', verification_code: 'K7M2Q9XA', verify_url: '', issued_at: '2026-05-14T10:00:00Z' } }
+      : undefined));
+    const user = userEvent.setup();
+    at('/producteurs/p1/carte');
+    await user.click(await screen.findByRole('button', { name: 'Partager le lien' }));
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: expect.stringMatching(/\/verification\/K7M2Q9XA$/) }));
+  });
+
   it('fiche non validée : pas de carte', async () => {
     mockFetch((u) => (u.includes('/card') ? { status: 409, body: { detail: 'Non validée', code: 'not_validated' } } : undefined));
     at('/producteurs/p1/carte');
