@@ -1,7 +1,7 @@
 {
   "mobile": {
     "back": "Retour : {{page}}",
-    "tabs": "Navigation principale",
+    "tabs": "Onglets",
     "tab": { "home": "Accueil", "advice": "Conseil", "photo": "Photo", "market": "Marché", "parcels": "Parcelles" },
     "home": {
       "wxWhere": "{{place}}",
