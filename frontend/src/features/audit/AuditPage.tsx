@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, qs } from '../../shared/api/client';
-import type { AuditLog, Paginated } from '../../shared/api/types';
-import { Alert, Button, Dialog, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table } from '../../shared/ui';
+import type { AuditChainCheck, AuditLog, Paginated } from '../../shared/api/types';
+import { Alert, Button, Dialog, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Skeleton, Table, fmtNum } from '../../shared/ui';
 import '../dashboard/pilotage.css';
 
 /** Types d'objet inscrits au journal (nom de modèle côté serveur, ou valeur posée par l'action). */
@@ -16,6 +16,19 @@ function cursorOf(next: string | null): string | undefined {
 }
 
 const fmtSec = (s: string) => new Date(s).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'medium' });
+const shortHash = (h?: string) => (h ? `${h.slice(0, 4)}…${h.slice(-4)}` : '—');
+
+/** Bandeau de la maquette : la chaîne d'empreintes est recalculée par le serveur à l'ouverture de la page. */
+function ChainStatus() {
+  const { t } = useTranslation();
+  const q = useQuery({ queryKey: ['audit-verify'], queryFn: () => api<AuditChainCheck>('/audit-logs/verify'), staleTime: 5 * 60_000 });
+  if (q.isPending) return <Skeleton />;
+  if (q.isError) return <Alert tone="warn" title={t('pilotage.audit.chainUnknown')}>{t('pilotage.audit.appendText')}</Alert>;
+  const r = q.data;
+  return r.ok
+    ? <Alert tone="ok" icon="shield-check" title={t('pilotage.audit.chainOk')}>{t('pilotage.audit.chainOkText', { count: r.count, n: fmtNum(r.count), date: fmtSec(r.checked_at) })}</Alert>
+    : <Alert tone="danger" title={t('pilotage.audit.chainBroken')}>{t('pilotage.audit.chainBrokenText', { seq: fmtNum(r.broken_seq ?? 0) })}</Alert>;
+}
 
 /** Résumé lisible des détails : « clé : valeur » ; le motif d'un export est cité tel quel. */
 function summary(d: unknown): string {
@@ -41,7 +54,7 @@ export function AuditPage() {
     <div className="pv">
       <PageHeader title={t('nav.audit')} crumbs={[{ label: t('pilotage.crumbGov') }, { label: t('nav.audit') }]} desc={t('pilotage.audit.desc')} />
       <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-        <Alert tone="ok" icon="shield-check" title={t('pilotage.audit.appendTitle')}>{t('pilotage.audit.appendText')}</Alert>
+        <ChainStatus />
         <form className="card card--flat grid-fit" style={{ '--min': '200px', '--gap': '12px 16px', alignItems: 'end' } as React.CSSProperties} role="search" aria-label={t('pilotage.audit.filters')} onSubmit={(e) => e.preventDefault()}>
           <Field label={t('common.action')}>{(p) => <Input {...p} className="mono" placeholder={t('pilotage.audit.actionPh')} value={f.action} onChange={set('action')} />}</Field>
           <Field label={t('audit.actorPhone')}>{(p) => <Input {...p} className="input-num" inputMode="numeric" maxLength={10} placeholder="01…" value={f.actor} onChange={(e) => setF({ ...f, actor: e.target.value.replace(/\D/g, '') })} />}</Field>
@@ -80,6 +93,7 @@ export function AuditPage() {
             <dt>{t('common.action')}</dt><dd className="mono">{open.action}</dd>
             <dt>{t('audit.object')}</dt><dd>{objLabel(open.object_type)} {open.object_id}</dd>
             <dt>{t('pilotage.audit.id')}</dt><dd className="mono">{open.id}</dd>
+            {open.hash && <><dt>{t('pilotage.audit.hash')}</dt><dd className="mono">{t('pilotage.audit.hashPrev')} {shortHash(open.prev_hash)}<br />{t('pilotage.audit.hashThis')} {shortHash(open.hash)}</dd></>}
           </dl>
           <pre className="code-block">{JSON.stringify(open.details, null, 2)}</pre>
         </Dialog>

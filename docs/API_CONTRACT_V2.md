@@ -94,3 +94,8 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /auth/phone-change/request {new_phone}` (producteur, limité en débit comme la connexion) -> code SMS (simulé) envoyé au nouveau numéro. 400 si le numéro est mal formé ou `same_phone` ; 409 `duplicate` s'il est déjà utilisé. Le personnel passe par l'administrateur (403).
 - `POST /auth/phone-change/confirm {code}` (producteur) -> `{access, user}` : nouvelle session. 400 `no_pending_change`, `code_expired`, `invalid_code` (5 échecs = blocage, comme la connexion). La fiche producteur prend le numéro, avec une version « changement de numéro (code SMS) » ; l'ancien numéro reçoit un SMS d'avertissement ; action journalisée `user.phone_change`.
 - `POST /consents/{id}/withdraw` sur le consentement `donnees_personnelles` ferme le compte : fiche `ferme`, connexion et renouvellement de session refusés (401), offres ouvertes `retiree`. Statuts de fiche possibles : `en_attente`, `valide`, `rejete`, `ferme`, `efface`.
+
+## UC-03 Journal d'audit chaîné
+
+- `GET /audit-logs` renvoie aussi `seq`, `prev_hash`, `hash`.
+- `GET /audit-logs/verify` (auditeur, administrateur) -> `{ok, count, broken_seq, checked_at}` : recalcul de toute la chaîne ; `broken_seq` est le rang de la première entrée dont l'empreinte ou le lien ne correspond pas.

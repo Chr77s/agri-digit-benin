@@ -41,8 +41,9 @@ export interface AdminUser extends User { is_active: boolean }
 
 export interface AuditLog {
   id: string; at: string; actor_phone: string; actor_role: string; action: string;
-  object_type: string; object_id: string; details: unknown;
+  object_type: string; object_id: string; details: unknown; seq?: number | null; prev_hash?: string; hash?: string;
 }
+export interface AuditChainCheck { ok: boolean; count: number; broken_seq: number | null; checked_at: string }
 
 export type LandType = 'pluvial_plateau' | 'bas_fond' | 'irrigue';
 export type Tenure = 'propriete' | 'location' | 'pret' | 'coutumier' | 'autre';

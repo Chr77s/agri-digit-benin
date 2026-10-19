@@ -35,6 +35,7 @@ v1 = [
     path("admin/users", acc.admin_users),
     path("admin/users/<uuid:pk>", acc.admin_user_detail),
     path("audit-logs", audit.AuditLogList.as_view()),
+    path("audit-logs/verify", audit.verify),
     path("ref/value-chains", ref.value_chains),
     path("ref/departments", ref.departments),
     path("producers/register", prod.register),
