@@ -22,6 +22,7 @@ from apps.programs import api as prog
 from apps.referentiel import api as ref
 from apps.satellite import api as sat
 from apps.translations import api as trans
+from apps.ussd import api as ussd
 
 v1 = [
     path("auth/otp/request", acc.otp_request),
@@ -61,6 +62,8 @@ v1 = [
     path("notifications", alerts.notification_list),
     path("notifications/<uuid:pk>/read", alerts.notification_read),
     path("outbox", alerts.outbox_list),
+    path("ussd/gateway", ussd.ussd_gateway),
+    path("sms/inbound", ussd.sms_inbound),
     path("programs", prog.program_list),
     path("programs/estimate", prog.program_estimate),
     path("programs/<uuid:pk>", prog.program_detail),

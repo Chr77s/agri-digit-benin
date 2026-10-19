@@ -14,6 +14,8 @@ DEBUG = env.bool("DEBUG", default=False)
 SECRET_KEY = env("SECRET_KEY", default="dev-insecure-key-change-me")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost", "testserver"])
 DEMO_MODE = env.bool("DEMO_MODE", default=False)
+# passerelle USSD/SMS de l'opérateur (vide = fermée hors DEMO_MODE)
+USSD_GATEWAY_KEY = env("USSD_GATEWAY_KEY", default="")
 NPI_REGEX = env("NPI_REGEX", default=r"^\d{10}$")
 PHONE_REGEX = r"^01\d{8}$"
 
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     "apps.satellite",
     "apps.cooperatives",
     "apps.production",
+    "apps.ussd",
     "apps.interop",
 ]
 

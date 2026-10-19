@@ -36,6 +36,22 @@ def create_support(actor, producer, d):
     return s
 
 
+ISSUES = {"manque": "il en manque une partie", "rien_recu": "rien n'a été reçu"}
+
+
+@transaction.atomic
+def report_support_issue(actor, s, kind):
+    """Le producteur signale un appui incomplet ou non reçu : journalisé, l'agent qui l'a remis est prévenu."""
+    if s.status != "remis":
+        raise ApiError("Appui déjà confirmé.", "invalid_status", 400)
+    if kind not in ISSUES:
+        raise ApiError("Signalement inconnu.", "invalid_kind", 400)
+    record(actor, "support.issue", s, kind=kind)
+    _notify_user(s.delivered_by, "Appui signalé", f"Agri-Digit : {s.producer.code} signale que {ISSUES[kind]} pour "
+                                                   f"« {s.item} ». Contactez-le.")
+    return s
+
+
 @transaction.atomic
 def confirm_support(actor, s):
     if s.status != "remis":
