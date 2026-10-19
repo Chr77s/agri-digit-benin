@@ -1,0 +1,23 @@
+/* Carte de producteur (maquettes/web/producteur/carte.html) */
+.card-zone { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.pcard { width: min(100%, 520px); aspect-ratio: 85.6 / 54; border-radius: 18px; background: var(--canopy); color: var(--on-dark); padding: clamp(14px, 3.5vw, 22px); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr auto; gap: 8px 16px; box-shadow: 0 30px 60px -34px rgba(6,22,12,.8); position: relative; overflow: hidden; }
+.pcard::after { content: ""; position: absolute; right: -60px; bottom: -80px; width: 260px; height: 260px; border-radius: 50%; border: 30px solid rgba(111,168,58,.12); pointer-events: none; }
+.pc-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; font-size: .75rem; color: var(--on-dark-2); }
+.pc-top svg { width: 26px; height: 26px; flex: none; }
+.pc-top b { color: var(--on-dark); font-size: .875rem; display: block; }
+.pc-status { margin-left: auto; }
+.pc-id { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; }
+.pc-name { font: 700 clamp(1.1rem, 4vw, 1.5rem)/1.15 var(--font-display); overflow-wrap: anywhere; }
+.pc-id .small { color: var(--on-dark-2); }
+.pc-code { font: 700 clamp(.95rem, 3.4vw, 1.2rem)/1.2 var(--font-ui); letter-spacing: .04em; color: var(--maize-hover, #C8E39B); margin-top: 6px; overflow-wrap: anywhere; }
+/* Emplacement du QR : le code de vérification, lisible à voix haute */
+.pc-qr { background: #fff; color: #0E2F1C; border-radius: 10px; padding: 8px 10px; align-self: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.pc-qr-label { font-size: .625rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #3D5446; }
+.pc-qr-code { font: 700 clamp(.9rem, 3.2vw, 1.15rem)/1.1 var(--font-ui); letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.pc-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; font-size: .75rem; color: var(--on-dark-2); position: relative; z-index: 1; }
+.pc-foot b { color: var(--on-dark); }
+.pc-url { overflow-wrap: anywhere; }
+@media print {
+  .page-head .page-actions, .no-print, .app-foot, .topbar, .proto-band, .sidebar { display: none !important; }
+  .pcard { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none; width: 85.6mm; }
+}

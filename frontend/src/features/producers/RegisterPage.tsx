@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircle2 } from 'lucide-react';
-import { Button, Field, inputCls, Notice, Select, ListenButton, useMsg } from '../../shared/ui';
+import { Alert, Badge, Button, Checkbox, Field, Icon, ListenButton, PhoneInput, Radio, Select, Steps, Timeline, buttonCls, fmtDate, fmtDateTime, useMsg } from '../../shared/ui';
 import { ApiError } from '../../shared/api/client';
-import { useDepartments } from '../../shared/api/ref';
+import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import type { Producer } from '../../shared/api/types';
 import { useRegisterProducer } from './api';
 import { useAuth } from '../auth/AuthContext';
+import '../auth/access.css';
 
 export function ageOn(birth: string, ref = new Date()) {
   const b = new Date(birth);
@@ -46,6 +46,18 @@ const schema = z
     }
   });
 export type RegisterForm = z.infer<typeof schema>;
+type Key = keyof RegisterForm;
+
+/** Champs vérifiés avant de quitter chaque étape (la dernière est le récapitulatif). */
+const STEP_FIELDS: Key[][] = [
+  ['npi', 'first_name', 'last_name', 'sex', 'birth_date'],
+  ['department', 'commune', 'phone'],
+  ['language'],
+  ['consent_accepted', 'guardian_name', 'guardian_npi', 'guardian_consent'],
+  [],
+];
+const stepOf = (k: string) => Math.max(0, STEP_FIELDS.findIndex((fs) => fs.includes(k as Key)));
+const LANGS = [['fr', 'Français'], ['fon', 'Fon'], ['bba', 'Bariba'], ['yo', 'Yoruba'], ['dnd', 'Dendi']] as const;
 
 /** Code d'erreur ANIP du serveur → clé de traduction du message. */
 const anipMessages: Record<string, string> = {
@@ -55,7 +67,7 @@ const anipMessages: Record<string, string> = {
   anip_unavailable: 'register.anip.anip_unavailable',
   guardian_required: 'register.anip.guardian_required',
 };
-const anipField: Record<string, keyof RegisterForm> = {
+const anipField: Record<string, Key> = {
   npi_unknown: 'npi', name_mismatch: 'last_name', birthdate_mismatch: 'birth_date', guardian_required: 'guardian_consent',
 };
 
@@ -64,17 +76,28 @@ export function RegisterPage() {
   const msg = useMsg();
   const { user } = useAuth();
   const deps = useDepartments();
+  const place = usePlaceName();
   const reg = useRegisterProducer();
   const [done, setDone] = useState<Producer | null>(null);
+  const [step, setStep] = useState(0);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const first = useRef(true);
   const f = useForm<RegisterForm>({
     resolver: zodResolver(schema),
     defaultValues: { language: 'fr', consent_accepted: false, guardian_consent: false, department: '', commune: '' },
   });
-  const { register, watch, formState: { errors }, handleSubmit, setError } = f;
+  const { register, watch, getValues, trigger, formState: { errors }, handleSubmit, setError } = f;
   const dep = watch('department');
   const birth = watch('birth_date');
   const minor = !!birth && /^\d{4}-\d{2}-\d{2}$/.test(birth) && ageOn(birth) < 16;
   const communes = deps.data?.find((d) => d.code === dep)?.communes ?? [];
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Changement d'étape : le titre de l'étape reçoit le focus (lecteur d'écran, clavier).
+  useEffect(() => { if (first.current) { first.current = false; return; } heading.current?.focus(); }, [step, done]);
+
+  const go = (n: number) => { reg.reset(); setStep(n); };
+  const next = async () => { if (await trigger(STEP_FIELDS[step])) go(step + 1); };
 
   const onSubmit = handleSubmit(async (v) => {
     try {
@@ -88,118 +111,213 @@ export function RegisterPage() {
     } catch (e) {
       if (e instanceof ApiError) {
         const code = e.code ?? '';
-        if (anipField[code]) setError(anipField[code], { message: anipMessages[code] });
-        Object.entries(e.body.fields ?? {}).forEach(([k, m]) => setError(k as keyof RegisterForm, { message: m[0] }));
+        const bad: string[] = [];
+        if (anipField[code]) { setError(anipField[code], { message: anipMessages[code] }); bad.push(anipField[code]); }
+        Object.entries(e.body.fields ?? {}).forEach(([k, m]) => { setError(k as Key, { message: m[0] }); bad.push(k); });
+        // l'erreur concerne un champ d'une étape précédente : on y retourne, la saisie est gardée
+        if (bad.length) setStep(Math.min(...bad.map(stepOf)));
       }
     }
-  });
+  }, (errs) => setStep(Math.min(...Object.keys(errs).map(stepOf))));
 
   if (done) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col gap-4" role="status" aria-live="polite">
-        <h1 className="flex items-center gap-2 text-2xl font-semibold"><CheckCircle2 aria-hidden className="text-success" /> {t('register.doneTitle')}</h1>
-        <Notice tone="success">
-          <p><Trans i18nKey="register.doneCode" values={{ code: done.code }} components={{ b: <strong /> }} /></p>
-          <p><Trans i18nKey="register.doneStatus" components={{ b: <strong /> }} /></p>
-        </Notice>
-        <ListenButton text={t('register.doneListen', { code: done.code })} />
-        <Link to={user ? '/' : '/connexion'} className="font-semibold text-brand underline">{user ? t('register.backHome') : t('register.toLogin')}</Link>
+      <div className="reg">
+        <section className="card reg-step" role="status" aria-labelledby="reg-done">
+          <div className="done-head">
+            <span className="done-icon"><Icon name="check-circle" size="lg" /></span>
+            <h2 className="section-title" id="reg-done" ref={heading} tabIndex={-1}>{t('register.doneTitle')}</h2>
+          </div>
+          <div className="code-box"><span className="small muted">{t('register.yourCode')}</span><span className="code">{done.code}</span></div>
+          <p><Trans i18nKey="register.doneStatusBadge" components={{ b: <Badge tone="wait">{t('status.en_attente')}</Badge> }} /></p>
+          <Timeline items={[
+            { state: 'done', time: done.created_at ? fmtDateTime(done.created_at) : undefined, title: t('register.tlSent') },
+            { state: 'now', time: t('register.tlCheckWhen'), title: t('register.tlCheck'), text: t('register.tlCheckText') },
+            { time: t('register.tlAfterWhen'), title: t('register.tlAfter') },
+          ]} />
+          <div className="cluster">
+            <Link className={buttonCls()} to={user ? '/' : '/connexion'}>{user ? t('register.backHome') : t('register.toLogin')}</Link>
+            <ListenButton text={t('register.doneListen', { code: done.code })} />
+          </div>
+        </section>
       </div>
     );
   }
 
   const err = reg.error instanceof ApiError ? reg.error : null;
   const errCode = err?.code ?? '';
+  const v = getValues();
+  const steps = [t('register.s1'), t('register.s2'), t('register.s3'), t('register.s4'), t('register.s5')];
+  const titles = [t('register.identity'), t('register.contact'), t('register.language'), t('register.consentTitle'), t('register.recapTitle')];
+  const subs = [t('register.identityHelp'), t('register.contactHelp'), t('register.languageHelp'), t('register.consentHelp'), t('register.recapHelp')];
+  const nav = (
+    <div className="step-nav">
+      {step > 0 && <Button variant="ghost" icon="arrow-left" onClick={() => go(step - 1)}>{t('register.back')}</Button>}
+      {step < 4
+        ? <Button onClick={() => void next()}>{step === 3 ? t('register.toRecap') : t('register.next')}<Icon name="arrow-right" /></Button>
+        : <Button type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
+    </div>
+  );
+  const edit = (n: number) => <Button variant="ghost" size="sm" icon="edit" onClick={() => go(n)}>{t('register.edit')}</Button>;
+  const depName = deps.data?.find((d) => d.code === v.department)?.name ?? v.department;
+
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">{t('register.title')}</h1>
-        <ListenButton text={t('register.listen')} />
+    <div className="reg">
+      <div className="page-head" style={{ margin: 0 }}>
+        <div>
+          <nav className="crumbs" aria-label={t('ui.crumbs')}><ol><li><Link to={user ? '/' : '/connexion'}>{user ? t('nav.home') : t('login.title')}</Link></li><li><span aria-current="page">{t('register.crumb')}</span></li></ol></nav>
+          <h1 className="page-title">{t('register.title')}</h1>
+          <p className="page-desc">{t('register.desc')}</p>
+        </div>
+        <div className="page-actions"><ListenButton text={t('register.listen')} /></div>
       </div>
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
-        <fieldset className="grid gap-4 rounded border border-border bg-surface p-4 md:grid-cols-2">
-          <legend className="px-1 text-lg font-semibold">{t('register.identity')}</legend>
-          <Field label={t('register.npi')} error={errors.npi?.message}>
-            {(p) => <input {...p} {...register('npi')} className={inputCls} inputMode="numeric" maxLength={10} />}
-          </Field>
-          <Field label={t('register.sex')} error={errors.sex?.message}>
-            {(p) => <Select {...p} {...register('sex')} placeholder={t('common.choose')} options={[{ value: 'F', label: t('register.female') }, { value: 'M', label: t('register.male') }]} />}
-          </Field>
-          <Field label={t('register.firstName')} error={errors.first_name?.message}>
-            {(p) => <input {...p} {...register('first_name')} className={inputCls} autoComplete="given-name" />}
-          </Field>
-          <Field label={t('register.lastName')} error={errors.last_name?.message}>
-            {(p) => <input {...p} {...register('last_name')} className={inputCls} autoComplete="family-name" />}
-          </Field>
-          <Field label={t('register.birthDate')} error={errors.birth_date?.message}>
-            {(p) => <input {...p} {...register('birth_date')} className={inputCls} type="date" />}
-          </Field>
-        </fieldset>
+      <Steps steps={steps} current={step} />
 
-        <fieldset className="grid gap-4 rounded border border-border bg-surface p-4 md:grid-cols-2">
-          <legend className="px-1 text-lg font-semibold">{t('register.contact')}</legend>
-          <Field label={t('common.department')} error={errors.department?.message}>
-            {(p) => <Select {...p} {...register('department', { onChange: () => f.setValue('commune', '') })} placeholder={deps.isLoading ? t('common.loadingDots') : t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}
-          </Field>
-          <Field label={t('common.commune')} error={errors.commune?.message} hint={!dep ? t('register.pickDepartmentFirst') : undefined}>
-            {(p) => <Select {...p} {...register('commune')} disabled={!dep} placeholder={t('common.choose')} options={communes.map((c) => ({ value: c.code, label: c.name }))} />}
-          </Field>
-          <Field label={t('register.phone')} hint={t('login.phoneHint')} error={errors.phone?.message}>
-            {(p) => <input {...p} {...register('phone')} className={inputCls} type="tel" inputMode="numeric" maxLength={10} />}
-          </Field>
-          <Field label={t('register.language')} error={errors.language?.message}>
-            {(p) => <Select {...p} {...register('language')} options={[{ value: 'fr', label: 'Français' }, { value: 'fon', label: 'Fon' }, { value: 'bba', label: 'Bariba' }, { value: 'yo', label: 'Yoruba' }, { value: 'dnd', label: 'Dendi' }]} />}
-          </Field>
-          {deps.isError && <Notice tone="error">{t('register.depsDown')} <Button variant="ghost" onClick={() => deps.refetch()}>{t('common.retry')}</Button></Notice>}
-        </fieldset>
+      <form onSubmit={onSubmit} noValidate>
+        <section className="card reg-step" aria-labelledby="reg-h">
+          <div>
+            <h2 className="section-title" id="reg-h" ref={heading} tabIndex={-1}>{titles[step]}</h2>
+            <p className="muted" style={{ marginTop: 4 }}>{subs[step]}</p>
+          </div>
 
-        {minor && (
-          <fieldset className="grid gap-4 rounded border border-warn bg-warn-bg p-4 md:grid-cols-2">
-            <legend className="px-1 text-lg font-semibold text-warn">{t('register.guardianTitle')}</legend>
-            <p className="md:col-span-2">{t('register.guardianLaw')}</p>
-            <Field label={t('register.guardianName')} error={errors.guardian_name?.message}>
-              {(p) => <input {...p} {...register('guardian_name')} className={inputCls} />}
+          {step === 0 && <>
+            <Field label={<>NPI <span className="opt">({t('register.npiLong')})</span></>} hint={t('register.npiHint')} error={errors.npi?.message}>
+              {(p) => <input {...p} {...register('npi')} className="input input-num" inputMode="numeric" maxLength={10} autoComplete="off" />}
             </Field>
-            <Field label={t('register.guardianNpi')} error={errors.guardian_npi?.message}>
-              {(p) => <input {...p} {...register('guardian_npi')} className={inputCls} inputMode="numeric" maxLength={10} />}
-            </Field>
-            <div className="md:col-span-2">
-              <label className="flex min-h-touch items-start gap-3">
-                <input type="checkbox" {...register('guardian_consent')} className="mt-1 h-6 w-6" aria-invalid={errors.guardian_consent ? true : undefined} aria-describedby="g-err" />
-                <span>{t('register.guardianConsent')}</span>
-              </label>
-              {errors.guardian_consent && <p id="g-err" role="alert" className="text-sm text-error">{msg(errors.guardian_consent.message)}</p>}
+            <div className="form-grid">
+              <Field label={t('register.firstName')} error={errors.first_name?.message}>
+                {(p) => <input {...p} {...register('first_name')} className="input" autoComplete="given-name" />}
+              </Field>
+              <Field label={t('register.lastName')} error={errors.last_name?.message}>
+                {(p) => <input {...p} {...register('last_name')} className="input" autoComplete="family-name" />}
+              </Field>
+              <fieldset className="fieldset" aria-describedby={errors.sex ? 'sex-err' : undefined}>
+                <legend className="label">{t('register.sex')}</legend>
+                <div className="cluster" style={{ ['--gap' as string]: '4px 20px' }}>
+                  <Radio {...register('sex')} value="F" label={t('register.female')} />
+                  <Radio {...register('sex')} value="M" label={t('register.male')} />
+                </div>
+                {errors.sex && <span id="sex-err" className="error-msg" role="alert"><Icon name="alert" />{msg(errors.sex.message)}</span>}
+              </fieldset>
+              <Field label={t('register.birthDate')} error={errors.birth_date?.message}>
+                {(p) => <input {...p} {...register('birth_date')} className="input" type="date" max={today} />}
+              </Field>
             </div>
-          </fieldset>
-        )}
+            {minor && <Alert tone="warn" icon="users" title={t('register.minorTitle')}>{t('register.minorText')}</Alert>}
+          </>}
 
-        <fieldset className="rounded border-2 border-brand bg-surface p-4">
-          <legend className="px-1 text-lg font-semibold">{t('register.consentLegend')}</legend>
-          <p id="consent-text" className="mb-3">{t('register.consentText')}</p>
-          <label className="flex min-h-touch items-start gap-3">
-            <input type="checkbox" {...register('consent_accepted')} className="mt-1 h-6 w-6" aria-describedby="consent-text consent-err" aria-invalid={errors.consent_accepted ? true : undefined} />
-            <span className="font-semibold">{t('register.consentCheck')}</span>
-          </label>
-          {errors.consent_accepted && <p id="consent-err" role="alert" className="text-sm text-error">{msg(errors.consent_accepted.message)}</p>}
-        </fieldset>
+          {step === 1 && <>
+            <div className="form-grid">
+              <Field label={t('common.department')} error={errors.department?.message}>
+                {(p) => <Select {...p} {...register('department', { onChange: () => f.setValue('commune', '') })} placeholder={deps.isLoading ? t('common.loadingDots') : t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}
+              </Field>
+              <Field label={t('common.commune')} error={errors.commune?.message} hint={!dep ? t('register.pickDepartmentFirst') : t('register.communeHint')}>
+                {(p) => <Select {...p} {...register('commune')} disabled={!dep} placeholder={t('common.choose')} options={communes.map((c) => ({ value: c.code, label: c.name }))} />}
+              </Field>
+              <div className="span-all" style={{ maxWidth: 360 }}>
+                <Field label={t('register.phone')} hint={t('register.phoneHint')} error={errors.phone?.message}>
+                  {(p) => <PhoneInput {...p} {...register('phone')} maxLength={10} />}
+                </Field>
+              </div>
+            </div>
+            {deps.isError && (
+              <Alert tone="danger" title={t('register.depsDown')} actions={<Button variant="secondary" size="sm" icon="sync" onClick={() => deps.refetch()}>{t('common.retry')}</Button>} />
+            )}
+          </>}
 
-        {err && (
-          <Notice tone="error" live>
-            {errCode === 'duplicate' ? (
-              <p>
-                {t('register.duplicate')}{' '}
-                {err.body.existing && (
+          {step === 2 && <>
+            <fieldset className="fieldset">
+              <legend className="sr-only">{t('register.language')}</legend>
+              <div className="choice-grid">
+                {LANGS.map(([code, name]) => (
+                  <label key={code} className="choice-card">
+                    <input className="radio" type="radio" value={code} {...register('language')} />
+                    <span><b>{name}</b><span className="cc-sub">{code === 'fr' ? t('register.langAvailable') : t('register.langPending')}</span></span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <Alert tone="info" icon="languages">{t('register.langNote')}</Alert>
+          </>}
+
+          {step === 3 && <>
+            {minor && (
+              <fieldset className="guardian">
+                <legend>{t('register.guardianTitle')}</legend>
+                <p className="span-all">{t('register.guardianLaw')}</p>
+                <Field label={t('register.guardianName')} error={errors.guardian_name?.message}>
+                  {(p) => <input {...p} {...register('guardian_name')} className="input" autoComplete="off" />}
+                </Field>
+                <Field label={t('register.guardianNpi')} error={errors.guardian_npi?.message}>
+                  {(p) => <input {...p} {...register('guardian_npi')} className="input input-num" inputMode="numeric" maxLength={10} />}
+                </Field>
+                <div className="span-all">
+                  <Checkbox {...register('guardian_consent')} label={t('register.guardianConsent')} aria-invalid={errors.guardian_consent ? true : undefined} aria-describedby={errors.guardian_consent ? 'g-err' : undefined} />
+                  {errors.guardian_consent && <span id="g-err" className="error-msg" role="alert"><Icon name="alert" />{msg(errors.guardian_consent.message)}</span>}
+                </div>
+              </fieldset>
+            )}
+            <fieldset className="consent">
+              <legend>{t('register.consentLegend')}</legend>
+              <div className="consent-text" id="consent-text">{t('register.consentText')}</div>
+              <div className="cluster">
+                <ListenButton text={t('register.consentText')} label={t('register.listenText')} />
+                <Link className="small" to="/confidentialite">{t('register.readPrivacy')}</Link>
+              </div>
+              <div>
+                <Checkbox {...register('consent_accepted')} label={<b>{t('register.consentCheck')}</b>} aria-invalid={errors.consent_accepted ? true : undefined}
+                  aria-describedby={errors.consent_accepted ? 'consent-text consent-err' : 'consent-text'} />
+                {errors.consent_accepted && <span id="consent-err" className="error-msg" role="alert"><Icon name="alert" />{msg(errors.consent_accepted.message)}</span>}
+              </div>
+            </fieldset>
+            <p className="small muted">{t('register.consentApart')}</p>
+          </>}
+
+          {step === 4 && <>
+            <div className="recap">
+              <div className="recap-block">
+                <header><h3>{t('register.s1')}</h3>{edit(0)}</header>
+                <dl className="dl">
+                  <dt>NPI</dt><dd className="num">{v.npi}</dd>
+                  <dt>{t('register.fullName')}</dt><dd>{v.first_name} {v.last_name}</dd>
+                  <dt>{t('register.sex')}</dt><dd>{v.sex === 'F' ? t('register.female') : t('register.male')}</dd>
+                  <dt>{t('register.birthDate')}</dt><dd className="num">{fmtDate(v.birth_date)}</dd>
+                  <dt>{t('register.check')}</dt><dd>{t('register.anipAtSend')} <Badge tone="sim">{t('register.simulated')}</Badge></dd>
+                </dl>
+              </div>
+              <div className="recap-block">
+                <header><h3>{t('register.s2')}</h3>{edit(1)}</header>
+                <dl className="dl">
+                  <dt>{t('common.commune')}</dt><dd>{place(v.commune)}, {depName}</dd>
+                  <dt>{t('register.phone')}</dt><dd className="num">{v.phone}</dd>
+                </dl>
+              </div>
+              <div className="recap-block">
+                <header><h3>{t('register.s3')}</h3>{edit(2)}</header>
+                <dl className="dl"><dt>{t('register.language')}</dt><dd>{LANGS.find(([c]) => c === v.language)?.[1]}</dd></dl>
+              </div>
+              <div className="recap-block">
+                <header><h3>{t('register.s4')}</h3>{edit(3)}</header>
+                <dl className="dl">
+                  <dt>{t('register.personalData')}</dt><dd>{t('register.consentGiven', { date: fmtDate(today) })}</dd>
+                  {minor && <><dt>{t('register.guardianShort')}</dt><dd>{v.guardian_name}</dd></>}
+                </dl>
+              </div>
+            </div>
+            {err && (
+              <Alert tone="danger" icon={errCode === 'duplicate' ? 'users' : undefined} live
+                title={errCode === 'duplicate' ? t('register.duplicate') : anipMessages[errCode] ? t(anipMessages[errCode]) : err.message}
+                actions={errCode === 'anip_unavailable' ? <Button variant="secondary" size="sm" icon="sync" busy={reg.isPending} type="submit">{t('common.retry')}</Button> : undefined}>
+                {errCode === 'duplicate' && err.body.existing && (
                   user && user.role !== 'producteur'
                     ? <Link className="font-semibold underline" to={`/producteurs/${err.body.existing.id}`}>{t('register.openExisting', { code: err.body.existing.code })}</Link>
-                    : <span><Trans i18nKey="register.existing" values={{ code: err.body.existing.code }} components={{ b: <strong /> }} /> <Link className="font-semibold underline" to="/connexion">{t('login.signIn')}</Link></span>
+                    : <span><Trans i18nKey="register.existing" values={{ code: err.body.existing.code }} components={{ b: <strong /> }} /> <Link to="/connexion">{t('login.signIn')}</Link></span>
                 )}
-              </p>
-            ) : (
-              <p>{anipMessages[errCode] ? t(anipMessages[errCode]) : err.message}</p>
+              </Alert>
             )}
-          </Notice>
-        )}
-        <Button type="submit" busy={reg.isPending} className="self-start">{t('register.submit')}</Button>
+          </>}
+          {nav}
+        </section>
       </form>
     </div>
   );

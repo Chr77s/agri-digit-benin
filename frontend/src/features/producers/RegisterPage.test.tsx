@@ -6,16 +6,30 @@ import { RegisterPage, ageOn } from './RegisterPage';
 
 const departments = [{ code: 'alibori', name: 'Alibori', communes: [{ code: 'banikoara', name: 'Banikoara' }] }];
 
-async function fillValid(user: ReturnType<typeof userEvent.setup>, birth = '1990-07-01') {
+type U = ReturnType<typeof userEvent.setup>;
+const next = (user: U) => user.click(screen.getByRole('button', { name: /Continuer|Voir le récapitulatif/ }));
+
+/** Étapes 1 et 2 remplies, on arrive à l'étape Langue. */
+async function fillValid(user: U, birth = '1990-07-01') {
   await user.type(screen.getByLabelText(/^NPI/), '1000000002');
-  await user.selectOptions(screen.getByLabelText('Sexe'), 'F');
+  await user.click(screen.getByLabelText('Femme'));
   await user.type(screen.getByLabelText('Prénom'), 'Awa');
   await user.type(screen.getByLabelText('Nom'), 'SABI');
   await user.type(screen.getByLabelText('Date de naissance'), birth);
+  await next(user);
   await waitFor(() => expect(screen.getByRole('option', { name: 'Alibori' })).toBeInTheDocument());
   await user.selectOptions(screen.getByLabelText('Département'), 'alibori');
   await user.selectOptions(screen.getByLabelText(/^Commune/), 'banikoara');
   await user.type(screen.getByLabelText(/^Téléphone/), '0197001234');
+  await next(user);
+  expect(await screen.findByRole('heading', { name: 'Langue préférée' })).toBeInTheDocument();
+}
+/** Langue -> consentement coché -> récapitulatif -> envoi. */
+async function consentAndSend(user: U) {
+  await next(user);
+  await user.click(screen.getByRole('checkbox', { name: /je donne mon consentement/i }));
+  await next(user);
+  await user.click(await screen.findByRole('button', { name: /Envoyer l'inscription/ }));
 }
 
 describe('Inscription producteur', () => {
@@ -30,11 +44,13 @@ describe('Inscription producteur', () => {
     const f = mockFetch((u) => (u.includes('/ref/departments') ? { body: departments } : undefined));
     const user = userEvent.setup();
     renderApp(<RegisterPage />);
+    await fillValid(user);
+    await next(user);
     const consent = screen.getByRole('checkbox', { name: /je donne mon consentement/i });
     expect(consent).not.toBeChecked();
-    await fillValid(user);
-    await user.click(screen.getByRole('button', { name: /Envoyer l'inscription/ }));
+    await next(user);
     expect(await screen.findByText(/Cochez la case pour donner votre consentement/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Envoyer l'inscription/ })).not.toBeInTheDocument();
     expect(f.mock.calls.some(([u]) => String(u).includes('/producers/register'))).toBe(false);
   });
 
@@ -42,9 +58,13 @@ describe('Inscription producteur', () => {
     mockFetch((u) => (u.includes('/ref/departments') ? { body: departments } : undefined));
     const user = userEvent.setup();
     renderApp(<RegisterPage />);
-    await user.type(screen.getByLabelText('Date de naissance'), '2011-05-04');
+    await fillValid(user, '2011-05-04');
+    await next(user);
     expect(await screen.findByText(/Moins de 16 ans : parent ou tuteur légal/)).toBeInTheDocument();
     expect(screen.getByLabelText('NPI du parent ou tuteur')).toBeInTheDocument();
+    await user.click(screen.getByRole('checkbox', { name: /je donne mon consentement/i }));
+    await next(user);
+    expect(await screen.findByText(/saisissez le nom du parent ou tuteur légal/)).toBeInTheDocument();
   });
 
   it('montre l’erreur ANIP à côté du champ et le succès en attente', async () => {
@@ -61,13 +81,17 @@ describe('Inscription producteur', () => {
     const user = userEvent.setup();
     renderApp(<RegisterPage />);
     await fillValid(user);
-    await user.click(screen.getByRole('checkbox', { name: /je donne mon consentement/i }));
-    await user.click(screen.getByRole('button', { name: /Envoyer l'inscription/ }));
+    await consentAndSend(user);
+    // retour à l'étape Identité, erreur sous le champ, saisie gardée
     expect((await screen.findAllByText(/ne correspond pas à la fiche ANIP/)).length).toBeGreaterThan(0);
     expect(screen.getByLabelText('Nom')).toHaveValue('SABI');
-    await user.click(screen.getByRole('button', { name: /Envoyer l'inscription/ }));
+    await next(user);
+    await next(user);
+    await next(user);
+    await next(user);
+    await user.click(await screen.findByRole('button', { name: /Envoyer l'inscription/ }));
     expect(await screen.findByText('BJ-AGR-2026-000123')).toBeInTheDocument();
-    expect(screen.getByText(/en attente de validation/)).toBeInTheDocument();
+    expect(screen.getByText(/En attente de validation/)).toBeInTheDocument();
   });
 
   it('propose la fiche existante en cas de doublon', async () => {
@@ -79,8 +103,7 @@ describe('Inscription producteur', () => {
     const user = userEvent.setup();
     renderApp(<RegisterPage />);
     await fillValid(user);
-    await user.click(screen.getByRole('checkbox', { name: /je donne mon consentement/i }));
-    await user.click(screen.getByRole('button', { name: /Envoyer l'inscription/ }));
+    await consentAndSend(user);
     expect(await screen.findByText('BJ-AGR-2026-000001')).toBeInTheDocument();
   });
 });

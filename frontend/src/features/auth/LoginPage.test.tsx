@@ -47,8 +47,32 @@ describe('Connexion', () => {
     await user.type(screen.getByLabelText(/Numéro de téléphone/), '0197000001');
     await user.click(screen.getByRole('button', { name: 'Recevoir le code' }));
     expect(screen.queryByLabelText('Mot de passe')).not.toBeInTheDocument();
-    await user.type(await screen.findByLabelText(/Code à 6 chiffres/), '000000');
+    await user.type(await screen.findByLabelText('Chiffre 1 sur 6'), '000000');
     await user.click(screen.getByRole('button', { name: 'Se connecter' }));
     expect(await screen.findByText(/Code incorrect/)).toBeInTheDocument();
+  });
+
+  it('onglet agent : demande le mot de passe en plus du code, et le compte bloqué désactive la connexion', async () => {
+    const f = mockFetch((u) => {
+      if (u.includes('/auth/otp/request')) return { body: { detail: 'Code envoyé', requires_password: false } };
+      if (u.includes('/auth/otp/verify')) return { status: 429, body: { detail: 'Compte bloqué après 5 échecs. Réessayez dans 15 minutes.', code: 'locked' } };
+      if (u.includes('/demo/otp-inbox')) return { body: [] };
+      return undefined;
+    });
+    const user = userEvent.setup();
+    renderApp(<LoginPage />);
+    await user.click(screen.getByRole('tab', { name: 'Agent ou partenaire' }));
+    expect(screen.getByText(/Votre compte demande en plus votre mot de passe/)).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/Numéro de téléphone/), '0197000002');
+    await user.click(screen.getByRole('button', { name: 'Recevoir le code' }));
+    await user.type(await screen.findByLabelText('Chiffre 1 sur 6'), '123456');
+    expect(screen.getByRole('button', { name: 'Renvoyer le code' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Se connecter' }));
+    expect(await screen.findByText(/Saisissez votre mot de passe/)).toBeInTheDocument();
+    expect(f.mock.calls.some(([u]) => String(u).includes('/otp/verify'))).toBe(false);
+    await user.type(screen.getByLabelText('Mot de passe'), 'AgriDemo-2026!');
+    await user.click(screen.getByRole('button', { name: 'Se connecter' }));
+    expect(await screen.findByText(/Compte bloqué après 5 échecs/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Se connecter' })).toBeDisabled();
   });
 });
