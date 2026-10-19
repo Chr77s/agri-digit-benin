@@ -11,19 +11,21 @@ async function login(page: Page, phone: string, password?: string) {
   await page.goto('/connexion');
   await page.getByLabel(/Numéro de téléphone/).fill(phone);
   await page.getByRole('button', { name: 'Recevoir le code' }).click();
-  const banner = page.getByText(/Dernier SMS simulé/);
+  const banner = page.getByText(/votre code de connexion est/);
   await expect(banner).toBeVisible({ timeout: 10_000 });
   const code = ((await banner.textContent()) ?? '').match(/\b(\d{6})\b/)?.[1];
   expect(code).toBeTruthy();
   if (password) await page.getByLabel('Mot de passe').fill(password);
-  await page.getByLabel(/Code à 6 chiffres/).fill(code!);
+  await page.getByLabel('Chiffre 1 sur 6').pressSequentially(code!);
   await page.getByRole('button', { name: 'Se connecter' }).click();
-  await expect(page.getByRole('button', { name: /Se déconnecter/ })).toBeVisible();
+  // Coque Bénin Vert : la déconnexion est dans le menu du compte de l'en-tête.
+  await expect(page.getByRole('button', { name: /Menu du compte/ })).toBeVisible();
 }
 
 async function logout(page: Page) {
-  await page.getByRole('button', { name: /Se déconnecter/ }).click();
-  await expect(page.getByRole('button', { name: /Se déconnecter/ })).toHaveCount(0);
+  await page.getByRole('button', { name: /Menu du compte/ }).click();
+  await page.getByRole('menuitem', { name: /Se déconnecter/ }).click();
+  await expect(page.getByRole('button', { name: /Menu du compte/ })).toHaveCount(0);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -33,12 +35,12 @@ test('carte producteur : « Ma carte » puis vérification publique', async ({ p
   await login(page, '0197000001');
   await page.goto('/ma-carte');
   await expect(page.getByRole('heading', { level: 1, name: 'Ma carte de producteur' })).toBeVisible();
-  const card = page.getByRole('article', { name: 'Ma carte de producteur' });
-  await expect(card).toContainText('GOUNOU');
-  await expect(card.getByText(/Vérifiable à l'adresse/)).toBeVisible();
+  const card = page.getByRole('img', { name: /Carte de producteur de .*GOUNOU/ });
+  await expect(card).toBeVisible();
+  await expect(page.getByText(/Vérifiable à l'adresse/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Imprimer la carte' })).toBeVisible();
-  // Le code de vérification (8 caractères) est le paragraphe qui suit son libellé.
-  const code = (await card.getByText('Code de vérification', { exact: true }).locator('xpath=following-sibling::p[1]').innerText()).trim();
+  // Le code de vérification (8 caractères) suit son libellé dans « Informations de la carte ».
+  const code = (await page.locator('dt', { hasText: /^Code de vérification$/ }).locator('xpath=following-sibling::dd[1]').innerText()).trim();
   expect(code).toMatch(/^[A-Z0-9]{8}$/);
   await logout(page);
 
@@ -147,7 +149,7 @@ test('marché : offre du transformateur, demande du distributeur, acceptation', 
   const create = page.getByRole('dialog', { name: 'Publier une annonce' });
   await create.getByRole('button', { name: "Publier l'annonce" }).click(); // formulaire vide : erreurs, rien n'est envoyé
   await expect(create.getByRole('alert').first()).toBeVisible();
-  await create.getByLabel("Type d'annonce").selectOption('offre');
+  await create.getByRole('group', { name: "Type d'annonce" }).getByRole('radio', { name: /^Offre/ }).check();
   await create.getByLabel('Filière').selectOption('mais');
   await create.getByLabel('Quantité (kg)').fill('1200');
   await create.getByLabel('Prix proposé (FCFA par kg)').fill('210');

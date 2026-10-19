@@ -5,7 +5,11 @@ import { useAuth } from '../features/auth/AuthContext';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/producers/RegisterPage';
 import { ProducerHome } from '../features/producers/ProducerHome';
+import { AgentHome } from '../features/producers/AgentHome';
+import { ProfilePage } from '../features/producers/ProfilePage';
 import { LEGAL_DOCS, LegalPage } from '../features/legal/LegalPage';
+import { ErrorPage, NotFoundPage } from '../features/legal/StatusPages';
+import { ApiError } from '../shared/api/client';
 import { Layout, NAV } from './Layout';
 import { Skeleton } from '../shared/ui';
 import type { Role } from '../shared/api/types';
@@ -15,7 +19,7 @@ function Guard({ roles, children }: { roles?: Role[]; children: ReactNode }) {
   const { user, ready } = useAuth();
   if (!ready) return <Skeleton />;
   if (!user) return <Navigate to="/connexion" replace />;
-  if (roles && !roles.includes(user.role)) return <p role="alert">{t('app.forbidden')}</p>;
+  if (roles && !roles.includes(user.role)) return <ErrorPage error={new ApiError(403, { detail: t('app.forbidden') })} />;
   return <Suspense fallback={<Skeleton />}>{children}</Suspense>;
 }
 
@@ -24,6 +28,7 @@ function Home() {
   if (!ready) return <Skeleton />;
   if (!user) return <Navigate to="/connexion" replace />;
   if (user.role === 'producteur') return <ProducerHome />;
+  if (user.role === 'agent_atda') return <AgentHome />;
   return <Navigate to={NAV[user.role]?.[0]?.to ?? '/mentions-legales'} replace />;
 }
 
@@ -46,6 +51,11 @@ const AuditPage = lazy(() => import('../features/audit/AuditPage').then((m) => (
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 
 const LandingPage = lazy(() => import('../features/landing/LandingPage').then((m) => ({ default: m.LandingPage })));
+const WeatherPricesPage = lazy(() => import('../features/weather/WeatherPricesPage').then((m) => ({ default: m.WeatherPricesPage })));
+const ForecastsPage = lazy(() => import('../features/forecasts/ForecastsPage').then((m) => ({ default: m.ForecastsPage })));
+const InteropPage = lazy(() => import('../features/interop/InteropPage').then((m) => ({ default: m.InteropPage })));
+const CollectionPage = lazy(() => import('../features/supply/CollectionPage').then((m) => ({ default: m.CollectionPage })));
+const OffersPage = lazy(() => import('../features/supply/OffersPage').then((m) => ({ default: m.OffersPage })));
 const CreditPage = lazy(() => import('../features/credit/CreditPage').then((m) => ({ default: m.CreditPage })));
 const CardPage = lazy(() => import('../features/card/CardPages').then((m) => ({ default: m.CardPage })));
 const VerifyPage = lazy(() => import('../features/card/CardPages').then((m) => ({ default: m.VerifyPage })));
@@ -65,7 +75,6 @@ const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
 
 export function App() {
-  const { t } = useTranslation();
   const { user, ready } = useAuth();
   const { pathname } = useLocation();
   // les visiteurs voient la landing plein écran ; le reste du site garde sa mise en page
@@ -95,7 +104,8 @@ export function App() {
         <Route path="/journal" element={<Guard roles={['auditeur_copil', 'admin_maep']}><AuditPage /></Guard>} />
         <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
         <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
-        <Route path="/verification/:code" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
+        <Route path="/verification/:code?" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
+        <Route path="/profil" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
         <Route path="/cooperatives" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativesPage /></Guard>} />
@@ -109,7 +119,12 @@ export function App() {
         <Route path="/langues" element={<Guard roles={['repr_mtdi', 'admin_maep']}><TranslationsPage /></Guard>} />
         <Route path="/suivi-evaluation" element={<Guard roles={['responsable_programme', 'repr_mtdi', ...AGENT]}><SeaPage /></Guard>} />
         <Route path="/contestations" element={<Guard roles={['producteur', ...AGENT]}><ContestsPage /></Guard>} />
-        <Route path="*" element={<p>{t('app.notFound')} <a className="text-brand underline" href="/">{t('app.backHome')}</a></p>} />
+        <Route path="/meteo-prix" element={<Guard roles={['producteur', 'agent_atda']}><WeatherPricesPage /></Guard>} />
+        <Route path="/previsions" element={<Guard roles={['responsable_programme', 'admin_maep']}><ForecastsPage /></Guard>} />
+        <Route path="/interoperabilite" element={<Guard roles={['admin_maep']}><InteropPage /></Guard>} />
+        <Route path="/collecte" element={<Guard roles={['transformateur', 'distributeur', 'gestionnaire_cooperative']}><CollectionPage /></Guard>} />
+        <Route path="/offres" element={<Guard roles={['distributeur', 'transformateur']}><OffersPage /></Guard>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );
