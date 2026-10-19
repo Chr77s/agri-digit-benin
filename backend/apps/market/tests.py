@@ -1,3 +1,4 @@
+from apps.market import services
 from conftest import client_for
 
 OFFER = {"type": "offre", "value_chain": "mais", "quantity_kg": 1000, "price_xof_per_kg": 250, "department": "borgou",
@@ -43,3 +44,14 @@ def test_payment_fails_for_demo_number_ending_in_zero(users, settings):
     seller.post(f"/api/v1/matches/{mid}/accept")
     p = buyer.post("/api/v1/payments", {"match": mid, "amount_xof": 1000, "payer_phone": "0197000010"}, format="json")
     assert buyer.get(f"/api/v1/payments/{p.json()['id']}").json()["status"] == "echoue"
+
+
+def test_seller_can_request_payment_and_is_the_payee(users, settings):
+    settings.FAKEPAY_DELAY_S = 0
+    seller, buyer, _, mid = _matched(users)
+    seller.post(f"/api/v1/matches/{mid}/accept")
+    p = seller.post("/api/v1/payments", {"match": mid, "amount_xof": 1000, "payer_phone": "0197000011"}, format="json")
+    assert p.status_code == 201
+    got = seller.get(f"/api/v1/payments/{p.json()['id']}").json()
+    assert got["status"] == "reussi" and got["receipt"]["payee_masked"] == services.mask(users["transf"].phone)
+    assert buyer.get(f"/api/v1/payments/{p.json()['id']}").status_code == 200  # l'acheteur suit le paiement demandé

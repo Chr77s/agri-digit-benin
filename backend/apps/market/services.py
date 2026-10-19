@@ -67,6 +67,11 @@ def counterpart(user, m):
     return m.offer.owner if m.requester_id == user.id else m.requester
 
 
+def seller(m):
+    """Le vendeur reçoit l'argent, quel que soit celui qui lance le paiement (le producteur peut le demander)."""
+    return m.offer.owner if m.offer.type == "offre" else m.requester
+
+
 @transaction.atomic
 def create_payment(actor, m, amount_xof, payer_phone):
     if actor.id not in (m.requester_id, m.offer.owner_id):
@@ -81,7 +86,7 @@ def create_payment(actor, m, amount_xof, payer_phone):
     provider = get_provider()
     reference = f"AGD-{uuid.uuid4().hex[:10].upper()}"
     tx = provider.initiate(amount_xof, payer_phone, reference)
-    p = Payment.objects.create(match=m, payer=actor, payee=counterpart(actor, m), amount_xof=amount_xof,
+    p = Payment.objects.create(match=m, payer=actor, payee=seller(m), amount_xof=amount_xof,
                                payer_phone=payer_phone, provider=provider.name, reference=reference,
                                transaction_id=tx["transaction_id"], status="en_attente")
     record(actor, "market.payment_initiate", p, amount_xof=amount_xof, reference=reference)

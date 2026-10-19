@@ -30,5 +30,6 @@ def match_for_party(user, pk):
 def payment_visible(user, pk):
     qs = Payment.objects.select_related("payee", "match__offer")
     if user.role != "admin_maep":
-        qs = qs.filter(Q(payer=user) | Q(payee=user))
+        # les deux parties de la mise en relation voient le paiement, quel que soit celui qui l'a lancé
+        qs = qs.filter(Q(match__requester=user) | Q(match__offer__owner=user))
     return qs.filter(pk=pk).first()
