@@ -66,5 +66,13 @@
     "shareText": "Vérifiez la carte de producteur de {{name}} : seuls le nom, le code et la commune s'affichent.",
     "linkCopied": "Lien de vérification copié.",
     "shareFail": "Le partage n'a pas pu se faire."
+  },
+  "market": {
+    "priceHint": "Prix du jour : {{list}} (démonstration).",
+    "receiptTitle": "Reçu de paiement Agri-Digit",
+    "receiptText": "Reçu de paiement : {{amount}} francs CFA, référence {{ref}}, le {{date}}. Paiement simulé.",
+    "shareReceipt": "Partager le reçu",
+    "receiptCopied": "Reçu copié.",
+    "receiptFail": "Le partage n'a pas pu se faire."
   }
 }

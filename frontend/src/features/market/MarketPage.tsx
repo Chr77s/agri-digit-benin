@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import {
   Alert, Badge, Button, Card, Chips, Dialog, EmptyState, ErrorState, Field, fieldError, fmtDate, fmtDateTime, fmtNum, Input,
-  PageHeader, PhoneInput, QueryState, Radio, Select, Table, Tabs, Textarea, toast, type Column,
+  PageHeader, PhoneInput, QueryState, Radio, Select, speak, Table, Tabs, Textarea, toast, type Column,
 } from '../../shared/ui';
 import { useDepartments, usePlaceName, useVcName, useVcSelect } from '../../shared/api/ref';
 import type { Match, Offer, OfferType, Payment } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
 import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, usePayment, useRefund, type OfferFilter } from './api';
+import { PRICE_CHAINS, demoPrices } from '../weather/demo';
 import { EXPECTED_HARVESTS } from './demo';
 import './market.css';
 
@@ -239,6 +240,12 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
   const [errs, setErrs] = useState<Record<string, string>>({});
   const communes = deps.data?.find((d) => d.code === v.department)?.communes ?? [];
   const err = (name: string) => errs[name] ?? fieldError(m.error, name);
+  // Repère pour fixer son prix : relevés de démonstration de Banikoara et de Parakou pour la filière choisie.
+  const priceHint = (chain: string) => {
+    if (!PRICE_CHAINS.some((c) => c.code === chain)) return undefined; // pas de relevé pour cette filière
+    const seen = demoPrices(chain).filter((r) => /^(Banikoara|Parakou)/.test(r.market)).map((r) => `${r.market.replace(/ \(.*\)/, '')} ${fmtNum(r.price)} F`);
+    return seen.length ? t('market.priceHint', { list: seen.join(' · ') }) : undefined;
+  };
   return (
     <form noValidate aria-label={t('market.create')} onSubmit={(e) => {
       e.preventDefault();
@@ -270,7 +277,7 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
         <Field label={t('market.quantity')} error={err('quantity_kg')}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.qty} onChange={(e) => setV({ ...v, qty: e.target.value })} /><span className="addon addon--end">kg</span></div>
         )}</Field>
-        <Field label={t('market.price')} error={err('price_xof_per_kg')}>{(p) => (
+        <Field label={t('market.price')} error={err('price_xof_per_kg')} hint={priceHint(v.value_chain)}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.price} onChange={(e) => setV({ ...v, price: e.target.value })} /><span className="addon addon--end">FCFA/kg</span></div>
         )}</Field>
         <Field label={t('common.department')}>{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder={t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
@@ -429,6 +436,16 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
   // Un paiement réussi conclut l'annonce : on recharge la liste.
   useEffect(() => { if (status === 'reussi') void qc.invalidateQueries({ queryKey: ['offers'] }); }, [status, qc]);
   const row = (label: string, value: ReactNode) => <div className="between"><span className="muted">{label}</span><b className="num">{value}</b></div>;
+  // Le reçu ne porte que des numéros masqués : on peut le lire à voix haute ou le partager sans exposer personne.
+  const receiptText = (p: Payment) => t('market.receiptText', { amount: fmtNum(p.receipt?.amount_xof ?? p.amount_xof), ref: p.reference, date: fmtDateTime(p.receipt?.paid_at) });
+  const shareReceipt = async (p: Payment) => {
+    try {
+      if (navigator.share) await navigator.share({ title: t('market.receiptTitle'), text: receiptText(p) });
+      else { await navigator.clipboard.writeText(receiptText(p)); toast(t('market.receiptCopied')); }
+    } catch (e) {
+      if ((e as { name?: string }).name !== 'AbortError') toast({ type: 'error', text: t('market.receiptFail') });
+    }
+  };
   return (
     <section aria-labelledby="pay-title" className={`card stack${status === 'reussi' ? ' pay-ok' : ''}`}>
       <QueryState q={q}>
@@ -453,7 +470,13 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
               {row(t('market.reference'), `${p.reference} (${p.provider})`)}
             </div>
             {p.receipt && <p className="hint">{t('market.auditNote')}</p>}
-            {p.receipt && <Button variant="secondary" size="sm" icon="printer" className="self-start" onClick={() => window.print()}>{t('market.print')}</Button>}
+            {p.receipt && (
+              <div className="cluster">
+                <Button variant="secondary" size="sm" icon="megaphone" onClick={() => speak(receiptText(p))}>{t('common.listen')}</Button>
+                <Button variant="secondary" size="sm" icon="send" onClick={() => void shareReceipt(p)}>{t('market.shareReceipt')}</Button>
+                <Button variant="secondary" size="sm" icon="printer" onClick={() => window.print()}>{t('market.print')}</Button>
+              </div>
+            )}
             {mode === 'admin' && p.status === 'reussi' && (
               ask ? (
                 <div className="stack" style={{ ['--gap' as string]: '8px' }}>

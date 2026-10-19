@@ -47,6 +47,8 @@ describe('Marché', () => {
     await user.click(screen.getByRole('button', { name: 'Demander le paiement (simulation)' }));
     expect(await screen.findByText('Paiement réussi (simulation).', {}, { timeout: 3000 })).toBeInTheDocument();
     expect(screen.getByText('Vous recevez')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Partager le reçu' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Écouter' })).toBeInTheDocument();
     const post = f.mock.calls.find(([u, i]) => String(u).endsWith('/payments') && i?.method === 'POST');
     expect(JSON.parse(String(post?.[1]?.body))).toEqual({ match: 'm1', amount_xof: 246000, payer_phone: '0196452218' });
   });
