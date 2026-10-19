@@ -34,8 +34,16 @@ describe('Coque mobile', () => {
     expect(links[0]).toHaveAttribute('aria-current', 'page');
   });
 
-  it("n'en donne pas aux rôles sans onglets : le tiroir reste leur menu", () => {
+  it("donne à l'agent ATDA ses onglets de terrain : producteurs, inscription, remises, alertes", () => {
     shell('agent_atda');
+    const links = within(screen.getByRole('navigation', { name: 'Onglets' })).getAllByRole('link');
+    expect(links.map((l) => [l.textContent, l.getAttribute('href')])).toEqual([
+      ['Accueil', '/'], ['Producteurs', '/producteurs'], ['Inscrire', '/inscription'], ['Remises', '/appuis'], ['Alertes', '/alertes'],
+    ]);
+  });
+
+  it("n'en donne pas aux rôles sans onglets : le tiroir reste leur menu", () => {
+    shell('admin_maep');
     expect(screen.queryByRole('navigation', { name: 'Onglets' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ouvrir le menu' })).toBeInTheDocument();
   });
