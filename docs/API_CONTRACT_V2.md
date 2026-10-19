@@ -34,6 +34,7 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /supports {producer, program?, item, quantity, unit, value_xof, repayable: bool}` (agent du périmètre) -> statut `remis`.
 - `GET /supports?producer=` (producteur : les siens ; agent : périmètre).
 - `POST /supports/{id}/confirm` (producteur concerné) -> statut `confirme`, `confirmed_at`. Notification à l'agent.
+- `POST /supports/{id}/report {kind: manque|rien_recu}` (producteur concerné, appui encore `remis`) : l'appui reste à confirmer, l'agent qui l'a remis est prévenu, action journalisée (`support.issue`). 400 `invalid_kind` ou `invalid_status` (déjà confirmé).
 
 ## UC-11 Récolte et post-récolte
 

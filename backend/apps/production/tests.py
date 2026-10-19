@@ -26,6 +26,21 @@ def test_harvest_estimate_flag_and_limits(users, producer, campaign):
     assert client_for(users["agent_zou"]).get("/api/v1/harvests").json()["results"] == []
 
 
+def test_producer_reports_a_missing_or_unreceived_support(users, producer):
+    agent, p = client_for(users["agent"]), client_for(producer.user)
+    body = {"producer": str(producer.id), "item": "Engrais NPK", "quantity": 4, "unit": "sac", "value_xof": 60000,
+            "repayable": False}
+    sid = agent.post("/api/v1/supports", body, format="json").json()["id"]
+    url = f"/api/v1/supports/{sid}/report"
+    assert agent.post(url, {"kind": "manque"}, format="json").status_code == 403  # réservé au producteur concerné
+    assert p.post(url, {"kind": "peut-etre"}, format="json").status_code == 400
+    assert p.post(url, {"kind": "manque"}, format="json").status_code == 200
+    assert p.get("/api/v1/supports").json()["results"][0]["status"] == "remis"  # reste à confirmer
+    assert any("Appui signalé" in n["title"] for n in agent.get("/api/v1/notifications").json()["results"])
+    p.post(f"/api/v1/supports/{sid}/confirm")
+    assert p.post(url, {"kind": "rien_recu"}, format="json").status_code == 400  # confirmé : plus rien à signaler
+
+
 def test_support_delivery_and_confirmation(users, producer):
     agent, p = client_for(users["agent"]), client_for(producer.user)
     body = {"producer": str(producer.id), "item": "Semences de maïs", "quantity": 25, "unit": "kg",

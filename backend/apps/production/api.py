@@ -90,6 +90,15 @@ def support_confirm(request, pk):
     return Response(SupportSerializer(services.confirm_support(request.user, s)).data)
 
 
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+def support_report(request, pk):
+    s = selectors.supports_for(request.user).filter(pk=pk).first()
+    if s is None:
+        raise Http404
+    return Response(SupportSerializer(services.report_support_issue(request.user, s, request.data.get("kind"))).data)
+
+
 @api_view(["GET", "POST"])
 @permission_classes([roles(PRODUCTEUR, AGENT, ADMIN)])
 def harvest_list(request):
