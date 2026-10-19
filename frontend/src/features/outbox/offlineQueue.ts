@@ -100,7 +100,8 @@ export function useOfflineStatus() {
   const [online, setOnline] = useState(navigator.onLine);
   const [pending, setPending] = useState<PendingWrite[]>([]);
   useEffect(() => {
-    const refresh = () => { void offlineDb.pending.toArray().then(setPending).catch(() => setPending([])); };
+    // Dexie lève tout de suite quand IndexedDB manque (navigation privée ancienne, tests) : la coque ne doit pas planter pour autant.
+    const refresh = () => { try { void offlineDb.pending.toArray().then(setPending).catch(() => setPending([])); } catch { setPending([]); } };
     const on = () => { setOnline(true); };
     const off = () => setOnline(false);
     window.addEventListener('online', on);
