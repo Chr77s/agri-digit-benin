@@ -111,7 +111,7 @@ export function App() {
         <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
         <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
         <Route path="/verification/:code?" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
-        <Route path="/profil" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
+        <Route path="/profil/:section?" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
         <Route path="/cooperatives" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativesPage /></Guard>} />
