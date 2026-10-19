@@ -167,12 +167,13 @@ export function RegisterPage() {
   const steps = [t('register.s1'), t('register.s2'), t('register.s3'), t('register.s4'), t('register.s5')];
   const titles = [t('register.identity'), t('register.contact'), t('register.language'), t('register.consentTitle'), t('register.recapTitle')];
   const subs = [t('register.identityHelp'), t('register.contactHelp'), t('register.languageHelp'), t('register.consentHelp'), t('register.recapHelp')];
+  // Clés distinctes : sinon React réutilise le même <button>, qui devient « submit » pendant le clic et envoie la fiche sans passer par le récapitulatif.
   const nav = (
     <div className="step-nav">
       {step > 0 && <Button variant="ghost" icon="arrow-left" onClick={() => go(step - 1)}>{t('register.back')}</Button>}
       {step < 4
-        ? <Button onClick={() => void next()}>{step === 3 ? t('register.toRecap') : t('register.next')}<Icon name="arrow-right" /></Button>
-        : <Button type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
+        ? <Button key="next" onClick={() => void next()}>{step === 3 ? t('register.toRecap') : t('register.next')}<Icon name="arrow-right" /></Button>
+        : <Button key="send" type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
     </div>
   );
   const edit = (n: number) => <Button variant="ghost" size="sm" icon="edit" onClick={() => go(n)}>{t('register.edit')}</Button>;
