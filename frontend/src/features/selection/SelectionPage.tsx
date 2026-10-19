@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trans, useTranslation } from 'react-i18next';
 import { api, qs, rows } from '../../shared/api/client';
 import type { Candidate, Contest, Paginated, SelectionRun, Weights } from '../../shared/api/types';
-import { Badge, Button, Dialog, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Select, Table, fmtDateTime, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Checkbox, Chips, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Select, Skeleton, Table, Textarea, fmtDateTime, fmtNum, toast } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
-import { useDepartments } from '../../shared/api/ref';
+import { useDepartments, usePlaceName } from '../../shared/api/ref';
+import '../producers/agent.css';
 
 // Le contrat ne liste pas GET /selection-runs : on le tente, sinon on garde les lancements de la session.
 const useRuns = () => useQuery({ queryKey: ['selection-runs'], queryFn: async () => rows(await api<Paginated<SelectionRun> | SelectionRun[]>('/selection-runs')), retry: false });
@@ -14,12 +16,17 @@ const useCandidates = (id: string, selected: string) =>
 const useContests = (id: string) =>
   useQuery({ queryKey: ['contests', id], queryFn: async () => rows(await api<Paginated<Contest> | Contest[]>(`/selection-runs/${id}/contests`)), enabled: !!id });
 
+const WEIGHT_KEYS = ['confidence', 'road_distance', 'area'] as const;
+/** Les pondérations doivent faire 1 (tolérance d'arrondi). */
+export const weightsOk = (w: Weights) => Math.abs(w.confidence + w.road_distance + w.area - 1) <= 0.001;
+
 export function SelectionPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const runs = useRuns();
   const deps = useDepartments();
+  const place = usePlaceName();
   const [local, setLocal] = useState<SelectionRun[]>([]);
   const [current, setCurrent] = useState<string>('');
   const [w, setW] = useState<Weights>({ confidence: 0.5, road_distance: 0.3, area: 0.2 });
@@ -30,54 +37,62 @@ export function SelectionPage() {
 
   const launch = useMutation({
     mutationFn: () => api<SelectionRun>('/selection-runs', { method: 'POST', body: { target_count: target, weights: w, ...(dep ? { department: dep } : {}) } }),
-    onSuccess: (r) => { setLocal((l) => [r, ...l]); setCurrent(r.id); void qc.invalidateQueries({ queryKey: ['selection-runs'] }); },
+    onSuccess: (r) => { setLocal((l) => [r, ...l]); setCurrent(r.id); toast(t('ag.sel.launched')); void qc.invalidateQueries({ queryKey: ['selection-runs'] }); },
   });
   const all = [...local, ...(runs.data ?? []).filter((r) => !local.some((l) => l.id === r.id))];
-  const run = all.find((r) => r.id === current);
+  const run = all.find((r) => r.id === current) ?? all[0];
   const sum = w.confidence + w.road_distance + w.area;
 
   return (
     <>
-      <PageHeader title={t('selection.title')} />
-      <Notice tone="warn"><Trans i18nKey="selection.notice" components={{ b: <strong /> }} /></Notice>
-      {canLaunch && (
-        <form className="my-4 grid gap-3 rounded border border-border bg-surface p-4 md:grid-cols-3" noValidate onSubmit={(e) => {
-          e.preventDefault();
-          if (Math.abs(sum - 1) > 0.001) { setWErr(t('selection.errSum', { sum: fmtNum(sum, 2) })); return; }
-          setWErr(''); launch.mutate();
-        }}>
-          <h2 className="text-xl font-semibold md:col-span-3">{t('selection.launch')}</h2>
-          <p className="md:col-span-3 text-muted">{t('selection.criteria')}</p>
-          {(['confidence', 'road_distance', 'area'] as const).map((k) => (
-            <Field key={k} label={t(`selection.w.${k}`)}>
-              {(p) => <input {...p} type="number" step="0.05" min="0" max="1" className={inputCls} value={w[k]} onChange={(e) => setW({ ...w, [k]: Number(e.target.value) })} />}
-            </Field>
-          ))}
-          <Field label={t('selection.target')}>{(p) => <input {...p} type="number" min="1" className={inputCls} value={target} onChange={(e) => setTarget(Number(e.target.value))} />}</Field>
-          <Field label={t('selection.depOptional')}>{(p) => <Select {...p} value={dep} onChange={(e) => setDep(e.target.value)} placeholder={t('common.all')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
-          <p className="self-end" aria-live="polite"><Trans i18nKey="selection.sum" values={{ sum: fmtNum(sum, 2) }} components={{ b: <strong /> }} /></p>
-          {wErr && <p role="alert" className="text-sm text-error md:col-span-3">{wErr}</p>}
-          {launch.error && <div className="md:col-span-3"><Notice tone="error" live>{launch.error.message}</Notice></div>}
-          <Button type="submit" busy={launch.isPending} className="self-start">{t('selection.compute')}</Button>
-        </form>
-      )}
-      <h2 className="mb-2 mt-4 text-xl font-semibold">{t('nav.selection')}</h2>
-      {all.length === 0 ? (
-        runs.isLoading ? <p>{t('common.loadingDots')}</p> : <EmptyState title={t('selection.empty')}>{canLaunch ? t('selection.emptyLaunch') : t('selection.emptyNone')}</EmptyState>
-      ) : (
-        <ul className="mb-4 flex flex-col gap-2">
-          {all.map((r) => (
-            <li key={r.id}>
-              <button type="button" onClick={() => setCurrent(r.id)} aria-current={r.id === current || undefined} className={`flex min-h-touch w-full flex-wrap items-center gap-3 rounded border bg-surface p-3 text-left ${r.id === current ? 'border-brand border-2' : 'border-border'}`}>
-                <Badge tone={r.status === 'validee' ? 'success' : 'warn'}>{r.status === 'validee' ? t('selection.runStatus.validee') : t('selection.runStatus.proposition')}</Badge>
-                <span>{t('selection.runLine', { date: fmtDateTime(r.created_at), target: fmtNum(r.target_count), selected: fmtNum(r.selected_count) })}</span>
-                <span className="text-sm text-muted">{t('selection.weightsLine', { confidence: r.weights.confidence, road: r.weights.road_distance, area: r.weights.area })}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {run && <RunDetail run={run} onUpdated={(r) => setLocal((l) => [r, ...l.filter((x) => x.id !== r.id)])} />}
+      <PageHeader title={t('selection.title')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.selection') }]} desc={t('ag.sel.desc')} />
+      <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
+        <Alert tone="warn" icon="scale"><Trans i18nKey="selection.notice" components={{ b: <strong /> }} /></Alert>
+        {canLaunch && (
+          <form className="card stack" noValidate aria-labelledby="h-launch" onSubmit={(e) => {
+            e.preventDefault();
+            if (!weightsOk(w)) { setWErr(t('selection.errSum', { sum: fmtNum(sum, 2) })); return; }
+            setWErr(''); launch.mutate();
+          }}>
+            <div><h2 className="card-title" id="h-launch">{t('selection.launch')}</h2><p className="card-sub">{t('selection.criteria')}</p></div>
+            <div className="form-grid">
+              {WEIGHT_KEYS.map((k) => (
+                <Field key={k} label={t(`selection.w.${k}`)}>
+                  {(p) => <Input {...p} type="number" step="0.05" min="0" max="1" inputMode="decimal" value={w[k]} onChange={(e) => setW({ ...w, [k]: Number(e.target.value) })} />}
+                </Field>
+              ))}
+              <Field label={t('selection.target')}>{(p) => <Input {...p} type="number" min="1" inputMode="numeric" value={target} onChange={(e) => setTarget(Number(e.target.value))} />}</Field>
+              <Field label={t('selection.depOptional')}>{(p) => <Select {...p} value={dep} onChange={(e) => setDep(e.target.value)} placeholder={t('common.all')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
+            </div>
+            <p aria-live="polite"><Trans i18nKey="selection.sum" values={{ sum: fmtNum(sum, 2) }} components={{ b: <strong /> }} /></p>
+            {wErr && <Alert tone="danger" live>{wErr}</Alert>}
+            {launch.error && <Alert tone="danger" live>{launch.error.message}</Alert>}
+            <div className="cluster justify-end"><Button type="submit" busy={launch.isPending}>{t('selection.compute')}</Button></div>
+          </form>
+        )}
+
+        <section aria-labelledby="h-runs" className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <div className="between"><h2 className="section-title" id="h-runs">{t('ag.sel.runsTitle')}</h2><span className="small muted">{t('ag.sel.runsSub')}</span></div>
+          {all.length === 0 ? (
+            runs.isLoading ? <Skeleton /> : <div className="card"><EmptyState title={t('selection.empty')}>{canLaunch ? t('selection.emptyLaunch') : t('selection.emptyNone')}</EmptyState></div>
+          ) : (
+            <div className="runs" role="radiogroup" aria-label={t('ag.sel.chooseRun')}>
+              {all.map((r) => (
+                <label key={r.id} className="choice-card">
+                  <input className="radio" type="radio" name="run" checked={r.id === run?.id} onChange={() => setCurrent(r.id)} />
+                  <span className="rl">
+                    <Badge tone={r.status === 'validee' ? 'ok' : 'wait'}>{t(`selection.runStatus.${r.status}`)}</Badge>
+                    <b className="num">{t('ag.sel.runLine', { date: fmtDateTime(r.created_at), dep: r.department ? place(r.department) : t('contests.allCountry'), target: fmtNum(r.target_count), selected: fmtNum(r.selected_count) })}</b>
+                    <span className="small muted">{r.status === 'validee' && r.validation_reason ? t('selection.validatedReason', { reason: r.validation_reason }) : t('selection.weightsLine', { confidence: fmtNum(r.weights.confidence, 2), road: fmtNum(r.weights.road_distance, 2), area: fmtNum(r.weights.area, 2) })}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {run && <RunDetail key={run.id} run={run} onUpdated={(r) => setLocal((l) => [r, ...l.filter((x) => x.id !== r.id)])} />}
+      </div>
     </>
   );
 }
@@ -85,68 +100,98 @@ export function SelectionPage() {
 function RunDetail({ run, onUpdated }: { run: SelectionRun; onUpdated: (r: SelectionRun) => void }) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const place = usePlaceName();
   const qc = useQueryClient();
   const [filter, setFilter] = useState('true');
   const cands = useCandidates(run.id, filter);
   const contests = useContests(run.id);
   const [reason, setReason] = useState('');
+  const [sampled, setSampled] = useState(false);
   const [err, setErr] = useState('');
   const [contestFarm, setContestFarm] = useState<string | null>(null);
   const [cReason, setCReason] = useState('');
+  const [cErr, setCErr] = useState('');
   const validate = useMutation({
     mutationFn: () => api<SelectionRun>(`/selection-runs/${run.id}/validate`, { method: 'POST', body: { reason } }),
-    onSuccess: (r) => { onUpdated(r); void qc.invalidateQueries({ queryKey: ['selection-runs'] }); },
+    onSuccess: (r) => { onUpdated(r); toast(t('ag.sel.validatedToast')); void qc.invalidateQueries({ queryKey: ['selection-runs'] }); },
   });
   const contest = useMutation({
     mutationFn: () => api<Contest>(`/selection-runs/${run.id}/contest`, { method: 'POST', body: { farm_id: contestFarm, reason: cReason } }),
-    onSuccess: () => { setContestFarm(null); void qc.invalidateQueries({ queryKey: ['contests', run.id] }); },
+    onSuccess: () => { setContestFarm(null); toast(t('contests.sent')); void qc.invalidateQueries({ queryKey: ['contests', run.id] }); },
   });
-  const canValidate = (user?.role === 'agent_atda' || user?.role === 'admin_maep') && run.status === 'proposition';
+  const isAgent = user?.role === 'agent_atda' || user?.role === 'admin_maep';
+  const launchedByMe = run.created_by === user?.id || run.created_by === user?.phone;
+  const total = run.total_count;
+  const sum = run.weights.confidence + run.weights.road_distance + run.weights.area;
 
   return (
-    <section className="flex flex-col gap-4">
-      {canValidate && (
-        <form className="flex flex-col gap-3 rounded border border-border bg-surface p-4" onSubmit={(e) => {
-          e.preventDefault();
-          if (reason.trim().length < 5) { setErr(t('selection.errValidate')); return; }
-          setErr(''); validate.mutate();
-        }}>
-          <h3 className="text-lg font-semibold">{t('selection.validateTitle')}</h3>
-          <Field label={t('selection.validateReason')} error={err}>{(p) => <textarea {...p} className={`${inputCls} py-2`} value={reason} onChange={(e) => setReason(e.target.value)} />}</Field>
-          {validate.error && <Notice tone="error" live>{validate.error.message}</Notice>}
-          <Button type="submit" busy={validate.isPending} className="self-start">{t('selection.validate')}</Button>
-        </form>
-      )}
-      {run.status === 'validee' && <Notice tone="success" live>{run.validation_reason ? t('selection.validatedReason', { reason: run.validation_reason }) : t('selection.validated')}</Notice>}
-      <div className="w-full sm:w-64">
-        <Field label={t('common.show')}>{(p) => <Select {...p} value={filter} onChange={(e) => setFilter(e.target.value)} options={[{ value: 'true', label: t('selection.selected') }, { value: 'false', label: t('selection.notSelected') }]} />}</Field>
+    <div className="split">
+      <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
+        <Card title={t('ag.sel.critTitle')} actions={<Badge tone="sim">{t('ag.sel.demoScore')}</Badge>}>
+          <div className="weights">
+            {WEIGHT_KEYS.map((k) => <div key={k} className="w"><span className="small muted">{t(`ag.sel.w.${k}`)}</span><b>{fmtNum(run.weights[k], 2)}</b></div>)}
+          </div>
+          <p className="small muted mt-3">{t('ag.sel.sumLine', { sum: fmtNum(sum, 2) })}{total ? ` · ${t('ag.sel.evaluated', { n: fmtNum(total), dep: run.department ? place(run.department) : t('contests.allCountry') })}` : ''}</p>
+        </Card>
+        <QueryState q={cands} empty={(d) => d.length === 0} emptyText={<div className="card"><EmptyState title={t('selection.noCandidate')} /></div>}>
+          {(d) => (
+            <Table<Candidate> title={t('selection.candidates')} caption={t('selection.candidates')} data={d} rowKey={(r) => r.farm_id} exportName="candidats"
+              toolbar={<Chips single label={t('common.show')} value={[filter]} onChange={(v) => setFilter(v[0])}
+                options={[{ value: 'true', label: t('selection.selected'), count: run.selected_count }, { value: 'false', label: t('selection.notSelected'), count: total ? total - run.selected_count : undefined }]} />}
+              columns={[
+                { key: 'rank', label: t('selection.rank'), num: true },
+                { key: 'farm_id', label: t('selection.farm'), primary: true, render: (r) => <span className="cell-main num">{r.farm_id}</span> },
+                { key: 'commune', label: t('common.commune'), render: (r) => place(r.commune) },
+                { key: 'score', label: t('selection.score'), num: true, render: (r) => fmtNum(r.score, 3) },
+                { key: 'confidence', label: t('selection.confidence'), num: true, render: (r) => fmtNum(r.confidence, 2) },
+                { key: 'road_distance_m', label: t('selection.roadM'), num: true, render: (r) => fmtNum(r.road_distance_m) },
+                { key: 'area_ha', label: t('selection.areaHa'), num: true, render: (r) => fmtNum(r.area_ha, 2) },
+                ...(filter === 'false' ? [{ key: 'contest', label: t('selection.contestCol'), actions: true, render: (r: Candidate) => <Button variant="secondary" size="sm" onClick={() => { setContestFarm(r.farm_id); setCReason(''); setCErr(''); contest.reset(); }}>{t('selection.contest')}</Button> }] : []),
+              ]} />
+          )}
+        </QueryState>
+        <p className="small muted">{total ? t('selection.limitTotal', { total: fmtNum(total) }) : t('selection.limit')}</p>
       </div>
-      <p className="text-sm text-muted">{run.total_count ? t('selection.limitTotal', { total: fmtNum(run.total_count) }) : t('selection.limit')}</p>
-      <QueryState q={cands} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('selection.noCandidate')} />}>
-        {(d) => (
-          <Table<Candidate> caption={t('selection.candidates')} data={d} rowKey={(r) => r.farm_id} exportName="candidats" columns={[
-            { key: 'rank', label: t('selection.rank') },
-            { key: 'farm_id', label: t('selection.farm') },
-            { key: 'commune', label: t('common.commune') },
-            { key: 'score', label: t('selection.score'), render: (r) => fmtNum(r.score, 3) },
-            { key: 'confidence', label: t('selection.confidence'), render: (r) => fmtNum(r.confidence, 2) },
-            { key: 'road_distance_m', label: t('selection.roadM'), render: (r) => fmtNum(r.road_distance_m) },
-            { key: 'area_ha', label: t('selection.areaHa'), render: (r) => fmtNum(r.area_ha, 2) },
-            ...(filter === 'false' ? [{ key: 'contest', label: t('selection.contestCol'), sortable: false, render: (r: Candidate) => <Button variant="secondary" onClick={() => { setContestFarm(r.farm_id); setCReason(''); }}>{t('selection.contest')}</Button> }] : []),
-          ]} />
+
+      <aside className="stack" aria-label={t('ag.sel.asideLabel')}>
+        {run.status === 'validee' ? (
+          <Alert tone="ok" live title={t('selection.validated')}>{run.validation_reason && t('ag.sel.reasonLine', { reason: run.validation_reason })}</Alert>
+        ) : isAgent ? (
+          <form className="card stack" style={{ '--gap': '14px' } as React.CSSProperties} noValidate aria-labelledby="h-val" onSubmit={(e) => {
+            e.preventDefault();
+            if (reason.trim().length < 5) { setErr(t('selection.errValidate')); return; }
+            setErr(''); validate.mutate();
+          }}>
+            <h2 className="card-title" id="h-val">{t('selection.validateTitle')}</h2>
+            <p className="small muted">{launchedByMe ? t('ag.sel.cannotOwn') : t('ag.sel.validateIntro')}</p>
+            <Field label={t('selection.validateReason')} error={err}>{(p) => <Textarea {...p} rows={4} value={reason} onChange={(e) => { setReason(e.target.value); setErr(''); }} />}</Field>
+            <Checkbox label={t('ag.sel.sampled')} checked={sampled} onChange={(e) => setSampled(e.target.checked)} />
+            {validate.error && <Alert tone="danger" live>{validate.error.message}</Alert>}
+            <Button type="submit" block busy={validate.isPending} disabled={!sampled || launchedByMe}>{t('selection.validate')}</Button>
+            <p className="hint">{t('ag.sel.refuseHint')}</p>
+          </form>
+        ) : (
+          <Alert tone="info">{t('ag.sel.waitAgent')}</Alert>
         )}
-      </QueryState>
-      <h3 className="text-lg font-semibold">{t('selection.contests')}</h3>
-      <QueryState q={contests} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('selection.noContest')} />}>
-        {(d) => <ul className="flex flex-col gap-2">{d.map((c) => <li key={c.id} className="rounded border border-border bg-surface p-3"><strong>{c.farm_id}</strong> : {c.reason} <Badge tone="warn">{t(`contests.status.${c.status}`, c.status)}</Badge></li>)}</ul>}
-      </QueryState>
-      <Dialog open={!!contestFarm} onClose={() => setContestFarm(null)} title={t('selection.contestTitle', { farm: contestFarm ?? '' })}>
-        <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); if (cReason.trim().length >= 5) contest.mutate(); }}>
-          <Field label={t('selection.contestReason')} error={cReason && cReason.trim().length < 5 ? t('selection.errContest') : undefined}>{(p) => <textarea {...p} className={`${inputCls} py-2`} value={cReason} onChange={(e) => setCReason(e.target.value)} />}</Field>
-          {contest.error && <Notice tone="error" live>{contest.error.message}</Notice>}
-          <Button type="submit" busy={contest.isPending}>{t('selection.fileContest')}</Button>
+        <Card title={t('selection.contests')} actions={<Link className="small" to="/contestations">{t('ag.home.instruct')}</Link>}>
+          <QueryState q={contests} empty={(d) => d.length === 0} emptyText={<p className="small muted">{t('selection.noContest')}</p>}>
+            {(d) => (
+              <ul className="list">
+                {d.map((c) => <li key={c.id} className="list-item"><span className="li-main"><span className="li-title num">{c.farm_id}</span><span className="li-meta">{c.reason}</span></span>
+                  <span className="li-end"><Badge tone={c.status === 'deposee' ? 'wait' : c.status === 'acceptee' ? 'ok' : 'bad'}>{t(`contests.status.${c.status}`, c.status)}</Badge></span></li>)}
+              </ul>
+            )}
+          </QueryState>
+        </Card>
+      </aside>
+
+      <Dialog open={!!contestFarm} onClose={() => setContestFarm(null)} title={t('selection.contestTitle', { farm: contestFarm ?? '' })}
+        footer={<><Button variant="ghost" onClick={() => setContestFarm(null)}>{t('common.cancel')}</Button><Button type="submit" form="f-contest" busy={contest.isPending}>{t('selection.fileContest')}</Button></>}>
+        <form id="f-contest" noValidate className="stack" onSubmit={(e) => { e.preventDefault(); if (cReason.trim().length < 5) { setCErr(t('selection.errContest')); return; } contest.mutate(); }}>
+          <Field label={t('selection.contestReason')} error={cErr}>{(p) => <Textarea {...p} value={cReason} onChange={(e) => { setCReason(e.target.value); setCErr(''); }} />}</Field>
+          {contest.error && <Alert tone="danger" live>{contest.error.message}</Alert>}
         </form>
       </Dialog>
-    </section>
+    </div>
   );
 }
