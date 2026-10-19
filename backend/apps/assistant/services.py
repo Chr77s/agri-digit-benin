@@ -65,7 +65,9 @@ def ask(user, question, value_chain=None, language="fr"):
             result.update(status="unknown", answer="Je ne sais pas : aucune fiche publiée ne couvre cette "
                                                    "question. Contactez votre agent ATDA.")
         else:
-            passages = [d for s, d in hits if s >= settings.ASSISTANT_MIN_SCORE][:2]
+            # un second passage n'est cité que s'il porte sur la même filière (sinon : coton cité pour le maïs)
+            passages = [d for s, d in hits if s >= settings.ASSISTANT_MIN_SCORE
+                        and d["value_chain"] == hits[0][1]["value_chain"]][:2]
             # contexte sans donnée personnelle : filière, commune, saison seulement
             ctx = {"filiere": value_chain or passages[0]["value_chain"], "commune": getattr(user, "commune", "")}
             backend = get_backend()

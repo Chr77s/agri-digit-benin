@@ -437,6 +437,8 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
   const refund = useRefund();
   const [ask, setAsk] = useState(false);
   const status = q.data?.status;
+  const match = useMatches(mode !== 'admin').data?.find((m) => m.id === q.data?.match);
+  const seller = match ? sellsIn(match, mode === 'seller') : mode === 'seller';
   // Un paiement réussi conclut l'annonce : on recharge la liste.
   useEffect(() => { if (status === 'reussi') void qc.invalidateQueries({ queryKey: ['offers'] }); }, [status, qc]);
   const row = (label: string, value: ReactNode) => <div className="between"><span className="muted">{label}</span><b className="num">{value}</b></div>;
@@ -466,7 +468,7 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
             </div>
             {p.status === 'echoue' && <div role="alert"><Alert tone="danger" title={t('market.failedTitle')}>{t('market.failedHelp')}</Alert></div>}
             <div className="pay-sum">
-              <span className="small muted">{t(mode === 'seller' ? 'market.youReceive' : 'market.amountLabel')}</span>
+              <span className="small muted">{t(seller ? 'market.youReceive' : 'market.amountLabel')}</span>
               <span className="pay-total">{fmtNum(p.receipt?.amount_xof ?? p.amount_xof)} FCFA</span>
               {row(t('market.payer'), p.receipt?.payer_masked ?? p.payer_masked)}
               {p.receipt && row(t('market.payee'), p.receipt.payee_masked)}

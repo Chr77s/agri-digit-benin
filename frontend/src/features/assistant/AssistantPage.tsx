@@ -187,9 +187,9 @@ function TurnView({ x, pending, onRetry }: { x: Turn; pending: boolean; onRetry:
           <div className="bubble">
             {pending && <p>{t('assistant.searching')}</p>}
             {x.error && <Alert tone="danger" actions={<Button variant="secondary" size="sm" icon="sync" onClick={onRetry}>{t('common.retry')}</Button>}>{x.error}</Alert>}
-            {a?.status === 'escalated' && <Alert tone="warn" icon="user" title={t('assistant.escalatedTitle')}>{t('assistant.escalatedText')}</Alert>}
+            {a?.status === 'escalated' && <Alert tone="warn" icon="user" title={t('assistant.escalatedTitle')}>{a.answer || t('assistant.escalatedText')}</Alert>}
             {a?.status === 'unknown' && <Alert tone="info" title={t('assistant.unknownTitle')}>{t('assistant.unknownText')}</Alert>}
-            {a?.answer && <p className="whitespace-pre-line">{a.answer}</p>}
+            {a?.answer && a.status !== 'escalated' && <p className="whitespace-pre-line">{a.answer}</p>}
             {a && a.citations.length > 0 && (
               <div className="cites">
                 <p>{t('assistant.sources')}</p>

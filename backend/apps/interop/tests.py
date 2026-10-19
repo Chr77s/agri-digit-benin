@@ -28,6 +28,16 @@ def test_sea_indicators_scope_and_roles(users, producer):
     assert zou["scope"]["department"] == "zou"
     assert next(i for i in zou["indicators"] if i["key"] == "women_share")["value"] is None  # aucune donnée : pas 0
     assert client_for(producer.user).get("/api/v1/dashboard/sea").status_code == 403
+    # taux de livraison : les SMS hors alertes (codes, décisions) ne comptent pas
+    from apps.alerts.models import Alert, Outbox
+
+    Outbox.objects.create(channel="sms", to=producer.phone, body="code", department="alibori")
+    rate = lambda: next(i for i in client_for(users["admin"]).get("/api/v1/dashboard/sea").json()["indicators"]  # noqa: E731
+                        if i["key"] == "alert_delivery")["value"]
+    assert rate() is None
+    Alert.objects.create(title="t", message="m", category="ravageur", severity="information", department="alibori",
+                         status="envoyee", created_by=users["agent"], stats={"sent": 4, "delivered": 3, "failed": 1})
+    assert rate() == 75.0
 
 
 def test_satellite_is_deterministic_and_labelled(users):

@@ -80,9 +80,11 @@ describe('Marché', () => {
 
   it('transformateur propriétaire d’une offre acceptée : demande le paiement, ne paie pas sa propre vente', async () => {
     auth.user = { id: 'u3', role: 'transformateur', full_name: 'Sika Transfo' };
-    mockFetch((u) => {
+    mockFetch((u, init) => {
       if (u.includes('/offers')) return { body: { results: [], next: null } };
       if (u.includes('/matches/mine')) return { body: { results: [{ id: 'm1', offer: 'o1', status: 'acceptee', is_owner: true, counterpart_phone: '0197000042', offer_summary: { type: 'offre', value_chain: 'mais', quantity_kg: 500, price_xof_per_kg: 400, status: 'en_relation' } }], next: null } };
+      if (u.endsWith('/payments') && init?.method === 'POST') return { status: 201, body: { id: 'p1', match: 'm1', status: 'en_attente', provider: 'FakePay', reference: 'AGD-2', amount_xof: 200000 } };
+      if (u.includes('/payments/p1')) return { body: { id: 'p1', match: 'm1', status: 'reussi', provider: 'FakePay', reference: 'AGD-2', amount_xof: 200000, receipt: { reference: 'AGD-2', amount_xof: 200000, payer_masked: '01****0042', payee_masked: '01****0009', paid_at: '2026-10-19T10:12:00Z' } } };
       return ref(u);
     });
     const user = userEvent.setup();
@@ -95,5 +97,9 @@ describe('Marché', () => {
     await user.click(within(list).getByRole('button', { name: 'Paiement' }));
     expect(await screen.findByRole('button', { name: 'Demander le paiement (simulation)' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Payer/ })).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText(/Numéro Mobile Money de l'acheteur/), '0197000042');
+    await user.click(screen.getByRole('button', { name: 'Demander le paiement (simulation)' }));
+    expect(await screen.findByText('Paiement réussi (simulation).', {}, { timeout: 3000 })).toBeInTheDocument();
+    expect(screen.getByText('Vous recevez')).toBeInTheDocument(); // le reçu suit la mise en relation, pas le rôle
   });
 });

@@ -31,4 +31,16 @@ describe('Assistant agricole', () => {
     await user.click(screen.getAllByRole('button', { name: "Effacer l'historique de ce téléphone" })[0]);
     expect(JSON.parse(localStorage.getItem('adb-assistant') ?? '[]')).toEqual([]);
   });
+
+  it('question de dosage : le renvoi vers l\'agent s\'affiche une seule fois, avec le texte du serveur', async () => {
+    mockFetch((u) => (u.includes('/assistant/ask')
+      ? { body: { status: 'escalated', answer: 'Posez-la à votre agent ATDA.', citations: [], disclaimer: '' } }
+      : u.includes('/auth/') ? undefined : { body: [] }));
+    const user = userEvent.setup();
+    renderApp(<AssistantPage />);
+    await user.type(screen.getByPlaceholderText('Ex. : Quand semer le maïs ?'), 'Quelle dose ?');
+    await user.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect(await screen.findByText('Posez-la à votre agent ATDA.')).toBeInTheDocument();
+    expect(screen.queryByText(/transmise à l'agent ATDA de votre secteur, qui vous contactera/)).not.toBeInTheDocument();
+  });
 });

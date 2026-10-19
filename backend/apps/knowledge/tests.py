@@ -23,11 +23,13 @@ def test_workflow_and_assistant(users, producer):
     from apps.knowledge.services import rebuild_index
 
     for i, (vc, t) in enumerate([("riz", "Repiquage du riz en bas-fond"), ("coton", "Démariage du coton"),
-                                 ("manioc", "Bouturage du manioc"), ("soja", "Récolte du soja")]):
+                                 ("manioc", "Bouturage du manioc"), ("soja", "Récolte du soja"),
+                                 ("coton", "Quand semer le coton à Banikoara")]):
         KnowledgeDoc.objects.create(value_chain=vc, title=t, body=t + f" fiche {i}.", source="s", status="publie")
     rebuild_index()
     r = p.post("/api/v1/assistant/ask", {"question": "Quand semer le maïs à Banikoara ?"}, format="json").json()
     assert r["status"] == "answered" and r["citations"][0]["doc_id"] == doc and r["backend"]
+    assert [c["doc_id"] for c in r["citations"]] == [doc]  # la fiche coton proche n'est pas citée pour le maïs
     assert r["disclaimer"] == "Conseil indicatif, vérifiez avec votre agent ATDA"
     r = p.post("/api/v1/assistant/ask", {"question": "Quelle dose d'insecticide pour la chenille ?"},
                format="json").json()
