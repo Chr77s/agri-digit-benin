@@ -29,6 +29,10 @@ export function ProgramsPage() {
   return user?.role === 'producteur' ? <ProducerPrograms /> : <ManagePrograms canCreate={user?.role === 'responsable_programme'} />;
 }
 
+/** Un refus se conteste une fois, sous 15 jours (le serveur tranche ; sans date de décision connue, pas de délai). */
+const CONTEST_DAYS = 15;
+const canContest = (a: Application) => a.status === 'refusee' && !a.contested_at && (!a.decided_at || Date.now() - new Date(a.decided_at).getTime() <= CONTEST_DAYS * 864e5);
+
 /* ---------- Producteur : programmes ouverts, mes candidatures, programmes clos ---------- */
 function ProducerPrograms() {
   const { t } = useTranslation();
@@ -44,6 +48,13 @@ function ProducerPrograms() {
     onSuccess: () => { setApplying(null); toast(t('programs.applied')); void qc.invalidateQueries({ queryKey: ['applications'] }); },
   });
   const myApp = (pid: string) => apps.data?.find((a) => a.program === pid);
+  const [contesting, setContesting] = useState<Application | null>(null);
+  const [cReason, setCReason] = useState('');
+  const [cErr, setCErr] = useState('');
+  const contest = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => api<Application>(`/applications/${id}/contest`, { method: 'POST', body: { reason } }),
+    onSuccess: () => { setContesting(null); setCReason(''); toast(t('ag.prog.contested')); void qc.invalidateQueries({ queryKey: ['applications'] }); },
+  });
 
   return (
     <>
@@ -74,17 +85,21 @@ function ProducerPrograms() {
                         {mine && (<>
                           <p className="label">{t('ag.prog.yourApp')}</p>
                           {mine.status === 'refusee'
-                            ? <Alert tone="danger" title={t('ag.prog.refused')}>{mine.reason && t('programs.reasonLine', { reason: mine.reason })}</Alert>
+                            ? <>
+                              <Alert tone="danger" title={t('ag.prog.refused')}>{[mine.reason && t('programs.reasonLine', { reason: mine.reason }), mine.decided_at && t('ag.prog.decidedOn', { date: fmtDate(mine.decided_at) })].filter(Boolean).join(' · ')}</Alert>
+                              {canContest(mine) && <p className="hint mt-2">{t('ag.prog.contestHint2')}</p>}
+                            </>
                             : mine.status === 'acceptee'
                               ? <Alert tone="ok" title={t('ag.prog.accepted')}>{mine.reason && t('programs.reasonLine', { reason: mine.reason })}</Alert>
                               : <Timeline items={[
                                 { time: fmtDate(mine.created_at), title: t('programs.appStatus.deposee'), state: mine.status === 'deposee' ? 'now' : 'done' },
-                                ...(mine.status === 'en_instruction' ? [{ title: t('programs.appStatus.en_instruction'), text: mine.reason ?? undefined, state: 'now' as const }] : []),
+                                ...(mine.contested_at ? [{ time: fmtDate(mine.contested_at), title: t('ag.prog.contestFiled'), text: mine.contest_reason, state: 'done' as const }] : []),
+                                ...(mine.status === 'en_instruction' ? [{ title: t('programs.appStatus.en_instruction'), text: mine.contested_at ? undefined : mine.reason ?? undefined, state: 'now' as const }] : []),
                                 { title: t('ag.prog.decisionStep') },
                               ]} />}
                         </>)}
                         <div className="card-foot">
-                          {mine ? <AppBadge s={mine.status} /> : open
+                          {mine ? <><AppBadge s={mine.status} />{canContest(mine) && <Button variant="secondary" onClick={() => { setCReason(''); setCErr(''); contest.reset(); setContesting(mine); }}>{t('ag.prog.contestBtn')}</Button>}</> : open
                             ? <><span className="small muted">{t('ag.prog.humanDecision')}</span><Button onClick={() => { setSure(false); apply.reset(); setApplying(p); }}>{t('programs.apply')}</Button></>
                             : <span className="small muted">{p.state === 'a_venir' ? t('ag.prog.state1.a_venir') : t('ag.prog.noMore')}</span>}
                         </div>
@@ -97,6 +112,18 @@ function ProducerPrograms() {
           );
         }}
       </QueryState>
+      <Dialog open={!!contesting} onClose={() => setContesting(null)} title={t('ag.prog.contestTitle')}
+        footer={<><Button variant="ghost" onClick={() => setContesting(null)}>{t('common.cancel')}</Button><Button type="submit" form="f-contest-app" busy={contest.isPending}>{t('ag.prog.contestSend')}</Button></>}>
+        <form id="f-contest-app" noValidate className="stack" onSubmit={(e) => {
+          e.preventDefault();
+          if (cReason.trim().length < 5) { setCErr(t('common.errReason')); return; }
+          if (contesting) contest.mutate({ id: contesting.id, reason: cReason.trim() });
+        }}>
+          <Field label={t('ag.prog.contestWhy')} error={cErr}>{(p) => <Textarea {...p} rows={4} value={cReason} onChange={(e) => { setCReason(e.target.value); setCErr(''); }} />}</Field>
+          <Alert tone="info" icon="user">{t('ag.prog.contestInfo')}</Alert>
+          {contest.error && <Alert tone="danger" live>{contest.error.message}</Alert>}
+        </form>
+      </Dialog>
       <Dialog open={!!applying} onClose={() => setApplying(null)} title={t('ag.prog.applyTitle', { name: applying?.name ?? '' })}
         footer={<><Button variant="ghost" onClick={() => setApplying(null)}>{t('common.cancel')}</Button><Button disabled={!sure} busy={apply.isPending} onClick={() => applying && apply.mutate(applying.id)}>{t('ag.prog.applySubmit')}</Button></>}>
         <div className="stack">
@@ -299,7 +326,7 @@ export function ApplicationsPage() {
                 columns={[
                   { key: 'producer_name', label: t('common.producer'), render: (r) => <><span className="cell-main">{r.producer_name ?? r.producer_code ?? r.producer}</span>{r.producer_code && r.producer_name && <span className="cell-sub num">{r.producer_code}</span>}</>, csv: (r) => r.producer_code ?? r.producer },
                   { key: 'program_name', label: t('programs.programCol'), render: (r) => r.program_name ?? r.program },
-                  { key: 'status', label: t('common.status'), render: (r) => <AppBadge s={r.status} />, csv: (r) => t(`programs.appStatus.${r.status}`) },
+                  { key: 'status', label: t('common.status'), render: (r) => <><AppBadge s={r.status} />{r.contested_at && <> <Badge tone="urgent" icon={false}>{t('ag.apps.contestedBadge')}</Badge></>}</>, csv: (r) => t(`programs.appStatus.${r.status}`) },
                   { key: 'created_at', label: t('programs.depositedOn'), num: true, render: (r) => fmtDate(r.created_at) },
                   { key: 'actions', label: t('common.action'), actions: true, render: (r) => <Button variant="secondary" size="sm" onClick={() => { setSel(r); setStatus(r.status === 'deposee' ? 'en_instruction' : r.status); setReason(''); setErr(''); decide.reset(); }}>{t('ag.apps.instruct')}</Button> },
                 ]} />
@@ -320,6 +347,7 @@ export function ApplicationsPage() {
               <dt>{t('common.producer')}</dt><dd className="num">{[sel.producer_code, sel.producer_name].filter(Boolean).join(' · ') || sel.producer}</dd>
               <dt>{t('programs.depositedOn')}</dt><dd className="num">{fmtDate(sel.created_at)}</dd>
               <dt>{t('common.status')}</dt><dd><AppBadge s={sel.status} /></dd>
+              {sel.contested_at && <><dt>{t('ag.apps.contested')}</dt><dd>« {sel.contest_reason} » <span className="muted num">({fmtDate(sel.contested_at)})</span></dd></>}
             </dl>
             {prog?.conditions && (
               <div><span className="label">{t('ag.apps.conditions')}</span>

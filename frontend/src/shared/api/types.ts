@@ -98,6 +98,7 @@ export type ApplicationStatus = 'deposee' | 'en_instruction' | 'acceptee' | 'ref
 export interface Application {
   id: string; program: string; program_name?: string; producer: string; producer_name?: string; producer_code?: string;
   status: ApplicationStatus; reason?: string | null; created_at: string;
+  decided_at?: string | null; contest_reason?: string; contested_at?: string | null;
 }
 export interface Weights { confidence: number; road_distance: number; area: number }
 export interface SelectionRun {

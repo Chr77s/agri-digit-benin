@@ -11,6 +11,21 @@
       "reportInfo": "Votre agent est prévenu et vous rappelle. L'appui reste à confirmer tant que vous n'avez pas tout reçu.",
       "reportSend": "Envoyer le signalement",
       "reported": "Signalement envoyé à votre agent."
+    },
+    "prog": {
+      "decidedOn": "décision du {{date}}",
+      "contestHint2": "Vous pouvez contester cette décision pendant 15 jours (loi n° 2017-20, art. 401).",
+      "contestBtn": "Contester la décision",
+      "contestTitle": "Contester le refus",
+      "contestWhy": "Pourquoi contestez-vous ?",
+      "contestInfo": "Un agent examine votre demande et vous répond avec un motif.",
+      "contestSend": "Déposer la contestation",
+      "contested": "Contestation déposée. Un agent l'examine et vous répond avec un motif.",
+      "contestFiled": "Contestation déposée"
+    },
+    "apps": {
+      "contested": "Contestation du producteur",
+      "contestedBadge": "Contestée"
     }
   }
 }
