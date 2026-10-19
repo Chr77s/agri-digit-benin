@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, list, qs } from '../../shared/api/client';
 import type { Program, Support } from '../../shared/api/types';
-import { Alert, Badge, Button, Card, Chips, EmptyState, Field, Input, PageHeader, QueryState, Select, Stat, Switch, Table, Timeline, fmtDate, fmtNum, toast } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Radio, Select, Stat, Switch, Table, Timeline, fmtDate, fmtNum, toast } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
 import { useProducers } from '../producers/api';
 import { daysSince } from '../producers/AgentHome';
@@ -19,6 +19,8 @@ export function useSupportActions() {
   return {
     create: useMutation({ mutationFn: (b: SupportCreate) => api<Support>('/supports', { method: 'POST', body: b }), onSuccess: done }),
     confirm: useMutation({ mutationFn: (id: string) => api<Support>(`/supports/${id}/confirm`, { method: 'POST', body: {} }), onSuccess: done }),
+    // l'appui reste « remis » : le signalement prévient l'agent, la confirmation reste possible
+    report: useMutation({ mutationFn: ({ id, kind }: { id: string; kind: string }) => api<Support>(`/supports/${id}/report`, { method: 'POST', body: { kind } }) }),
   };
 }
 
@@ -60,7 +62,10 @@ function ProducerSupports() {
                         <div><h3 className="card-title">{s.item} · {qty(s)}</h3>
                           <p className="small muted">{[s.created_at ? t('ag.sup.handedOn', { date: fmtDate(s.created_at) }) : '', s.program_name].filter(Boolean).join(' · ')}</p>
                           <p className="small mt-1">{t('supports.value', { v: fmtNum(s.value_xof) })}{s.repayable && <> · <Badge tone="wait">{t('ag.sup.repayable')}</Badge></>}</p></div>
-                        <div className="cluster"><Button icon="check" busy={a.confirm.isPending && a.confirm.variables === s.id} onClick={() => a.confirm.mutate(s.id, { onSuccess: () => toast({ title: t('ag.sup.confirmedTitle'), text: t('supports.thanks') }) })}>{t('supports.confirm')}</Button></div>
+                        <div className="cluster">
+                          <Button icon="check" busy={a.confirm.isPending && a.confirm.variables === s.id} onClick={() => a.confirm.mutate(s.id, { onSuccess: () => toast({ title: t('ag.sup.confirmedTitle'), text: t('supports.thanks') }) })}>{t('supports.confirm')}</Button>
+                          <ReportIssue id={s.id} item={s.item} />
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -77,6 +82,33 @@ function ProducerSupports() {
           );
         }}
       </QueryState>
+    </>
+  );
+}
+
+/** « Il en manque » ou « rien reçu » : l'agent qui a remis l'appui est prévenu et rappelle le producteur. */
+function ReportIssue({ id, item }: { id: string; item: string }) {
+  const { t } = useTranslation();
+  const { report } = useSupportActions();
+  const [open, setOpen] = useState(false);
+  const [kind, setKind] = useState('manque');
+  return (
+    <>
+      <Button variant="ghost" onClick={() => { report.reset(); setOpen(true); }}>{t('ag.sup.report')}</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={t('ag.sup.reportTitle', { item })}
+        footer={<><Button variant="ghost" onClick={() => setOpen(false)}>{t('common.cancel')}</Button><Button type="submit" form={`f-rep-${id}`} busy={report.isPending}>{t('ag.sup.reportSend')}</Button></>}>
+        <form id={`f-rep-${id}`} noValidate className="stack" onSubmit={(e) => {
+          e.preventDefault();
+          report.mutate({ id, kind }, { onSuccess: () => { setOpen(false); toast(t('ag.sup.reported')); } });
+        }}>
+          <fieldset className="fieldset">
+            <legend className="label">{t('ag.sup.reportLegend')}</legend>
+            {['manque', 'rien_recu'].map((k) => <Radio key={k} name={`kind-${id}`} checked={kind === k} onChange={() => setKind(k)} label={t(`ag.sup.reportKind.${k}`)} />)}
+          </fieldset>
+          <Alert tone="info" icon="info">{t('ag.sup.reportInfo')}</Alert>
+          {report.error && <Alert tone="danger" live>{report.error.message}</Alert>}
+        </form>
+      </Dialog>
     </>
   );
 }

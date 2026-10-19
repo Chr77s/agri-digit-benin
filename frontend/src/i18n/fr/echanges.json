@@ -1,0 +1,16 @@
+{
+  "ag": {
+    "sup": {
+      "report": "Signaler un problème",
+      "reportTitle": "Un problème avec « {{item}} » ?",
+      "reportLegend": "Que s'est-il passé ?",
+      "reportKind": {
+        "manque": "Il en manque une partie",
+        "rien_recu": "Je n'ai rien reçu"
+      },
+      "reportInfo": "Votre agent est prévenu et vous rappelle. L'appui reste à confirmer tant que vous n'avez pas tout reçu.",
+      "reportSend": "Envoyer le signalement",
+      "reported": "Signalement envoyé à votre agent."
+    }
+  }
+}
