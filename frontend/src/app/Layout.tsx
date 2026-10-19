@@ -67,6 +67,15 @@ function MobileTabs({ role }: { role: Role }) {
   return tabs ? <TabBar label={t('mobile.tabs')} items={tabs.map((n) => ({ to: n.to, icon: n.icon, end: n.to === '/', label: t(`mobile.tab.${n.key}`) }))} /> : null;
 }
 
+/** Notification du système sans jamais lever : Chrome Android refuse `new Notification` (« Illegal constructor ») et exige le service worker. */
+export async function showSystemNotification(title: string, opts: NotificationOptions) {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg?.active) return void (await reg.showNotification(title, opts));
+    new Notification(title, opts);
+  } catch { /* notification refusée par le navigateur : le message reste dans « Mes messages » */ }
+}
+
 /** Message non lu arrivé depuis le dernier passage : notification du système si la personne l'a autorisée (premier lancement). */
 function SystemNotifier() {
   const q = useNotifications({ refetchInterval: 5 * 60_000, refetchIntervalInBackground: true });
@@ -75,8 +84,8 @@ function SystemNotifier() {
     let seen: string[] = [];
     try { seen = JSON.parse(localStorage.getItem('adb-notified') ?? '[]') as string[]; } catch { /* rien de mémorisé */ }
     const fresh = q.data.filter((n) => !(n.read_at || n.is_read) && !seen.includes(n.id));
-    fresh.forEach((n) => new Notification(n.title ?? 'Agri-Digit Bénin', { body: n.body ?? n.message ?? '', tag: n.id }));
     try { localStorage.setItem('adb-notified', JSON.stringify([...seen, ...fresh.map((n) => n.id)].slice(-200))); } catch { /* idem */ }
+    fresh.forEach((n) => void showSystemNotification(n.title ?? 'Agri-Digit Bénin', { body: n.body ?? n.message ?? '', tag: n.id }));
   }, [q.data]);
   return null;
 }

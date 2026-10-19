@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mockFetch } from '../test-utils';
 import { PageHeader, SuccessState, useIsMobile } from '../shared/ui';
-import { Layout } from './Layout';
+import { Layout, showSystemNotification } from './Layout';
 
 const auth = vi.hoisted(() => ({ user: null as null | Record<string, unknown> }));
 vi.mock('../features/auth/AuthContext', () => ({ useAuth: () => ({ user: auth.user, ready: true, signOut: async () => undefined }), AuthProvider: ({ children }: { children: ReactNode }) => children }));
@@ -49,6 +49,19 @@ describe('Coque mobile', () => {
     render(<SuccessState title="Parcelle enregistrée" actions={<button type="button">Ouvrir une campagne</button>}>2,4 ha</SuccessState>);
     expect(screen.getByRole('status')).toHaveTextContent('Parcelle enregistrée2,4 ha');
     expect(screen.getByRole('button', { name: 'Ouvrir une campagne' })).toBeInTheDocument();
+  });
+
+  it('notification du système : passe par le service worker, et ne lève jamais (Chrome Android refuse le constructeur)', async () => {
+    vi.stubGlobal('Notification', function Illegal() { throw new TypeError('Illegal constructor'); });
+    await expect(showSystemNotification('Alerte pluie', { body: 'Jeudi', tag: 'n1' })).resolves.toBeUndefined();
+
+    const showNotification = vi.fn(async () => undefined);
+    vi.stubGlobal('navigator', { ...navigator, serviceWorker: { getRegistration: async () => ({ active: {}, showNotification }) } });
+    await showSystemNotification('Alerte pluie', { body: 'Jeudi', tag: 'n1' });
+    expect(showNotification).toHaveBeenCalledWith('Alerte pluie', { body: 'Jeudi', tag: 'n1' });
+
+    vi.stubGlobal('navigator', { ...navigator, serviceWorker: { getRegistration: async () => { throw new Error('refusé'); } } });
+    await expect(showSystemNotification('x', {})).resolves.toBeUndefined();
   });
 
   it('useIsMobile suit le seuil de 640 px, et vaut faux sans matchMedia', () => {
