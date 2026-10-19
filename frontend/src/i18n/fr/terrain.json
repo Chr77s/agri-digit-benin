@@ -1,0 +1,23 @@
+{
+  "offline": {
+    "label": {
+      "register": "Inscription de {{name}}",
+      "support": "Remise : {{item}}"
+    }
+  },
+  "register": {
+    "queuedTitle": "Fiche gardée sur ce téléphone",
+    "queuedText": "Pas de réseau : l'inscription part dès le retour de la connexion, et l'ANIP (simulée) vérifie l'identité à ce moment. Si elle est refusée, elle reste dans la file d'envoi avec le motif."
+  },
+  "supports": {
+    "queuedOffline": "Remise gardée sur ce téléphone : elle part au retour du réseau, et le producteur est prévenu à ce moment."
+  },
+  "mobile": {
+    "tab": {
+      "producers": "Producteurs",
+      "register": "Inscrire",
+      "supports": "Remises",
+      "alerts": "Alertes"
+    }
+  }
+}

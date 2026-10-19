@@ -4,6 +4,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mockFetch, renderApp } from '../../test-utils';
 import { RegisterPage, ageOn } from './RegisterPage';
 
+// Sans IndexedDB (jsdom), la file hors ligne est simulée : `offline` fait répondre « gardé sur le téléphone ».
+const queue = vi.hoisted(() => ({ offline: false }));
+vi.mock('../outbox/offlineQueue', async (orig) => {
+  const m = await orig<typeof import('../outbox/offlineQueue')>();
+  return { ...m, postOrQueue: (...a: Parameters<typeof m.postOrQueue>) => (queue.offline ? Promise.resolve('queued' as const) : m.postOrQueue(...a)) };
+});
+
 const departments = [{ code: 'alibori', name: 'Alibori', communes: [{ code: 'banikoara', name: 'Banikoara' }] }];
 
 type U = ReturnType<typeof userEvent.setup>;
@@ -33,7 +40,7 @@ async function consentAndSend(user: U) {
 }
 
 describe('Inscription producteur', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => { vi.unstubAllGlobals(); queue.offline = false; });
 
   it('calcule l’âge', () => {
     expect(ageOn('2011-05-04', new Date('2026-10-16'))).toBe(15);
@@ -52,6 +59,18 @@ describe('Inscription producteur', () => {
     expect(await screen.findByText(/Cochez la case pour donner votre consentement/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Envoyer l'inscription/ })).not.toBeInTheDocument();
     expect(f.mock.calls.some(([u]) => String(u).includes('/producers/register'))).toBe(false);
+  });
+
+  it('sans réseau : la fiche est gardée sur le téléphone, sans code ni promesse de validation', async () => {
+    queue.offline = true;
+    mockFetch((u) => (u.includes('/ref/departments') ? { body: departments } : undefined));
+    const user = userEvent.setup();
+    renderApp(<RegisterPage />);
+    await fillValid(user);
+    await consentAndSend(user);
+    expect(await screen.findByRole('heading', { name: 'Fiche gardée sur ce téléphone' })).toBeInTheDocument();
+    expect(screen.getByText(/l'inscription part dès le retour de la connexion/)).toBeInTheDocument();
+    expect(screen.queryByText('Votre code producteur')).not.toBeInTheDocument();
   });
 
   it('affiche le parcours parent ou tuteur pour un mineur', async () => {

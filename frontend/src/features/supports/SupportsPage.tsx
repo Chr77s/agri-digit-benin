@@ -5,6 +5,8 @@ import { api, list, qs } from '../../shared/api/client';
 import type { Program, Support } from '../../shared/api/types';
 import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Radio, Select, Stat, Switch, Table, Timeline, fmtDate, fmtNum, toast } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
+import i18n from '../../i18n';
+import { postOrQueue } from '../outbox/offlineQueue';
 import { useProducers } from '../producers/api';
 import { daysSince } from '../producers/AgentHome';
 import '../producers/agent.css';
@@ -17,7 +19,7 @@ export function useSupportActions() {
   const qc = useQueryClient();
   const done = () => qc.invalidateQueries({ queryKey: ['supports'] });
   return {
-    create: useMutation({ mutationFn: (b: SupportCreate) => api<Support>('/supports', { method: 'POST', body: b }), onSuccess: done }),
+    create: useMutation({ mutationFn: (b: SupportCreate) => postOrQueue<Support>('/supports', b, i18n.t('offline.label.support', { item: b.item })), onSuccess: done }),
     confirm: useMutation({ mutationFn: (id: string) => api<Support>(`/supports/${id}/confirm`, { method: 'POST', body: {} }), onSuccess: done }),
     // l'appui reste « remis » : le signalement prévient l'agent, la confirmation reste possible
     report: useMutation({ mutationFn: ({ id, kind }: { id: string; kind: string }) => api<Support>(`/supports/${id}/report`, { method: 'POST', body: { kind } }) }),
@@ -183,7 +185,7 @@ function SupportForm() {
       setErrs(er);
       if (Object.keys(er).length) return;
       create.mutate({ producer: v.producer, program: v.program || undefined, item: v.item.trim(), quantity: Number(v.quantity), unit: v.unit, value_xof: Math.round(Number(v.value_xof)), repayable: v.repayable },
-        { onSuccess: () => { setV(empty); toast(t('supports.saved')); } });
+        { onSuccess: (r) => { setV(empty); toast(r === 'queued' ? t('supports.queuedOffline') : t('supports.saved')); } });
     }}>
       <div className="card-head m-0"><h2 className="card-title" id="h-form">{t('supports.formTitle')}</h2></div>
       {errCount > 0 && <Alert tone="danger" title={t('ag.alerts.errCount', { count: errCount })} />}

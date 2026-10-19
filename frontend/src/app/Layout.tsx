@@ -55,6 +55,10 @@ export const NAV: Record<Role, NavItem[]> = {
 /* ---------- Présentation mobile (< 640 px, maquettes/mobile/) ---------- */
 // Onglets du bas par rôle (5 au plus, maquettes/mobile/m.js) ; un rôle absent garde le tiroir seul. Le reste du menu reste dans le tiroir.
 export const TABS: Partial<Record<Role, NavItem[]>> = {
+  agent_atda: [
+    { to: '/', key: 'home', icon: 'home' }, { to: '/producteurs', key: 'producers', icon: 'users' }, { to: '/inscription', key: 'register', icon: 'plus' },
+    { to: '/appuis', key: 'supports', icon: 'gift' }, { to: '/alertes', key: 'alerts', icon: 'megaphone' },
+  ],
   producteur: [
     { to: '/', key: 'home', icon: 'home' }, { to: '/assistant', key: 'advice', icon: 'chat' }, { to: '/diagnostic', key: 'photo', icon: 'leaf-scan' },
     { to: '/marche', key: 'market', icon: 'market' }, { to: '/parcelles', key: 'parcels', icon: 'parcel' },
