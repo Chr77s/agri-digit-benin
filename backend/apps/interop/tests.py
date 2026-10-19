@@ -70,6 +70,7 @@ def test_partner_keys_exchanges_and_connectors(users, producer, settings):
     body = str(admin.get("/api/v1/interop/connectors").content)
     assert key2 not in body and key2[8:-4] not in body  # la clé n'est jamais renvoyée après sa création
 
-    rows = mask_small([{"producers": 4, "area_ha": 2.0, "campaigns": 4}, {"producers": 5, "area_ha": 9.0, "campaigns": 5}])
+    rows = mask_small([{"producers": 4, "area_ha": 2.0, "campaigns": 4},
+                       {"producers": 5, "area_ha": 9.0, "campaigns": 5}])
     assert rows[0] == {"producers": None, "area_ha": None, "campaigns": None, "masked": True}
     assert rows[1]["producers"] == 5

@@ -18,7 +18,8 @@ class AuditQuerySet(models.QuerySet):
 
 class AuditLog(models.Model):
     """Journal append-only : save() refuse la mise à jour, delete() est interdit.
-    Chaque entrée porte l'empreinte de la précédente (`prev_hash`) et la sienne (`hash`) : une retouche en base casse la chaîne."""
+    Chaque entrée porte l'empreinte de la précédente (`prev_hash`) et la sienne (`hash`) :
+    une retouche en base casse la chaîne."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     at = models.DateTimeField(default=timezone.now, db_index=True)  # fixé avant le calcul de l'empreinte

@@ -9,5 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         r = verify_chain()
         if not r["ok"]:
-            raise CommandError(f"Rupture de chaîne à l'entrée n° {r['broken_seq']} ({r['count']} entrée(s) intègres avant).")
+            raise CommandError(f"Rupture de chaîne à l'entrée n° {r['broken_seq']} "
+                               f"({r['count']} entrée(s) intègres avant).")
         self.stdout.write(f"Chaîne intègre : {r['count']} entrée(s) vérifiées.")
