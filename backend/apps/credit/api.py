@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from apps.core.errors import ApiError
 from apps.core.pagination import Cursor
 from apps.core.permissions import FINANCIER, PRODUCTEUR, roles
-from apps.producers.models import Producer
+from apps.producers.models import Consent, Producer
 
 from . import services
 
@@ -44,8 +44,11 @@ def _consenting():
 def consented_producers(request):
     pg = Cursor()
     page = pg.paginate_queryset(_consenting(), request)
+    since = {c.producer_id: c.created_at for c in Consent.objects.filter(
+        producer__in=page, type="credit", withdrawn_at__isnull=True)}
     return pg.get_paginated_response([{"id": str(p.id), "code": p.code, "first_name": p.first_name,
-                                       "last_name": p.last_name, "commune": p.commune} for p in page])
+                                       "last_name": p.last_name, "commune": p.commune,
+                                       "consented_at": since.get(p.id)} for p in page])
 
 
 @api_view(["GET"])
