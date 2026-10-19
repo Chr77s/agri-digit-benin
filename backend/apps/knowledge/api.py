@@ -19,8 +19,10 @@ class DocSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeDoc
         fields = ["id", "value_chain", "title", "body", "source", "version", "status", "language",
-                  "language_validation", "updated_at"]
-        read_only_fields = ["id", "version", "status", "language_validation", "updated_at"]
+                  "language_validation", "updated_at", "reviewed_by_name", "reviewed_at"]
+        read_only_fields = ["id", "version", "status", "language_validation", "updated_at", "reviewed_at"]
+
+    reviewed_by_name = serializers.CharField(source="reviewed_by.full_name", default=None, read_only=True)
 
 
 class DocPagination(Cursor):

@@ -67,6 +67,7 @@ export type KnowledgeStatus = 'brouillon' | 'relu' | 'publie';
 export interface KnowledgeDoc {
   id: string; value_chain: string; title: string; body: string; source: string; version: number;
   status: KnowledgeStatus; language: Lang; language_validation: 'valide' | 'non_valide'; updated_at: string;
+  reviewed_by_name?: string | null; reviewed_at?: string | null;
 }
 
 export type Severity = 'info' | 'avertissement' | 'urgent';

@@ -3,6 +3,7 @@ import unicodedata
 
 import snowballstemmer
 from django.db import transaction
+from django.utils import timezone
 from rank_bm25 import BM25Okapi
 
 from apps.audit.services import record
@@ -42,6 +43,12 @@ def search(question, value_chain=None, k=3):
     return [(float(s), d) for s, d in ranked[:k]]
 
 
+def author_of(doc):
+    """Auteur de la version en cours (premier instantané de ce numéro de version)."""
+    v = doc.versions.filter(version=doc.version).order_by("created_at").first()
+    return v.author if v else doc.created_by
+
+
 def _snapshot(doc, actor):
     KnowledgeDocVersion.objects.create(doc=doc, version=doc.version, title=doc.title, body=doc.body,
                                        source=doc.source, status=doc.status, author=actor)
@@ -62,6 +69,7 @@ def edit(actor, doc, d):
         setattr(doc, k, v)
     doc.version += 1
     doc.status = "brouillon"
+    doc.reviewed_by, doc.reviewed_at = None, None  # la nouvelle version repart en relecture
     doc.save()
     _snapshot(doc, actor)
     record(actor, "knowledge.edit", doc, version=doc.version)
@@ -74,8 +82,10 @@ def edit(actor, doc, d):
 def review(actor, doc):
     if doc.status != "brouillon":
         raise ApiError("Seul un brouillon peut être relu.", "invalid_status", 400)
-    doc.status = "relu"
-    doc.save(update_fields=["status", "updated_at"])
+    if author_of(doc) == actor:
+        raise ApiError("La relecture revient à une autre personne que l'auteur de cette version.", "same_author", 400)
+    doc.status, doc.reviewed_by, doc.reviewed_at = "relu", actor, timezone.now()
+    doc.save(update_fields=["status", "reviewed_by", "reviewed_at", "updated_at"])
     record(actor, "knowledge.review", doc)
     return doc
 

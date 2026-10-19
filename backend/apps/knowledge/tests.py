@@ -10,7 +10,11 @@ def test_workflow_and_assistant(users, producer):
     doc = r.json()["id"]
     assert client_for(users["agent"]).post("/api/v1/knowledge", {}, format="json").status_code == 403
     assert ag.post(f"/api/v1/knowledge/{doc}/publish").json()["code"] == "invalid_status"
-    assert ag.post(f"/api/v1/knowledge/{doc}/review").json()["status"] == "relu"
+    # relecture par une autre personne que l'auteur de la version
+    assert ag.post(f"/api/v1/knowledge/{doc}/review").json()["code"] == "same_author"
+    adm = client_for(users["admin"])
+    r = adm.post(f"/api/v1/knowledge/{doc}/review").json()
+    assert r["status"] == "relu" and r["reviewed_by_name"] == users["admin"].full_name and r["reviewed_at"]
     assert ag.post(f"/api/v1/knowledge/{doc}/publish").json()["status"] == "publie"
     assert client_for(users["auditeur"]).get("/api/v1/knowledge").status_code == 403
     p = client_for(producer.user)
