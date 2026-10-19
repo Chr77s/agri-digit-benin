@@ -1,9 +1,17 @@
+from django.utils.dateparse import parse_date
 from rest_framework import generics, serializers
 
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AUDITEUR, roles
 
 from .models import AuditLog
+
+
+def _date(v):
+    try:
+        return parse_date(v or "")
+    except ValueError:  # date bien formée mais impossible (31 février)
+        return None
 
 
 class AuditLogSerializer(serializers.ModelSerializer):
@@ -27,4 +35,11 @@ class AuditLogList(generics.ListAPIView):
             qs = qs.filter(action=a)
         if a := self.request.query_params.get("actor"):
             qs = qs.filter(actor_phone=a)
+        if a := self.request.query_params.get("object_type"):
+            qs = qs.filter(object_type=a)
+        # bornes de dates incluses (AAAA-MM-JJ) ; une date mal formée est ignorée
+        if (a := _date(self.request.query_params.get("from"))):
+            qs = qs.filter(at__date__gte=a)
+        if (a := _date(self.request.query_params.get("to"))):
+            qs = qs.filter(at__date__lte=a)
         return qs

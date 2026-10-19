@@ -28,6 +28,17 @@ def test_audit_read_permissions(users, producer):
     assert client_for(producer.user).get("/api/v1/audit-logs").status_code == 403
 
 
+def test_audit_filters_object_and_dates(users, producer):
+    c = client_for(users["auditeur"])
+    ok = c.get("/api/v1/audit-logs", {"object_type": "Producer"}).json()["results"]
+    assert ok and all(r["object_type"] == "Producer" for r in ok)
+    assert c.get("/api/v1/audit-logs", {"object_type": "nothing"}).json()["results"] == []
+    assert c.get("/api/v1/audit-logs", {"from": "2999-01-01"}).json()["results"] == []
+    assert c.get("/api/v1/audit-logs", {"to": "2000-01-01"}).json()["results"] == []
+    assert len(c.get("/api/v1/audit-logs", {"from": "2000-01-01", "to": "2999-01-01"}).json()["results"]) >= 1
+    assert c.get("/api/v1/audit-logs", {"from": "pas-une-date", "to": "2026-02-31"}).status_code == 200
+
+
 def test_export_with_reason_and_dashboard(users, producer, farms):
     adm = client_for(users["admin"])
     assert adm.post("/api/v1/exports", {"dataset": "producers", "reason": "court"}, format="json").status_code == 400
