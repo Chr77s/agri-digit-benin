@@ -43,5 +43,12 @@ class Harvest(models.Model):
     estimated_kg = models.FloatField(null=True)
     deviation_pct = models.FloatField(null=True)
     flagged = models.BooleanField(default=False, db_index=True)
+    # Vérification d'une récolte signalée par l'agent : a_verifier | visite (reste à vérifier) | confirmee | corrigee.
+    check_status = models.CharField(max_length=20, default="a_verifier", db_index=True)
+    check_reason = models.TextField(blank=True)
+    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    checked_at = models.DateTimeField(null=True, blank=True)
+    declared_kg = models.FloatField(null=True, blank=True)  # quantité d'origine, gardée quand l'agent la corrige
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)

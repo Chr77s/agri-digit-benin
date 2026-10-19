@@ -41,7 +41,8 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 
 - `POST /harvests {campaign, harvested_at, quantity_kg, stored_kg, sold_kg, sale_price_xof_per_kg?}` (producteur ou agent). `stored_kg + sold_kg <= quantity_kg` sinon 400.
 - Réponse : `{..., estimated_kg, deviation_pct, flagged: bool}`. Rendement de référence par filière (kg/ha, table paramétrable en base, valeurs de démonstration marquées) × surface de la parcelle. Écart absolu > 50 % -> `flagged: true` et signalement à l'agent.
-- `GET /harvests?campaign=&flagged=`.
+- `GET /harvests?campaign=&flagged=&to_check=` : `to_check=true` renvoie les récoltes signalées pas encore tranchées (`check_status` `a_verifier` ou `visite`), `to_check=false` celles vérifiées (`confirmee`, `corrigee`). Chaque récolte porte `check_status`, `check_reason`, `checked_at` et `declared_kg` (quantité d'origine quand l'agent l'a corrigée).
+- `POST /harvests/{id}/check {conclusion: confirmee|corrigee|visite, reason, quantity_kg?}` (agent du périmètre, administrateur) : motif obligatoire ; `corrigee` exige `quantity_kg` (au moins stock + ventes déclarés), garde l'originale dans `declared_kg` et recalcule l'écart et le signalement ; `visite` laisse la récolte à vérifier. Le producteur est prévenu d'une confirmation ou d'une correction. 400 `invalid_status` si la récolte n'est pas à vérifier, 403 pour un autre rôle. Action journalisée (`harvest.check`). L'indicateur SEA `harvests_flagged` compte les récoltes à vérifier.
 
 ## UC-13 Diagnostic par photo (simulé)
 

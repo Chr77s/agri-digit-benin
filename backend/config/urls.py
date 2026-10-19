@@ -92,6 +92,7 @@ v1 = [
     path("supports", prodn.support_list),
     path("supports/<uuid:pk>/confirm", prodn.support_confirm),
     path("supports/<uuid:pk>/report", prodn.support_report),
+    path("harvests/<uuid:pk>/check", prodn.harvest_check),
     path("harvests", prodn.harvest_list),
     path("diagnoses", diag.diagnosis_list),
     path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),

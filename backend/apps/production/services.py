@@ -69,6 +69,41 @@ def estimate(campaign):
     return round(ref.yield_kg_ha * campaign.parcel.area_ha, 1) if ref else None
 
 
+CHECKS = ("confirmee", "corrigee", "visite")
+
+
+@transaction.atomic
+def check_harvest(actor, h, conclusion, reason, quantity_kg=None):
+    """L'agent conclut sur une récolte signalée : déclaration confirmée, quantité corrigée (l'originale est gardée) ou
+    visite à programmer (elle reste à vérifier). Motif obligatoire ; le producteur est prévenu des deux premières."""
+    if conclusion not in CHECKS:
+        raise ApiError("Conclusion inconnue.", "validation_error", 400, fields={"conclusion": ["Valeur inconnue."]})
+    if not reason:
+        raise ApiError("Le motif est obligatoire.", "reason_required", 400, fields={"reason": ["Obligatoire."]})
+    if not h.flagged or h.check_status not in ("a_verifier", "visite"):
+        raise ApiError("Cette récolte n'est pas à vérifier.", "invalid_status", 400)
+    if conclusion == "corrigee":
+        if not quantity_kg or quantity_kg <= 0:
+            raise ApiError("Indiquez la quantité corrigée.", "validation_error", 400,
+                           fields={"quantity_kg": ["Obligatoire."]})
+        if h.stored_kg + h.sold_kg > quantity_kg:
+            raise ApiError("Stock et vente dépassent la quantité corrigée.", "validation_error", 400,
+                           fields={"quantity_kg": ["Inférieure au stock et aux ventes déjà déclarés."]})
+        h.declared_kg = h.declared_kg or h.quantity_kg
+        h.quantity_kg = quantity_kg
+        if h.estimated_kg:
+            h.deviation_pct = round((quantity_kg - h.estimated_kg) / h.estimated_kg * 100, 1)
+            h.flagged = abs(h.deviation_pct) > DEVIATION_FLAG_PCT
+    h.check_status, h.check_reason, h.checked_by, h.checked_at = conclusion, reason, actor, timezone.now()
+    h.save()
+    record(actor, "harvest.check", h, conclusion=conclusion, reason=reason, quantity_kg=h.quantity_kg)
+    if conclusion != "visite":
+        label = "confirmée" if conclusion == "confirmee" else f"corrigée à {h.quantity_kg:g} kg"
+        notify(h.campaign.parcel.producer, "Récolte vérifiée",
+               f"Agri-Digit : votre récolte est {label}. Motif : {reason}")
+    return h
+
+
 @transaction.atomic
 def create_harvest(actor, campaign, d):
     if d.get("stored_kg", 0) + d.get("sold_kg", 0) > d["quantity_kg"]:
