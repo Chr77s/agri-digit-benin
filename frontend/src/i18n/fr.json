@@ -1311,7 +1311,7 @@
     "addConfirm": "Ajouter à la coopérative",
     "mineListen": "Mes coopératives. Voici les coopératives dont vous êtes membre.",
     "mineEmpty": "Vous n'êtes membre d'aucune coopérative.",
-    "mineEmptyHelp": "Demandez à votre agent ATDA ou au gestionnaire de la coopérative de vous inscrire.",
+    "mineEmptyHelp": "Demandez à adhérer à une coopérative de votre département ci-dessous, ou à votre agent ATDA de vous inscrire.",
     "since": "depuis le {{date}}",
     "endedOn": "Terminée le {{date}}",
     "role": {

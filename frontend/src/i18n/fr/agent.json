@@ -369,7 +369,7 @@
       "memberLabel": "Membre",
       "noActiveMine": "Vous n'êtes membre d'aucune coopérative",
       "endedLine": "{{role}} du {{from}} au {{to}}",
-      "joinHint": "Pour rejoindre une coopérative, demandez à votre agent ATDA ou au gestionnaire de la coopérative de vous inscrire."
+      "joinHint": "Votre coopérative n'est pas dans la liste ? Demandez à votre agent ATDA de l'enregistrer."
     }
   }
 }

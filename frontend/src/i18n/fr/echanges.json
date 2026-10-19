@@ -26,6 +26,38 @@
     "apps": {
       "contested": "Contestation du producteur",
       "contestedBadge": "Contestée"
+    },
+    "coop": {
+      "requests": "Demandes d'adhésion",
+      "noRequests": "Aucune demande d'adhésion",
+      "noRequestsHelp": "Les producteurs du département qui demandent à rejoindre la coopérative apparaissent ici.",
+      "requestMessage": "Message",
+      "reqStatus": {
+        "en_attente": "En attente",
+        "acceptee": "Acceptée",
+        "refusee": "Refusée"
+      },
+      "accept": "Accepter",
+      "accepted": "Demande acceptée : le producteur est membre.",
+      "refuse": "Refuser",
+      "refuseTitle": "Refuser la demande de {{name}} ?",
+      "refuseReason": "Motif du refus",
+      "refuseHint": "Le producteur reçoit ce motif. 5 caractères minimum.",
+      "refuseConfirm": "Confirmer le refus",
+      "refused": "Demande refusée. Le producteur est prévenu.",
+      "nearbyTitle": "Demander une adhésion",
+      "nearbySub": "Coopératives enregistrées dans votre département",
+      "nearbyNone": "Aucune autre coopérative enregistrée dans votre département pour l'instant.",
+      "membersN_one": "{{count}} membre",
+      "membersN_other": "{{count}} membres",
+      "requestSent": "Demande envoyée",
+      "refusedLine": "Demande refusée : {{reason}}",
+      "requestBtn": "Demander à adhérer",
+      "joinTitle": "Rejoindre : {{name}}",
+      "joinConsent": "J'accepte que la coopérative voie mon nom, mon code producteur et ma commune.",
+      "joinInfo": "Le gestionnaire de la coopérative (ou votre agent ATDA) valide la demande et vous répond par message.",
+      "joinSend": "Envoyer la demande",
+      "joinSent": "Demande envoyée. Vous serez prévenu de la décision."
     }
   }
 }
