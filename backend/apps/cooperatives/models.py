@@ -21,6 +21,24 @@ class Cooperative(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class MembershipRequest(models.Model):
+    """Demande d'adhésion du producteur, décidée par le gestionnaire ou l'agent ; acceptée, elle crée l'adhésion."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE, related_name="join_requests")
+    producer = models.ForeignKey(Producer, on_delete=models.CASCADE, related_name="join_requests")
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default="en_attente", db_index=True)  # en_attente | acceptee | refusee
+    decision_reason = models.TextField(blank=True)
+    decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["cooperative", "producer"], condition=Q(status="en_attente"),
+                                               name="one_pending_join_request")]
+
+
 class Membership(models.Model):
     """Adhésion : jamais supprimée, `left_at` renseigné à la sortie (historique conservé)."""
 

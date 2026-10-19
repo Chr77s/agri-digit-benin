@@ -23,6 +23,7 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /cooperatives/{id}/members {producer, role}` (agent, gestionnaire de cette coopérative). Un producteur peut appartenir à plusieurs coopératives. Doublon actif -> 409.
 - `POST /memberships/{id}/end {reason}` : renseigne `left_at`, l'historique est conservé.
 - Le gestionnaire ne voit que ses coopératives. Le producteur voit ses adhésions via `GET /memberships/mine`.
+- Demande d'adhésion : `GET /cooperatives/nearby` (producteur) liste les coopératives de son département dont il n'est pas membre, sans téléphone du gestionnaire, avec `request_status` (`en_attente|acceptee|refusee|null`) et `request_reason`. `POST /cooperatives/{id}/join-request {message?}` (producteur validé, même département) -> 201, 409 si déjà membre ou demande en attente ; le gestionnaire (à défaut les agents du département) est prévenu. `GET /join-requests?status=&cooperative=` (producteur : les siennes ; gestionnaire, agent, admin : leur périmètre). `POST /join-requests/{id}/decide {status: acceptee|refusee, reason}` (gestionnaire, agent, admin) : motif obligatoire pour un refus, l'acceptation crée l'adhésion (rôle `membre`), le producteur est prévenu. Une demande déjà traitée -> 400 `invalid_status`.
 
 ## UC-07 Carte producteur
 

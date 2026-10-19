@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 
 from apps.core.permissions import ADMIN, AGENT
 
-from .models import Cooperative, Membership
+from .models import Cooperative, Membership, MembershipRequest
 
 COOP_MANAGER = "gestionnaire_cooperative"
 
@@ -35,6 +35,24 @@ def search(qs, params):
     if s := params.get("search"):
         qs = qs.filter(name__icontains=s)
     return qs
+
+
+def nearby_for(producer):
+    """Coopératives du département du producteur dont il n'est pas déjà membre, avec l'état de sa dernière demande."""
+    mine = Membership.objects.filter(producer=producer, left_at__isnull=True).values("cooperative_id")
+    qs = Cooperative.objects.filter(department=producer.department).exclude(pk__in=mine).annotate(
+        members_count=Count("memberships", filter=Q(memberships__left_at__isnull=True))).order_by("name")
+    last = {r.cooperative_id: r for r in producer.join_requests.order_by("created_at")}
+    for c in qs:
+        c.request = last.get(c.id)
+    return qs
+
+
+def join_requests_for(user):
+    qs = MembershipRequest.objects.select_related("cooperative", "producer")
+    if user.role == "producteur":
+        return qs.filter(producer__user=user)
+    return qs.filter(cooperative__in=cooperatives_for(user))
 
 
 def get_membership(user, pk):
