@@ -1,0 +1,10 @@
+{
+  "banco.jpg": {
+    "derived_from": "design/assets/tata-somba-baliola.jpg",
+    "crop": "x 5 % à 19,5 %, y 40,5 % à 49,5 % de l'image source (3840 × 2571), sans mise à l'échelle, 556 × 231 px, JPEG 82 %",
+    "method": "recadrage dans un canvas de Chrome sans interface",
+    "author": "Martin Wegmann",
+    "license": "CC BY-SA 3.0 (œuvre dérivée, même licence)",
+    "source": "https://commons.wikimedia.org/wiki/File:Benin_Tata_Somba.JPG"
+  }
+}

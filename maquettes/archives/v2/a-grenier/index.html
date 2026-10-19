@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agri-Digit Bénin</title>
+<meta name="description" content="Direction A, Le grenier (Tata Somba) : maquette de la page d'accueil d'Agri-Digit Bénin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* banco, latérite, chaume, ciel d'harmattan, encre : le foyer de l'Atacora */
+  --ink:#24170F;
+  --banco:#B98A5E;
+  --banco-deep:#8C5B3B;
+  --banco-text:#6E4529; /* banco assombri pour le petit texte : 5,4:1 sur brume-2 */
+  --laterite:#A4442A;
+  --laterite-hover:#8E3720;
+  --chaume:#6F6A5D;
+  --chaume-deep:#57534A;
+  --brume:#E3E2DE;   /* ciel de brume d'harmattan, gris de poussière */
+  --brume-2:#D3D1CB;
+  --grain:#E3B04B;
+  /* enduit de banco : recadrage du mur de la photo Baliola (voir credits.json), voilé pour tenir 4,6:1 sous l'encre */
+  --banco-surface:linear-gradient(rgb(201 158 114/.72),rgb(201 158 114/.72)),url(banco.jpg) center/556px auto repeat;
+  --banco-dark-surface:linear-gradient(rgb(87 58 38/.86),rgb(87 58 38/.86)),url(banco.jpg) center/556px auto repeat;
+  /* incision : rainure sombre puis liseré clair décalé d'un pixel */
+  --incision:inset 0 2px 0 rgb(36 23 15/.55),inset 0 3px 0 rgb(255 241 222/.4);
+  --display:"Alegreya",Georgia,serif;
+  --text:"Alegreya Sans",system-ui,sans-serif;
+  --gutter:clamp(16px,4vw,48px);
+  --max:1240px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --focus:var(--laterite);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scrollbar-color:var(--banco-deep) var(--brume-2)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--brume);color:var(--ink);font:400 1.125rem/1.6 var(--text);overflow-x:clip;caret-color:var(--laterite)}
+::selection{background:var(--laterite);color:var(--brume)}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-underline-offset:.22em;text-decoration-thickness:1px}
+h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.08;margin:0;letter-spacing:-.01em;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+ul,ol{margin:0;padding:0;list-style:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.dark{--focus:var(--grain)}
+.wrap{width:min(100% - 2*var(--gutter),var(--max));margin-inline:auto}
+.skip{position:absolute;left:var(--gutter);top:-100px;z-index:50;background:var(--ink);color:var(--brume);padding:.7rem 1rem;border-radius:6px;font-weight:700}
+.skip:focus{top:.75rem}
+.groove{height:3px;box-shadow:var(--incision)}
+.h2{font-size:clamp(1.9rem,1.3rem + 2.2vw,3.1rem)}
+
+/* boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;min-height:48px;padding:.7rem 1.25rem;border-radius:999px;font:700 1.0625rem/1.2 var(--text);text-decoration:none;border:2px solid transparent;cursor:pointer;transition:background-color .15s,color .15s,border-color .15s,transform .12s var(--ease)}
+.btn svg{width:1.1em;height:1.1em;flex:none;transition:transform .2s var(--ease)}
+.btn:active{transform:scale(.97)}
+@media (hover:hover){.btn:hover svg{transform:translateX(3px)}}
+.btn-primary{background:var(--laterite);color:var(--brume)}
+.btn-primary:hover{background:var(--laterite-hover)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:rgb(227 226 222/.35)}
+.btn-ghost:hover{background:var(--ink);color:var(--brume)}
+.btn-light{background:var(--brume);color:var(--ink)}
+.btn-light:hover{background:#fff}
+.btn-line-light{border-color:var(--brume);color:var(--brume);background:transparent}
+.btn-line-light:hover{background:var(--brume);color:var(--ink)}
+
+/* en-tête */
+.top{background:var(--brume);box-shadow:inset 0 -2px 0 rgb(36 23 15/.25)}
+.top .wrap{display:flex;align-items:center;gap:1rem;min-height:4rem}
+.brand{display:flex;align-items:center;gap:.6rem;white-space:nowrap;text-decoration:none;font:800 1.2rem/1 var(--display);margin-right:auto;min-height:44px}
+.brand svg{width:36px;height:36px}
+.nav{display:flex;align-items:center;gap:.25rem}
+.nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 .75rem;text-decoration:none;font-weight:500;border-radius:999px;transition:background-color .15s}
+.nav a:hover{background:var(--brume-2)}
+.top .btn{min-height:44px;padding:.5rem 1.05rem}
+.menu-btn{display:none;align-items:center;gap:.4rem;min-height:44px;min-width:44px;padding:0 .8rem;border:2px solid var(--ink);border-radius:999px;background:transparent;color:var(--ink);font:700 1rem var(--text);cursor:pointer;transition:background-color .15s,transform .12s var(--ease)}
+.menu-btn:hover{background:var(--brume-2)}
+.menu-btn:active{transform:scale(.96)}
+.menu-btn svg{width:20px;height:20px}
+@media (max-width:900px){.nav{display:none}.menu-btn{display:inline-flex}}
+@media (max-width:420px){.top .btn-primary{display:none}}
+
+/* tiroir flottant */
+.drawer{position:fixed;inset:.75rem .75rem auto auto;margin:0;width:min(22rem,calc(100% - 1.5rem));max-height:calc(100dvh - 1.5rem);padding:0;border:0;border-radius:20px;background:var(--brume);color:var(--ink);box-shadow:0 18px 50px rgb(36 23 15/.35),0 2px 6px rgb(36 23 15/.2);overflow:auto}
+.drawer::backdrop{background:rgb(36 23 15/.5)}
+.drawer[open]{animation:drawer-in .32s var(--ease)}
+.drawer[open]::backdrop{animation:fade .32s var(--ease)}
+.drawer.closing{animation:drawer-out .18s ease-in forwards}
+.drawer.closing::backdrop{animation:fade .18s ease-in reverse forwards}
+@keyframes drawer-in{from{opacity:0;transform:translateY(-10px) scale(.97)}}
+@keyframes drawer-out{to{opacity:0;transform:translateY(-8px) scale(.98)}}
+@keyframes fade{from{opacity:0}}
+.drawer-in{padding:1rem 1rem 1.25rem}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:.6rem;box-shadow:inset 0 -2px 0 rgb(36 23 15/.2);margin-bottom:.5rem}
+.drawer-head p{font:800 1.15rem var(--display)}
+.icon-btn{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:999px;border:0;background:var(--brume-2);color:var(--ink);cursor:pointer;transition:transform .12s var(--ease),background-color .15s}
+.icon-btn:hover{background:var(--banco)}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn svg{width:20px;height:20px}
+.drawer nav a{display:flex;align-items:center;min-height:48px;padding:0 .5rem;text-decoration:none;font:700 1.15rem var(--display);border-bottom:1px solid rgb(36 23 15/.12)}
+.drawer .actions{display:grid;gap:.6rem;margin-top:1rem}
+
+/* héros */
+.hero{position:relative;display:grid;align-content:end;min-height:min(calc(100svh - 4rem),56rem);isolation:isolate}
+.hero-photo{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:46% 30%}
+.credit{position:absolute;right:.75rem;bottom:.75rem;max-width:min(26rem,calc(100% - 1.5rem));background:rgb(36 23 15/.82);color:var(--brume);font-size:.8125rem;line-height:1.35;padding:.3rem .6rem;border-radius:6px}
+.credit a{color:var(--brume)}
+.band{position:relative;width:min(44rem,100%);margin-top:12rem;background:var(--banco-surface);border-top-right-radius:56px;padding:2.4rem var(--gutter) 2.2rem;box-shadow:var(--incision)}
+.band h1{font-size:clamp(2rem,1.2rem + 3vw,3.6rem);max-width:17ch}
+.band .lead{margin-top:1rem;font-size:clamp(1.0625rem,1rem + .3vw,1.25rem);max-width:38rem;font-weight:500}
+.band .actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.5rem}
+
+/* index des départements : une poutre, une vérité */
+.index{background:var(--brume-2);padding:clamp(3.5rem,7vw,6rem) 0;box-shadow:var(--incision)}
+.index-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:.75rem 2rem}
+.index-head h2{max-width:22ch}
+.index-head p{color:var(--banco-text);font-style:italic;max-width:24rem}
+.beams{margin-top:2.25rem;display:grid;gap:.35rem;font-variant-numeric:lining-nums tabular-nums}
+.beams li{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 5.5rem;align-items:center;gap:1rem;min-height:2.4rem}
+.beams .dep{font:700 1.125rem var(--display)}
+.beams .n{font:800 1.25rem var(--display);text-align:right;color:var(--ink)}
+.beam{height:20px;width:max(10px,calc(var(--w)*100%));border-radius:3px 10px 10px 3px;background:var(--banco-dark-surface);box-shadow:inset 0 2px 0 rgb(255 241 222/.25),inset 0 -2px 0 rgb(36 23 15/.4)}
+.beams-foot{margin-top:1.25rem;padding-top:.9rem;box-shadow:var(--incision);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 2rem}
+.beams-foot b{font:800 1.4rem var(--display);font-variant-numeric:lining-nums tabular-nums}
+.beams-foot span{color:var(--banco-text);font-style:italic}
+
+/* la coupe, signature */
+.coupe{padding:clamp(4rem,8vw,7rem) 0 2rem}
+.coupe-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,22rem);gap:1.5rem clamp(2rem,5vw,5rem);align-items:end}
+.coupe-head .intro{margin-top:.9rem;max-width:36rem}
+.ref{margin:0}
+.ref img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px 46px 10px 10px}
+.ref figcaption{margin-top:.45rem;font-size:.9rem;line-height:1.4;color:var(--banco-text)}
+.coupe-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2rem,5vw,5rem);margin-top:3rem}
+.coupe-fig{position:sticky;top:2rem;align-self:start;margin:0;height:min(86vh,44rem)}
+.coupe-fig svg{width:100%;height:100%}
+.coupe-fig figcaption{font-size:.95rem;color:var(--banco-text);font-style:italic;margin-top:.25rem}
+.chapter{min-height:72vh;padding:3rem 0;box-shadow:var(--incision)}
+.chapter:first-child{box-shadow:none;padding-top:1rem}
+.chapter.last{min-height:110vh}
+.chapter h3{display:flex;align-items:center;gap:.75rem;font-size:clamp(1.5rem,1.2rem + 1vw,2.1rem)}
+.lv{width:30px;height:40px;flex:none}
+.chapter p{margin-top:.8rem;max-width:36rem}
+.chapter .step{margin-top:1.75rem}
+.chapter .step h4{font:700 1.25rem/1.25 var(--display)}
+.stages{margin-top:1.5rem;display:grid;gap:1.6rem}
+.stages li{display:grid;grid-template-columns:44px 1fr;gap:1rem;align-items:start}
+.stages svg{width:44px;height:44px}
+.stages h4{font:700 1.3rem/1.2 var(--display)}
+.stages p{margin-top:.3rem}
+.chapter .btn{margin-top:2rem}
+
+/* svg de la coupe : la lumière traverse les niveaux (aube, plein jour, or du soir) */
+.sky{transition:opacity .9s var(--ease)}
+[data-sky="1"] :is(.sky-2,.sky-3),[data-sky="2"] .sky-3{opacity:0}
+.sun{transform-box:view-box;transform-origin:220px 600px;transform:rotate(52deg);transition:transform 1.2s var(--ease)}
+[data-sky="1"] .sun{transform:rotate(-56deg)}
+[data-sky="2"] .sun{transform:rotate(-6deg)}
+.lamp{transition:opacity .8s var(--ease)}
+.glyph{transform-box:fill-box;transform-origin:50% 100%;transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.roof{transform-box:fill-box;transform-origin:85% 100%;transition:transform .6s var(--ease)}
+.pour{opacity:0;transition:opacity .3s}
+.marker{opacity:0;transition:transform .55s var(--ease),opacity .3s}
+.js .lamp{opacity:0}
+.js [data-lit="1"] .lamp-1,.js [data-lit="2"] :is(.lamp-1,.lamp-2),.js [data-lit="3"] .lamp{opacity:1}
+.js .glyph{opacity:.25;transform:scale(.7)}
+.js .glyph.on{opacity:1;transform:none}
+.js [data-current] .marker{opacity:1}
+[data-current="1"] .marker{transform:translateY(493px)}
+[data-current="2"] .marker{transform:translateY(391px)}
+[data-current="3"] .marker{transform:translateY(270px)}
+.pouring .roof{transform:translate(10px,-30px) rotate(9deg)}
+.pouring .pour{opacity:1}
+.pouring .stream ellipse{animation:pour .8s linear infinite}
+.pouring .stream ellipse:nth-child(2){animation-delay:-.2s}
+.pouring .stream ellipse:nth-child(3){animation-delay:-.4s}
+.pouring .stream ellipse:nth-child(4){animation-delay:-.6s}
+@keyframes pour{from{transform:translate(0,0);opacity:1}to{transform:translate(30px,26px);opacity:.2}}
+
+/* fondations : appareil de banco sous une tour */
+.found{background:var(--ink);color:var(--brume);padding:clamp(4rem,8vw,7rem) 0}
+.f-tower{position:relative;width:min(34rem,86%);margin:0 auto;padding-top:7.2rem}
+.f-tower>svg{position:absolute;z-index:1;top:0;left:50%;width:12rem;transform:translateX(-50%)}
+.f-body{background:var(--banco-surface);color:var(--ink);border-radius:50% 50% 0 0/110px 110px 0 0;padding:3.2rem 2rem 2.4rem;text-align:center}
+.f-body h2{max-width:16ch;margin-inline:auto}
+.courses{max-width:60rem;margin:0 auto;display:grid}
+.course{display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);background:var(--banco-surface);color:var(--ink);box-shadow:var(--incision);transition:transform .6s var(--ease)}
+.course:last-child{border-radius:0 0 8px 8px}
+.course>*{padding:1.25rem 1.6rem 1.15rem}
+.course h3{font-size:1.35rem;color:#3A2416;text-shadow:0 1px 0 rgb(255 241 222/.55)}
+.course p{box-shadow:inset 2px 0 0 rgb(36 23 15/.5),inset 3px 0 0 rgb(255 241 222/.35)}
+.js .found.pending .course{transform:translateY(12px)}
+.course:nth-child(4){transition-delay:0s}.course:nth-child(3){transition-delay:.1s}.course:nth-child(2){transition-delay:.2s}.course:nth-child(1){transition-delay:.3s}
+
+/* FAQ */
+.faq{background:var(--brume-2);padding:clamp(4rem,8vw,7rem) 0}
+.faq .wrap{max-width:52rem}
+.faq-list{margin-top:2rem;box-shadow:var(--incision)}
+.faq details{box-shadow:inset 0 -2px 0 rgb(36 23 15/.3)}
+.faq summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:56px;padding:.9rem 0 .8rem;cursor:pointer;list-style:none;font:700 1.25rem/1.3 var(--display)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary svg{width:24px;height:24px;flex:none;color:var(--laterite-hover);transition:transform .25s var(--ease)}
+.faq details[open] summary svg{transform:rotate(45deg)}
+.faq summary:hover{color:var(--laterite-hover)}
+.faq .a{padding:0 0 1.2rem;max-width:44rem}
+.faq details[open] .a{animation:answer .3s var(--ease)}
+@keyframes answer{from{opacity:0;transform:translateY(-6px)}}
+
+/* espaces : trois tours */
+.portals{padding:clamp(4rem,8vw,7rem) 0}
+.portals .lead{margin-top:.8rem;max-width:40rem}
+.towers{margin-top:3rem;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(1.25rem,3vw,2.5rem);align-items:end}
+.tower{position:relative;padding-top:6.2rem}
+.tower>svg{position:absolute;z-index:1;top:0;left:50%;width:10rem;transform:translateX(-50%)}
+.tower-body{position:relative;border-radius:46% 46% 8px 8px/80px 80px 8px 8px;padding:2.6rem clamp(1.25rem,2.5vw,2rem) 2rem}
+.t-prod .tower-body{background:var(--banco-surface);color:var(--ink)}
+.t-agent .tower-body{background:var(--chaume-deep);color:var(--brume)}
+.t-inst .tower-body{background:var(--banco-dark-surface);color:var(--brume)}
+.tower h3{font-size:clamp(1.45rem,1.2rem + .8vw,1.9rem);text-align:center}
+.tower .who{margin-top:.9rem}
+.tower h4{font:700 1.2rem var(--display);margin-top:1.1rem}
+.tower h4+p{margin-top:.25rem}
+.tower ul{margin-top:1.1rem;display:grid;gap:.55rem;padding-top:1rem;box-shadow:var(--incision)}
+.t-agent ul,.t-inst ul{box-shadow:inset 0 2px 0 rgb(0 0 0/.35),inset 0 3px 0 rgb(255 241 222/.25)}
+.tower li{display:grid;grid-template-columns:20px 1fr;gap:.6rem;align-items:start}
+.tower li svg{width:20px;height:20px;margin-top:.25rem}
+.tower .btn{margin-top:1.6rem;width:100%}
+
+/* pied de page */
+.foot{background:var(--ink);color:var(--brume);padding:3.5rem 0 2rem;font-size:1rem}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:2rem}
+.foot .brand{margin:0 0 .8rem}
+.foot h2{font:700 1.25rem var(--display);color:var(--banco);margin-bottom:.5rem}
+.foot li a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
+.foot li a:hover{text-decoration:underline}
+.foot-base{margin-top:2.5rem;padding-top:1.25rem;box-shadow:inset 0 2px 0 rgb(0 0 0/.5),inset 0 3px 0 rgb(227 226 222/.18);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.6rem 2rem;color:#D8CDBA}
+.foot-base a{color:#D8CDBA}
+
+/* entrée de page */
+.js .hero-photo img{animation:settle 1.6s var(--ease) both}
+.js .band{animation:rise .8s var(--ease) .15s both}
+.js .band>*{animation:up .7s var(--ease) both}
+.js .band h1{animation-delay:.35s}.js .band .lead{animation-delay:.48s}.js .band .actions{animation-delay:.6s}
+.js .credit{animation:fade .6s ease .9s both}
+@keyframes settle{from{transform:scale(1.07)}}
+@keyframes rise{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+
+@media (prefers-reduced-motion:reduce){
+  .js .hero-photo img,.js .band,.js .band>*{animation:fade .4s ease both}
+  .js .band>*{animation-delay:0s!important}
+  .glyph,.roof,.marker,.course,.sun{transition-property:opacity!important}
+  .js .glyph{transform:none}
+  .sun{transition:none}
+  .pouring .roof{transform:none}
+  .pour{display:none}
+  .js .found.pending .course{transform:none}
+  .drawer[open],.drawer.closing{animation-name:fade}
+  .faq details[open] .a{animation:fade .2s ease}
+}
+.final *{animation:none!important;transition:none!important}
+/* état figé pour les captures pleine page : la hauteur de fenêtre n'y est pas réaliste */
+.final .chapter{min-height:0!important}
+.final .coupe-fig{height:44rem}
+@media (max-width:900px){.final .coupe-fig{height:300px}}
+
+/* responsive */
+@media (max-width:1100px){
+  .towers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .t-inst{grid-column:1/-1}
+  .t-inst .tower-body{max-width:36rem;margin-inline:auto}
+}
+@media (max-width:1100px) and (min-width:601px){.credit{top:.75rem;bottom:auto}}
+@media (max-width:900px){
+  .coupe-head{grid-template-columns:1fr}
+  .ref{max-width:28rem}
+  .coupe-grid{grid-template-columns:1fr;gap:0}
+  .coupe-fig{top:0;z-index:2;height:min(36svh,300px);background:var(--brume);margin-inline:calc(-1*var(--gutter));padding:.5rem var(--gutter) 0;box-shadow:inset 0 -2px 0 rgb(36 23 15/.25)}
+  .coupe-fig svg{height:100%}
+  .coupe-fig figcaption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .chapter{min-height:60vh}
+  .chapter.last{min-height:90vh}
+  .course{grid-template-columns:1fr}
+  .course p{box-shadow:none;padding-top:0}
+  .course h3{padding-bottom:.4rem}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-grid>div:first-child{grid-column:1/-1}
+}
+@media (max-width:700px){
+  .towers{grid-template-columns:1fr;gap:2rem}
+  .beams li{grid-template-columns:minmax(0,1fr) auto;gap:.15rem 1rem;padding:.35rem 0}
+  .beams .beam{grid-column:1/-1;grid-row:2}
+}
+@media (max-width:600px){
+  .hero{display:block;min-height:0}
+  .hero-photo{position:relative;inset:auto;aspect-ratio:3/2}
+  .hero-photo img{object-position:50% 50%}
+  .credit{bottom:1.6rem;right:.5rem;font-size:.6875rem;padding:.2rem .45rem;max-width:80%}
+  .band{margin-top:-1.1rem;border-top-right-radius:32px;padding-top:1.8rem}
+  .band .btn{flex:1 1 100%}
+  .f-tower{width:92%}
+  .f-body{padding:2.6rem 1.25rem 2rem}
+}
+@media (max-width:380px){.foot-grid{grid-template-columns:1fr}.brand{font-size:1.05rem}.menu-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.menu-btn{padding:0;justify-content:center}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0A2417"/><path d="M17 21c0-6 7-9 15-9s15 3 15 9c0 12-7 25-15 32-8-7-15-20-15-32Z" fill="#EFEBD8"/><path d="M32 45c-3.5-4.5-4.5-11-2.5-17 3.5 3 4.5 10 2.5 17Z" fill="#D9A62E"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="tick" viewBox="0 0 20 20"><path d="M4 10.5 8 14l8-8.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- toit de chaume conique : seul ornement -->
+    <symbol id="toit" viewBox="0 0 52 38"><path d="M26 4 49 33Q26 37 3 33Z" fill="#6F6A5D"/><path d="M26 4 9 33.5M26 4l-8 30.5M26 4v31M26 4l8 30.5M26 4l17 29.5" stroke="#4B4740" stroke-width="1.2"/><path d="M3 33Q26 37 49 33" fill="none" stroke="#3E3A33" stroke-width="1.6"/><rect x="24.5" y="0" width="3" height="6" rx="1.5" fill="#24170F"/></symbol>
+    <symbol id="lv" viewBox="0 0 30 40"><path d="M15 1 28 14H2Z" fill="#6F6A5D"/><path d="M4 15h22l1 24H3Z" fill="none" stroke="#24170F" stroke-width="1.6"/><path d="M3.6 27h22.8" stroke="#24170F" stroke-width="1.6"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><svg aria-hidden="true"><use href="#logo"/></svg>Agri-Digit Bénin</a>
+    <nav class="nav" aria-label="Navigation de la page d'accueil">
+      <a href="#comment">Comment ça marche</a>
+      <a href="#garanties">Nos garanties</a>
+      <a href="#faq">Questions</a>
+      <a href="/connexion">Se connecter</a>
+    </nav>
+    <a class="btn btn-primary" href="/inscription">S'inscrire</a>
+    <button class="menu-btn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" id="menu-open">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span class="menu-label">Menu</span>
+    </button>
+  </div>
+</header>
+
+<dialog class="drawer" id="menu" aria-labelledby="menu-title">
+  <div class="drawer-in">
+    <div class="drawer-head">
+      <p id="menu-title">Agri-Digit Bénin</p>
+      <button class="icon-btn" type="button" id="menu-close" aria-label="Fermer le menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <nav aria-label="Navigation de la page d'accueil">
+      <a href="#fermes">Les fermes du POC</a>
+      <a href="#comment">Comment ça marche</a>
+      <a href="#garanties">Nos garanties</a>
+      <a href="#faq">Questions fréquentes</a>
+      <a href="#espaces">Votre espace</a>
+    </nav>
+    <div class="actions">
+      <a class="btn btn-primary" href="/inscription">Créer mon compte producteur<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+      <a class="btn btn-ghost" href="/connexion">Se connecter</a>
+    </div>
+  </div>
+</dialog>
+
+<main id="contenu">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-photo">
+      <img src="../../../assets/tata-somba-baliola.jpg" width="2400" height="1607" alt="Une Tata Somba en banco avec ses greniers coiffés de chaume, de jeunes pieds de maïs devant, et un homme qui passe un sac sur la tête." fetchpriority="high">
+      <p class="credit">Tata Somba, Baliola. Photo&nbsp;: Martin Wegmann, CC&nbsp;BY-SA&nbsp;3.0, <a href="https://commons.wikimedia.org/wiki/File:Benin_Tata_Somba.JPG" rel="noopener">Wikimedia Commons</a></p>
+    </div>
+    <div class="band">
+      <h1 id="hero-title">Votre champ, vos conseils, vos appuis&nbsp;: tout tient dans votre téléphone.</h1>
+      <p class="lead">Inscrivez-vous avec votre numéro. Suivez chaque parcelle du semis à la récolte, recevez les alertes de votre agent ATDA et vendez votre récolte au bon prix.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/inscription">Créer mon compte producteur<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+        <a class="btn btn-ghost" href="/connexion">Se connecter</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- relief.json : fermes du POC par département, triées du nord au sud (latitude) -->
+  <section class="index" id="fermes" aria-labelledby="index-title">
+    <div class="wrap">
+      <div class="index-head">
+        <h2 class="h2" id="index-title">200&#8239;873 fermes de maïs, un seul pays à faire grandir.</h2>
+        <p>Fermes du POC par département, du nord au sud. Données de démonstration, non officielles.</p>
+      </div>
+      <ol class="beams">
+        <li><span class="dep">Alibori</span><span class="beam" style="--w:1"></span><span class="n">58&#8239;310</span></li>
+        <li><span class="dep">Atacora</span><span class="beam" style="--w:.5542"></span><span class="n">32&#8239;313</span></li>
+        <li><span class="dep">Borgou</span><span class="beam" style="--w:.8094"></span><span class="n">47&#8239;199</span></li>
+        <li><span class="dep">Donga</span><span class="beam" style="--w:.3837"></span><span class="n">22&#8239;372</span></li>
+        <li><span class="dep">Collines</span><span class="beam" style="--w:.4305"></span><span class="n">25&#8239;104</span></li>
+        <li><span class="dep">Plateau</span><span class="beam" style="--w:.0769"></span><span class="n">4&#8239;484</span></li>
+        <li><span class="dep">Zou</span><span class="beam" style="--w:.0544"></span><span class="n">3&#8239;171</span></li>
+        <li><span class="dep">Couffo</span><span class="beam" style="--w:.0419"></span><span class="n">2&#8239;445</span></li>
+        <li><span class="dep">Ouémé</span><span class="beam" style="--w:.0451"></span><span class="n">2&#8239;627</span></li>
+        <li><span class="dep">Atlantique</span><span class="beam" style="--w:.0393"></span><span class="n">2&#8239;289</span></li>
+        <li><span class="dep">Mono</span><span class="beam" style="--w:.0048"></span><span class="n">279</span></li>
+        <li><span class="dep">Littoral</span><span class="beam" style="--w:.0048"></span><span class="n">280</span></li>
+      </ol>
+      <div class="beams-foot"><p><b>12</b> départements, <b>77</b> communes, <b>13</b> filières prioritaires</p><span>Démonstration du POC</span></div>
+    </div>
+  </section>
+
+  <section class="coupe" id="comment" aria-labelledby="coupe-title">
+    <div class="wrap">
+      <div class="coupe-head">
+        <div>
+          <h2 class="h2" id="coupe-title">Trois étapes, et votre exploitation est en ligne.</h2>
+          <p class="intro">Comme dans une Tata Somba&nbsp;: on entre par le bas, on vit à l'étage, on engrange sur la terrasse.</p>
+        </div>
+        <figure class="ref">
+          <img src="../../../assets/tata-somba-nadoba.jpg" width="2400" height="1800" loading="lazy" alt="Tata Somba de Nadoba : tours cylindriques en banco reliées par un mur, l'une coiffée de son plancher de bois.">
+          <figcaption>La coupe suit ces tours réelles, reliées par un mur. Tata Somba de Nadoba, photo&nbsp;: Step may, CC&nbsp;BY-SA&nbsp;4.0, <a href="https://commons.wikimedia.org/wiki/File:Tata_Somba_de_Nadoba.jpg" rel="noopener">source</a></figcaption>
+        </figure>
+      </div>
+      <div class="coupe-grid">
+        <figure class="coupe-fig" id="coupe-fig" data-lit="3" data-sky="3">
+          <svg viewBox="0 0 440 600" role="img" aria-labelledby="coupe-svg-title">
+            <title id="coupe-svg-title">Coupe d'une Tata Somba&nbsp;: deux tours reliées par un mur, rez-de-chaussée, étage, terrasse et grenier coiffé de chaume, rempli de grains à la récolte.</title>
+            <defs>
+              <linearGradient id="skyDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8F97AE"/><stop offset=".7" stop-color="#D9B6A6"/><stop offset="1" stop-color="#EBCDB4"/></linearGradient>
+              <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9DB7C6"/><stop offset=".7" stop-color="#D7DEDF"/><stop offset="1" stop-color="#E8E6E0"/></linearGradient>
+              <linearGradient id="skyGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6E5F78"/><stop offset=".62" stop-color="#D99A5B"/><stop offset="1" stop-color="#EFC07A"/></linearGradient>
+              <radialGradient id="glowDawn" cx=".5" cy=".6" r=".8"><stop offset="0" stop-color="#F6D3BC"/><stop offset="1" stop-color="#B9806A"/></radialGradient>
+              <radialGradient id="glowDay" cx=".5" cy=".6" r=".8"><stop offset="0" stop-color="#FBF1D9"/><stop offset="1" stop-color="#CDB287"/></radialGradient>
+              <radialGradient id="glowGold" cx=".5" cy=".7" r=".8"><stop offset="0" stop-color="#F8D78A"/><stop offset="1" stop-color="#B9772B"/></radialGradient>
+              <linearGradient id="cyl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#24170F" stop-opacity=".5"/><stop offset=".32" stop-color="#24170F" stop-opacity="0"/><stop offset=".55" stop-color="#FFF1DE" stop-opacity=".12"/><stop offset=".8" stop-color="#24170F" stop-opacity=".1"/><stop offset="1" stop-color="#24170F" stop-opacity=".55"/></linearGradient>
+              <pattern id="bancoP" width="278" height="115.5" patternUnits="userSpaceOnUse"><image href="banco.jpg" width="278" height="115.5" preserveAspectRatio="none"/></pattern>
+              <pattern id="grainP" width="14" height="10" patternUnits="userSpaceOnUse"><rect width="14" height="10" fill="#C98F2E"/><ellipse cx="4" cy="3" rx="4.4" ry="3.1" fill="#E3B04B" stroke="#A9772A" stroke-width=".8"/><ellipse cx="11" cy="8" rx="4.4" ry="3.1" fill="#EBC067" stroke="#A9772A" stroke-width=".8"/></pattern>
+              <clipPath id="cavity"><path d="M180 324C173 284 176 246 189 224h62c13 22 16 60 9 100Z"/></clipPath>
+            </defs>
+            <!-- ciel : aube, plein jour, or du soir -->
+            <rect class="sky sky-1" width="440" height="548" fill="url(#skyDawn)"/>
+            <rect class="sky sky-2" width="440" height="548" fill="url(#skyDay)"/>
+            <rect class="sky sky-3" width="440" height="548" fill="url(#skyGold)"/>
+            <g class="sun"><circle cx="220" cy="96" r="40" fill="#FFF3D6" opacity=".3"/><circle cx="220" cy="96" r="20" fill="#FFF1CF"/></g>
+            <path d="M0 500C60 470 110 480 160 462c60-22 120 8 170-6 50-12 80 6 110 2v90H0Z" fill="#6F7A64" opacity=".5"/>
+            <!-- sol de latérite, incisé -->
+            <rect x="0" y="540" width="440" height="60" fill="#A4442A"/>
+            <path d="M0 541h440" stroke="#24170F" stroke-opacity=".5" stroke-width="2"/><path d="M0 543h440" stroke="#F3D9C4" stroke-opacity=".35"/>
+
+            <!-- tour de gauche -->
+            <path d="M36 540V262c0-22 96-22 96 0v278Z" fill="url(#bancoP)"/>
+            <path d="M36 540V262c0-22 96-22 96 0v278Z" fill="url(#cyl)"/>
+            <g fill="none" stroke-linecap="round"><path d="M44 312q40 9 80 0M44 380q40 9 80 0M44 450q40 9 80 0" stroke="#24170F" stroke-opacity=".45" stroke-width="1.6"/><path d="M44 314q40 9 80 0M44 382q40 9 80 0M44 452q40 9 80 0" stroke="#FFF1DE" stroke-opacity=".3"/></g>
+            <rect x="24" y="338" width="16" height="5" rx="2" fill="#5C3B22"/>
+
+            <!-- tour de droite, avec son petit grenier -->
+            <path d="M308 540V284c0-22 96-22 96 0v256Z" fill="url(#bancoP)"/>
+            <path d="M308 540V284c0-22 96-22 96 0v256Z" fill="url(#cyl)"/>
+            <g fill="none" stroke-linecap="round"><path d="M316 340q40 9 80 0M316 410q40 9 80 0M316 480q40 9 80 0" stroke="#24170F" stroke-opacity=".45" stroke-width="1.6"/><path d="M316 342q40 9 80 0M316 412q40 9 80 0M316 482q40 9 80 0" stroke="#FFF1DE" stroke-opacity=".3"/></g>
+            <rect x="400" y="360" width="16" height="5" rx="2" fill="#5C3B22"/>
+            <path d="M322 282c-4-24 0-44 8-54h52c8 10 12 30 8 54Z" fill="url(#bancoP)"/>
+            <path d="M322 282c-4-24 0-44 8-54h52c8 10 12 30 8 54Z" fill="url(#cyl)"/>
+            <path d="M310 232 356 152l46 80q-46 8-92 0Z" fill="#6F6A5D"/>
+            <path d="M356 152 322 234m34-82-14 84m14-84v85m0-85 14 84m-14-84 34 82" stroke="#4B4740" stroke-width="1.2"/>
+            <rect x="353" y="140" width="6" height="14" rx="3" fill="#24170F"/>
+
+            <!-- mur qui relie les tours, coupé : on voit dedans -->
+            <rect x="132" y="346" width="176" height="194" fill="#4A2E1E"/>
+            <rect class="lamp lamp-1" x="132" y="446" width="176" height="94" fill="url(#glowDawn)"/>
+            <rect class="lamp lamp-2" x="132" y="346" width="176" height="90" fill="url(#glowDay)"/>
+            <rect x="128" y="346" width="8" height="194" fill="#8C5B3B"/><rect x="304" y="346" width="8" height="194" fill="#8C5B3B"/>
+            <rect x="126" y="436" width="188" height="10" fill="#8C5B3B"/>
+            <path d="M126 437h188" stroke="#24170F" stroke-opacity=".5" stroke-width="2"/>
+            <!-- porte -->
+            <path d="M200 540v-40a20 20 0 0 1 40 0v40Z" fill="#24170F"/>
+            <!-- échelle fourchue -->
+            <path d="M288 538 264 440" stroke="#5C3B22" stroke-width="7" stroke-linecap="round"/>
+            <path d="M274 514h12M270 494h12M266 474h12M262 454h12" stroke="#3A2416" stroke-width="3" stroke-linecap="round"/>
+            <!-- stades à l'étage -->
+            <g class="glyph" data-glyph="1"><ellipse cx="160" cy="428" rx="8" ry="5.5" fill="#E3B04B" stroke="#A9772A"/><path d="M160 423v-6" stroke="#5E7F3A" stroke-width="2.4" stroke-linecap="round"/></g>
+            <g class="glyph" data-glyph="2"><path d="M200 434v-34" stroke="#5E7F3A" stroke-width="3" stroke-linecap="round"/><path d="M200 418c-10-2-16-8-18-14 8 0 15 4 18 10M200 410c8-2 14-8 15-14-7 0-13 4-15 10" fill="#5E7F3A"/></g>
+            <g class="glyph" data-glyph="3"><path d="M240 434v-60" stroke="#5E7F3A" stroke-width="3" stroke-linecap="round"/><path d="M240 412c-12-2-19-10-21-18 9 0 17 6 21 14M240 400c10-2 17-10 18-18-8 0-15 5-18 12" fill="#5E7F3A"/><path d="M240 374l-7-12M240 374v-14M240 374l7-12M240 374l-12-6M240 374l12-6" stroke="#E3B04B" stroke-width="2.2" stroke-linecap="round"/></g>
+
+            <!-- terrasse sur poutres -->
+            <rect x="118" y="330" width="204" height="16" fill="#8C5B3B"/>
+            <path d="M118 331h204" stroke="#24170F" stroke-opacity=".5" stroke-width="2"/><path d="M118 333h204" stroke="#FFF1DE" stroke-opacity=".3"/>
+            <rect x="106" y="334" width="14" height="5" rx="2" fill="#5C3B22"/><rect x="320" y="334" width="14" height="5" rx="2" fill="#5C3B22"/>
+
+            <!-- grenier sur la terrasse, coupé -->
+            <path d="M164 330c-8-48-4-92 12-116h88c16 24 20 68 12 116Z" fill="url(#bancoP)"/>
+            <path d="M164 330c-8-48-4-92 12-116h88c16 24 20 68 12 116Z" fill="url(#cyl)"/>
+            <path d="M180 324C173 284 176 246 189 224h62c13 22 16 60 9 100Z" fill="#3A2416"/>
+            <path class="lamp lamp-3" d="M180 324C173 284 176 246 189 224h62c13 22 16 60 9 100Z" fill="url(#glowGold)" opacity=".9"/>
+            <g clip-path="url(#cavity)"><path id="heap" d="M170 330V226Q220 206 270 226V330Z" fill="url(#grainP)"/></g>
+            <rect x="170" y="206" width="100" height="10" rx="5" fill="#8C5B3B"/>
+
+            <!-- toit de chaume, il se soulève pour engranger -->
+            <g class="roof">
+              <path d="M150 212 220 76l70 136q-70 12-140 0Z" fill="#6F6A5D"/>
+              <path d="M220 76 160 214m60-138-30 141m30-141-8 142m8-142 8 142m-8-142 30 141m-30-141 60 138" stroke="#4B4740" stroke-width="1.4"/>
+              <path d="M150 212q70 12 140 0" fill="none" stroke="#3E3A33" stroke-width="2"/>
+              <rect x="216" y="58" width="8" height="22" rx="4" fill="#24170F"/>
+            </g>
+            <!-- calebasse versée à l'ouverture : dessinée au-dessus du toit -->
+            <g class="pour" aria-hidden="true">
+              <g transform="translate(150 174) rotate(35)"><path d="M0-20A20 20 0 0 0 0 20Z" fill="#C98A3C" stroke="#7A4A1E" stroke-width="1.5"/><path d="M0-20v40" stroke="#7A4A1E" stroke-width="2.5" stroke-linecap="round"/></g>
+              <g class="stream"><ellipse cx="150" cy="186" rx="3.4" ry="2.6" fill="#E3B04B"/><ellipse cx="153" cy="184" rx="3.4" ry="2.6" fill="#EBC067"/><ellipse cx="148" cy="188" rx="3.4" ry="2.6" fill="#E3B04B"/><ellipse cx="151" cy="186" rx="3.4" ry="2.6" fill="#EBC067"/></g>
+            </g>
+            <!-- repère de niveau -->
+            <g class="marker" aria-hidden="true"><path d="M436-10 420 0l16 10Z" fill="#A4442A"/></g>
+          </svg>
+          <figcaption>Coupe d'une Tata Somba, maison-grenier de l'Atacora (illustration).</figcaption>
+        </figure>
+
+        <div class="chapters">
+          <article class="chapter" data-level="1">
+            <h3><svg class="lv" aria-hidden="true"><use href="#lv"/><rect x="5" y="28.5" width="20" height="9.5" fill="#A4442A"/></svg>Inscrivez-vous avec votre numéro</h3>
+            <p>Pas de mot de passe à retenir&nbsp;: un code arrive par SMS à chaque connexion.</p>
+            <div class="step">
+              <h4>Votre agent ATDA valide votre fiche</h4>
+              <p>Il confirme votre identité et vos parcelles&nbsp;: vous devenez éligible aux programmes d'appui.</p>
+            </div>
+          </article>
+
+          <article class="chapter" data-level="2">
+            <h3><svg class="lv" aria-hidden="true"><use href="#lv"/><rect x="5" y="17" width="20" height="9" fill="#A4442A"/></svg>Stades de la culture</h3>
+            <p>Dessinez votre parcelle du bout du doigt&nbsp;: votre agent la valide, et chaque campagne est suivie jusqu'à la récolte.</p>
+            <ol class="stages">
+              <li data-stage="1">
+                <svg viewBox="0 0 44 44" aria-hidden="true"><ellipse cx="22" cy="28" rx="10" ry="7" fill="#E3B04B" stroke="#A9772A" stroke-width="1.4"/><path d="M22 21v-8" stroke="#5E7F3A" stroke-width="3" stroke-linecap="round"/></svg>
+                <div><h4>Semis</h4><p>Notez la date et la variété semée&nbsp;: l'application cale vos rappels et vos conseils sur votre propre calendrier.</p></div>
+              </li>
+              <li data-stage="2">
+                <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 40V12" stroke="#5E7F3A" stroke-width="3" stroke-linecap="round"/><path d="M22 28c-9-1-14-7-16-13 8 0 13 4 16 10M22 21c7-1 12-7 13-13-6 0-11 4-13 9" fill="#5E7F3A"/></svg>
+                <div><h4>Croissance</h4><p>Sous terre, le grain gonfle et la racine plonge. En surface, vous recevez les alertes de ravageurs et de pluie de votre département.</p></div>
+              </li>
+              <li data-stage="3">
+                <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 42V14" stroke="#5E7F3A" stroke-width="3" stroke-linecap="round"/><path d="M22 32c-9-1-14-7-16-13 8 0 13 4 16 10" fill="#5E7F3A"/><path d="M22 14l-6-10M22 14V2M22 14l6-10M22 14l-10-5M22 14l10-5" stroke="#C48A1E" stroke-width="2.4" stroke-linecap="round"/></svg>
+                <div><h4>Floraison</h4><p>Feuille tachée, épi suspect&#8239;? Une photo suffit pour un premier avis, revu par un agronome quand le doute subsiste.</p></div>
+              </li>
+            </ol>
+          </article>
+
+          <article class="chapter last" data-level="3" id="recolte">
+            <h3><svg class="lv" aria-hidden="true"><use href="#lv"/><path d="M15 3 25.5 13.5h-21Z" fill="#A4442A"/></svg>Récolte</h3>
+            <p>Déclarez votre récolte, publiez une offre sur le marché et rencontrez acheteurs et transformateurs en direct.</p>
+            <div class="step">
+              <h4>Recevez, suivez, vendez</h4>
+              <p>Alertes, conseils, appuis et marché arrivent au même endroit, campagne après campagne.</p>
+            </div>
+            <a class="btn btn-primary" href="/inscription">Je commence<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="found dark" id="garanties" aria-labelledby="found-title">
+    <div class="wrap">
+      <div class="f-tower">
+        <svg aria-hidden="true" viewBox="0 0 52 38"><use href="#toit"/></svg>
+        <div class="f-body"><h2 class="h2" id="found-title">Pensé pour le terrain, construit pour la confiance.</h2></div>
+      </div>
+      <ul class="courses">
+        <li class="course"><h3>Même sans réseau</h3><p>Saisissez au champ&nbsp;: tout part dès que le réseau revient.</p></li>
+        <li class="course"><h3>Dans votre langue</h3><p>Français, fon, bariba, yoruba et dendi&#8239;; les traductions sont en cours de validation.</p></li>
+        <li class="course"><h3>Vos données vous appartiennent</h3><p>Rien n'est partagé avec un organisme de crédit sans votre accord, et vous pouvez le retirer à tout moment.</p></li>
+        <li class="course"><h3>Chaque accès est tracé</h3><p>Un journal non modifiable enregistre qui a consulté quoi, dans le cadre de la loi béninoise 2017-20 sur le numérique.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <h2 class="h2" id="faq-title">Vos questions</h2>
+      <div class="faq-list">
+        <details><summary>Faut-il un smartphone&#8239;?<svg aria-hidden="true"><use href="#plus"/></svg></summary><p class="a">L'application s'ouvre dans le navigateur de n'importe quel téléphone récent, sans rien installer. Les alertes sont prévues aussi par SMS pour les téléphones simples.</p></details>
+        <details><summary>Et si je n'ai pas de réseau au champ&#8239;?<svg aria-hidden="true"><use href="#plus"/></svg></summary><p class="a">Vous pouvez saisir hors connexion. Vos données sont gardées sur le téléphone et envoyées automatiquement au retour du réseau.</p></details>
+        <details><summary>Qui voit mes informations&#8239;?<svg aria-hidden="true"><use href="#plus"/></svg></summary><p class="a">Vous, votre agent ATDA et les responsables des programmes qui vous concernent. Un organisme de crédit ne les voit qu'avec votre accord.</p></details>
+        <details><summary>Comment obtenir des appuis&#8239;?<svg aria-hidden="true"><use href="#plus"/></svg></summary><p class="a">Une fois votre fiche validée, postulez aux programmes ouverts depuis votre espace. Vous êtes prévenu de la décision et pouvez la contester.</p></details>
+        <details><summary>Les conseils sont-ils fiables&#8239;?<svg aria-hidden="true"><use href="#plus"/></svg></summary><p class="a">Chaque réponse cite la fiche technique dont elle vient&#8239;; ces fiches seront relues par l'INRAB et les ATDA avant la mise en service. Pour tout dosage, l'assistant vous oriente vers votre agent.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="portals" id="espaces" aria-labelledby="portals-title">
+    <div class="wrap">
+      <h2 class="h2" id="portals-title">Votre espace vous attend.</h2>
+      <p class="lead">Une plateforme, tous les acteurs de la filière. Producteur ou agent ATDA&nbsp;: votre téléphone suffit pour commencer.</p>
+      <div class="towers">
+        <div class="tower t-prod">
+          <svg aria-hidden="true" viewBox="0 0 52 38"><use href="#toit"/></svg>
+          <div class="tower-body">
+            <h3>Je suis producteur</h3>
+            <p class="who">Gérez vos parcelles, recevez conseils et alertes, touchez vos appuis et vendez votre récolte.</p>
+            <ul>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Inscription avec mon numéro, sans mot de passe</li>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Mes parcelles et campagnes suivies</li>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Alertes, appuis et marché au même endroit</li>
+            </ul>
+            <a class="btn btn-primary" href="/inscription">Créer mon compte<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          </div>
+        </div>
+        <div class="tower t-agent dark">
+          <svg aria-hidden="true" viewBox="0 0 52 38"><use href="#toit"/></svg>
+          <div class="tower-body">
+            <h3>Je suis agent ATDA</h3>
+            <p class="who">Validez les fiches, alertez tout un département en un message et tracez chaque remise d'appui.</p>
+            <ul>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Validation des fiches de mon secteur</li>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Alertes par département</li>
+              <li><svg aria-hidden="true"><use href="#tick"/></svg>Suivi des remises d'appuis</li>
+            </ul>
+            <a class="btn btn-light" href="/connexion">Accéder à mon espace<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          </div>
+        </div>
+        <div class="tower t-inst dark">
+          <svg aria-hidden="true" viewBox="0 0 52 38"><use href="#toit"/></svg>
+          <div class="tower-body">
+            <h3>Institutions</h3>
+            <h4>Coopératives</h4>
+            <p>Suivez vos membres et regroupez l'offre pour peser sur le marché.</p>
+            <h4>MAEP et MTDI</h4>
+            <p>Pilotez avec des indicateurs à jour, sélectionnez les bénéficiaires en transparence, auditez chaque accès.</p>
+            <a class="btn btn-line-light" href="/connexion">Se connecter<svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot dark">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#"><svg aria-hidden="true"><use href="#logo"/></svg>Agri-Digit Bénin</a>
+        <p>La plateforme agricole du Bénin&nbsp;: parcelles, conseils, appuis et marché au même endroit.</p>
+        <p style="margin-top:.8rem">Besoin d'aide&#8239;? Rapprochez-vous de votre agent ATDA.</p>
+      </div>
+      <nav aria-labelledby="f1"><h2 id="f1">La plateforme</h2><ul>
+        <li><a href="#fermes">Les fermes du POC</a></li><li><a href="#comment">Comment ça marche</a></li><li><a href="#garanties">Nos garanties</a></li><li><a href="#faq">Questions fréquentes</a></li></ul></nav>
+      <nav aria-labelledby="f2"><h2 id="f2">Espaces</h2><ul>
+        <li><a href="/inscription">Créer un compte producteur</a></li><li><a href="/connexion">Se connecter</a></li></ul></nav>
+      <nav aria-labelledby="f3"><h2 id="f3">Informations</h2><ul>
+        <li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/conditions-utilisation">Conditions d'utilisation</a></li></ul></nav>
+    </div>
+    <div class="foot-base">
+      <p>Prototype de démonstration pour le MAEP. Données non officielles.</p>
+      <p>Enduit de banco recadré de la photo de Martin Wegmann, CC&nbsp;BY-SA&nbsp;3.0, <a href="https://commons.wikimedia.org/wiki/File:Benin_Tata_Somba.JPG" rel="noopener">source</a></p>
+      <p>République du Bénin · MAEP</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const d = document.documentElement;
+  d.classList.add('js');
+  const final = new URLSearchParams(location.search).has('final');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (final) d.classList.add('final');
+
+  /* tiroir : dialog modal (focus piégé, Échap), sortie plus rapide que l'entrée */
+  const dlg = document.getElementById('menu');
+  const openBtn = document.getElementById('menu-open');
+  const close = () => {
+    if (!dlg.open || dlg.classList.contains('closing')) return;
+    dlg.classList.add('closing');
+    setTimeout(() => { dlg.classList.remove('closing'); dlg.close(); }, reduce ? 0 : 170);
+  };
+  openBtn.addEventListener('click', () => { dlg.showModal(); openBtn.setAttribute('aria-expanded', 'true'); });
+  document.getElementById('menu-close').addEventListener('click', close);
+  dlg.addEventListener('cancel', e => { e.preventDefault(); close(); });
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('a')) close(); });
+  dlg.addEventListener('close', () => { openBtn.setAttribute('aria-expanded', 'false'); openBtn.focus(); });
+
+  /* la coupe : la lumière suit le niveau, le tas de grains suit le défilement dans les deux sens */
+  const fig = document.getElementById('coupe-fig');
+  if (final || !('IntersectionObserver' in window)) return; // état par défaut du HTML = état final
+  const glyphs = fig.querySelectorAll('.glyph');
+  const heap = document.getElementById('heap');
+  const last = document.getElementById('recolte');
+  const heapD = p => { const t = 324 - 104 * p; return p <= 0 ? '' : `M170 330V${t + 6}Q220 ${t - 14} 270 ${t + 6}V330Z`; };
+  let lit = 0, level = 0, ticking = false;
+  const setFill = p => {
+    p = Math.min(1, Math.max(0, p));
+    if (reduce) p = p > 0 ? 1 : 0;
+    heap.setAttribute('d', heapD(p));
+    fig.classList.toggle('pouring', p > 0.02 && p < 0.98 && !reduce);
+  };
+  const onScroll = () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      if (lit < 3) return setFill(0);
+      const r = last.getBoundingClientRect();
+      setFill((innerHeight * 0.75 - r.top) / (r.height * 0.55));
+    });
+  };
+  fig.dataset.lit = 0; fig.dataset.sky = 1; setFill(0);
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const t = e.target;
+      if (t.dataset.level) {
+        level = +t.dataset.level;
+        fig.dataset.current = level; fig.dataset.sky = level;
+        if (level > lit) { lit = level; fig.dataset.lit = lit; } // les pièces s'allument une fois
+        onScroll();
+      } else if (t.dataset.stage) {
+        fig.querySelector('[data-glyph="' + t.dataset.stage + '"]').classList.add('on');
+      }
+    }
+  }, { rootMargin: '-40% 0px -40% 0px' });
+  document.querySelectorAll('[data-level],[data-stage]').forEach(el => io.observe(el));
+  addEventListener('scroll', onScroll, { passive: true });
+
+  /* fondations : les assises se posent une fois, de bas en haut, sans jamais disparaître */
+  const found = document.querySelector('.found');
+  found.classList.add('pending');
+  new IntersectionObserver((en, o) => {
+    if (en[0].isIntersecting) { found.classList.remove('pending'); o.disconnect(); }
+  }, { threshold: 0.2 }).observe(found);
+})();
+</script>
+</body>
+</html>

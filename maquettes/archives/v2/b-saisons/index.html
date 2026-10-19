@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agri-Digit Bénin — L'affiche des saisons</title>
+<meta name="description" content="Agri-Digit Bénin : votre champ, vos conseils, vos appuis, du semis à la récolte.">
+<link rel="icon" href="../../../../frontend/public/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@500;600;700&family=Jost:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script>
+  // avant tout rendu : on n'arme l'entrée que si JS tourne et que le mouvement est permis
+  (function () {
+    var r = document.documentElement, q = new URLSearchParams(location.search), calm = false;
+    try { calm = localStorage.getItem('adb-calm') === '1'; } catch (e) {}
+    if (calm) r.classList.add('calm');
+    r.classList.add('js');
+    if (!calm && !matchMedia('(prefers-reduced-motion: reduce)').matches && !q.has('s')) r.classList.add('intro');
+    if (q.get('vh')) r.style.setProperty('--vh', q.get('vh') + 'px');
+    if (q.has('full')) r.classList.add('full');
+  })();
+</script>
+<style>
+:root {
+  --vh: 100svh;
+  --mast: 64px;
+  --gut: 12px;
+  --paper: #F3E9D2;
+  --paper-2: #E8DABB;
+  --ink: #1E1A17;
+  --ink-2: #4A3F35;
+  --night: #1C2333;
+  --night-2: #2C3850;
+  --gold: #E7A43A;
+  --sulfur: #F0D867;
+  --laterite: #A8462A;
+  --accent: #6E3A5E;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --display: "Antonio", "Arial Narrow", sans-serif;
+  --body: "Jost", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+/* l'encre d'accent suit la saison affichée (changée seulement au passage d'un stade) */
+:root[data-season="0"] { --accent: #6E3A5E; }
+:root[data-season="1"] { --accent: #2F6A5C; }
+:root[data-season="2"] { --accent: #5E5E22; }
+:root[data-season="3"] { --accent: #A8462A; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--mast) + 16px); }
+html.calm { scroll-behavior: auto; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--body);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+::selection { background: var(--ink); color: var(--sulfur); }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-underline-offset: .22em; text-decoration-thickness: 1.5px; }
+a:hover { text-decoration-thickness: 3px; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.dark :focus-visible, .dark:focus-visible { outline-color: var(--sulfur); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; line-height: 1.16; margin: 0; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: fixed; left: 12px; top: -80px; z-index: 50; background: var(--ink); color: var(--paper); padding: 12px 16px; font-weight: 600; transition: top .2s var(--ease); }
+.skip:focus { top: 12px; }
+html { scrollbar-color: var(--ink-2) var(--paper-2); }
+.wrap { width: min(100% - 2 * var(--gut) - 16px, 1360px); margin-inline: auto; }
+
+/* ---------- Boutons ---------- */
+.btn {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: .6em;
+  min-height: 48px; padding: .7em 1.25em; border: 2px solid var(--ink); border-radius: 3px;
+  font: 600 .95rem/1.1 var(--body); letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
+  background: var(--ink); color: var(--paper); cursor: pointer;
+  transition: transform .15s var(--ease), color .25s var(--ease);
+}
+.btn::before { /* la raclette : une encre tirée de gauche à droite */
+  content: ""; position: absolute; inset: 0; z-index: -1; background: var(--accent);
+  transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease);
+}
+.btn:hover::before, .btn:focus-visible::before { transform: scaleX(1); }
+.btn:active { transform: scale(.97); }
+.btn svg { width: 1.1em; height: 1.1em; flex: none; transition: transform .3s var(--ease); }
+.btn:hover svg { transform: translateX(3px); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover, .btn.ghost:focus-visible { color: var(--paper); }
+.btn.on-dark { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.btn.on-dark::before { background: var(--sulfur); }
+.link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; }
+
+/* ---------- En-tête ---------- */
+.mast {
+  position: sticky; top: 0; z-index: 30; height: var(--mast);
+  background: var(--paper); border-bottom: 2px solid var(--ink);
+}
+.mast .bar { height: 100%; display: flex; align-items: center; gap: 24px; padding-inline: calc(var(--gut) + 8px); }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-height: 44px; margin-right: auto; }
+.brand svg { width: 38px; height: 38px; flex: none; }
+.brand b { display: block; white-space: nowrap; font: 700 1.3rem/1 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+.brand small { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); margin-top: 3px; }
+.mast nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.mast nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; font-weight: 500; font-size: .95rem; letter-spacing: .06em; text-transform: uppercase; background-image: linear-gradient(var(--ink), var(--ink)); background-size: 0 2px; background-position: 12px 70%; background-repeat: no-repeat; transition: background-size .3s var(--ease); }
+.mast nav a:hover { background-size: calc(100% - 24px) 2px; }
+.mast .btn { min-height: 44px; padding: .55em 1em; font-size: .85rem; }
+.menu-btn { display: none; width: 48px; height: 48px; border: 2px solid var(--ink); background: var(--paper); border-radius: 3px; cursor: pointer; color: var(--ink); padding: 0; }
+.menu-btn svg { width: 24px; height: 24px; margin: auto; display: block; }
+@media (max-width: 960px) {
+  .mast nav, .mast .login { display: none; }
+  .menu-btn { display: inline-grid; place-items: center; }
+}
+@media (max-width: 420px) { .brand small { display: none; } .brand b { font-size: 1.12rem; } .mast .bar { gap: 10px; } .mast .btn.signup { padding-inline: .8em; } }
+@media (max-width: 340px) { .mast .btn.signup { display: none; } }
+
+/* ---------- Tiroir ---------- */
+dialog.drawer {
+  border: 0; padding: 0; margin: 12px 12px auto auto; width: min(380px, calc(100% - 24px)); max-height: calc(100dvh - 24px);
+  background: var(--paper); color: var(--ink); border-radius: 6px;
+  box-shadow: 0 18px 50px -10px rgba(30, 26, 23, .45), 0 2px 6px rgba(30, 26, 23, .2);
+  opacity: 0; transform: translateY(-12px) scale(.98); transform-origin: top right;
+  transition: opacity .3s var(--ease), transform .35s var(--ease), overlay .35s allow-discrete, display .35s allow-discrete;
+}
+dialog.drawer[open] { opacity: 1; transform: none; }
+@starting-style { dialog.drawer[open] { opacity: 0; transform: translateY(-12px) scale(.98); } }
+dialog.drawer::backdrop { background: rgba(28, 35, 51, .55); }
+.drawer .in { padding: 16px 20px 24px; box-shadow: inset 0 10px 0 var(--accent); padding-top: 26px; }
+.drawer .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.drawer .top span { font: 700 1.1rem var(--display); text-transform: uppercase; letter-spacing: .06em; }
+.drawer ul { list-style: none; padding: 4px 0 0; margin: 0 0 20px; border-top: 1.5px solid var(--ink); }
+.drawer li a { display: flex; min-height: 52px; align-items: center; border-bottom: 1.5px solid var(--ink); font: 600 1.35rem var(--display); text-transform: uppercase; text-decoration: none; letter-spacing: .03em; }
+.drawer .btn { width: 100%; margin-top: 10px; }
+.close-btn { width: 48px; height: 48px; border: 0; background: transparent; cursor: pointer; color: var(--ink); display: grid; place-items: center; }
+.close-btn svg { width: 24px; height: 24px; }
+
+/* ---------- L'affiche (scène + stades) ---------- */
+.poster { position: relative; }
+.scene-wrap { position: sticky; top: var(--mast); height: calc(var(--vh) - var(--mast)); overflow: hidden; background: var(--paper); }
+#scene { position: absolute; left: var(--gut); right: var(--gut); top: var(--gut); width: calc(100% - 2 * var(--gut)); height: calc(100% - var(--gut)); display: block; }
+.grain { position: absolute; inset: var(--gut) var(--gut) 0; pointer-events: none; opacity: .22; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .1 0 0 0 0 .09 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.steps { position: relative; margin-top: calc(-1 * (var(--vh) - var(--mast))); pointer-events: none; }
+.step { min-height: calc(var(--vh) - var(--mast)); display: flex; align-items: flex-end; padding: 0 var(--gut); }
+.plate {
+  pointer-events: auto; width: 100%; background: var(--paper); color: var(--ink);
+  border-top: 3px solid var(--ink); padding: 22px clamp(16px, 3vw, 40px) 26px;
+  display: grid; gap: 14px 48px; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: end;
+}
+.hero h1 { font-size: clamp(2.05rem, 1rem + 3.3vw, 4.4rem); line-height: 1.22; }
+.hero .side { display: grid; gap: 16px; }
+.hero .lead { font-size: 1.05rem; max-width: 46ch; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.stade h2 { font-size: clamp(3rem, 1.6rem + 6vw, 6rem); line-height: .9; color: var(--tint); }
+.stade .side { display: grid; gap: 14px; }
+.stade p { max-width: 50ch; }
+.inks { display: flex; gap: 6px; }
+.inks i { width: 28px; height: 14px; border-radius: 1px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(30,26,23,.15); }
+.stade .meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+
+/* rail des stades */
+.rail { position: absolute; z-index: 2; top: calc(var(--gut) + 16px); right: calc(var(--gut) + 16px); background: var(--paper); border: 2px solid var(--ink); border-radius: 3px; padding: 4px; }
+.rail ol { list-style: none; margin: 0; padding: 0; display: flex; }
+.rail a { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; text-decoration: none; font: 600 .95rem var(--display); letter-spacing: .1em; text-transform: uppercase; border-radius: 2px; transition: background-color .3s var(--ease), color .3s var(--ease); }
+.rail a::before { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 2px solid currentColor; transition: background-color .3s var(--ease), transform .3s var(--ease); }
+.rail a:hover::before { transform: scale(1.25); }
+.rail a[aria-current="step"] { background: var(--ink); color: var(--paper); }
+.rail a[aria-current="step"]::before { background: var(--sulfur); border-color: var(--sulfur); }
+@media (max-width: 900px) { .rail { display: none; } }
+
+@media (max-width: 760px) {
+  :root { --gut: 8px; }
+  #scene { height: 66%; }
+  .grain { bottom: 34%; }
+  .plate { grid-template-columns: 1fr; padding: 18px 18px 22px; }
+  .hero .lead { font-size: 1rem; }
+  .stade h2 { font-size: clamp(2.8rem, 15vw, 4rem); }
+}
+html.full .scene-wrap { position: relative; }
+html.full .steps { margin-top: 0; }
+
+/* scène : formes */
+#scene .plane, #scene .px { transform-box: view-box; }
+#sun, .plant, #signal { transform-box: view-box; }
+#signal { opacity: 0; transition: opacity .3s var(--ease); }
+:root:has(.cta-main:hover, .cta-main:focus-visible) #signal { opacity: 1; }
+#signal path { transform-box: fill-box; transform-origin: 0 100%; transform: scale(.6); transition: transform .45s var(--ease); }
+:root:has(.cta-main:hover, .cta-main:focus-visible) #signal path { transform: scale(1); }
+:root:has(.cta-main:hover, .cta-main:focus-visible) #screen { fill: #FFF8DF; }
+
+/* entrée : chaque plan se pose comme un passage d'écran, du fond vers l'avant */
+@keyframes pass { from { opacity: 0; transform: translate(-22px, 14px); } 60% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+html.intro #scene .plane { animation: pass .9s var(--ease) both; }
+html.intro #scene .plane:nth-of-type(2) { animation-delay: .16s; }
+html.intro #scene .plane:nth-of-type(3) { animation-delay: .32s; }
+html.intro #scene .plane:nth-of-type(4) { animation-delay: .48s; }
+html.intro #scene .plane:nth-of-type(5) { animation-delay: .64s; }
+html.intro .hero .plate { animation: rise .8s var(--ease) .9s both; }
+html.intro .rail { animation: rise .6s var(--ease) 1.2s both; }
+
+/* ---------- Sections papier ---------- */
+section.band { padding-block: clamp(64px, 9vw, 128px); }
+.band h2 { font-size: clamp(2.3rem, 1.3rem + 3.6vw, 4.6rem); max-width: 18ch; }
+.intro-line { margin-top: 20px; max-width: 60ch; font-size: 1.1rem; color: var(--ink-2); }
+
+/* imprimatur : les chiffres du POC, composés comme la ligne d'imprimeur de l'affiche */
+.imprint { padding: 40px 0 44px; border-bottom: 2px solid var(--ink); }
+.imprint .line { font: 600 clamp(1.5rem, .9rem + 2.4vw, 3rem)/1.2 var(--display); text-transform: uppercase; letter-spacing: .01em; }
+.imprint .line b { font-weight: 700; font-size: 1.35em; color: var(--accent); font-variant-numeric: tabular-nums lining-nums; transition: color .6s var(--ease); }
+.imprint .line span { white-space: nowrap; }
+.imprint .line .sep { color: var(--ink-2); padding-inline: .3em; }
+.imprint .note { margin-top: 12px; font-size: .9rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+
+/* comment ça marche */
+.how ol { list-style: none; padding: 4px 0 0; margin: 48px 0 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
+.how li { padding: 24px 28px 8px 0; display: grid; gap: 10px; align-content: start; }
+.how li + li { padding-left: 28px; border-left: 1.5px solid var(--ink); }
+.how .n { font: 700 clamp(4rem, 3rem + 3vw, 6rem)/.85 var(--display); color: var(--accent); transition: color .6s var(--ease); }
+.how h3 { font-size: 1.6rem; }
+.how p { color: var(--ink-2); max-width: 36ch; }
+@media (max-width: 760px) {
+  .how ol { grid-template-columns: 1fr; }
+  .how li, .how li + li { padding: 22px 0 18px 4px; border-left: 0; border-bottom: 1.5px solid var(--ink); grid-template-columns: auto 1fr; column-gap: 18px; }
+  .how .n { grid-row: span 2; }
+}
+
+/* garanties : le verso de l'affiche, à l'encre de nuit */
+.trust { background: var(--night); color: var(--paper); position: relative; padding: 112px 24px; }
+@media (max-width: 760px) { .trust { padding: 72px 16px; } }
+.trust .wrap { width: min(100%, 1360px); }
+.trust h2 { color: var(--paper); }
+.trust dl { margin: 56px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 64px; }
+.trust .item { display: grid; grid-template-columns: 56px 1fr; gap: 6px 20px; padding: 28px 0; border-top: 1.5px solid rgba(243, 233, 210, .35); }
+.trust svg { width: 44px; height: 44px; color: var(--sulfur); grid-row: span 2; }
+.trust dt { font: 700 1.6rem/1.1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.trust dd { margin: 0; color: #DCD2BC; max-width: 44ch; }
+@media (max-width: 760px) { .trust dl { grid-template-columns: 1fr; } }
+.ridge-top { display: block; width: 100%; height: 56px; margin-bottom: -1px; }
+
+/* galerie */
+.gallery .grid { margin-top: 48px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+.gallery figure { margin: 0; display: grid; gap: 10px; align-content: start; }
+.gallery .frame { overflow: hidden; background: var(--paper-2); border: 2px solid var(--ink); }
+.gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.gallery figure:hover img { transform: scale(1.035); }
+.gallery figcaption { font-size: .92rem; color: var(--ink-2); }
+.gallery figcaption b { display: block; color: var(--ink); font: 600 1.15rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+.gallery figcaption a { display: inline-flex; min-height: 44px; align-items: center; }
+.g1 { grid-column: span 7; grid-row: span 2; } .g1 .frame { aspect-ratio: 4 / 3.4; }
+.g2, .g3 { grid-column: span 5; } .g2 .frame, .g3 .frame { aspect-ratio: 16 / 9; }
+.g4, .g5 { grid-column: span 6; } .g4 .frame, .g5 .frame { aspect-ratio: 3 / 2; }
+@media (max-width: 760px) { .g1, .g2, .g3, .g4, .g5 { grid-column: 1 / -1; grid-row: auto; } .g1 .frame { aspect-ratio: 4 / 3; } }
+
+/* pour qui */
+.who ul { list-style: none; margin: 48px 0 0; padding: 4px 0 0; border-top: 2px solid var(--ink); }
+.who li { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 8px 40px; padding: 26px 0; border-bottom: 1.5px solid var(--ink); align-items: baseline; }
+.who h3 { font-size: clamp(1.9rem, 1.2rem + 2.2vw, 3.2rem); transition: color .3s var(--ease); }
+.who li:hover h3 { color: var(--accent); }
+.who p { font-size: 1.1rem; max-width: 52ch; }
+@media (max-width: 760px) { .who li { grid-template-columns: 1fr; } }
+
+/* questions */
+.faq .list { padding-top: 4px; margin-top: 40px; border-top: 2px solid var(--ink); max-width: 980px; }
+.faq details { border-bottom: 1.5px solid var(--ink); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 64px; padding: 14px 0; font: 600 clamp(1.25rem, 1rem + .9vw, 1.7rem)/1.2 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq .plus { position: relative; width: 36px; height: 36px; flex: none; border: 2px solid var(--ink); border-radius: 50%; transition: background-color .25s var(--ease); }
+.faq .plus::before, .faq .plus::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; margin: -1px 0 0 -7px; background: var(--ink); transition: transform .35s var(--ease), background-color .25s; }
+.faq .plus::after { transform: rotate(90deg); }
+.faq details[open] .plus { background: var(--ink); }
+.faq details[open] .plus::before, .faq details[open] .plus::after { background: var(--paper); }
+.faq details[open] .plus::after { transform: rotate(0deg); }
+.faq summary:hover .plus { background: var(--paper-2); }
+.faq details[open] summary:hover .plus { background: var(--ink); }
+.faq .a { padding: 0 0 24px; max-width: 64ch; font-size: 1.08rem; }
+.faq details[open] .a { animation: rise .45s var(--ease) both; }
+
+/* appel final */
+.portals { padding-bottom: clamp(64px, 9vw, 120px); }
+.portals .lead { margin-top: 16px; font-size: 1.15rem; max-width: 56ch; }
+.portals .pair { margin-top: 44px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.door { padding: clamp(24px, 3vw, 40px); border-radius: 3px; display: grid; gap: 18px; align-content: start; }
+.door h3 { font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); }
+.door ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.door li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; font-size: 1.05rem; }
+.door li svg { width: 22px; height: 22px; margin-top: 3px; }
+.door .btn { justify-self: start; margin-top: 6px; }
+.door.prod { background: var(--gold); color: var(--ink); }
+.door.agent { background: var(--night-2); color: var(--paper); }
+@media (max-width: 760px) { .portals .pair { grid-template-columns: 1fr; } }
+
+/* pied de page */
+footer { background: var(--night); color: var(--paper); padding: 56px 0 28px; }
+footer .cols { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+footer .brand { margin: 0 0 14px; }
+footer .brand small { color: #CFC5AF; }
+footer .tag { color: #DCD2BC; max-width: 38ch; }
+footer h2 { font-size: 1rem; letter-spacing: .14em; margin-bottom: 10px; color: var(--sulfur); }
+footer ul { list-style: none; margin: 0; padding: 0; }
+footer li a { display: inline-flex; min-height: 44px; align-items: center; text-decoration-color: rgba(243,233,210,.5); }
+footer .base { margin-top: 40px; padding-top: 20px; border-top: 1.5px solid rgba(243, 233, 210, .3); display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; font-size: .92rem; color: #DCD2BC; }
+.motion-btn { min-height: 44px; padding: 0 14px; border: 1.5px solid rgba(243,233,210,.6); background: transparent; color: var(--paper); font: 500 .9rem var(--body); border-radius: 3px; cursor: pointer; }
+.motion-btn:hover { border-color: var(--paper); }
+@media (max-width: 860px) { footer .cols { grid-template-columns: 1fr 1fr; } footer .about { grid-column: 1 / -1; } }
+@media (max-width: 420px) { footer .cols { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+}
+html.calm *, html.calm *::before, html.calm *::after { animation: none !important; transition-duration: .01ms !important; }
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="mast">
+  <div class="bar">
+    <a class="brand" href="#" aria-label="Agri-Digit Bénin, accueil">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0A2417"/><path d="M17 21c0-6 7-9 15-9s15 3 15 9c0 12-7 25-15 32-8-7-15-20-15-32Z" fill="#EFEBD8"/><path d="M32 45c-3.5-4.5-4.5-11-2.5-17 3.5 3 4.5 10 2.5 17Z" fill="#D9A62E"/></svg>
+      <span><b>Agri-Digit Bénin</b><small>République du Bénin · MAEP</small></span>
+    </a>
+    <nav aria-label="Navigation de la page d'accueil">
+      <ul>
+        <li><a href="#comment">Comment ça marche</a></li>
+        <li><a href="#garanties">Nos garanties</a></li>
+        <li><a href="#faq">Questions</a></li>
+      </ul>
+    </nav>
+    <a class="link login" href="/connexion">Se connecter</a>
+    <a class="btn signup" href="/inscription">S'inscrire</a>
+    <button class="menu-btn" type="button" aria-haspopup="dialog" aria-controls="tiroir" aria-label="Ouvrir le menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+    </button>
+  </div>
+</header>
+
+<dialog class="drawer" id="tiroir" aria-label="Menu">
+  <div class="in">
+    <div class="top"><span>Menu</span>
+      <button class="close-btn" type="button" data-close aria-label="Fermer le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ul>
+      <li><a href="#saisons" data-close>Les quatre stades</a></li>
+      <li><a href="#comment" data-close>Comment ça marche</a></li>
+      <li><a href="#garanties" data-close>Nos garanties</a></li>
+      <li><a href="#galerie" data-close>Le Bénin agricole</a></li>
+      <li><a href="#qui" data-close>Pour qui</a></li>
+      <li><a href="#faq" data-close>Questions</a></li>
+    </ul>
+    <a class="btn" href="/inscription">Créer mon compte producteur</a>
+    <a class="btn ghost" href="/connexion">Se connecter</a>
+  </div>
+</dialog>
+
+<main id="contenu">
+<div class="poster" id="saisons">
+  <div class="scene-wrap">
+    <svg id="scene" viewBox="0 0 2400 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"
+      style="--paper:#F3E9D2;--sky:#EE9A7A;--skyHi:#F6C29A;--sun:#FBE3B8;--far2:#A86A86;--far:#6E3A5E;--mid:#9C5A4E;--tree:#4A2A40;--field:#B8714F;--row:#8E4E3E;--near:#5A2F3E;--banco:#B77A55;--banco2:#8A5040;--thatch:#D9A577;--corn:#6F9A4E;--cornHi:#A9C47A;--silk:#E9C886;--cob:#E2B04A;--cloth:#2E3F6E;--fig:#2A1622;--tassel:0;--cobo:0">
+      <defs>
+        <clipPath id="fieldclip"><path d="M-300 1200V560C300 540 900 556 1300 545C1700 534 2100 550 2700 540V1200Z"/></clipPath>
+        <g id="mais">
+          <g class="tassel" style="opacity:var(--tassel)" stroke="var(--silk)" stroke-width="5" stroke-linecap="round" fill="none">
+            <path d="M0 -468L-20 -545M0 -468L0 -560M0 -468L22 -540M0 -478L-36 -522M0 -478L34 -518"/>
+          </g>
+          <path d="M-7 0L-4 -472L4 -472L7 0Z" fill="var(--corn)"/>
+          <path d="M3 -70C60 -112 128 -104 182 -36C120 -86 64 -90 3 -54Z" fill="var(--corn)"/>
+          <path d="M3 -70C60 -112 128 -104 182 -36C126 -96 70 -100 3 -64Z" fill="var(--cornHi)"/>
+          <path d="M-3 -142C-62 -184 -134 -176 -186 -110C-124 -160 -64 -162 -3 -126Z" fill="var(--corn)"/>
+          <path d="M-3 -142C-62 -184 -134 -176 -186 -110C-128 -168 -70 -172 -3 -136Z" fill="var(--cornHi)"/>
+          <path d="M3 -222C56 -262 118 -258 166 -196C112 -240 60 -242 3 -206Z" fill="var(--corn)"/>
+          <path d="M-3 -296C-52 -334 -108 -330 -150 -276C-104 -312 -56 -316 -3 -282Z" fill="var(--corn)"/>
+          <path d="M-3 -296C-52 -334 -108 -330 -150 -276C-108 -320 -60 -324 -3 -290Z" fill="var(--cornHi)"/>
+          <path d="M3 -366C42 -398 88 -398 122 -356C86 -384 46 -384 3 -354Z" fill="var(--corn)"/>
+          <path d="M0 -420C26 -466 44 -500 58 -540C34 -500 16 -470 -3 -444Z" fill="var(--corn)"/>
+          <g style="opacity:var(--cobo)">
+            <path d="M5 -236C28 -256 34 -306 20 -330C8 -308 2 -268 5 -236Z" fill="var(--cob)"/>
+            <path d="M5 -232C20 -248 22 -280 14 -298C24 -282 26 -250 5 -232Z" fill="var(--cornHi)"/>
+          </g>
+        </g>
+      </defs>
+
+      <!-- 1. ciel -->
+      <g class="plane"><g class="px" data-k="0">
+        <rect x="-300" y="-200" width="3000" height="1400" fill="var(--sky)"/>
+        <path d="M-300 238C200 222 520 246 920 228C1320 210 1720 240 2120 220C2320 211 2480 224 2700 218V1200H-300Z" fill="var(--skyHi)"/>
+        <path d="M420 128C520 112 700 116 860 124C760 134 560 138 420 128Z M1640 96C1760 82 1960 86 2120 94C2000 106 1780 108 1640 96Z M1200 158C1260 150 1360 152 1440 156C1380 164 1270 166 1200 158Z" fill="var(--skyHi)"/>
+        <g id="sun" style="transform:translate(1000px,250px)">
+          <circle r="96" fill="var(--sun)" opacity=".38"/>
+          <circle r="68" fill="var(--sun)"/>
+        </g>
+      </g></g>
+
+      <!-- 2. chaîne de l'Atacora : plateaux et escarpements -->
+      <g class="plane"><g class="px" data-k="1">
+        <path d="M-300 1200V360L80 338L250 300L420 306L540 272L760 282L880 252L1040 256L1150 214L1340 204L1420 252L1600 262L1740 238L1900 266L2080 252L2250 288L2700 296V1200Z" fill="var(--far2)" stroke="var(--paper)" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M-300 1200V432L100 410L300 382L460 394L600 358L820 372L980 338L1080 344L1180 318L1300 328L1420 298L1520 304L1640 346L1820 350L2000 318L2200 358L2700 368V1200Z" fill="var(--far)" stroke="var(--paper)" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M980 340L1004 342L962 430L932 430Z M1420 300L1442 302L1404 392L1374 392Z M600 360L622 362L590 438L564 438Z M2000 320L2022 322L1986 404L1960 404Z M1180 320L1196 321L1170 380L1150 380Z" fill="var(--far2)"/>
+      </g></g>
+
+      <!-- 3. savane : baobab et karité -->
+      <g class="plane"><g class="px" data-k="2">
+        <path d="M-300 1200V484C200 452 500 472 800 456C1100 440 1400 466 1700 450C2000 438 2300 460 2700 450V1200Z" fill="var(--mid)" stroke="var(--paper)" stroke-width="3"/>
+        <path d="M584 474C592 432 596 402 593 374L558 342L566 334L598 362L603 324L613 324L617 360L646 330L654 337L631 374C628 402 634 432 646 474Z" fill="var(--tree)"/>
+        <g fill="var(--tree)"><ellipse cx="558" cy="336" rx="18" ry="9"/><ellipse cx="608" cy="320" rx="16" ry="9"/><ellipse cx="654" cy="330" rx="18" ry="9"/></g>
+        <path d="M1632 458L1636 402L1646 402L1650 458Z" fill="var(--tree)"/>
+        <g fill="var(--tree)"><circle cx="1641" cy="372" r="46"/><circle cx="1606" cy="390" r="32"/><circle cx="1678" cy="388" r="34"/><circle cx="1640" cy="342" r="30"/></g>
+        <g fill="var(--tree)"><ellipse cx="300" cy="470" rx="52" ry="20"/><ellipse cx="930" cy="452" rx="40" ry="16"/><ellipse cx="1440" cy="458" rx="46" ry="18"/><ellipse cx="2010" cy="446" rx="54" ry="20"/><ellipse cx="2260" cy="456" rx="38" ry="15"/></g>
+      </g></g>
+
+      <!-- 4. champ de maïs : sillons vers la chaîne -->
+      <g class="plane"><g class="px" data-k="3">
+        <path d="M-300 1200V560C300 540 900 556 1300 545C1700 534 2100 550 2700 540V1200Z" fill="var(--field)" stroke="var(--paper)" stroke-width="3"/>
+        <g clip-path="url(#fieldclip)">
+          <path d="M1250 500L-1450 1100M1250 500L-1100 1100M1250 500L-750 1100M1250 500L-400 1100M1250 500L-50 1100M1250 500L300 1100M1250 500L650 1100M1250 500L1000 1100M1250 500L1350 1100M1250 500L1700 1100M1250 500L2050 1100M1250 500L2400 1100M1250 500L2750 1100M1250 500L3100 1100M1250 500L3450 1100M1250 500L3800 1100" stroke="var(--row)" stroke-width="10" fill="none"/>
+        </g>
+      </g></g>
+
+      <!-- 5. premier plan : Tata Somba, producteur au téléphone, maïs qui pousse -->
+      <g class="plane"><g class="px" data-k="4">
+        <path d="M-300 1200V712C300 692 700 702 1000 688C1300 676 1700 698 2000 690C2200 684 2400 702 2700 696V1200Z" fill="var(--near)" stroke="var(--paper)" stroke-width="3"/>
+        <g transform="translate(0 -92)">
+          <path d="M1062 790V660H1140V790Z" fill="var(--banco2)"/>
+          <path d="M970 790L978 600Q1030 584 1082 600L1090 790Z" fill="var(--banco)"/>
+          <path d="M1048 594Q1066 596 1082 600L1090 790H1058Z" fill="var(--banco2)"/>
+          <path d="M1120 790L1128 610Q1170 598 1212 610L1220 790Z" fill="var(--banco)"/>
+          <path d="M1186 602Q1200 605 1212 610L1220 790H1190Z" fill="var(--banco2)"/>
+          <g stroke="var(--banco2)" stroke-width="3" fill="none"><path d="M982 650H1050M984 700H1052M986 748H1054M1132 660H1186M1134 712H1188"/></g>
+          <path d="M1084 790V738Q1100 714 1116 738V790Z" fill="var(--fig)"/>
+          <circle cx="1010" cy="700" r="7" fill="var(--fig)"/>
+          <path d="M952 608L1030 466L1108 608Z" fill="var(--thatch)"/>
+          <path d="M1030 466L1108 608H1060Z" fill="var(--banco2)" opacity=".45"/>
+          <path d="M1110 618L1170 504L1230 618Z" fill="var(--thatch)"/>
+          <path d="M1170 504L1230 618H1194Z" fill="var(--banco2)" opacity=".45"/>
+          <rect x="1027" y="440" width="6" height="30" fill="var(--fig)"/>
+          <rect x="1167" y="482" width="6" height="26" fill="var(--fig)"/>
+        </g>
+        <g transform="translate(0 -96)">
+          <path d="M1305 795L1312 700H1324L1321 795Z M1331 795L1329 700H1341L1347 795Z" fill="var(--fig)"/>
+          <path d="M1298 714L1306 622Q1322 606 1338 622L1350 714Z" fill="var(--cloth)"/>
+          <circle cx="1322" cy="597" r="13" fill="var(--fig)"/>
+          <path d="M1298 590L1322 566L1346 590Z" fill="var(--thatch)"/>
+          <rect x="1292" y="588" width="60" height="5" rx="2" fill="var(--thatch)"/>
+          <path d="M1336 632L1354 660L1342 612" stroke="var(--fig)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <rect x="1335" y="592" width="12" height="20" rx="2" fill="var(--fig)"/>
+          <rect id="screen" x="1337.5" y="595" width="7" height="13" fill="var(--paper)"/>
+          <g id="signal" stroke="var(--paper)" stroke-width="4" stroke-linecap="round" fill="none">
+            <path d="M1356 588Q1366 578 1362 562"/><path d="M1366 596Q1384 578 1376 552"/>
+          </g>
+        </g>
+        <g id="corn">
+          <use class="plant" href="#mais" data-x="-60" data-s="1.18" transform="translate(-60 1000) scale(.8)"/>
+          <use class="plant" href="#mais" data-x="120" data-s=".98" transform="translate(120 1000) scale(.66)"/>
+          <use class="plant" href="#mais" data-x="270" data-s="1.08" transform="translate(270 1000) scale(.72)"/>
+          <use class="plant" href="#mais" data-x="430" data-s=".86" transform="translate(430 1000) scale(.58)"/>
+          <use class="plant" href="#mais" data-x="580" data-s=".78" transform="translate(580 1000) scale(.52)"/>
+          <use class="plant" href="#mais" data-x="740" data-s=".68" transform="translate(740 1000) scale(.46)"/>
+          <use class="plant" href="#mais" data-x="900" data-s=".5" transform="translate(900 1000) scale(.34)"/>
+          <use class="plant" href="#mais" data-x="1250" data-s=".4" transform="translate(1250 1000) scale(.27)"/>
+          <use class="plant" href="#mais" data-x="1470" data-s=".52" transform="translate(1470 1000) scale(.35)"/>
+          <use class="plant" href="#mais" data-x="1620" data-s=".64" transform="translate(1620 1000) scale(.43)"/>
+          <use class="plant" href="#mais" data-x="1780" data-s=".76" transform="translate(1780 1000) scale(.51)"/>
+          <use class="plant" href="#mais" data-x="1930" data-s=".86" transform="translate(1930 1000) scale(.58)"/>
+          <use class="plant" href="#mais" data-x="2080" data-s=".98" transform="translate(2080 1000) scale(.66)"/>
+          <use class="plant" href="#mais" data-x="2240" data-s="1.08" transform="translate(2240 1000) scale(.72)"/>
+          <use class="plant" href="#mais" data-x="2420" data-s="1.2" transform="translate(2420 1000) scale(.8)"/>
+        </g>
+      </g></g>
+    </svg>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="rail" aria-label="Stades de la culture">
+      <ol>
+        <li><a href="#semis">Semis</a></li>
+        <li><a href="#croissance">Croissance</a></li>
+        <li><a href="#floraison">Floraison</a></li>
+        <li><a href="#recolte">Récolte</a></li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="steps">
+    <section class="step hero" aria-labelledby="titre">
+      <div class="plate">
+        <h1 id="titre">Votre champ, vos conseils, vos appuis&nbsp;: tout tient dans votre téléphone.</h1>
+        <div class="side">
+          <p class="lead">Inscrivez-vous en deux minutes avec votre numéro. Suivez chaque parcelle du semis à la récolte, recevez les alertes de votre agent ATDA et vendez votre récolte au bon prix.</p>
+          <div class="actions">
+            <a class="btn cta-main" href="/inscription">Créer mon compte producteur <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="link" href="/connexion">Se connecter</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step stade" id="semis" aria-labelledby="t-semis" style="--tint:#6E3A5E">
+      <div class="plate">
+        <h2 id="t-semis">Semis</h2>
+        <div class="side">
+          <p>Notez la date et la variété semée&nbsp;: l'application cale vos rappels et vos conseils sur votre propre calendrier.</p>
+          <div class="meta"><span>Stade 1 sur 4 · aube</span><span class="inks" aria-hidden="true"><i style="--c:#EE9A7A"></i><i style="--c:#6E3A5E"></i><i style="--c:#B8714F"></i><i style="--c:#5A2F3E"></i></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step stade" id="croissance" aria-labelledby="t-croissance" style="--tint:#2F6A5C">
+      <div class="plate">
+        <h2 id="t-croissance">Croissance</h2>
+        <div class="side">
+          <p>Sous terre, le grain gonfle et la racine plonge. En surface, vous recevez les alertes de ravageurs et de pluie de votre département.</p>
+          <div class="meta"><span>Stade 2 sur 4 · pluies</span><span class="inks" aria-hidden="true"><i style="--c:#78C2BC"></i><i style="--c:#2F6A5C"></i><i style="--c:#6FA04E"></i><i style="--c:#23452E"></i></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step stade" id="floraison" aria-labelledby="t-floraison" style="--tint:#5E5E22">
+      <div class="plate">
+        <h2 id="t-floraison">Floraison</h2>
+        <div class="side">
+          <p>Feuille tachée, épi suspect&nbsp;? Une photo suffit pour un premier avis, revu par un agronome quand le doute subsiste.</p>
+          <div class="meta"><span>Stade 3 sur 4 · soufre</span><span class="inks" aria-hidden="true"><i style="--c:#F0D867"></i><i style="--c:#6A6A2C"></i><i style="--c:#7E8A34"></i><i style="--c:#3B3F1B"></i></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step stade" id="recolte" aria-labelledby="t-recolte" style="--tint:#A8462A">
+      <div class="plate">
+        <h2 id="t-recolte">Récolte</h2>
+        <div class="side">
+          <p>Déclarez votre récolte, publiez une offre sur le marché et rencontrez acheteurs et transformateurs en direct.</p>
+          <div class="meta"><span>Stade 4 sur 4 · or</span><span class="inks" aria-hidden="true"><i style="--c:#E7A43A"></i><i style="--c:#2C3850"></i><i style="--c:#B4532D"></i><i style="--c:#1F2638"></i></span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="wrap imprint" aria-labelledby="chiffres-t">
+  <h2 class="sr" id="chiffres-t">Chiffres du POC</h2>
+  <p class="line">
+    <span><b>200&#8239;873</b> fermes du POC</span><span class="sep" aria-hidden="true">·</span>
+    <span><b>12</b> départements</span><span class="sep" aria-hidden="true">·</span>
+    <span><b>77</b> communes</span><span class="sep" aria-hidden="true">·</span>
+    <span><b>13</b> filières prioritaires</span>
+  </p>
+  <p class="note">Données de démonstration du POC.</p>
+</div>
+
+<section class="band how" id="comment" aria-labelledby="comment-t">
+  <div class="wrap">
+    <h2 id="comment-t">Trois étapes, et votre exploitation est en ligne.</h2>
+    <ol>
+      <li><span class="n" aria-hidden="true">1</span><h3>Inscrivez-vous avec votre numéro</h3><p>Pas de mot de passe à retenir&nbsp;: un code arrive par SMS à chaque connexion.</p></li>
+      <li><span class="n" aria-hidden="true">2</span><h3>Votre agent ATDA valide votre fiche</h3><p>Il confirme votre identité et vos parcelles&nbsp;: vous devenez éligible aux programmes d'appui.</p></li>
+      <li><span class="n" aria-hidden="true">3</span><h3>Recevez, suivez, vendez</h3><p>Alertes, conseils, appuis et marché arrivent au même endroit, campagne après campagne.</p></li>
+    </ol>
+    <a class="btn" href="/inscription">Je commence <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</section>
+
+<svg class="ridge-top" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path d="M0 56V34L120 30L210 18L330 22L420 8L560 12L640 26L780 24L880 10L1000 14L1080 28L1220 22L1330 30L1440 26V56Z" fill="#1C2333"/></svg>
+<section class="band trust dark" id="garanties" aria-labelledby="garanties-t">
+  <div class="wrap">
+    <h2 id="garanties-t">Pensé pour le terrain, construit pour la confiance.</h2>
+    <dl>
+      <div class="item">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="13" y="5" width="22" height="38" rx="4"/><path d="M21 37h6M24 28V15M18.5 20.5 24 15l5.5 5.5"/><path d="M6 12l4 4M42 12l-4 4" opacity=".7"/></svg>
+        <dt>Même sans réseau</dt><dd>Saisissez au champ&nbsp;: tout part dès que le réseau revient.</dd>
+      </div>
+      <div class="item">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 10h22a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H16l-7 6v-6H6a3 3 0 0 1-3-3V13a3 3 0 0 1 3-3Z"/><path d="M35 19h7a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2v5l-6-5H25a3 3 0 0 1-3-3v-1"/></svg>
+        <dt>Dans votre langue</dt><dd>Français, fon, bariba, yoruba et dendi&nbsp;; les traductions sont en cours de validation.</dd>
+      </div>
+      <div class="item">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 4 8 10v12c0 10 7 18 16 22 9-4 16-12 16-22V10Z"/><circle cx="24" cy="20" r="5"/><path d="M15.5 34c1.8-4 5-6 8.5-6s6.7 2 8.5 6"/></svg>
+        <dt>Vos données vous appartiennent</dt><dd>Rien n'est partagé avec un organisme de crédit sans votre accord, et vous pouvez le retirer à tout moment.</dd>
+      </div>
+      <div class="item">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4h22l8 8v32H10Z"/><path d="M32 4v8h8M16 20h18M16 27h18M16 34h10"/><path d="m29 36 3 3 6-7"/></svg>
+        <dt>Chaque accès est tracé</dt><dd>Un journal infalsifiable enregistre qui a consulté quoi, dans le cadre de la loi béninoise 2017-20 sur le numérique.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section class="band gallery" id="galerie" aria-labelledby="galerie-t">
+  <div class="wrap">
+    <h2 id="galerie-t">Le Bénin agricole</h2>
+    <p class="intro-line">Les photos d'où la scène est dessinée. Toutes viennent de Wikimedia Commons, avec leur auteur et leur licence.</p>
+    <div class="grid">
+      <figure class="g1">
+        <div class="frame"><img src="img/tata-somba-baliola-1600.jpg" srcset="img/tata-somba-baliola-800.jpg 800w, img/tata-somba-baliola-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 58vw" alt="Deux tours de banco d'une Tata Somba aux toits de chaume, du maïs jeune devant ; un homme passe, un sac sur la tête." width="1600" height="1071" loading="lazy" decoding="async"></div>
+        <figcaption><b>Tata Somba et jeune maïs, Atacora</b>Martin Wegmann Baliola · CC BY-SA 3.0 · <a href="https://commons.wikimedia.org/wiki/File:Benin_Tata_Somba.JPG">Source</a></figcaption>
+      </figure>
+      <figure class="g2">
+        <div class="frame"><img src="img/mais-pobe-1600.jpg" srcset="img/mais-pobe-800.jpg 800w, img/mais-pobe-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 42vw" alt="Champ de maïs à Pobé." width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <figcaption><b>Champ de maïs à Pobé</b>Rachad Sanoussi · CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Champ_de_ma%C3%AFs_%C3%A0_Pob%C3%A9.jpg">Source</a></figcaption>
+      </figure>
+      <figure class="g3">
+        <div class="frame"><img src="img/coton-atakora-1600.jpg" srcset="img/coton-atakora-800.jpg 800w, img/coton-atakora-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 42vw" alt="Champ de coton après la récolte, arbres de savane et plateau de l'Atakora au loin." width="1600" height="1067" loading="lazy" decoding="async"></div>
+        <figcaption><b>Champ de coton dans l'Atakora</b>Ji-Elle · CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:B%C3%A9nin-Champ_de_coton.jpg">Source</a></figcaption>
+      </figure>
+      <figure class="g4">
+        <div class="frame"><img src="img/fonio-natitingou-1600.jpg" srcset="img/fonio-natitingou-800.jpg 800w, img/fonio-natitingou-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 50vw" alt="Battage du fonio avec une petite machine près de Natitingou." width="1600" height="1067" loading="lazy" decoding="async"></div>
+        <figcaption><b>Battage du fonio près de Natitingou</b>Crop Trust · CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Threshing_fonio_with_a_small-scale_machine,_Natitingou,_northern_Benin.jpg">Source</a></figcaption>
+      </figure>
+      <figure class="g5">
+        <div class="frame"><img src="img/atacora-1600.jpg" srcset="img/atacora-800.jpg 800w, img/atacora-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 50vw" alt="Vue aérienne de l'Atacora : falaises, savane boisée et piste de latérite." width="1600" height="1067" loading="lazy" decoding="async"></div>
+        <figcaption><b>L'Atacora vu du ciel</b>Kouagou Damien · CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:ATACORA.jpg">Source</a></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band who" id="qui" aria-labelledby="qui-t" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="qui-t">Une plateforme, tous les acteurs de la filière.</h2>
+    <ul>
+      <li><h3>Producteurs</h3><p>Gérez vos parcelles, recevez conseils et alertes, touchez vos appuis et vendez votre récolte.</p></li>
+      <li><h3>Agents ATDA</h3><p>Validez les fiches, alertez tout un département en un message et tracez chaque remise d'appui.</p></li>
+      <li><h3>Coopératives</h3><p>Suivez vos membres et regroupez l'offre pour peser sur le marché.</p></li>
+      <li><h3>MAEP et MTDI</h3><p>Pilotez avec des indicateurs à jour, sélectionnez les bénéficiaires en transparence, auditez chaque accès.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="band faq" id="faq" aria-labelledby="faq-t" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="faq-t">Vos questions</h2>
+    <div class="list">
+      <details><summary>Faut-il un smartphone&nbsp;?<span class="plus" aria-hidden="true"></span></summary><div class="a"><p>L'application s'ouvre dans le navigateur de n'importe quel téléphone récent, sans rien installer. Les alertes sont prévues aussi par SMS pour les téléphones simples.</p></div></details>
+      <details><summary>Et si je n'ai pas de réseau au champ&nbsp;?<span class="plus" aria-hidden="true"></span></summary><div class="a"><p>Vous pouvez saisir hors connexion. Vos données sont gardées sur le téléphone et envoyées automatiquement au retour du réseau.</p></div></details>
+      <details><summary>Qui voit mes informations&nbsp;?<span class="plus" aria-hidden="true"></span></summary><div class="a"><p>Vous, votre agent ATDA et les responsables des programmes qui vous concernent. Un organisme de crédit ne les voit qu'avec votre accord.</p></div></details>
+      <details><summary>Comment obtenir des appuis&nbsp;?<span class="plus" aria-hidden="true"></span></summary><div class="a"><p>Une fois votre fiche validée, postulez aux programmes ouverts depuis votre espace. Vous êtes prévenu de la décision et pouvez la contester.</p></div></details>
+      <details><summary>Les conseils sont-ils fiables&nbsp;?<span class="plus" aria-hidden="true"></span></summary><div class="a"><p>Chaque réponse cite la fiche technique dont elle vient&nbsp;; ces fiches seront relues par l'INRAB et les ATDA avant la mise en service. Pour tout dosage, l'assistant vous oriente vers votre agent.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="band portals" id="portails" aria-labelledby="portails-t" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="portails-t">Votre espace vous attend.</h2>
+    <p class="lead">Producteur ou agent ATDA&nbsp;: quelques secondes avec votre téléphone suffisent pour commencer.</p>
+    <div class="pair">
+      <div class="door prod">
+        <h3>Je suis producteur</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Inscription avec mon numéro, sans mot de passe</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Mes parcelles et campagnes suivies</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Alertes, appuis et marché au même endroit</li>
+        </ul>
+        <a class="btn" href="/inscription">Créer mon compte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="door agent dark">
+        <h3>Je suis agent ATDA</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F0D867" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Validation des fiches de mon secteur</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F0D867" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Alertes par département</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F0D867" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Suivi des remises d'appuis</li>
+        </ul>
+        <a class="btn on-dark" href="/connexion">Accéder à mon espace <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="dark">
+  <div class="wrap">
+    <div class="cols">
+      <div class="about">
+        <a class="brand" href="#" aria-label="Agri-Digit Bénin, retour en haut">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0A2417"/><path d="M17 21c0-6 7-9 15-9s15 3 15 9c0 12-7 25-15 32-8-7-15-20-15-32Z" fill="#EFEBD8"/><path d="M32 45c-3.5-4.5-4.5-11-2.5-17 3.5 3 4.5 10 2.5 17Z" fill="#D9A62E"/></svg>
+          <span><b>Agri-Digit Bénin</b><small>République du Bénin · MAEP</small></span>
+        </a>
+        <p class="tag">La plateforme agricole du Bénin&nbsp;: parcelles, conseils, appuis et marché au même endroit.</p>
+      </div>
+      <nav aria-labelledby="f-plat"><h2 id="f-plat">La plateforme</h2>
+        <ul><li><a href="#comment">Comment ça marche</a></li><li><a href="#garanties">Nos garanties</a></li><li><a href="#galerie">Le Bénin agricole</a></li><li><a href="#qui">Pour qui</a></li><li><a href="#faq">Questions fréquentes</a></li></ul>
+      </nav>
+      <nav aria-labelledby="f-esp"><h2 id="f-esp">Espaces</h2>
+        <ul><li><a href="/inscription">Créer un compte producteur</a></li><li><a href="/connexion">Se connecter</a></li></ul>
+      </nav>
+      <nav aria-labelledby="f-info"><h2 id="f-info">Informations</h2>
+        <ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/conditions-utilisation">Conditions d'utilisation</a></li></ul>
+      </nav>
+    </div>
+    <div class="base">
+      <p>Prototype de démonstration pour le MAEP. Données non officielles. Besoin d'aide&nbsp;? Rapprochez-vous de votre agent ATDA.</p>
+      <button class="motion-btn" type="button" aria-pressed="false">Réduire les animations</button>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var q = new URLSearchParams(location.search);
+
+  /* --- tiroir : dialog modal natif (Échap et focus piégé fournis par showModal) --- */
+  var dlg = document.getElementById('tiroir');
+  document.querySelector('.menu-btn').addEventListener('click', function () { dlg.showModal(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+
+  /* --- bascule du mouvement --- */
+  var mbtn = document.querySelector('.motion-btn');
+  function syncMotionBtn() {
+    var c = root.classList.contains('calm');
+    mbtn.textContent = c ? 'Réactiver les animations' : 'Réduire les animations';
+    mbtn.setAttribute('aria-pressed', String(c));
+  }
+  mbtn.addEventListener('click', function () {
+    root.classList.toggle('calm');
+    try { localStorage.setItem('adb-calm', root.classList.contains('calm') ? '1' : '0'); } catch (e) {}
+    syncMotionBtn(); schedule();
+  });
+  syncMotionBtn();
+
+  /* --- la scène : quatre jeux d'encres, interpolés au défilement --- */
+  var KEYS = ['sky','skyHi','sun','far2','far','mid','tree','field','row','near','banco','banco2','thatch','corn','cornHi','silk','cob','cloth','fig'];
+  var INKS = [
+    /* semis : aube, ciel corail, collines prune */
+    ['#EE9A7A','#F6C29A','#FBE3B8','#A86A86','#6E3A5E','#9C5A4E','#4A2A40','#B8714F','#8E4E3E','#5A2F3E','#B77A55','#8A5040','#D9A577','#6F9A4E','#A9C47A','#E9C886','#E2B04A','#2E3F6E','#2A1622'],
+    /* croissance : vert pluie, ciel turquoise */
+    ['#78C2BC','#B9DECF','#F3EFC8','#4F9A8A','#2F6A5C','#6FA04E','#2B5135','#4E8A3E','#33682F','#23452E','#A8714C','#7A4A35','#C9A36C','#3E8A3C','#79B354','#E9D27A','#E2B04A','#2F4E7A','#1D2A22'],
+    /* floraison : jaune soufre, vert olive */
+    ['#F0D867','#F8EBA6','#FFF6D6','#A3A05A','#6A6A2C','#8F9440','#3E4220','#7E8A34','#5B6524','#3B3F1B','#B47E4E','#7E5434','#D8B66C','#6E8C2E','#B9C04E','#F6DE6A','#E2B04A','#3B4C6E','#26261A'],
+    /* récolte : or, latérite, nuit bleu ardoise */
+    ['#E7A43A','#F3C870','#FFF1CC','#4A5873','#2C3850','#B4532D','#2A2230','#D4972E','#A8641F','#1F2638','#B8643C','#7E3D25','#C99A55','#C9962F','#E9C25A','#F3D27A','#F2C14E','#7E2F22','#181C29']
+  ].map(function (set) { return set.map(function (h) { var n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }); });
+
+  var svg = document.getElementById('scene');
+  var track = document.getElementById('saisons');
+  var sun = document.getElementById('sun');
+  var planes = [].slice.call(svg.querySelectorAll('.px'));
+  var plants = [].slice.call(svg.querySelectorAll('.plant'));
+  var railLinks = [].slice.call(document.querySelectorAll('.rail a'));
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  var forced = q.has('s') ? Math.max(0, Math.min(3, +q.get('s'))) : null;
+  var mastH = document.querySelector('.mast').offsetHeight;
+  var last = {}, lastIdx = -1, lastRail = -2;
+  var ptx = 0, pty = 0, cx = 0, cy = 0, ticking = false;
+
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function smooth(t) { return t * t * (3 - 2 * t); }
+  function still() { return reduce.matches || root.classList.contains('calm'); }
+
+  function frame() {
+    ticking = false;
+    var stepH = track.querySelector('.step').offsetHeight || 1;
+    // y = nombre d'écrans parcourus dans l'affiche (0 héros, 1 semis … 4 récolte)
+    var y = forced !== null ? forced + 1 : (scrollY - track.offsetTop + mastH) / stepH;
+    var s = clamp(y - .8, 0, 3);
+    var i = Math.min(2, Math.floor(s)), f = smooth(clamp((s - i - .15) / .7, 0, 1));
+    var A = INKS[i], B = INKS[i + 1];
+    for (var k = 0; k < KEYS.length; k++) {
+      var c = 'rgb(' + Math.round(A[k][0] + (B[k][0] - A[k][0]) * f) + ',' + Math.round(A[k][1] + (B[k][1] - A[k][1]) * f) + ',' + Math.round(A[k][2] + (B[k][2] - A[k][2]) * f) + ')';
+      if (last[k] !== c) { svg.style.setProperty('--' + KEYS[k], c); last[k] = c; }
+    }
+    var sp = i + f;                                  // saison lissée, 0 → 3
+    var p = sp / 3;
+    sun.style.transform = 'translate(' + (1000 + 470 * p).toFixed(1) + 'px,' + (252 - 150 * Math.sin(Math.PI * p)).toFixed(1) + 'px)';
+    // le maïs pousse : pousse au semis, plein à la floraison
+    var g = smooth(clamp((y - .2) / 3, 0, 1)), grow = .2 + .8 * g;
+    svg.style.setProperty('--tassel', clamp((sp - 1.4) / .8, 0, 1).toFixed(3));
+    svg.style.setProperty('--cobo', clamp((sp - 2.1) / .7, 0, 1).toFixed(3));
+    for (var j = 0; j < plants.length; j++) {
+      var pl = plants[j];
+      pl.style.transform = 'translate(' + pl.dataset.x + 'px,1000px) scale(' + (pl.dataset.s * grow).toFixed(4) + ')';
+    }
+    // parallaxe douce : défilement + pointeur, plus forte au premier plan
+    var calm = still();
+    cx += (ptx - cx) * .08; cy += (pty - cy) * .08;
+    var scrollP = clamp(y, 0, 4) / 4;
+    for (var m = 0; m < planes.length; m++) {
+      var d = m / 4;
+      var dx = calm ? 0 : cx * (6 + 30 * d);
+      var dy = calm ? 0 : cy * (4 + 14 * d) - scrollP * 60 * d;
+      planes[m].style.transform = 'translate(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px)';
+    }
+    var idx = Math.round(sp);
+    if (idx !== lastIdx) { root.dataset.season = idx; lastIdx = idx; }
+    var r = y < .5 ? -1 : Math.round(clamp(y - 1, 0, 3));
+    if (r !== lastRail) {
+      railLinks.forEach(function (a, n) { if (n === r) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current'); });
+      lastRail = r;
+    }
+    if (!calm && (Math.abs(ptx - cx) > .002 || Math.abs(pty - cy) > .002)) schedule();
+  }
+  function schedule() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
+
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse' || still()) return;
+    ptx = e.clientX / innerWidth - .5; pty = e.clientY / innerHeight - .5; schedule();
+  }, { passive: true });
+  reduce.addEventListener('change', schedule);
+
+  if (q.get('at')) { var el = document.getElementById(q.get('at')); if (el) { root.style.scrollBehavior = 'auto'; scrollTo(0, el.offsetTop + track.offsetTop - mastH); } }
+  frame();
+  if (q.has('full')) addEventListener('load', function () { root.dataset.h = root.scrollHeight; }); // aide aux captures
+})();
+</script>
+</body>
+</html>
