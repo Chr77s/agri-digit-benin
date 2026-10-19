@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Pas de @types/node dans ce projet : seule la variable API_URL est lue.
+declare const process: { env: Record<string, string | undefined> };
+
 export default defineConfig({
   plugins: [
     react(),
@@ -34,7 +37,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    proxy: { '/api': { target: 'http://127.0.0.1:8000', changeOrigin: false } },
+    proxy: { '/api': { target: process.env.API_URL ?? 'http://127.0.0.1:8000', changeOrigin: false } },
   },
   test: {
     environment: 'jsdom',
