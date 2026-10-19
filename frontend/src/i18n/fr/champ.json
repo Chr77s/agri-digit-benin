@@ -98,5 +98,11 @@
     "asked": "Demande envoyée. Un agronome va relire votre photo.",
     "yourNote": "Votre message :",
     "producerSays": "Ce que dit le producteur :"
+  },
+  "weather": {
+    "listen": "Météo et prix. Les prévisions montrent la pluie attendue chaque jour, en millimètres. Les jours de forte pluie, reportez l'épandage d'engrais. Les prix sont donnés en francs par kilo, à titre d'exemple."
+  },
+  "satellite": {
+    "listen": "Suivi satellite. Le chiffre NDVI mesure la vigueur de vos cultures vue du ciel : proche de zéro, peu de plantes vertes ; proche de un, une végétation dense. Ces données sont des exemples."
   }
 }

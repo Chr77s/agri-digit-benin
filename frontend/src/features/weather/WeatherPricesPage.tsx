@@ -21,7 +21,7 @@ export function WeatherPricesPage() {
   const name = place(commune) || t('weather.benin');
   return (
     <>
-      <PageHeader title={t('nav.weatherPrices')} desc={t('weather.desc')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.weatherPrices') }]}
+      <PageHeader title={t('nav.weatherPrices')} desc={t('weather.desc')} listen={t('weather.listen')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.weatherPrices') }]}
         actions={
           <div className="w-full sm:w-64">
             <Field label={t('common.commune')}>
