@@ -24,7 +24,7 @@
 | 4. Mode agent terrain | Accueil agent mobile, inscrire un producteur hors ligne, valider, remise d'appui, synchronisation et conflits ; revue des pages web agent contre les maquettes | Lot 1 | 2 |
 | 7. Intégration et livraison | Fusion des branches, Playwright sur le parcours de `DEMO.md` (mobile et web), `docker-compose`, mise à jour de `DEMO.md`, `README.md`, `RAPPORT_FINAL.md` | Tous | 3 |
 
-La vague 2 attend la coque mobile du lot 1. Trois sessions à la fois au plus : le poste de développement a peu de mémoire.
+La vague 2 attend la coque mobile du lot 1. Une session à la fois : le poste de développement a 3,5 Go de mémoire, et deux sessions en parallèle l'ont saturé (lot 5 arrêté, typecheck du lot 1 interrompu).
 
 ## Hors code (voir `ACTIONS_HUMAINES.md`)
 
