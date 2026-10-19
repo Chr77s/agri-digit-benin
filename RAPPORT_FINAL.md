@@ -24,6 +24,17 @@ Vérification finale (16/10/2026, 16h00) :
 - non joué : le remboursement par l'administrateur à l'écran (il exige l'identifiant du paiement, qu'aucun écran ne donne) et le conflit de version sur la modification d'un producteur hors ligne (même code que pour les campagnes, joué pour les campagnes seulement) ;
 - les spécifications Playwright (`frontend/e2e/demo.spec.ts` et `p2.spec.ts`) sont écrites mais n'ont jamais été exécutées : le navigateur de test n'est pas installé.
 
+## Mise à jour du 19 octobre 2026 : refonte « Bénin Vert », application mobile, téléphone simple
+
+La section ci-dessus décrit l'état du 16 octobre ; depuis, le prototype a changé de forme (détail dans [docs/DECISIONS.md](docs/DECISIONS.md), plan dans [docs/PLAN_MVP.md](docs/PLAN_MVP.md)) :
+
+- **Interface :** les 57 pages web des maquettes (`maquettes/web/`) ont leur page dans l'application, dans le kit « Bénin Vert » (jetons, polices auto-hébergées, composants partagés, coque par rôle, mode sombre). Les textes français sont répartis en fichiers par lot dans `frontend/src/i18n/fr/`, et un test (`i18n/keys.test.ts`) échoue si une clé du code manque.
+- **Mobile :** l'application mobile est la même PWA sous 640 px (barre d'onglets du producteur et de l'agent, premier lancement, compte et inscription au téléphone, profil et réglages, file d'envoi, tracé GPS d'une parcelle, calendrier des stades, assistant avec historique sur le téléphone, diagnostic avec « Pas sûr ? », météo et prix, marché, appuis, programmes, coopératives, carte à partager).
+- **Serveur ajouté :** journal d'audit chaîné par empreintes et sa vérification, changement de numéro par code SMS, fermeture du compte au retrait du consentement, programmes (brouillon, critères vérifiés, contestation d'un refus), fiches techniques relues par une autre personne, crédit avec la date de l'accord, interopérabilité (connecteurs, journal, clés), signalement d'un appui incomplet, demandes d'adhésion aux coopératives, demande d'avis d'agronome sur un diagnostic, canal USSD et commandes SMS.
+- **Vérification (19/10/2026) :** pytest 57 tests réussis ; Vitest 112 tests réussis sur 33 fichiers ; `tsc --noEmit` et `ruff check` sans erreur. Les spécifications Playwright restent non exécutées (paquet et navigateur non installés, mémoire du poste).
+- **Écarts retenus** (raisons dans `docs/DECISIONS.md`) : secteur entier disponible hors ligne (données personnelles à protéger d'abord), photo et preuve de remise d'un appui, photo et négociation par propositions sur les annonces du marché, part de chaque membre dans une offre groupée, QR code de la carte, viseur plein écran du diagnostic, plusieurs photos par demande.
+- **Rien n'est poussé :** les commits sont locaux (branche `main`).
+
 ## Ce qui est réel
 
 - **Backend Django :** 21 modules, chacun découpé en modèles, règles métier, lectures, API et tests.

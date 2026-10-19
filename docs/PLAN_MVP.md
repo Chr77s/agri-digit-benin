@@ -26,6 +26,20 @@
 
 La vague 2 attend la coque mobile du lot 1. Une session à la fois : le poste de développement a 3,5 Go de mémoire, et deux sessions en parallèle l'ont saturé (lot 5 arrêté, typecheck du lot 1 interrompu).
 
+## Avancement (fin de la session du 19 octobre)
+
+| Lot | État | Écarts restants (raisons dans `DECISIONS.md`) |
+| --- | --- | --- |
+| 1. Coque mobile et parcours de base | fait | |
+| 5. Téléphone simple : USSD et SMS | fait | |
+| 6. Serveur restant et pilotage | fait | carte de densité du tableau de bord, jeu d'export des fermes POC, filtres des exports |
+| 2. Champ | fait | viseur plein écran, analyse en étapes, plusieurs photos et photo hors ligne du diagnostic |
+| 3. Marché, appuis, programmes, coopératives, carte | fait | photo et négociation par propositions sur les annonces, offre groupée avec la part de chaque membre, QR code, enregistrement de la carte en image |
+| 4. Mode agent terrain | fait | secteur entier disponible hors ligne (à instruire avec l'APDP), photo du producteur, position du domicile, carte scannée, preuve de remise (photo et signature) |
+| 7. Intégration et livraison | en partie | spécifications Playwright à exécuter sur un poste qui peut installer le navigateur ; `docker-compose` non rejoué ; mise à jour de `DEMO.md`, `PROJECT_MAP.md` et `RAPPORT_FINAL.md` faite |
+
+Ajouts hors liste, trouvés en comparant les maquettes aux pages : récoltes signalées vérifiées par l'agent (confirmée, corrigée, visite), contestation d'un refus de candidature, demandes d'adhésion aux coopératives, signalement d'un appui incomplet, « Pas sûr ? » du diagnostic.
+
 ## Hors code (voir `ACTIONS_HUMAINES.md`)
 
 Habilitation ANIP et X-Road, identifiant d'expéditeur SMS (ARCEP) et code USSD court auprès d'un opérateur, compte marchand Mobile Money, déclarations APDP, relecture INRAB et ATDA, validation du fon et du bariba par le MTDI.
