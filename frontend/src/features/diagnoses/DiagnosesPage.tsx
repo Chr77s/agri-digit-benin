@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, Chips, EmptyState, Field, Icon, PageHeader, QueryState, Select, Table, Textarea, Timeline, buttonCls, fieldError, fmtDateTime, type BadgeTone } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Icon, PageHeader, QueryState, Select, Table, Textarea, Timeline, buttonCls, fieldError, fmtDateTime, toast, type BadgeTone, type IconName } from '../../shared/ui';
 import { useVcName, useVcSelect } from '../../shared/api/ref';
 import type { Diagnosis } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
 import { Confidence, ListenGhost } from '../producers/producerKit';
-import { fetchDiagnosisImage, useCreateDiagnosis, useDiagnoses, useReviewDiagnosis } from './api';
+import { fetchDiagnosisImage, useAskAgronome, useCreateDiagnosis, useDiagnoses, useReviewDiagnosis } from './api';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const FORMATS = ['image/jpeg', 'image/png'];
@@ -16,6 +16,7 @@ const PATHOLOGIES = [
   'pyriculariose_riz', 'mildiou_tomate', 'fletrissure_tomate', 'newcastle_volaille', 'autre',
 ];
 const TONE: Record<Diagnosis['status'], BadgeTone> = { transmis_agronome: 'wait', revu: 'ok', auto: 'neutral' };
+const TIPS: [string, IconName][] = [['light', 'sun'], ['frame', 'target'], ['still', 'phone'], ['under', 'camera']];
 
 export function DiagnosesPage() {
   const { user } = useAuth();
@@ -127,11 +128,41 @@ function ResultCard({ d, headingRef, vcName }: { d: Diagnosis; headingRef: React
           <p>{d.advice}</p>
         </>
       )}
+      {d.producer_note && <p className="small mt-3"><b>{t('diagnosis.yourNote')}</b> « {d.producer_note} »</p>}
       <div className="card-foot">
         <span className="small muted">{t('diagnosis.adviceNote')}</span>
-        <Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
+        <span className="cluster">
+          {d.status === 'auto' && <AskAgronome id={d.id} />}
+          <Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
+        </span>
       </div>
     </section>
+  );
+}
+
+/** « Pas sûr ? » : un diagnostic automatique peut être renvoyé à un agronome, avec un mot du producteur. */
+function AskAgronome({ id }: { id: string }) {
+  const { t } = useTranslation();
+  const ask = useAskAgronome();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState('');
+  return (
+    <>
+      <Button variant="ghost" size="sm" icon="user" onClick={() => { ask.reset(); setOpen(true); }}>{t('diagnosis.ask')}</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={t('diagnosis.askTitle')}
+        footer={<><Button variant="ghost" onClick={() => setOpen(false)}>{t('common.cancel')}</Button><Button type="submit" form="f-ask" busy={ask.isPending}>{t('diagnosis.askSend')}</Button></>}>
+        <form id="f-ask" noValidate className="stack" onSubmit={(e) => {
+          e.preventDefault();
+          ask.mutate({ id, note: note.trim() }, { onSuccess: () => { setOpen(false); setNote(''); toast(t('diagnosis.asked')); } });
+        }}>
+          <Field label={t('diagnosis.askNote')} optional error={fieldError(ask.error, 'note')}>
+            {(p) => <Textarea {...p} rows={3} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />}
+          </Field>
+          <Alert tone="info" icon="clock">{t('diagnosis.askInfo')}</Alert>
+          {ask.error && !fieldError(ask.error, 'note') && <Alert tone="danger" live>{ask.error.message}</Alert>}
+        </form>
+      </Dialog>
+    </>
   );
 }
 
@@ -158,6 +189,7 @@ function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> })
   const [file, setFile] = useState<File | null>(null);
   const [chain, setChain] = useState('');
   const [errs, setErrs] = useState<Record<string, string>>({});
+  const [tips, setTips] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const err = (name: string) => errs[name] || fieldError(create.error, name);
   const imageError = (f: File) => (!FORMATS.includes(f.type) ? t('diagnosis.errFormat') : f.size > MAX_BYTES ? t('diagnosis.errSize') : undefined);
@@ -174,7 +206,19 @@ function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> })
         onSuccess: () => { setFile(null); if (fileRef.current) fileRef.current.value = ''; },
       });
     }}>
-      <h2 className="card-title" id="t-env">{t('diagnosis.newPhoto')}</h2>
+      <div className="between">
+        <h2 className="card-title" id="t-env">{t('diagnosis.newPhoto')}</h2>
+        <Button variant="ghost" size="sm" icon="help" onClick={() => setTips(true)}>{t('diagnosis.tipsBtn')}</Button>
+      </div>
+      <Dialog open={tips} onClose={() => setTips(false)} title={t('diagnosis.tipsTitle')} footer={<Button onClick={() => setTips(false)}>{t('diagnosis.tipsOk')}</Button>}>
+        <ul className="list">
+          {TIPS.map(([k, icon]) => (
+            <li key={k} className="list-item"><span className="li-icon"><Icon name={icon} /></span>
+              <span className="li-main"><span className="li-title">{t(`diagnosis.tip.${k}.t`)}</span><span className="li-meta">{t(`diagnosis.tip.${k}.d`)}</span></span></li>
+          ))}
+        </ul>
+        <ListenGhost text={TIPS.map(([k]) => `${t(`diagnosis.tip.${k}.t`)}. ${t(`diagnosis.tip.${k}.d`)}`).join(' ')} />
+      </Dialog>
       <Field label={t('diagnosis.photo')} error={err('image')}>
         {(p) => (
           <label className="dropzone">
@@ -243,6 +287,7 @@ function ReviewQueue() {
                           <h2 className="dq-h">{t('diagnosis.question', { label: x.pathology_label })}</h2>
                           <Confidence value={x.confidence} />
                           {x.advice && <p>{t('diagnosis.provisional', { advice: x.advice })}</p>}
+                          {x.producer_note && <p><b>{t('diagnosis.producerSays')}</b> « {x.producer_note} »</p>}
                           <p className="small muted">{t('diagnosis.anonMeta', { date: fmtDateTime(x.created_at) })}</p>
                         </div>
                         <ReviewForm d={x} onDone={() => setMsg(t('diagnosis.reviewed'))} />

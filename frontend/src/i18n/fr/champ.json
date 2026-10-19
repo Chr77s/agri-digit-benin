@@ -67,5 +67,36 @@
     "sacks": "Soit {{n}} sacs de 100 kg",
     "expected": "Estimé : {{low}} à {{high}} kg.",
     "refDemo": "Rendement de référence de démonstration"
+  },
+  "diagnosis": {
+    "tipsBtn": "Conseils de cadrage",
+    "tipsTitle": "Pour une bonne photo",
+    "tipsOk": "J'ai compris",
+    "tip": {
+      "light": {
+        "t": "À la lumière du jour",
+        "d": "Pas de flash, pas de contre-jour."
+      },
+      "frame": {
+        "t": "La partie abîmée remplit le cadre",
+        "d": "Approchez-vous à une main de la feuille."
+      },
+      "still": {
+        "t": "Tenez le téléphone immobile",
+        "d": "Attendez que l'image soit nette."
+      },
+      "under": {
+        "t": "Faites aussi le dessous",
+        "d": "Les œufs et les chenilles s'y cachent."
+      }
+    },
+    "ask": "Pas sûr ? Demander un agronome",
+    "askTitle": "Demander un agronome",
+    "askNote": "Ce que vous voyez",
+    "askInfo": "Un agronome de l'ATDA ou de l'INRAB relit la photo et vous répond par message, en général sous 48 h.",
+    "askSend": "Envoyer la demande",
+    "asked": "Demande envoyée. Un agronome va relire votre photo.",
+    "yourNote": "Votre message :",
+    "producerSays": "Ce que dit le producteur :"
   }
 }

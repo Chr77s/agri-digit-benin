@@ -21,6 +21,15 @@ export function useCreateDiagnosis() {
   });
 }
 
+/** « Pas sûr ? » : le producteur demande l'avis d'un agronome sur un diagnostic automatique. */
+export function useAskAgronome() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, note }: { id: string; note: string }) => api<Diagnosis>(`/diagnoses/${id}/ask-agronome`, { method: 'POST', body: { note } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['diagnoses'] }),
+  });
+}
+
 export function useReviewDiagnosis() {
   const qc = useQueryClient();
   return useMutation({
