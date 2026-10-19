@@ -1,0 +1,122 @@
+---
+title: Mes parcelles
+desc: Dessiner une parcelle sur la carte, la nommer, préciser le terrain et le statut foncier, et retrouver les parcelles enregistrées.
+search: Rechercher une parcelle…
+---
+<!--@head-->
+.draw-bar { position: absolute; top: 12px; left: 12px; right: 64px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.draw-bar .btn { background: var(--surface); box-shadow: var(--sh-card); }
+.draw-bar .btn[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); }
+.map-tip { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 2; padding: 8px 12px; border-radius: var(--r-md); background: var(--canopy); color: var(--on-dark); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; box-shadow: var(--sh-pop); }
+.area-out { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 12px 14px; border-radius: var(--r-md); background: var(--layer); }
+.area-out b { font-size: 1.5rem; }
+@media (max-width: 640px) { .map-tip { white-space: normal; width: calc(100% - 24px); text-align: center; top: 62px; bottom: auto; } .draw-bar .btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes parcelles</span></li></ol></nav>
+          <h1 class="page-title">Mes parcelles</h1>
+          <p class="page-desc">Dessinez votre champ sur la carte, donnez-lui un nom et enregistrez. La surface officielle est recalculée par le serveur.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes parcelles. Dessinez votre champ sur la carte, puis donnez-lui un nom et enregistrez." data-toast-type="demo">{{I:megaphone}}Écouter</button>
+          <a class="btn btn-secondary" href="#t-liste">{{I:list-check}}Voir mes 4 parcelles</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <section aria-labelledby="t-carte">
+            <h2 class="sr-only" id="t-carte">Carte de dessin de la parcelle</h2>
+            <div class="map" role="region" aria-label="Carte de dessin de la parcelle. Fond simulé autour de Sompérékou.">
+              <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                {{MAPBG}}
+                <path d="M30 60 L110 48 L122 110 L42 124Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M300 150 L360 140 L372 196 L310 206Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M226 20 L272 14 L284 52 L236 60Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M320 60 L372 56 L378 104 L330 112Z" fill="rgba(180,83,45,.18)" stroke="#8A5A00" stroke-width="2" stroke-dasharray="5 4"/>
+                <path d="M160 92 L232 80 L252 150 L186 168" fill="rgba(111,168,58,.30)" stroke="#E2B132" stroke-width="2.5" stroke-dasharray="7 5" stroke-linejoin="round"/>
+                <g fill="#fff" stroke="#1F5A32" stroke-width="2"><circle cx="160" cy="92" r="5"/><circle cx="232" cy="80" r="5"/><circle cx="252" cy="150" r="5"/><circle cx="186" cy="168" r="6" fill="#F3C54A"/></g>
+                <g font-family="Atkinson Hyperlegible Next, sans-serif" font-size="9" font-weight="700" fill="#13261A"><text x="48" y="92">Sompérékou</text><text x="306" y="182">Route</text><text x="232" y="42">Jardin</text><text x="328" y="88">Kokey</text></g>
+              </svg>
+              <div class="draw-bar" role="toolbar" aria-label="Outils de dessin">
+                <button type="button" class="btn btn-secondary btn-sm" aria-pressed="true">{{I:edit}}<span>Dessiner le contour</span></button>
+                <button type="button" class="btn btn-secondary btn-sm">{{I:arrow-left}}<span>Effacer le dernier point</span></button>
+                <button type="button" class="btn btn-secondary btn-sm">{{I:check}}<span>Terminer</span></button>
+              </div>
+              <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer">{{I:zoom-in}}</button><button class="btn btn-icon" type="button" aria-label="Dézoomer">{{I:zoom-out}}</button><button class="btn btn-icon" type="button" aria-label="Ma position">{{I:target}}</button></div>
+              <p class="map-tip" role="status">Touchez le premier coin pour fermer la parcelle.</p>
+              <div class="map-legend"><ul class="legend"><li><span class="sw"></span>Enregistrée</li><li><span class="sw sw--3"></span>En cours de tracé</li><li><span class="sw sw--4"></span>Chevauchement</li></ul></div>
+            </div>
+            <p class="hint" style="margin-top:10px">Fond de carte simulé. Dans l'application, fond OpenStreetMap et position GPS du téléphone.</p>
+          </section>
+
+          <form class="card stack" style="--gap:14px" novalidate aria-labelledby="t-nouvelle" onsubmit="return false">
+            <h2 class="card-title" id="t-nouvelle">Nouvelle parcelle</h2>
+            <div class="area-out" aria-live="polite"><span class="muted">Surface estimée :</span><b class="num">1,24 ha</b><span class="hint" style="flex-basis:100%">Aperçu. La surface officielle est recalculée par le serveur.</span></div>
+            <div class="field"><label class="label" for="p-nom">Nom de la parcelle</label><input class="input" id="p-nom" value="Champ du marigot" autocomplete="off"></div>
+            <div class="field"><label class="label" for="p-terrain">Type de terrain</label>
+              <select class="select" id="p-terrain"><option value="">Choisir…</option><option selected>Pluvial (plateau)</option><option>Bas-fond</option><option>Irrigué</option></select></div>
+            <div class="field"><label class="label" for="p-foncier">Statut foncier</label>
+              <select class="select" id="p-foncier" aria-invalid="true" aria-describedby="p-foncier-e"><option value="" selected>Choisir…</option><option>Propriété</option><option>Location</option><option>Prêt</option><option>Droit coutumier</option><option>Autre</option></select>
+              <span class="error-msg" id="p-foncier-e">{{I:alert}}Choisissez le statut foncier.</span></div>
+            <button type="submit" class="btn btn-primary btn-block" data-toast="Pas de réseau : la parcelle est gardée sur ce téléphone et sera envoyée automatiquement." data-toast-type="offline">{{I:check}}Enregistrer la parcelle</button>
+            <p class="hint">Hors réseau, la parcelle reste sur le téléphone et part au retour de la connexion.</p>
+          </form>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-liste">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="t-liste" style="margin-right:auto">Parcelles enregistrées</h2>
+            <div class="chips" role="group" aria-label="Filtrer">
+              <button type="button" class="chip" aria-pressed="true">Toutes <span class="count">4</span></button>
+              <button type="button" class="chip" aria-pressed="false">À vérifier <span class="count">1</span></button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Parcelles enregistrées, triables par nom et surface</caption>
+              <thead><tr>
+                <th scope="col" aria-sort="none"><button type="button" class="th-sort">Parcelle{{I:sort}}</button></th>
+                <th scope="col">Culture en cours</th>
+                <th scope="col" class="num" aria-sort="none"><button type="button" class="th-sort">Surface (ha){{I:sort}}</button></th>
+                <th scope="col">Terrain</th>
+                <th scope="col">Statut foncier</th>
+                <th scope="col">État</th>
+                <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de Sompérékou</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Maïs · floraison</td><td class="num" data-label="Surface (ha)">1,82</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Droit coutumier</td><td data-label="État">{{B:ok|Vérifiée}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Bas-fond Kokey</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Riz · croissance</td><td class="num" data-label="Surface (ha)">0,94</td><td data-label="Terrain">Bas-fond</td><td data-label="Statut foncier">Location</td><td data-label="État">{{B:wait|Chevauchement à vérifier}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de la route</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Coton · croissance</td><td class="num" data-label="Surface (ha)">1,20</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Propriété</td><td data-label="État">{{B:ok|Vérifiée}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Jardin de case</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Soja · récolte</td><td class="num" data-label="Surface (ha)">0,68</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Prêt</td><td data-label="État">{{B:ok|Vérifiée}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">4 parcelles · 4,64 ha</span><span class="badge badge--demo">Démonstration</span></div>
+        </section>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Enregistrée, chevauchement détecté</span>
+              <div class="alert alert--warn">{{I:alert}}<div class="al-body"><span>Parcelle enregistrée : <b class="num">1,26 ha</b> (surface calculée par le serveur).</span><span class="al-title">Cette parcelle chevauche une autre parcelle de plus de 20 %. Un agent vérifiera.</span><span>Suite : ouvrez une campagne dans « Mes campagnes ».</span></div></div>
+            </div>
+            <div><span class="state-cap">Enregistrée sans problème</span>
+              <div class="alert alert--ok">{{I:check-circle}}<div class="al-body"><span>Parcelle enregistrée : <b class="num">1,26 ha</b>.</span><span>Suite : <a href="campagnes.html">ouvrez une campagne</a>.</span></div></div>
+            </div>
+            <div><span class="state-cap">Contour manquant</span>
+              <div class="alert alert--danger" role="alert">{{I:x-circle}}<div class="al-body"><span class="al-title">Dessinez le contour de la parcelle</span><span>Utilisez l'outil « Dessiner le contour » en haut de la carte.</span></div></div>
+            </div>
+            <div><span class="state-cap">Aucune parcelle</span>
+              <div class="card empty"><h3>Aucune parcelle enregistrée</h3><p>Dessinez votre premier champ sur la carte ci-dessus.</p></div>
+            </div>
+            <div><span class="state-cap">Chargement de la liste</span>
+              <div class="card" aria-busy="true" aria-label="Chargement des parcelles"><span class="skel skel-title"></span><span class="skel skel-line"></span><span class="skel skel-line" style="width:70%"></span><span class="skel skel-line" style="width:50%"></span></div>
+            </div>
+            <div><span class="state-cap">Carte indisponible hors ligne</span>
+              <div class="card state-error"><span class="se-icon">{{I:wifi-off:lg}}</span><h3>Fond de carte non chargé</h3><p>Hors réseau, vous pouvez marcher le long du champ : les points GPS sont enregistrés et le tracé s'affichera plus tard.</p></div>
+            </div>
+          </div>
+        </details>
+      </div>

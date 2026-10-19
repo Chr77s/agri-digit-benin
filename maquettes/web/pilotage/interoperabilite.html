@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interopérabilité · Agri-Digit Bénin</title>
+<meta name="description" content="Connecteurs X-Road, SONAMA et FNDA : état, journaux d'échanges et clés d'API (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.conn-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .conn h3 { font: 700 var(--fs-lg)/1.25 var(--font-ui); }
+  .conn .dl { grid-template-columns: minmax(110px, max-content) 1fr; gap: 6px 14px; }
+  .key { font-family: ui-monospace, Consolas, monospace; font-size: .875rem; letter-spacing: .02em; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--fs-sm); color: var(--ink-2); }
+  .flow b { color: var(--ink); }
+</style>
+</head>
+<body data-role="admin_maep" data-page="pilotage/interoperabilite">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/tableau-de-bord.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un échange…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 2 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">2</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Gouvernance</a></li><li><span aria-current="page">Interopérabilité</span></li></ol></nav>
+          <h1 class="page-title">Interopérabilité</h1>
+          <p class="page-desc">Échanges avec l'administration et les partenaires. Seuls des agrégats pseudonymisés sortent (département, filière, producteurs, hectares, campagnes)&nbsp;; aucune donnée personnelle, aucune donnée hors du Bénin.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-secondary" href="journal.html"><svg class="ic" aria-hidden="true"><use href="#i-scroll"/></svg>Journal d'audit</a></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Connecteurs simulés</span><span>Aucun échange réel n'a lieu avec X-Road, la SONAMA ou le FNDA dans ce prototype.</span></div></div>
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">À faire avant d'ouvrir à un partenaire réel</span><span>Masquer les cellules de moins de 5 producteurs (seuil de petits effectifs), pour qu'aucun agrégat ne désigne une personne.</span></div></div>
+
+        <section aria-labelledby="h-conn">
+          <h2 class="section-title" id="h-conn" style="margin-bottom:12px">Connecteurs</h2>
+          <div class="conn-grid">
+            <article class="card conn">
+              <div class="card-head"><div><h3>X-Road Bénin</h3><p class="card-sub">Plateforme d'échange de l'administration</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">18/10/2026 08:30</dd><dt>Appels sur 24&nbsp;h</dt><dd class="num">142</dd><dt>Temps de réponse</dt><dd class="num">320 ms</dd><dt>Données</dt><dd>Agrégats par département et filière</dd></dl>
+              <div class="card-foot"><span class="badge badge--sim">Simulé</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test réussi : 112 lignes, 298 ms (simulation).">Tester le connecteur</button></div>
+            </article>
+            <article class="card conn">
+              <div class="card-head"><div><h3>SONAMA</h3><p class="card-sub">Mécanisation agricole</p></div><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Dégradé</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">17/10/2026 22:14</dd><dt>Appels sur 24&nbsp;h</dt><dd class="num">18 · 4 échecs</dd><dt>Temps de réponse</dt><dd class="num">2,8 s</dd><dt>Données</dt><dd>Surfaces par commune, pour planifier les tracteurs</dd></dl>
+              <div class="card-foot"><span class="small muted">4 dépassements de délai depuis 22&nbsp;h</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test en échec : délai dépassé (simulation)." data-toast-type="error">Tester le connecteur</button></div>
+            </article>
+            <article class="card conn">
+              <div class="card-head"><div><h3>FNDA</h3><p class="card-sub">Fonds national de développement agricole</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">14/10/2026 09:30</dd><dt>Appels sur 24&nbsp;h</dt><dd class="num">0</dd><dt>Temps de réponse</dt><dd class="num">410 ms</dd><dt>Données</dt><dd>Agrégats pour le financement&nbsp;; aucun score individuel</dd></dl>
+              <div class="card-foot"><span class="badge badge--sim">Simulé</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test réussi : 112 lignes, 402 ms (simulation).">Tester le connecteur</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-log">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-log" style="margin-right:auto">Journal des échanges</h2>
+            <div class="chips" role="group" aria-label="Filtrer par partenaire"><button type="button" class="chip" aria-pressed="true">Tous</button><button type="button" class="chip" aria-pressed="false">X-Road</button><button type="button" class="chip" aria-pressed="false">SONAMA</button><button type="button" class="chip" aria-pressed="false">FNDA</button><button type="button" class="chip" aria-pressed="false">Échecs <span class="count">5</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Échanges&nbsp;: date, partenaire, accès, lignes, état</caption>
+              <thead><tr><th scope="col">Date</th><th scope="col">Partenaire</th><th scope="col">Requête</th><th scope="col">Accès</th><th scope="col" class="num">Lignes</th><th scope="col">État</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">18/10/2026 08:30:12</span></td><td data-label="Partenaire">X-Road</td><td data-label="Requête"><span class="key">GET /interop/xroad/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">112</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>200 · réussi</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">17/10/2026 22:14:40</span></td><td data-label="Partenaire">SONAMA</td><td data-label="Requête"><span class="key">GET /interop/sonama/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>504 · délai dépassé</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">17/10/2026 03:02:51</span></td><td data-label="Partenaire">inconnu</td><td data-label="Requête"><span class="key">GET /interop/fnda/aggregates</span></td><td data-label="Accès">Clé invalide · 41.138.x.x</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>401 · refusé</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">14/10/2026 09:30:55</span></td><td data-label="Partenaire">FNDA</td><td data-label="Requête"><span class="key">GET /interop/fnda/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">112</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>200 · réussi</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Limite&nbsp;: 60 appels par minute et par adresse, pour empêcher de deviner une clé.</span></div>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-keys">
+          <div class="table-toolbar"><h2 class="card-title" id="h-keys" style="margin-right:auto">Clés d'API</h2></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Clés d'API des partenaires</caption>
+              <thead><tr><th scope="col">Partenaire</th><th scope="col">Clé</th><th scope="col">Créée le</th><th scope="col">Dernier usage</th><th scope="col" class="col-actions">Actions</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">X-Road</span></td><td data-label="Clé"><span class="key">xr_live_••••••••3f9a</span></td><td class="num" data-label="Créée le">02/03/2026</td><td class="num" data-label="Dernier usage">18/10/2026 08:30</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">SONAMA</span></td><td data-label="Clé"><span class="key">sn_live_••••••••a11c</span></td><td class="num" data-label="Créée le">15/05/2026</td><td class="num" data-label="Dernier usage">17/10/2026 22:14</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">FNDA</span><span class="cell-sub">Renouvellement conseillé&nbsp;: plus de 180 jours</span></td><td data-label="Clé"><span class="key">fn_live_••••••••07be</span></td><td class="num" data-label="Créée le">11/01/2026</td><td class="num" data-label="Dernier usage">14/10/2026 09:30</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Une clé n'est affichée en entier qu'une fois, au moment de sa création.</span></div>
+        </section>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun échange pour ce filtre</h3><p>Aucun partenaire n'a appelé l'API sur la période.</p></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Journal des échanges indisponible</h3><p>Les échanges continuent&nbsp;; seul l'affichage a échoué.</p><code>ERR_INTEROP_LOG · 500</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-rot" aria-labelledby="dlg-rot-t" aria-describedby="dlg-rot-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-rot-t">Renouveler la clé FNDA&nbsp;?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <p id="dlg-rot-d" class="muted">Une nouvelle clé est créée. L'ancienne reste valable 7 jours pour laisser le temps au FNDA de changer sa configuration, puis elle est révoquée.</p>
+    <div class="field"><label class="label" for="rot-m">Motif</label><input class="input" id="rot-m" value="Rotation semestrielle"></div>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-primary" data-close-dialog="ok" data-toast="Nouvelle clé créée. Transmettez-la au FNDA par canal sécurisé.">Renouveler la clé</button></div>
+</dialog>
+<dialog class="modal" id="dlg-rev" aria-labelledby="dlg-rev-t" aria-describedby="dlg-rev-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-rev-t">Révoquer cette clé&nbsp;?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body"><p id="dlg-rev-d" class="muted">Le partenaire perd l'accès immédiatement. Utilisez-le en cas de fuite de clé. L'action est inscrite au journal d'audit.</p></div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-danger" data-close-dialog="ok" data-toast="Clé révoquée. Action journalisée.">Révoquer</button></div>
+</dialog>
+</body>
+</html>

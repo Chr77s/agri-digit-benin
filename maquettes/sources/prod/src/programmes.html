@@ -1,0 +1,82 @@
+---
+title: Programmes
+desc: Programmes d'appui ouverts, conditions, candidature, suivi de l'instruction et décision motivée.
+search: Rechercher un programme…
+---
+<!--@head-->
+.prog { display: flex; flex-direction: column; gap: 12px; }
+.prog .conds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.prog .conds li { display: flex; gap: 8px; align-items: flex-start; }
+.prog .conds .ok { color: var(--leaf); } .prog .conds .ko { color: var(--bad-ink); }
+.prog .card-foot { margin-top: auto; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Programmes</span></li></ol></nav>
+          <h1 class="page-title">Programmes d'appui</h1>
+          <p class="page-desc">Touchez « Candidater » pour demander un appui. Chaque décision est prise par une personne et vous est expliquée.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Programmes. Touchez Candidater pour demander un appui. Un programme clos n'accepte plus de demande." data-toast-type="demo">{{I:megaphone}}Écouter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="chips" role="group" aria-label="Filtrer"><button type="button" class="chip" aria-pressed="true">Ouverts <span class="count">2</span></button><button type="button" class="chip" aria-pressed="false">Mes candidatures <span class="count">3</span></button><button type="button" class="chip" aria-pressed="false">Clos <span class="count">1</span></button></div>
+
+        <div class="grid" style="--min:320px">
+          <article class="card prog" aria-labelledby="p1">
+            <div class="between"><h2 class="card-title" id="p1">Kits de semences soja améliorées</h2>{{B:ok|Ouvert}}</div>
+            <p class="small muted">MAEP · ATDA pôle 1 · Ouvert jusqu'au 15 novembre 2026</p>
+            <p>Semences certifiées et inoculum pour 0,5 ha, remis au magasin de la commune.</p>
+            <p class="label">Conditions</p>
+            <ul class="conds">
+              <li><span class="ok">{{I:check}}</span>Fiche producteur validée</li>
+              <li><span class="ok">{{I:check}}</span>Commune de l'Alibori ou du Borgou</li>
+              <li><span class="ok">{{I:check}}</span>Au moins une parcelle de soja déclarée</li>
+            </ul>
+            <p class="small">Filières : soja</p>
+            <div class="card-foot"><span class="small muted">Vous remplissez les conditions</span><button type="button" class="btn btn-primary" data-open-dialog="dlg-cand">Candidater</button></div>
+          </article>
+
+          <article class="card prog" aria-labelledby="p2">
+            <div class="between"><h2 class="card-title" id="p2">Intrants coton 2027</h2>{{B:ok|Ouvert}}</div>
+            <p class="small muted">Interprofession coton · Ouvert jusqu'au 30 novembre 2026</p>
+            <p>Engrais et protection phytosanitaire à crédit, remboursés sur la vente du coton graine.</p>
+            <p class="label">Votre candidature</p>
+            <ol class="timeline">
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/10/2026</div><div class="tl-title">Déposée</div></li>
+              <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Depuis le 5 oct.</div><div class="tl-title">En instruction</div><div class="tl-text">Vérification de la surface de coton par l'agent.</div></li>
+            </ol>
+            <div class="card-foot"><span>{{B:wait|En instruction}}</span></div>
+          </article>
+
+          <article class="card prog" aria-labelledby="p3">
+            <div class="between"><h2 class="card-title" id="p3">Motopompes pour bas-fonds</h2>{{B:neutral|Clos}}</div>
+            <p class="small muted">PADA · Clos depuis le 30 septembre 2026</p>
+            <p>Une motopompe pour 5 producteurs de riz en bas-fond aménagé.</p>
+            <p class="label">Votre candidature</p>
+            <div class="alert alert--danger">{{I:x-circle}}<div class="al-body"><span class="al-title">Refusée le 8 octobre</span><span>Motif : le bas-fond Kokey n'est pas encore aménagé (condition du programme).</span></div></div>
+            <div class="card-foot"><span class="small muted">Vous pouvez contester sous 15 jours</span><a class="btn btn-secondary btn-sm" href="contestations.html">Contester</a></div>
+          </article>
+        </div>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Candidature déposée</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body">Candidature déposée. Vous serez prévenu à chaque changement de statut.</div></div></div>
+            <div><span class="state-cap">Échec</span><div class="alert alert--danger">{{I:x-circle}}<div class="al-body">Candidature impossible. Réessayez.</div></div></div>
+            <div><span class="state-cap">Conditions non remplies</span><div class="card prog"><ul class="conds"><li><span class="ok">{{I:check}}</span>Fiche producteur validée</li><li><span class="ko">{{I:x}}</span>Bas-fond aménagé</li></ul><button type="button" class="btn btn-primary" disabled>Candidater</button><p class="hint">Une condition n'est pas remplie. Rapprochez-vous de votre agent.</p></div></div>
+            <div><span class="state-cap">Aucun programme</span><div class="card empty"><h3>Aucun programme publié</h3><p>Les programmes ouverts apparaîtront ici. Vous serez prévenu par SMS.</p></div></div>
+            <div><span class="state-cap">Acceptée</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body"><span class="al-title">Candidature acceptée</span><span>Motif : conditions remplies, retrait au magasin de Banikoara à partir du 20 novembre.</span></div></div></div>
+          </div>
+        </details>
+      </div>
+<!--@after-->
+<dialog class="modal" id="dlg-cand" aria-labelledby="dlg-c-t" aria-describedby="dlg-c-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-c-t">Candidater : semences soja</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer">{{I:x}}</button></div>
+  <form class="modal-body" id="f-cand" method="dialog">
+    <p id="dlg-c-d" class="muted">Votre fiche (nom, commune, parcelles de soja) sera transmise au responsable du programme. Aucune décision n'est prise automatiquement.</p>
+    <div class="field"><label class="label" for="cd-p">Parcelle concernée</label><select class="select" id="cd-p"><option>Jardin de case (soja, 0,68 ha)</option></select></div>
+    <label class="check"><input class="cb" type="checkbox" checked> Je confirme que les informations de ma fiche sont exactes.</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-cand" class="btn btn-primary" data-toast="Candidature déposée. Vous serez prévenu à chaque changement de statut.">Déposer ma candidature</button></div>
+</dialog>

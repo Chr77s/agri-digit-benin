@@ -1,0 +1,128 @@
+---
+title: Marché
+desc: Publier une offre de vente, voir les acheteurs intéressés, accepter une mise en relation et recevoir un paiement Mobile Money simulé.
+search: Rechercher une offre, un acheteur…
+---
+<!--@head-->
+.offer-line { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--fs-sm); color: var(--ink-2); }
+.match { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; align-items: start; padding: 16px 0; border-top: 1px solid var(--line); }
+.match:first-of-type { border-top: 0; padding-top: 0; }
+.match blockquote { margin: 8px 0 0; padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); }
+.match .cluster { justify-content: flex-end; }
+.pay-sum { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: var(--r-lg); background: var(--layer); }
+.pay-sum .between { font-size: var(--fs-sm); }
+.pay-total { font: 700 1.75rem/1.1 var(--font-ui); }
+.mm-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 640px) { .match { grid-template-columns: 1fr; } .match .cluster { justify-content: flex-start; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Marché</span></li></ol></nav>
+          <h1 class="page-title">Marché</h1>
+          <p class="page-desc">Publiez ce que vous voulez vendre. Les transformateurs et distributeurs vous contactent ; votre numéro n'est partagé qu'après votre accord.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary" data-tab-go="tb-pub">{{I:plus}}Publier une annonce</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo">{{I:wallet}}<div class="al-body"><span class="al-title">Simulation FakePay</span><span>Aucun argent réel n'est échangé. Les paiements Mobile Money de cette page sont simulés.</span></div></div>
+
+        <div>
+          <div class="tabs" role="tablist" aria-label="Rubriques du marché">
+            <button class="tab" role="tab" id="tb-off" aria-controls="tp-off" aria-selected="true">Mes offres <span class="count">3</span></button>
+            <button class="tab" role="tab" id="tb-pub" aria-controls="tp-pub" aria-selected="false">Publier</button>
+            <button class="tab" role="tab" id="tb-ach" aria-controls="tp-ach" aria-selected="false">Acheteurs intéressés <span class="count">2</span></button>
+            <button class="tab" role="tab" id="tb-pay" aria-controls="tp-pay" aria-selected="false">Paiement</button>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="tp-off" aria-labelledby="tb-off">
+            <div class="table-card">
+              <div class="table-toolbar"><div class="chips" role="group" aria-label="Filtrer par état"><button type="button" class="chip" aria-pressed="true">Ouvertes <span class="count">1</span></button><button type="button" class="chip" aria-pressed="false">En relation <span class="count">1</span></button><button type="button" class="chip" aria-pressed="false">Conclues <span class="count">1</span></button></div></div>
+              <div class="table-scroll">
+                <table class="table table--cards">
+                  <caption class="sr-only">Mes annonces de vente</caption>
+                  <thead><tr><th scope="col">Annonce</th><th scope="col" class="num">Quantité (kg)</th><th scope="col" class="num">Prix (FCFA/kg)</th><th scope="col">Lieu</th><th scope="col">État</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+                  <tbody>
+                    <tr><td class="td-primary" data-label="Annonce"><span class="cell-main">Offre · Maïs grain sec</span><span class="cell-sub">Publiée le 15 oct. · 2 acheteurs intéressés</span></td><td class="num" data-label="Quantité (kg)">2 000</td><td class="num" data-label="Prix (FCFA/kg)">205</td><td data-label="Lieu">Banikoara, Alibori</td><td data-label="État">{{B:wait|En relation}}</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-tab-go="tb-ach">Voir les acheteurs</button></td></tr>
+                    <tr><td class="td-primary" data-label="Annonce"><span class="cell-main">Offre · Soja</span><span class="cell-sub">Publiée aujourd'hui</span></td><td class="num" data-label="Quantité (kg)">400</td><td class="num" data-label="Prix (FCFA/kg)">320</td><td data-label="Lieu">Banikoara, Alibori</td><td data-label="État">{{B:neutral|Ouverte}}</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm">Retirer</button></td></tr>
+                    <tr><td class="td-primary" data-label="Annonce"><span class="cell-main">Offre · Maïs grain sec</span><span class="cell-sub">Saison 2025 · payée le 3 déc. 2025</span></td><td class="num" data-label="Quantité (kg)">1 500</td><td class="num" data-label="Prix (FCFA/kg)">195</td><td data-label="Lieu">Banikoara, Alibori</td><td data-label="État">{{B:ok|Conclue}}</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm">Reçu</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="tp-pub" aria-labelledby="tb-pub" hidden>
+            <form class="card" novalidate onsubmit="return false" aria-label="Publier une annonce">
+              <div class="form-grid">
+                <fieldset class="fieldset span-all"><legend class="label">Type d'annonce</legend>
+                  <div class="cluster" style="--gap:10px"><label class="choice-card"><input class="radio" type="radio" name="typ" checked><span><b>Offre</b><br><span class="small muted">Je vends</span></span></label><label class="choice-card"><input class="radio" type="radio" name="typ"><span><b>Demande</b><br><span class="small muted">Je cherche à acheter</span></span></label></div></fieldset>
+                <div class="field"><label class="label" for="o-vc">Filière</label><select class="select" id="o-vc"><option>Maïs</option><option selected>Soja</option><option>Riz paddy</option><option>Niébé</option><option>Coton graine</option><option>Anacarde</option></select></div>
+                <div class="field"><label class="label" for="o-q">Quantité</label><div class="input-group"><input class="input input-num" id="o-q" inputmode="numeric" value="400,5" aria-invalid="true" aria-describedby="o-qe"><span class="addon addon--end">kg</span></div><span class="error-msg" id="o-qe">{{I:alert}}Saisissez une quantité entière en kg, de 1 à 10 000 000.</span></div>
+                <div class="field"><label class="label" for="o-p">Prix proposé</label><div class="input-group"><input class="input input-num" id="o-p" inputmode="numeric" value="320"><span class="addon addon--end">FCFA/kg</span></div><span class="hint">Prix moyen relevé à Banikoara : 310 FCFA/kg (démonstration).</span></div>
+                <div class="field"><label class="label" for="o-dep">Département</label><select class="select" id="o-dep"><option>Alibori</option><option>Borgou</option><option>Atacora</option></select></div>
+                <div class="field"><label class="label" for="o-com">Commune</label><select class="select" id="o-com"><option>Banikoara</option><option>Kandi</option><option>Gogounou</option></select></div>
+                <div class="field span-all"><label class="label" for="o-d">Description <span class="opt">(facultatif)</span></label><textarea class="textarea" id="o-d">Soja récolté le 16 octobre, séché sur bâche, en sacs de 100 kg. Enlèvement à Sompérékou.</textarea></div>
+              </div>
+              <div class="cluster" style="margin-top:16px"><button type="submit" class="btn btn-primary" data-toast="Annonce publiée.">{{I:send}}Publier l'annonce</button><span class="hint">Votre numéro de téléphone n'apparaît jamais dans l'annonce.</span></div>
+            </form>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="tp-ach" aria-labelledby="tb-ach" hidden>
+            <section class="card" aria-label="Mises en relation">
+              <div class="match">
+                <div><p><b>Sèdjro Akpovi</b> · Transformateur, Bohicon {{B:wait|Demande reçue}}</p>
+                  <p class="offer-line"><span>Pour : Maïs grain sec, 2 000 kg à 205 FCFA/kg</span><span>Reçue le 16 oct.</span></p>
+                  <blockquote>« Je prends tout le lot si le grain est bien sec. Enlèvement possible la semaine prochaine. »</blockquote>
+                  <p class="hint" style="margin-top:8px">Le numéro de l'autre partie sera visible après acceptation.</p></div>
+                <div class="cluster"><button type="button" class="btn btn-ghost">Refuser</button><button type="button" class="btn btn-primary" data-toast="Mise en relation acceptée. Les numéros sont maintenant partagés.">{{I:check}}Accepter</button></div>
+              </div>
+              <div class="match">
+                <div><p><b>Coopérative Nonvignon de Kandi</b> · Gestionnaire de coopérative {{B:ok|Acceptée}}</p>
+                  <p class="offer-line"><span>Pour : Maïs grain sec, 1 200 kg à 205 FCFA/kg</span><span>Acceptée le 17 oct.</span></p>
+                  <p style="margin-top:8px">Téléphone : <b class="num">01 96 •• •• 18</b> <span class="small muted">(masqué dans la maquette)</span></p></div>
+                <div class="cluster"><button type="button" class="btn btn-secondary" data-tab-go="tb-pay">{{I:wallet}}Paiement</button></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="tp-pay" aria-labelledby="tb-pay" hidden>
+            <div class="split">
+              <form class="card stack" style="--gap:14px" novalidate onsubmit="return false" aria-label="Paiement Mobile Money">
+                <div class="field"><label class="label" for="p-m">Mise en relation à payer</label><select class="select" id="p-m"><option>Coopérative Nonvignon · Maïs, 1 200 kg</option></select></div>
+                <div class="field"><label class="label" for="p-a">Montant</label><div class="input-group"><input class="input input-num" id="p-a" inputmode="numeric" value="246 000"><span class="addon addon--end">FCFA</span></div><span class="hint">1 200 kg × 205 FCFA, calculé depuis l'annonce.</span></div>
+                <div class="field"><label class="label" for="p-t">Numéro Mobile Money de l'acheteur (payeur)</label><div class="input-group"><span class="addon">+229</span><input class="input input-num" id="p-t" type="tel" inputmode="tel" value="01 96 45 22 18"></div><span class="hint">10 chiffres, commençant par 01. Démonstration : un numéro qui se termine par 0 fait échouer le paiement.</span></div>
+                <div class="field"><span class="label">Vous recevez sur</span><p><b class="num">01 97 •• •• 42</b> · Awa Sabi</p></div>
+                <button type="submit" class="btn btn-primary btn-block" data-toast="Demande envoyée. L'acheteur valide en un clic sur son téléphone (simulation)." data-toast-type="demo">{{I:wallet}}Demander le paiement (simulation)</button>
+                <p class="hint">L'acheteur reçoit la demande et paie en un clic depuis son compte Mobile Money.</p>
+              </form>
+              <section class="card stack" style="--gap:14px" aria-labelledby="t-suivi">
+                <div class="between"><h2 class="card-title" id="t-suivi">Suivi du paiement</h2>{{B:ok|Paiement réussi}}</div>
+                <div class="pay-sum">
+                  <span class="small muted">Vous recevez</span><span class="pay-total num">246 000 FCFA</span>
+                  <div class="between"><span class="muted">Payeur</span><b>Coopérative Nonvignon</b></div>
+                  <div class="between"><span class="muted">Bénéficiaire</span><b>Awa Sabi · 01 97 •• •• 42</b></div>
+                  <div class="between"><span class="muted">Payé le</span><b class="num">18/10/2026 · 10:12</b></div>
+                  <div class="between"><span class="muted">Référence</span><b class="num">FKP-7Q2M-4410</b></div>
+                </div>
+                <p class="hint">Le paiement est inscrit au journal d'audit. Le revenu s'ajoute à la campagne maïs.</p>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Paiement en attente</span><div class="alert alert--info" role="status"><span class="spinner" aria-hidden="true"></span><div class="al-body">Paiement en cours : en attente de confirmation (simulation). Cette page se met à jour toute seule.</div></div></div>
+            <div><span class="state-cap">Paiement échoué</span><div class="alert alert--danger" role="alert">{{I:x-circle}}<div class="al-body"><span class="al-title">Le paiement a échoué (simulation)</span><span>Vérifiez le numéro puis recommencez.</span></div></div></div>
+            <div><span class="state-cap">Aucune mise en relation acceptée</span><div class="card empty"><h3>Aucune mise en relation acceptée</h3><p>Un paiement n'est possible qu'après l'acceptation d'une mise en relation.</p></div></div>
+            <div><span class="state-cap">Aucune offre</span><div class="card empty"><h3>Vous n'avez rien publié</h3><p>Publiez votre récolte : quantité, prix et commune suffisent.</p><button type="button" class="btn btn-primary">{{I:plus}}Publier une annonce</button></div></div>
+          </div>
+        </details>
+      </div>
+<!--@after-->
+<script>
+  // Boutons qui ouvrent un onglet du marché
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-tab-go]'); if (b) { var t = document.getElementById(b.dataset.tabGo); if (t) { t.click(); t.focus(); } } });
+</script>

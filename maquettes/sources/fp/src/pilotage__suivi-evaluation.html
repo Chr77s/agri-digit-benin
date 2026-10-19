@@ -1,0 +1,112 @@
+---
+{"role":"admin_maep","title":"Indicateurs SEA","desc":"Suivi-évaluation du programme : producteurs et hectares suivis, rendements, adoption, accès aux intrants et au crédit, femmes et jeunes (maquette).","search":"Rechercher un indicateur…","notif":2,"home":"pilotage/tableau-de-bord"}
+---
+<!--@head-->
+  .ind { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .ind:first-of-type { border-top: 0; padding-top: 0; }
+  .ind-name { font-weight: 700; }
+  .ind-val { font: 700 1.375rem/1.2 var(--font-ui); font-variant-numeric: tabular-nums; text-align: right; }
+  .ind-val .na { font-size: 1rem; }
+  .ind .src { grid-column: 1 / -1; }
+  .ind-def { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--ink-2); }
+  .meter { position: relative; height: 12px; border-radius: 0 4px 4px 0; background: var(--rain-2); grid-column: 1 / -1; margin-top: 4px; }
+  .meter > span { display: block; height: 100%; width: var(--v); background: var(--d1); border-radius: 0 4px 4px 0; }
+  .meter > i { position: absolute; top: -4px; bottom: -4px; width: 2px; left: var(--t); background: var(--canopy); }
+  .stack-bar { display: flex; gap: 2px; height: 22px; margin: 10px 0 8px; grid-column: 1 / -1; }
+  .stack-bar > span { display: block; height: 100%; }
+  .stack-bar > span:first-child { border-radius: 4px 0 0 4px; } .stack-bar > span:last-child { border-radius: 0 4px 4px 0; }
+  .sea-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); align-items: start; }
+  .theme-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-md); background: var(--layer); color: var(--leaf); flex: none; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Pilotage</a></li><li><span aria-current="page">Indicateurs SEA</span></li></ol></nav>
+          <h1 class="page-title">Indicateurs de suivi-évaluation</h1>
+          <p class="page-desc">Les indicateurs demandés par les termes de référence, regroupés par question de suivi. Chaque valeur porte sa source et sa date de mise à jour.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" onclick="window.print()"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Imprimer</button>
+          <a class="btn btn-primary" href="exports.html"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Calculé sur les données fictives du prototype</span><span>La mention « non disponible » signifie qu'aucune source n'existe encore : ce n'est pas zéro.</span></div>
+        </div>
+
+        <div class="cluster" style="justify-content:space-between;align-items:flex-end">
+          <div class="field" style="min-width:min(100%,260px)"><label class="label" for="sea-dep">Département</label>
+            <select class="select" id="sea-dep"><option value="">Tout le Bénin</option><option selected>Alibori</option><option>Atacora</option><option>Borgou</option><option>Collines</option><option>Donga</option><option>Zou</option></select></div>
+          <p class="cluster" style="--gap:8px" aria-live="polite"><b>Périmètre : Alibori</b><span class="badge badge--demo">Démonstration</span></p>
+        </div>
+
+        <div class="sea-grid">
+          <section class="card" aria-labelledby="h-couv">
+            <div class="card-head"><h2 class="card-title" id="h-couv">Qui et combien suit-on ?</h2></div>
+            <div class="ind"><span class="ind-name">Producteurs validés suivis</span><span class="ind-val num">6 214</span><span class="src">Registre Agri-Digit · mis à jour le 18/10/2026 07:55</span></div>
+            <ul class="hbars" style="margin:4px 0 14px" aria-label="Producteurs validés par filière, Alibori">
+              <li class="hbar" title="Coton : 2 980"><span class="hbar-label">Coton</span><span class="hbar-track"><span class="hbar-fill" style="--v:100%"></span></span><span class="hbar-val">2 980</span></li>
+              <li class="hbar" title="Maïs : 2 410"><span class="hbar-label">Maïs</span><span class="hbar-track"><span class="hbar-fill" style="--v:80.9%"></span></span><span class="hbar-val">2 410</span></li>
+              <li class="hbar" title="Soja : 512"><span class="hbar-label">Soja</span><span class="hbar-track"><span class="hbar-fill" style="--v:17.2%"></span></span><span class="hbar-val">512</span></li>
+              <li class="hbar" title="Riz : 204"><span class="hbar-label">Riz</span><span class="hbar-track"><span class="hbar-fill" style="--v:6.8%"></span></span><span class="hbar-val">204</span></li>
+              <li class="hbar" title="Niébé : 108"><span class="hbar-label">Niébé</span><span class="hbar-track"><span class="hbar-fill" style="--v:3.6%"></span></span><span class="hbar-val">108</span></li>
+            </ul>
+            <div class="ind"><span class="ind-name">Hectares suivis</span><span class="ind-val num">14 872,6 ha</span><span class="ind-def">Surface des parcelles ayant une campagne 2026 (coton 7 104 ha, maïs 6 012 ha, autres 1 756 ha).</span><span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Producteurs et surface par filière, Alibori</caption><thead><tr><th scope="col">Filière</th><th scope="col" class="num">Producteurs</th><th scope="col" class="num">Surface (ha)</th></tr></thead><tbody>
+                <tr><th scope="row">Coton</th><td class="num">2 980</td><td class="num">7 104,1</td></tr><tr><th scope="row">Maïs</th><td class="num">2 410</td><td class="num">6 012,3</td></tr><tr><th scope="row">Soja</th><td class="num">512</td><td class="num">1 080,4</td></tr><tr><th scope="row">Riz</th><td class="num">204</td><td class="num">431,0</td></tr><tr><th scope="row">Niébé</th><td class="num">108</td><td class="num">244,8</td></tr>
+              </tbody></table></div>
+            </details>
+          </section>
+
+          <section class="card" aria-labelledby="h-incl">
+            <div class="card-head"><h2 class="card-title" id="h-incl">Les femmes et les jeunes participent-ils ?</h2></div>
+            <div class="ind"><span class="ind-name">Part de femmes</span><span class="ind-val num">27,4 %</span>
+              <span class="meter" role="img" aria-label="27,4 % de femmes, cible du programme 30 %"><span style="--v:27.4%"></span><i style="--t:30%"></i></span>
+              <span class="ind-def">1 703 productrices validées sur 6 214. Trait sombre : cible du programme (30 %).</span>
+              <span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <div class="ind"><span class="ind-name">Part de moins de 35 ans</span><span class="ind-val num">38,1 %</span>
+              <span class="meter" role="img" aria-label="38,1 % de jeunes, cible 35 %"><span style="--v:38.1%"></span><i style="--t:35%"></i></span>
+              <span class="ind-def">2 368 producteurs nés après le 18/10/1991. Cible : 35 %, atteinte.</span>
+              <span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <div class="ind"><span class="ind-name">Taux d'acceptation des candidatures</span><span class="ind-val num">61,8 %</span><span class="ind-def">Sur 1 204 candidatures tranchées ; 312 encore en instruction.</span><span class="src">Registre Agri-Digit · 18/10/2026 07:41</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-prod">
+            <div class="card-head"><h2 class="card-title" id="h-prod">Où en est la production ?</h2></div>
+            <div class="ind"><span class="ind-name">Campagnes par stade</span><span class="ind-val num">5 918</span>
+              <div class="stack-bar" role="img" aria-label="Semis 412, croissance 1 380, floraison 1 966, récolte 1 744, terminée 416">
+                <span style="flex:412;background:var(--d5)" title="Semis : 412"></span><span style="flex:1380;background:var(--d2)" title="Croissance : 1 380"></span><span style="flex:1966;background:var(--d1)" title="Floraison : 1 966"></span><span style="flex:1744;background:var(--d3)" title="Récolte : 1 744"></span><span style="flex:416;background:var(--d4)" title="Terminée : 416"></span>
+              </div>
+              <ul class="legend" style="grid-column:1/-1"><li><span class="sw sw--5"></span>Semis · <b class="num">412</b></li><li><span class="sw sw--2"></span>Croissance · <b class="num">1 380</b></li><li><span class="sw"></span>Floraison · <b class="num">1 966</b></li><li><span class="sw sw--3"></span>Récolte · <b class="num">1 744</b></li><li><span class="sw sw--4"></span>Terminée · <b class="num">416</b></li></ul>
+              <span class="src">Registre Agri-Digit · 18/10/2026 06:10</span></div>
+            <div class="ind"><span class="ind-name">Rendement moyen, maïs</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">Aucune pesée de récolte n'est encore reliée. Les prévisions simulées sont dans « Prévisions ».</span><span class="src">Aucune source</span></div>
+            <div class="ind"><span class="ind-name">Récoltes signalées à vérifier</span><span class="ind-val num">23</span><span class="ind-def">Déclarations jugées incohérentes (surface, quantité) et transmises à l'agent ATDA.</span><span class="src">Registre Agri-Digit · 17/10/2026 16:32</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-acces">
+            <div class="card-head"><h2 class="card-title" id="h-acces">Les producteurs accèdent-ils aux intrants et au crédit ?</h2></div>
+            <div class="ind"><span class="ind-name">Appuis remis et confirmés</span><span class="ind-val num">184,6 M FCFA</span><span class="ind-def">Remis par l'agent : 112,3 M FCFA · confirmés par le producteur : 72,3 M FCFA (engrais, semences certifiées).</span><span class="src">Registre Agri-Digit · 18/10/2026 07:12</span></div>
+            <div class="ind"><span class="ind-name">Producteurs ayant consenti au partage pour le crédit</span><span class="ind-val num">418</span><span class="ind-def">Consentement explicite et retirable ; le score reste une aide, jamais une décision.</span><span class="src">Registre des consentements · 18/10/2026 07:30</span></div>
+            <div class="ind"><span class="ind-name">Crédits accordés</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">La décision se prend hors plateforme ; le connecteur FNDA ne renvoie pas encore les décisions.</span><span class="src">Aucune source</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-adop">
+            <div class="card-head"><h2 class="card-title" id="h-adop">Le conseil est-il utilisé et adopté ?</h2></div>
+            <div class="ind"><span class="ind-name">Questions à l'assistant</span><span class="ind-val num">9 412</span><span class="ind-def">Tout le Bénin : le journal de l'assistant ne porte aucune localisation.</span><span class="src">Journal de l'assistant · 18/10/2026 08:02</span></div>
+            <div class="ind"><span class="ind-name">Taux d'escalade de l'assistant</span><span class="ind-val num">7,9 %</span><span class="ind-def">Questions transmises à un agent faute de réponse sûre.</span><span class="src">Journal de l'assistant · 18/10/2026 08:02</span></div>
+            <div class="ind"><span class="ind-name">Adoption des pratiques recommandées</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">Exige une enquête terrain ATDA, pas encore saisie dans la plateforme.</span><span class="src">Aucune source</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-alert">
+            <div class="card-head"><h2 class="card-title" id="h-alert">Les alertes arrivent-elles ?</h2></div>
+            <div class="ind"><span class="ind-name">Taux de livraison des alertes</span><span class="ind-val num">92,3 %</span>
+              <span class="meter" role="img" aria-label="92,3 % des messages livrés"><span style="--v:92.3%"></span></span>
+              <span class="ind-def">11 204 messages livrés sur 12 138 envoyés (SMS simulés).</span><span class="src">Boîte d'envoi simulée · 17/10/2026 18:02</span></div>
+          </section>
+        </div>
+      </div>
+
+      <!--STATES {"empty":["Aucun indicateur pour ce périmètre","Ce département n'a encore aucun producteur validé. Choisissez un autre département ou tout le Bénin.","Tout le Bénin"],"error":["Indicateurs indisponibles","Le calcul n'a pas abouti. Réessayez ; si l'erreur persiste, prévenez l'administrateur MAEP.","ERR_SEA · 500"],"extra":"<div class=\"alert alert--info\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-info\"/></svg><div class=\"al-body\"><span class=\"al-title\">Vue agent ATDA</span><span>Le filtre de département disparaît : l'agent ne voit que son département, imposé par le serveur.</span></div></div>"}-->

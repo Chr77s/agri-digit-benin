@@ -1,0 +1,110 @@
+<!--{"title":"Producteurs","desc":"Registre des producteurs du secteur : filtres, statut de validation, export motivé (maquette).","search":"Nom, code, NPI ou village…"}-->
+<!--STYLE-->
+  .filters { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Producteurs</span></li></ol></nav>
+          <h1 class="page-title">Producteurs de mon périmètre</h1>
+          <p class="page-desc">Registre du secteur Banikoara. Ouvrez une fiche pour la valider, la rejeter avec un motif ou la corriger.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-open-dialog="dlg-export"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button>
+          <a class="btn btn-primary" href="#"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Inscrire un producteur</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="table-card" aria-labelledby="t-prod">
+          <h2 class="sr-only" id="t-prod">Registre des producteurs</h2>
+          <div class="table-toolbar">
+            <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="ts">Rechercher un producteur</label><input class="input" id="ts" type="search" placeholder="Nom, code, NPI ou village"></div>
+            <div class="chips" role="group" aria-label="Filtrer par statut">
+              <button class="chip" type="button" aria-pressed="true">En attente <span class="count">23</span></button>
+              <button class="chip" type="button" aria-pressed="false">Validés <span class="count">412</span></button>
+              <button class="chip" type="button" aria-pressed="false">Rejetés <span class="count">9</span></button>
+            </div>
+          </div>
+          <div class="filters">
+            <div class="field"><label class="label" for="f-arr">Arrondissement</label><select class="select" id="f-arr"><option>Tous</option><option>Banikoara centre</option><option>Founougo</option><option>Gomparou</option><option>Goumori</option><option>Kokey</option><option>Ounet</option><option>Sompérékou</option><option>Soroko</option><option>Toura</option></select></div>
+            <div class="field"><label class="label" for="f-fil">Filière</label><select class="select" id="f-fil"><option>Toutes</option><option>Maïs</option><option>Coton</option><option>Soja</option><option>Sorgho</option><option>Niébé</option><option>Riz</option></select></div>
+            <div class="field"><label class="label" for="f-can">Canal d'inscription</label><select class="select" id="f-can"><option>Tous</option><option>Application</option><option>USSD</option><option>Agent sur le terrain</option></select></div>
+            <div class="field"><label class="label" for="f-del">Ancienneté</label><select class="select" id="f-del"><option>Toutes</option><option>Plus de 5 jours (délai dépassé)</option><option>Moins de 5 jours</option></select></div>
+          </div>
+          <div class="bulkbar" hidden><span><span data-bulk-count>0</span> sélectionné(s)</span><button class="btn btn-sm" type="button" style="background:var(--maize);color:var(--canopy)" data-open-dialog="dlg-export">Exporter la sélection</button><span class="small" style="color:var(--on-dark-2)">La validation se fait fiche par fiche.</span></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Producteurs en attente de validation, triables par nom et date</caption>
+              <thead><tr>
+                <th scope="col" class="col-check"><input class="cb" type="checkbox" aria-label="Tout sélectionner"></th>
+                <th scope="col" aria-sort="none"><button class="th-sort" type="button">Producteur<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th scope="col">Village</th>
+                <th scope="col">Filière</th>
+                <th scope="col" class="num">Surface (ha)</th>
+                <th scope="col">Statut</th>
+                <th scope="col" aria-sort="ascending"><button class="th-sort" type="button">Inscrit le<svg class="ic" aria-hidden="true"><use href="#i-sort-asc"/></svg></button></th>
+                <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Bawa Orou"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Bawa Orou</a><span class="cell-sub num">BNK-000412 · NPI •••• 3902</span></td><td data-label="Village">Kokey</td><td data-label="Filière">Maïs</td><td class="num" data-label="Surface (ha)">0,9</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 6 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261012">12/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Mariama Bani"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Mariama Bani</a><span class="cell-sub num">BNK-000418 · NPI •••• 7710</span></td><td data-label="Village">Toura</td><td data-label="Filière">Maïs, niébé</td><td class="num" data-label="Surface (ha)">1,4</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 5 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261013">13/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Zénabou Chabi"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Zénabou Chabi</a><span class="cell-sub num">BNK-000421 · NPI non vérifié</span></td><td data-label="Village">Founougo</td><td data-label="Filière">Coton</td><td class="num" data-label="Surface (ha)">2,3</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 3 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261015">15/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Issifou Dramane"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Issifou Dramane</a><span class="cell-sub num">BNK-000423 · NPI •••• 0148</span></td><td data-label="Village">Gomparou</td><td data-label="Filière">Sorgho</td><td class="num" data-label="Surface (ha)">3,0</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 2 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261016">16/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Yacoubou Sounon"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Yacoubou Sounon</a><span class="cell-sub num">BNK-000427 · inscrit par USSD</span></td><td data-label="Village">Goumori</td><td data-label="Filière">Soja</td><td class="num" data-label="Surface (ha)">1,1</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 1 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261017">17/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+                <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Safiatou Imorou"></td><td class="td-primary" data-label="Producteur"><a class="cell-main" href="producteur-detail.html">Safiatou Imorou</a><span class="cell-sub num">BNK-000428 · NPI •••• 5521</span></td><td data-label="Village">Sompérékou</td><td data-label="Filière">Maïs</td><td class="num" data-label="Surface (ha)">0,6</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente · 1 j</span></td><td data-label="Inscrit le" class="num" data-sort="20261017">17/10/2026</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Instruire</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span class="num">1–6 sur 23 producteurs en attente</span>
+            <nav class="pages" aria-label="Pagination">
+              <button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
+              <button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button">3</button><button class="page-btn" type="button">4</button>
+              <button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+            </nav>
+          </div>
+        </section>
+
+        <div class="alert alert--info">
+          <svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>
+          <div class="al-body"><span class="al-title">Accès journalisé</span><span>Chaque fiche ouverte et chaque export sont inscrits au journal d'accès avec votre nom et le motif. Les NPI et numéros de téléphone sont masqués dans la liste.</span></div>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucun résultat pour le filtre</span>
+              <div class="card empty">
+                <svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg>
+                <h3>Aucun producteur pour ce filtre</h3>
+                <p>Changez le statut ou l'arrondissement, ou inscrivez un producteur.</p>
+                <button type="button" class="btn btn-secondary">Effacer les filtres</button>
+              </div>
+            </div>
+            <div><span class="states-cap">Chargement</span>
+              <div class="card" aria-busy="true" aria-label="Chargement du registre">
+                <span class="skel skel-title"></span><span class="skel skel-line"></span><span class="skel skel-line" style="width:85%"></span><span class="skel skel-line" style="width:92%"></span><span class="skel skel-line" style="width:70%"></span>
+              </div>
+            </div>
+            <div><span class="states-cap">Erreur</span>
+              <div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>Le registre n'a pas pu être chargé</h3><p>Hors ligne, vous voyez les 412 fiches gardées sur cet appareil (mises à jour à 07:55).</p><code>ERR_RESEAU · 504</code><button type="button" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button></div>
+            </div>
+          </div>
+        </details>
+      </div>
+<!--DIALOGS-->
+<dialog class="modal" id="dlg-export" aria-labelledby="dlg-export-t" aria-describedby="dlg-export-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-export-t">Exporter le registre</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-export" novalidate>
+    <p id="dlg-export-d" class="muted">L'export contient des données personnelles. Il est inscrit au journal d'accès avec le motif que vous donnez.</p>
+    <fieldset class="fieldset"><legend class="label">Contenu</legend>
+      <label class="check"><input class="radio" type="radio" name="ex" checked> Liste filtrée : 23 producteurs en attente</label>
+      <label class="check"><input class="radio" type="radio" name="ex"> Tout le secteur : 444 producteurs</label>
+      <label class="check"><input class="cb" type="checkbox"> Inclure le NPI et le téléphone en clair</label>
+    </fieldset>
+    <div class="field"><label class="label" for="ex-motif">Motif de l'export <span class="req" aria-hidden="true">*</span></label>
+      <select class="select" id="ex-motif"><option>Préparer une tournée de validation</option><option>Distribution d'intrants</option><option>Demande du responsable de programme</option><option>Autre motif</option></select></div>
+    <div class="field"><label class="label" for="ex-prec">Précision</label><textarea class="textarea" id="ex-prec" aria-invalid="true" aria-describedby="ex-prec-e">tour</textarea><span class="error-msg" id="ex-prec-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Expliquez le motif en une phrase (5 caractères minimum).</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-export" class="btn btn-primary" data-toast="Export CSV prêt (23 lignes). Inscrit au journal d'accès."><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter en CSV</button></div>
+</dialog>

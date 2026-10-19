@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exports · Agri-Digit Bénin</title>
+<meta name="description" content="Exports CSV avec motif obligatoire, inscrits au journal d'audit (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.ds { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+  .ds .choice-card { height: 100%; }
+  .counter { font-size: var(--fs-xs); color: var(--ink-2); font-variant-numeric: tabular-nums; margin-left: auto; }
+</style>
+</head>
+<body data-role="admin_maep" data-page="pilotage/exports">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/tableau-de-bord.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un export…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 2 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">2</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Pilotage</a></li><li><span aria-current="page">Exports</span></li></ol></nav>
+          <h1 class="page-title">Exports CSV</h1>
+          <p class="page-desc">Chaque export dit pourquoi il est fait. Le motif, le jeu de données et votre nom sont inscrits au journal d'audit, lisible par le comité de pilotage.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <form class="card stack" style="--gap:20px" novalidate onsubmit="return false" aria-labelledby="h-exp">
+          <h2 class="section-title" id="h-exp">Nouvel export</h2>
+          <fieldset class="fieldset"><legend class="label">Jeu de données</legend>
+            <div class="ds">
+              <label class="choice-card"><input class="radio" type="radio" name="ds" checked><span><b>Producteurs</b> <span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Données personnelles</span><br><span class="small muted">Nom, NPI, téléphone, commune · 24&nbsp;316 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Parcelles</b><br><span class="small muted">Surface, culture, commune · 38&nbsp;902 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Agrégats des fermes POC</b><br><span class="small muted">Par commune, sans donnée personnelle · 77 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Coopératives et adhésions</b><br><span class="small muted">412 coopératives · 9&nbsp;810 adhésions</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Récoltes déclarées</b><br><span class="small muted">Quantités par campagne · 11&nbsp;204 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Appuis remis</b><br><span class="small muted">Remises signées · 15&nbsp;630 lignes</span></span></label>
+            </div>
+          </fieldset>
+          <div class="form-grid">
+            <div class="field"><label class="label" for="ex-dep">Périmètre</label><select class="select" id="ex-dep"><option>Tout le Bénin</option><option>Alibori</option><option>Borgou</option></select></div>
+            <div class="field"><label class="label" for="ex-camp">Campagne</label><select class="select" id="ex-camp"><option>2026</option><option>2025</option><option>Toutes</option></select></div>
+          </div>
+          <div class="field">
+            <div class="cluster" style="--gap:8px"><label class="label" for="ex-motif">Motif de l'export <span class="req" aria-hidden="true">*</span></label><span class="counter" id="ex-count" aria-live="polite">6 / 10 caractères minimum</span></div>
+            <textarea class="textarea" id="ex-motif" aria-invalid="true" aria-describedby="ex-motif-e ex-motif-h" placeholder="Ex. Liste des producteurs de Kandi pour la distribution d'engrais du 4 novembre">Revue </textarea>
+            <span class="error-msg" id="ex-motif-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le motif est obligatoire (10 caractères minimum). Il est enregistré dans le journal d'audit.</span>
+            <span class="hint" id="ex-motif-h">Soyez précis&nbsp;: un auditeur doit comprendre la raison sans vous appeler.</span>
+          </div>
+          <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><div class="al-body"><span class="al-title">Fichier contenant des données personnelles</span><span>Loi n° 2017-20&nbsp;: conservez-le sur un poste du MAEP, ne le transmettez pas hors du Bénin, supprimez-le après usage.</span></div></div>
+          <div class="cluster" style="justify-content:flex-end"><button type="submit" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter en CSV</button></div>
+        </form>
+
+        <section class="card" aria-labelledby="h-rule">
+          <div class="card-head"><h2 class="card-title" id="h-rule">Ce qui est enregistré</h2></div>
+          <dl class="dl">
+            <dt>Qui</dt><dd>Clarisse Agbo, Administrateur MAEP</dd>
+            <dt>Quoi</dt><dd>Producteurs, Tout le Bénin, 2026</dd>
+            <dt>Pourquoi</dt><dd>Votre motif, tel quel</dd>
+            <dt>Quand</dt><dd>Heure du serveur, à la seconde</dd>
+          </dl>
+          <p class="small muted" style="margin-top:14px">L'inscription au journal est faite avant la création du fichier&nbsp;: si elle échoue, aucun fichier n'est produit.</p>
+        </section>
+      </div>
+
+      <section class="table-card" aria-labelledby="h-hist" style="margin-top:24px">
+        <div class="table-toolbar"><h2 class="card-title" id="h-hist" style="margin-right:auto">Mes derniers exports</h2><a class="btn btn-ghost btn-sm" href="journal.html">Voir au journal</a></div>
+        <div class="table-scroll">
+          <table class="table table--cards">
+            <caption class="sr-only">Exports réalisés&nbsp;: date, jeu de données, motif, lignes, état</caption>
+            <thead><tr><th scope="col">Date</th><th scope="col">Jeu de données</th><th scope="col">Motif</th><th scope="col" class="num">Lignes</th><th scope="col">État</th></tr></thead>
+            <tbody>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">18/10/2026 08:12</span></td><td data-label="Jeu de données">Agrégats des fermes POC</td><td data-label="Motif">Préparation du comité de pilotage du 22 octobre</td><td class="num" data-label="Lignes">77</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">15/10/2026 16:47</span></td><td data-label="Jeu de données">Appuis remis</td><td data-label="Motif">Rapprochement avec les bons de livraison du fournisseur d'engrais, Borgou</td><td class="num" data-label="Lignes">4&nbsp;208</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">15/10/2026 16:44</span></td><td data-label="Jeu de données">Appuis remis</td><td data-label="Motif">Rapprochement avec les bons de livraison du fournisseur d'engrais, Borgou</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>Échec réseau</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">02/10/2026 10:05</span></td><td data-label="Jeu de données">Producteurs <span class="badge badge--urgent">Personnel</span></td><td data-label="Motif">Liste des bénéficiaires du programme engrais maïs Nord pour la commission de sélection</td><td class="num" data-label="Lignes">2&nbsp;418</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun export pour l'instant</h3><p>Vos exports apparaîtront ici avec leur motif. Ils sont aussi visibles par l'auditeur du comité de pilotage.</p></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>L'export a échoué</h3><p>Le fichier n'a pas été produit&nbsp;; le motif reste inscrit au journal avec l'état «&nbsp;échec&nbsp;». Réessayez.</p><code>ERR_EXPORT · 502</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Fichier téléchargé</span><span>producers-2026-10-18.csv · le motif est enregistré dans le journal d'audit.</span></div></div><button class="btn btn-primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Préparation du fichier…</button></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi satellite · Agri-Digit Bénin</title>
+<meta name="description" content="Indice de végétation (NDVI) et humidité du sol simulés par parcelle, avec explication et historique des passages.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.bar-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bar-cell .meter { width: 90px; height: 8px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+.bar-cell .meter i { display: block; height: 100%; background: var(--d1); border-radius: var(--r-pill); }
+.bar-cell .meter.moist i { background: #2E6A8E; }
+.ndvi-scale { display: flex; height: 10px; border-radius: var(--r-pill); overflow: hidden; background: linear-gradient(90deg, #C9B79A, #E2D58A, #A7CC6E, #4E8A2B, #1F5A32); }
+.ndvi-ticks { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-2); margin-top: 4px; }
+@media (max-width: 640px) { .bar-cell .meter { width: 60px; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/satellite">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une parcelle…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Suivi satellite</span></li></ol></nav>
+          <h1 class="page-title">Suivi satellite</h1>
+          <p class="page-desc">La vigueur de vos cultures vue du ciel, à chaque passage du satellite. Utile pour repérer tôt une zone qui souffre.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-satellite"/></svg><div class="al-body"><span class="al-title">Données de démonstration, non officielles</span><span>Indices simulés. Les mentions à côté des barres sont des repères indicatifs.</span></div></div>
+
+        <div class="chips" role="group" aria-label="Choisir la parcelle">
+          <button type="button" class="chip" aria-pressed="true">Champ de Sompérékou · maïs</button>
+          <button type="button" class="chip" aria-pressed="false">Champ de la route · coton</button>
+          <button type="button" class="chip" aria-pressed="false">Bas-fond Kokey · riz</button>
+          <button type="button" class="chip" aria-pressed="false">Jardin de case · soja</button>
+        </div>
+
+        <div class="split">
+          <figure class="card chart">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title">NDVI du Champ de Sompérékou</h2><p class="card-sub">Saison 2026-pluie-1, du semis à aujourd'hui</p></div><span class="badge badge--sim">Simulé</span></div>
+            <svg viewBox="0 0 520 220" role="img" aria-labelledby="ch-n"><title id="ch-n">NDVI de 0,18 au 20 mai à 0,68 au 14 octobre ; creux à 0,52 le 19 août pendant une période sèche ; moyenne de la commune entre 0,2 et 0,6</title>
+              <g class="grid"><line x1="40" x2="510" y1="20" y2="20"/><line x1="40" x2="510" y1="70" y2="70"/><line x1="40" x2="510" y1="120" y2="120"/><line x1="40" x2="510" y1="170" y2="170"/></g>
+              <g class="tick" text-anchor="end"><text x="34" y="24">0,8</text><text x="34" y="74">0,6</text><text x="34" y="124">0,4</text><text x="34" y="174">0,2</text></g>
+              <path class="line" style="stroke:var(--d5);stroke-dasharray:4 4" d="M55 175 L115 160 L175 135 L235 115 L295 100 L355 95 L415 90 L495 85"/>
+              <path class="area" d="M55 180 L115 150 L175 118 L235 85 L295 95 L355 70 L415 60 L495 50 L495 195 L55 195Z"/>
+              <path class="line" d="M55 180 L115 150 L175 118 L235 85 L295 95 L355 70 L415 60 L495 50"/>
+              <g><circle class="point" cx="55" cy="180" r="4"/><circle class="point" cx="115" cy="150" r="4"/><circle class="point" cx="175" cy="118" r="4"/><circle class="point" cx="235" cy="85" r="4"/><circle cx="295" cy="95" r="5" fill="#B4532D"/><circle class="point" cx="355" cy="70" r="4"/><circle class="point" cx="415" cy="60" r="4"/><circle class="point" cx="495" cy="50" r="5" fill="#1F5A32"/></g>
+              <text class="val" x="495" y="38" text-anchor="middle">0,68</text><text class="val" x="295" y="115" text-anchor="middle" style="fill:var(--bad-ink)">0,52</text>
+              <g class="tick" text-anchor="middle"><text x="55" y="212">20 mai</text><text x="175" y="212">29 juin</text><text x="295" y="212">19 août</text><text x="495" y="212">14 oct.</text></g>
+            </svg>
+            <ul class="legend"><li><span class="sw"></span>Votre parcelle</li><li><span class="sw sw--5"></span>Moyenne de Banikoara</li><li><span class="sw sw--4"></span>Baisse repérée</li></ul>
+            <figcaption>Baisse le 19 août, pendant 12 jours sans pluie, puis reprise après le sarclage et l'apport d'urée.</figcaption>
+          </figure>
+
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-now">
+              <h2 class="card-title" id="t-now" style="margin-bottom:12px">Dernier passage · 14 octobre</h2>
+              <p><b class="num" style="font-size:1.75rem">0,68</b> <span class="muted">végétation vigoureuse</span></p>
+              <div class="ndvi-scale" aria-hidden="true" style="margin-top:10px"></div>
+              <div class="ndvi-ticks num" aria-hidden="true"><span>0</span><span>0,25</span><span>0,5</span><span>0,75</span><span>1</span></div>
+              <p style="margin-top:12px">Humidité du sol : <b class="num">34 %</b> · sol moyennement humide</p>
+            </section>
+            <section class="card card--tint" aria-labelledby="t-what">
+              <h2 class="card-title" id="t-what" style="margin-bottom:8px">Comment lire le NDVI</h2>
+              <p class="small">Le NDVI mesure la vigueur de la végétation vue du ciel : proche de 0, il y a peu de plantes vertes ; proche de 1, la végétation est dense. L'humidité du sol est donnée en pourcentage.</p>
+            </section>
+          </div>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-pass">
+          <div class="table-toolbar"><h2 class="card-title" id="t-pass" style="margin-right:auto">Passages du satellite</h2><button type="button" class="btn btn-secondary btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Passages du satellite sur le Champ de Sompérékou</caption>
+              <thead><tr><th scope="col">Date d'acquisition</th><th scope="col">NDVI (vigueur de la végétation)</th><th scope="col">Humidité du sol</th><th scope="col">Capteur</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">14/10/2026</span></td><td data-label="NDVI"><span class="bar-cell"><span class="meter" aria-hidden="true"><i style="width:68%"></i></span><span class="num">0,68 : végétation vigoureuse</span></span></td><td data-label="Humidité du sol"><span class="bar-cell"><span class="meter moist" aria-hidden="true"><i style="width:34%"></i></span><span class="num">34 % : sol moyennement humide</span></span></td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">24/09/2026</span></td><td data-label="NDVI"><span class="bar-cell"><span class="meter" aria-hidden="true"><i style="width:64%"></i></span><span class="num">0,64 : végétation vigoureuse</span></span></td><td data-label="Humidité du sol"><span class="bar-cell"><span class="meter moist" aria-hidden="true"><i style="width:48%"></i></span><span class="num">48 % : sol humide</span></span></td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">19/08/2026</span></td><td data-label="NDVI"><span class="bar-cell"><span class="meter" aria-hidden="true"><i style="width:52%"></i></span><span class="num">0,52 : végétation moyenne</span></span></td><td data-label="Humidité du sol"><span class="bar-cell"><span class="meter moist" aria-hidden="true"><i style="width:14%"></i></span><span class="num">14 % : sol sec</span></span></td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">29/06/2026</span></td><td data-label="NDVI"><span class="bar-cell"><span class="meter" aria-hidden="true"><i style="width:43%"></i></span><span class="num">0,43 : végétation moyenne</span></span></td><td data-label="Humidité du sol"><span class="bar-cell"><span class="meter moist" aria-hidden="true"><i style="width:41%"></i></span><span class="num">41 % : sol humide</span></span></td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Aucune donnée</span><div class="card empty"><h3>Aucune donnée satellite pour cette parcelle</h3><p>Le contour doit être tracé au GPS. Les premiers passages arrivent sous 10 jours.</p></div></div>
+            <div><span class="state-cap">Nuages</span><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"/></svg><div class="al-body">Passage du 4 octobre ignoré : parcelle couverte de nuages.</div></div></div>
+            <div><span class="state-cap">Chargement</span><div class="card" aria-busy="true"><span class="skel skel-title"></span><span class="skel skel-block"></span></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

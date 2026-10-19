@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alertes · Agri-Digit Bénin</title>
+<meta name="description" content="Rédaction d'alertes par département et filière, canaux SMS, vocal et application, aperçu segmenté, double validation des alertes urgentes (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.phone-prev { border-radius: 22px; background: var(--canopy); padding: 14px; color: var(--on-dark); }
+  .phone-prev .pp-head { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--on-dark-2); margin-bottom: 10px; }
+  .sms { position: relative; background: #F1F6EC; color: var(--ink); border-radius: 14px 14px 14px 4px; padding: 10px 12px 22px; font-size: .9375rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .sms + .sms { margin-top: 8px; }
+  .sms .seg { position: absolute; right: 10px; bottom: 4px; font-size: .75rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .channels { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+  .sev { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+  .communes { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
+  .counter { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+  .alert-item + .alert-item { border-top: 1px solid var(--line); }
+  .alert-item { padding: 16px 0; display: flex; flex-direction: column; gap: 8px; }
+  .alert-item:first-child { padding-top: 0; }
+  .alert-item:last-child { padding-bottom: 0; }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/alertes">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Titre d'alerte, commune…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Alertes</span></li></ol></nav>
+          <h1 class="page-title">Alertes</h1>
+          <p class="page-desc">Prévenez les producteurs d'un département ou d'une filière&nbsp;: ravageur, météo, programme, marché. Les envois sont simulés.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-secondary" href="boite-envoi.html"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Boîte d'envoi simulée</a></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <form class="card stack" style="--gap:18px" id="f-alerte" novalidate aria-labelledby="h-new" onsubmit="return false">
+            <div class="card-head" style="margin:0"><h2 class="card-title" id="h-new">Nouvelle alerte</h2><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon gardé sur l'appareil</span></div>
+            <div class="form-grid">
+              <div class="field"><label class="label" for="a-titre">Titre</label><input class="input" id="a-titre" value="Chenille légionnaire sur le maïs"><span class="hint">Court&nbsp;: il apparaît en tête du SMS.</span></div>
+              <div class="field"><label class="label" for="a-cat">Catégorie</label><select class="select" id="a-cat"><option>Ravageur</option><option>Météo</option><option>Programme</option><option>Marché</option></select></div>
+              <div class="field span-all">
+                <label class="label" for="a-msg">Message (SMS)</label>
+                <textarea class="textarea" id="a-msg" rows="4" aria-describedby="a-msg-h">Chenille légionnaire signalée à Kokey et Founougo. Inspectez le coeur des plants 2 fois par semaine. Traitez seulement sur conseil de votre agent ATDA. Appel gratuit au 136.</textarea>
+                <div class="counter hint" id="a-msg-h"><span><b class="num" data-count>0</b> caractères · <span data-enc>GSM-7</span>, <span data-per>160</span> par SMS</span><span><b class="num" data-seg>0</b> SMS par destinataire</span></div>
+                <span class="hint">Évitez les accents rares (ê, ï, ç, œ)&nbsp;: ils passent le message en UCS-2, 70 caractères par SMS, et doublent le coût.</span>
+              </div>
+            </div>
+
+            <fieldset class="fieldset"><legend class="label">Gravité</legend>
+              <div class="sev">
+                <label class="choice-card"><input class="radio" type="radio" name="sev"><span><b>Information</b><br><span class="small muted">Envoi direct.</span></span></label>
+                <label class="choice-card"><input class="radio" type="radio" name="sev" checked><span><b>Avertissement</b><br><span class="small muted">Envoi direct.</span></span></label>
+                <label class="choice-card"><input class="radio" type="radio" name="sev"><span><b>Urgent</b><br><span class="small muted">Second agent obligatoire.</span></span></label>
+              </div>
+            </fieldset>
+
+            <div class="form-grid">
+              <div class="field"><label class="label" for="a-dep">Département</label><select class="select" id="a-dep"><option>Alibori</option><option>Atacora</option><option>Borgou</option><option>Donga</option></select></div>
+              <div class="field"><span class="label" id="a-fil-l">Filières <span class="opt">(aucune = toutes)</span></span>
+                <div class="chips" role="group" aria-labelledby="a-fil-l"><button class="chip" type="button" aria-pressed="true">Maïs</button><button class="chip" type="button" aria-pressed="false">Sorgho</button><button class="chip" type="button" aria-pressed="false">Coton</button><button class="chip" type="button" aria-pressed="false">Soja</button></div>
+              </div>
+            </div>
+            <fieldset class="fieldset"><legend class="label">Communes <span class="opt">(aucune = tout le département)</span></legend>
+              <div class="communes">
+                <label class="check"><input class="cb" type="checkbox" checked> Banikoara</label>
+                <label class="check"><input class="cb" type="checkbox"> Gogounou</label>
+                <label class="check"><input class="cb" type="checkbox" checked> Kandi</label>
+                <label class="check"><input class="cb" type="checkbox"> Karimama</label>
+                <label class="check"><input class="cb" type="checkbox"> Malanville</label>
+                <label class="check"><input class="cb" type="checkbox"> Ségbana</label>
+              </div>
+            </fieldset>
+            <fieldset class="fieldset"><legend class="label">Canaux</legend>
+              <div class="channels">
+                <label class="choice-card"><input class="cb" type="checkbox" checked><span><b>SMS</b><br><span class="small muted">Tous les téléphones.</span></span></label>
+                <label class="choice-card"><input class="cb" type="checkbox" checked><span><b>Appel vocal</b><br><span class="small muted">Message lu en français.</span></span></label>
+                <label class="choice-card"><input class="cb" type="checkbox" checked><span><b>Application</b><br><span class="small muted">Notification et messagerie.</span></span></label>
+              </div>
+            </fieldset>
+            <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><div class="al-body"><span class="al-title num">≈ 2 930 producteurs visés</span><span class="num">Maïs, Banikoara et Kandi · 2 930 SMS × 2 segments · 1 104 appels vocaux (producteurs ayant choisi la voix). Estimation de démonstration.</span></div></div>
+            <div class="cluster" style="justify-content:flex-end">
+              <button type="button" class="btn btn-ghost">Effacer</button>
+              <button type="submit" class="btn btn-primary" data-toast="Alerte enregistrée. Vous pouvez maintenant l'envoyer.">Enregistrer l'alerte</button>
+            </div>
+          </form>
+
+          <aside class="stack" aria-label="Aperçu">
+            <section class="card" aria-labelledby="h-prev">
+              <div class="card-head"><h2 class="card-title" id="h-prev">Aperçu sur un téléphone simple</h2><span class="badge badge--sim">Simulé</span></div>
+              <div class="phone-prev">
+                <div class="pp-head"><span>ATDA-ALERTE</span><span class="num">10:24</span></div>
+                <div class="sms" data-sms1></div>
+                <div class="sms" data-sms2></div>
+              </div>
+              <p class="hint" style="margin-top:10px">Le téléphone recolle les segments&nbsp;; chacun est facturé.</p>
+            </section>
+            <section class="card" aria-labelledby="h-voc">
+              <div class="card-head"><h2 class="card-title" id="h-voc">Message vocal</h2><span class="badge badge--sim">Voix de synthèse simulée</span></div>
+              <p class="small muted">Lu en français, durée estimée 0:24. Les versions fɔngbè et baatɔnum doivent être enregistrées par un traducteur validé par le MTDI&nbsp;: aucune traduction automatique.</p>
+              <button type="button" class="btn btn-secondary btn-sm" style="margin-top:12px"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg>Écouter l'aperçu</button>
+            </section>
+          </aside>
+        </div>
+
+        <section class="card" aria-labelledby="h-hist">
+          <div class="card-head">
+            <h2 class="card-title" id="h-hist">Alertes du département</h2>
+            <div class="chips" role="group" aria-label="Filtrer par état"><button class="chip" type="button" aria-pressed="false">À valider <span class="count">2</span></button><button class="chip" type="button" aria-pressed="false">Prêtes <span class="count">1</span></button><button class="chip" type="button" aria-pressed="false">Envoyées <span class="count">14</span></button></div>
+          </div>
+          <div>
+            <article class="alert-item" id="a-pluie">
+              <div class="cluster"><h3 class="card-title">Pluies fortes jeudi&nbsp;: reportez l'épandage</h3><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Urgent</span><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de seconde validation</span></div>
+              <p>Plus de 60 mm attendus jeudi 23 octobre sur l'Alibori. Reportez l'épandage d'engrais et protégez les récoltes stockées.</p>
+              <p class="small muted">Météo · Alibori&nbsp;: Banikoara, Kandi, Gogounou · SMS et vocal · rédigée par Florentin Kpadé (secteur Kandi), 18/10/2026 09:44</p>
+              <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-approve">Valider (seconde validation)</button><button type="button" class="btn btn-ghost btn-sm">Demander une correction</button></div>
+            </article>
+            <article class="alert-item">
+              <div class="cluster"><h3 class="card-title">Feux de brousse&nbsp;: interdiction temporaire</h3><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Urgent</span><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de seconde validation</span></div>
+              <p>Aucun brûlis jusqu'au 31 octobre dans les arrondissements de Toura et Soroko.</p>
+              <p class="small muted">Programme · Alibori&nbsp;: Banikoara · SMS · rédigée par vous, 18/10/2026 08:20</p>
+              <p class="small" style="color:var(--bad-ink)">Un autre agent ou un administrateur doit valider cette alerte urgente.</p>
+            </article>
+            <article class="alert-item">
+              <div class="cluster"><h3 class="card-title">Prix du maïs au marché de Banikoara</h3><span class="badge badge--neutral">Information</span><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validée</span></div>
+              <p>Maïs grain&nbsp;: 210 FCFA/kg cette semaine au marché de Banikoara (relevé simulé).</p>
+              <p class="small muted">Marché · Alibori&nbsp;: Banikoara · SMS et application · 17/10/2026 17:05</p>
+              <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-toast="Envoyée&nbsp;: 1 238 message(s), 1 201 livré(s), 37 échoué(s). Voir la boîte d'envoi simulée."><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Envoyer l'alerte</button></div>
+            </article>
+            <article class="alert-item">
+              <div class="cluster"><h3 class="card-title">Semis du niébé&nbsp;: fenêtre favorable</h3><span class="badge badge--neutral">Avertissement</span><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Envoyée</span></div>
+              <div class="alert alert--ok" style="padding:10px 12px"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body num">Envoyée le 14/10/2026&nbsp;: 1 912 message(s), 1 870 livré(s), 42 échoué(s). <a href="boite-envoi.html">Voir la boîte d'envoi simulée</a></div></div>
+            </article>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Formulaire incomplet</span>
+              <div class="card stack" style="--gap:12px">
+                <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">L'alerte contient 2 erreurs</span></div></div>
+                <div class="field"><label class="label" for="s-t">Titre</label><input class="input" id="s-t" aria-invalid="true" aria-describedby="s-te"><span class="error-msg" id="s-te"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Donnez un titre court, par exemple «&nbsp;Chenille légionnaire&nbsp;».</span></div>
+                <div class="field"><label class="label" for="s-m">Message (SMS)</label><textarea class="textarea" id="s-m" rows="2" aria-invalid="true" aria-describedby="s-me">Attention</textarea><span class="error-msg" id="s-me"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Écrivez le message complet (10 caractères minimum).</span></div>
+              </div>
+            </div>
+            <div><span class="states-cap">Urgente enregistrée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Alerte enregistrée, en attente de seconde validation</span><span>Les agents du département sont prévenus.</span></div></div></div>
+            <div><span class="states-cap">Aucune alerte</span><div class="card empty" style="padding:20px"><h3>Aucune alerte</h3><p>Rédigez une alerte avec le formulaire ci-dessus.</p></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal" id="dlg-approve" aria-labelledby="dlg-ap-t" aria-describedby="dlg-ap-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-ap-t">Valider l'alerte urgente&nbsp;?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <p id="dlg-ap-d" class="muted">Vous êtes le second agent. Après votre validation, Florentin Kpadé ou vous-même pourrez l'envoyer à ≈ 4 860 producteurs.</p>
+    <div class="card card--tint"><b>Pluies fortes jeudi&nbsp;: reportez l'épandage</b><p class="small" style="margin-top:4px">Plus de 60 mm attendus jeudi 23 octobre sur l'Alibori. Reportez l'épandage d'engrais et protégez les récoltes stockées.</p></div>
+    <label class="check"><input class="cb" type="checkbox"> J'ai relu le message, la zone et les canaux.</label>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-primary" data-close-dialog="ok" data-toast="Alerte validée. Elle peut maintenant être envoyée.">Valider l'alerte</button></div>
+</dialog>
+<script>
+(function () {
+  var GSM = /^[@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà^{}\\\[~\]|€]*$/;
+  var ta = document.getElementById('a-msg');
+  function upd() {
+    var t = ta.value, gsm = GSM.test(t), n = t.length;
+    var single = gsm ? 160 : 70, multi = gsm ? 153 : 67;
+    var seg = n <= single ? 1 : Math.ceil(n / multi), cut = n <= single ? n : multi;
+    document.querySelector('[data-count]').textContent = n;
+    document.querySelector('[data-enc]').textContent = gsm ? 'GSM-7' : 'UCS-2';
+    document.querySelector('[data-per]').textContent = single;
+    document.querySelector('[data-seg]').textContent = seg;
+    var s1 = document.querySelector('[data-sms1]'), s2 = document.querySelector('[data-sms2]');
+    s1.innerHTML = ''; s1.append(t.slice(0, cut)); s1.insertAdjacentHTML('beforeend', '<span class="seg">1/' + seg + '</span>');
+    s2.hidden = seg < 2; s2.innerHTML = ''; s2.append(t.slice(cut)); s2.insertAdjacentHTML('beforeend', '<span class="seg">2/' + seg + '</span>');
+  }
+  ta.addEventListener('input', upd); upd();
+})();
+</script>
+</body>
+</html>

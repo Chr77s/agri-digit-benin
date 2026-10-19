@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agri-Digit Bénin, la plateforme agricole du Bénin</title>
+<meta name="description" content="Parcelles, conseils, alertes, appuis et marché au même endroit, pour les producteurs et pour le pilotage de la Stratégie Bénin Vert 2026–2033.">
+<meta name="theme-color" content="#0E2F1C">
+<link rel="icon" href="../../frontend/public/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="phone.css">
+<link rel="stylesheet" href="page.css">
+<script>document.documentElement.classList.add('js');try{if(localStorage.getItem('agri-reduce')==='1')document.documentElement.classList.add('reduce')}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0A2417"/><path d="M17 21c0-6 7-9 15-9s15 3 15 9c0 12-7 25-15 32-8-7-15-20-15-32Z" fill="#EFEBD8"/><path d="M32 45c-3.5-4.5-4.5-11-2.5-17 3.5 3 4.5 10 2.5 17Z" fill="#D9A62E"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 9.5v5l4-2.5z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9"/><path d="M12 12c0-4 2.5-6.5 7-6.5 0 4-2.5 6.5-7 6.5Z"/><path d="M12 14.5c0-3.2-2.2-5.2-6-5.2 0 3.2 2.2 5.2 6 5.2Z"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19v-2M9 19v-5M14 19v-8M19 19V6"/></symbol>
+    <symbol id="i-voice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Z"/><path d="M5 19 13 11"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6 1.4A3.3 3.3 0 0 1 17 15Z"/><path d="M9 18l-1 2M13 18l-1 2M17 18l-1 2"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2c-.6-.8-1.6-1.2-2.8-1.2-1.6 0-2.8.8-2.8 2s1.2 1.6 2.8 2c1.6.4 2.8.9 2.8 2.1s-1.2 1.9-2.8 1.9c-1.2 0-2.3-.4-2.9-1.2M12 6.5v11"/></symbol>
+    <symbol id="i-gps" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8 9 4l7 3 4-1v10l-5 4-6-3-5 1z"/><circle cx="12" cy="11" r="1.6"/></symbol>
+  </defs>
+</svg>
+
+<div class="band" role="note">
+  <svg viewBox="0 0 3 2" aria-hidden="true"><rect width="1.2" height="2" fill="#2E8540"/><rect x="1.2" width="1.8" height="1" fill="#F3C54A"/><rect x="1.2" y="1" width="1.8" height="1" fill="#C8322D"/></svg>
+  <span>République du Bénin · Stratégie Bénin Vert 2026–2033</span>
+</div>
+
+<header class="site-head" id="tete">
+  <a class="brand" href="#contenu" aria-label="Agri-Digit Bénin, accueil">
+    <svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit Bénin</span>
+  </a>
+  <nav class="nav" aria-label="Navigation de la page d'accueil">
+    <a href="#ch-assistant">Comment ça marche</a>
+    <a href="#etat">Pour l'État</a>
+    <a href="#faq">Questions</a>
+  </nav>
+  <div class="head-actions">
+    <label class="lang hide-m"><span class="sr-only">Langue</span><svg aria-hidden="true"><use href="#i-globe"/></svg>
+      <select data-lang>
+        <option value="fr" selected>Français</option>
+        <option value="fon">Fon</option>
+        <option value="bba">Bariba</option>
+        <option value="yo">Yoruba</option>
+        <option value="dje">Dendi</option>
+      </select>
+    </label>
+    <a class="btn btn-ghost btn-sm hide-m" href="#connexion">Se connecter</a>
+    <a class="btn btn-primary btn-sm" href="#inscription">S'inscrire</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="tiroir" aria-label="Ouvrir le menu"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+  </div>
+</header>
+
+<div class="drawer" id="tiroir" aria-label="Menu">
+  <a class="dl" href="#ch-assistant">Comment ça marche</a>
+  <a class="dl" href="#etat">Pour l'État et les partenaires</a>
+  <a class="dl" href="#faq">Questions</a>
+  <label class="lang"><span class="sr-only">Langue</span><svg aria-hidden="true"><use href="#i-globe"/></svg>
+    <select data-lang>
+      <option value="fr" selected>Français</option>
+      <option value="fon">Fon</option>
+      <option value="bba">Bariba</option>
+      <option value="yo">Yoruba</option>
+      <option value="dje">Dendi</option>
+    </select>
+  </label>
+  <div class="drawer-actions">
+    <a class="btn btn-ghost" href="#connexion">Se connecter</a>
+    <a class="btn btn-primary" href="#inscription">S'inscrire</a>
+  </div>
+</div>
+
+<div class="field-bg" aria-hidden="true">
+  <canvas id="champ"></canvas>
+  <picture><source media="(max-width: 820px)" srcset="img/champ-390.jpg"><img src="img/champ-1440.jpg" alt="" width="1440" height="900" fetchpriority="high"></picture>
+  <div class="veil"></div>
+  <div class="dawn"></div>
+</div>
+
+<nav class="season-rail" aria-label="Chapitres de la démonstration">
+  <a href="#ch-assistant" data-rail="assistant"><i></i><span>Semis · Assistant</span></a>
+  <a href="#ch-diagnostic" data-rail="diagnostic"><i></i><span>Croissance · Diagnostic photo</span></a>
+  <a href="#ch-meteo" data-rail="meteo"><i></i><span>Floraison · Météo et alertes</span></a>
+  <a href="#ch-marche" data-rail="marche"><i></i><span>Récolte · Marché et paiement</span></a>
+  <a href="#ch-parcelle" data-rail="parcelle"><i></i><span>Toute la saison · Parcelle GPS</span></a>
+  <a href="#ch-basic" data-rail="basic"><i></i><span>Même sans smartphone</span></a>
+</nav>
+
+<main id="contenu">
+  <div class="saison" id="saison">
+    <div class="saison-text">
+      <section class="hero" data-chapter="hero" data-screen="assistant" aria-labelledby="titre">
+        <h1 id="titre">
+          <span class="ln"><span>Votre champ, vos conseils,</span></span>
+          <span class="ln"><span>vos appuis : tout tient</span></span>
+          <span class="ln"><span>dans votre téléphone.</span></span>
+        </h1>
+        <p class="lead fade-in">Inscrivez-vous avec votre numéro de téléphone. Suivez chaque parcelle du semis à la récolte, recevez les alertes de votre agent ATDA et vendez votre récolte au bon prix.</p>
+        <div class="hero-actions fade-in">
+          <a class="btn btn-primary" href="#inscription">Créer mon compte producteur <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost" href="#ch-assistant"><svg aria-hidden="true"><use href="#i-play"/></svg> Voir la démonstration</a>
+        </div>
+        <p class="hero-inst fade-in">Ministère, agence ou partenaire financier ? <a href="#etat">Voir le pilotage de la filière</a></p>
+        <div class="scroll-cue fade-in" aria-hidden="true">
+          <svg viewBox="0 0 22 34" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="20" height="32" rx="10"/><circle class="dot" cx="11" cy="10" r="2.2" fill="currentColor" stroke="none"/></svg>
+          Faites défiler : la saison avance, le maïs pousse.
+        </div>
+      </section>
+
+      <section class="chapter" id="ch-assistant" data-chapter="assistant" data-screen="assistant" aria-labelledby="t-assistant">
+        <div class="chapter-body">
+          <h2 id="t-assistant">Posez votre question dans votre langue, à l'écrit ou à la voix.</h2>
+          <p>L'assistant répond comme on parle, à partir des fiches techniques de l'INRAB et de l'ATDA, de vos parcelles et de la météo de votre commune. Chaque réponse cite la fiche dont elle vient.</p>
+          <ul>
+            <li>Français, fon, yoruba, dendi et bariba ; traductions en cours de validation par des locuteurs natifs.</li>
+            <li>Vous dictez, il lit la réponse à voix haute.</li>
+            <li>Pour un dosage ou un produit de traitement, la question part chez votre agent ATDA.</li>
+          </ul>
+          <p class="note"><b>Conseil indicatif :</b> vérifiez avec votre agent ATDA.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch-diagnostic" data-chapter="diagnostic" data-screen="diagnostic" aria-labelledby="t-diagnostic">
+        <div class="chapter-body">
+          <h2 id="t-diagnostic">Feuille tachée ? Une photo suffit pour un premier avis.</h2>
+          <p>Photographiez la plante ou l'animal malade, sans personne sur l'image. Vous recevez l'état de la culture, la maladie probable, le niveau de risque et les gestes recommandés.</p>
+          <ul>
+            <li>Un agronome revoit l'avis quand le doute subsiste.</li>
+            <li>La photo sert aussi à la détection précoce des ravageurs dans votre département.</li>
+          </ul>
+          <p class="note"><b>Dans ce prototype,</b> le diagnostic est simulé : aucun modèle n'analyse encore la photo.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch-meteo" data-chapter="meteo" data-screen="meteo" aria-labelledby="t-meteo">
+        <div class="chapter-body">
+          <h2 id="t-meteo">L'alerte pluie arrive avant la pluie.</h2>
+          <p>Prévisions pour votre commune et alertes de votre agent ATDA : sécheresse, inondation, stress hydrique, chenille légionnaire. Elles arrivent dans l'application et par SMS.</p>
+          <ul>
+            <li>Une alerte urgente est validée par un second agent avant envoi.</li>
+            <li>Les alertes ciblent un département, une commune ou une filière.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch-marche" data-chapter="marche" data-screen="marche" aria-labelledby="t-marche">
+        <div class="chapter-body">
+          <h2 id="t-marche">Vendez au bon prix, soyez payé en un clic.</h2>
+          <p>Consultez les prix des marchés, publiez une offre et rencontrez transformateurs et distributeurs en direct. Le paiement passe par Mobile Money, et votre revenu de campagne se suit au même endroit.</p>
+          <ul>
+            <li>Offres et demandes par filière, mises en relation suivies.</li>
+            <li>Les coopératives regroupent l'offre de leurs membres.</li>
+          </ul>
+          <p class="note"><b>Simulation :</b> dans le prototype, aucun argent réel n'est échangé.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch-parcelle" data-chapter="parcelle" data-screen="parcelle" aria-labelledby="t-parcelle">
+        <div class="chapter-body">
+          <h2 id="t-parcelle">Dessinez votre parcelle du bout du doigt.</h2>
+          <p>Touchez les coins de votre champ sur la carte : la surface se calcule toute seule. Votre agent la valide, et chaque campagne est suivie jusqu'à la récolte.</p>
+          <ul>
+            <li>Semis, croissance, floraison, récolte : vos rappels suivent votre propre calendrier.</li>
+            <li>Une fiche validée ouvre l'accès aux programmes d'appui.</li>
+          </ul>
+          <p class="note">Exemple affiché : un champ à Banikoara, dans l'Alibori.</p>
+        </div>
+      </section>
+
+      <section class="chapter basic" id="ch-basic" data-chapter="basic" data-screen="ussd" aria-labelledby="t-basic">
+        <div class="chapter-body">
+          <h2 id="t-basic">Un téléphone simple suffit.</h2>
+          <p>Pas de smartphone, pas de données mobiles ? Les mêmes services passent par un menu USSD, par SMS et par la voix. Au champ sans réseau, la saisie attend et part dès que le réseau revient.</p>
+          <div class="channels">
+            <div><b>USSD</b><span>Menu par touches, sans internet</span></div>
+            <div><b>SMS</b><span>Alertes et codes de connexion</span></div>
+            <div><b>Vocal</b><span>Questions et réponses parlées</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="stage" aria-label="Simulation de l'application sur téléphone">
+      <div class="stage-pin">
+        <div class="phone-slot">
+          <div class="phone-host" id="phone"></div>
+          <div class="phone-shadow" aria-hidden="true"></div>
+        </div>
+        <p class="stage-cap" aria-live="polite"><i aria-hidden="true"></i><span data-cap>Assistant · écran simulé</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="edge edge-to-light" aria-hidden="true">
+    <svg class="sillons" viewBox="0 0 1440 120" preserveAspectRatio="none"><path pathLength="1" d="M0 20 C 360 -10, 1080 50, 1440 18"/><path pathLength="1" d="M0 34 C 360 4, 1080 64, 1440 32"/><path pathLength="1" d="M0 48 C 360 18, 1080 78, 1440 46"/><path pathLength="1" d="M0 62 C 360 32, 1080 92, 1440 60"/><path pathLength="1" d="M0 76 C 360 46, 1080 106, 1440 74"/><path pathLength="1" d="M0 90 C 360 60, 1080 120, 1440 88"/><path pathLength="1" d="M0 104 C 360 74, 1080 134, 1440 102"/></svg>
+  </div>
+
+  <section class="sec light" id="etat" aria-labelledby="t-etat">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="t-etat">Pour l'État et les partenaires : toute la filière, de la parcelle au pilotage.</h2>
+        <p class="lead">Les mêmes données qui servent le producteur alimentent le pilotage de la Stratégie Bénin Vert : registre, parcelles, campagnes, appuis et marché, consolidés par département et par filière, avec des prévisions et un scoring qui aident la décision sans jamais la prendre seuls.</p>
+      </div>
+
+      <div class="console" role="region" aria-label="Tableau de bord institutionnel, données de démonstration">
+        <div class="console-bar">
+          <strong>Pilotage Bénin Vert · Maïs</strong>
+          <span class="console-sum">200 873 fermes du POC, 77 communes, 12 départements, 13 filières prioritaires</span>
+          <span class="tag tag-demo">Données du POC · démonstration, non officielles</span>
+        </div>
+        <div class="console-grid">
+          <section aria-labelledby="t-carte">
+            <div class="panel-title"><h3 id="t-carte">Fermes de maïs par département</h3><span class="tag tag-demo">Démonstration</span></div>
+            <div class="mapbox">
+              <div class="map" id="carte" role="img" aria-label="Carte du Bénin : densité des fermes du POC, plus forte dans l'Alibori, le Borgou et l'Atacora.">
+                <canvas></canvas>
+              </div>
+              <ul class="depts" id="depts" aria-label="Fermes du POC par département"></ul>
+            </div>
+            <p class="legend">Chaque point regroupe les fermes d'un carré d'environ 5 km ; plus il est gros, plus la zone produit. Localisation approximative.</p>
+          </section>
+          <div class="side-stack">
+            <section class="forecast" aria-labelledby="t-prev">
+              <div class="panel-title"><h3 id="t-prev">Prévision de rendement, Alibori</h3><span class="tag tag-sim">Simulé</span></div>
+              <svg viewBox="0 0 320 150" role="img" aria-label="Courbe de prévision simulée, avec sa marge d'incertitude, au fil des stades de la campagne.">
+                <path class="band-area" d="M10 118 C 70 112, 120 86, 170 70 S 260 38, 310 30 L 310 62 C 260 70, 220 92, 170 100 S 70 124, 10 126 Z"/>
+                <path class="ln-ref" d="M10 124 C 80 118, 140 100, 190 88 S 270 66, 310 60"/>
+                <path class="ln-main" pathLength="1" d="M10 122 C 70 118, 120 94, 170 85 S 260 52, 310 46"/>
+                <g><text x="10" y="146">Semis</text><text x="100" y="146">Croissance</text><text x="196" y="146">Floraison</text><text x="270" y="146">Récolte</text></g>
+              </svg>
+              <p class="small">Trait plein : prévision ; bande : incertitude ; pointillés : campagne précédente. Courbe illustrative : aucun modèle n'est encore entraîné sur des données officielles.</p>
+            </section>
+            <section aria-labelledby="t-score">
+              <div class="panel-title"><h3 id="t-score">Scoring crédit, exemple de producteur</h3><span class="tag tag-sim">Simulé</span></div>
+              <ul class="factors">
+                <li><span>Fiche validée et ancienneté</span><span class="w">20 %</span><span class="bar"><i style="--w:66%"></i></span></li>
+                <li><span>Superficie cultivée</span><span class="w">20 %</span><span class="bar"><i style="--w:48%"></i></span></li>
+                <li><span>Campagnes suivies jusqu'à la récolte</span><span class="w">25 %</span><span class="bar"><i style="--w:75%"></i></span></li>
+                <li><span>Appuis remboursés</span><span class="w">25 %</span><span class="bar"><i style="--w:50%"></i></span></li>
+                <li><span>Diversification</span><span class="w">10 %</span><span class="bar"><i style="--w:100%"></i></span></li>
+              </ul>
+              <p class="small">Poids du modèle du prototype ; barres d'un producteur fictif. Visible seulement avec le consentement du producteur. Le score est une aide : la décision de crédit revient à une personne.</p>
+            </section>
+          </div>
+        </div>
+        <div class="console-foot">
+          <span><b>Suivi-évaluation :</b> producteurs et hectares suivis, rendements, adoption, accès aux intrants et au crédit, participation des femmes et des jeunes.</span>
+        </div>
+      </div>
+
+      <div class="chain" aria-labelledby="t-chaine">
+        <h2 id="t-chaine" class="h-mid">Toute la chaîne de valeur, filière par filière.</h2>
+        <ol>
+          <li><h3>Aménagements</h3><p>Parcelles mesurées au GPS, sols et usage des terres.</p></li>
+          <li><h3>Production</h3><p>Semences, intrants, mécanisation, stockage, campagnes suivies.</p></li>
+          <li><h3>Transformation</h3><p>Mise en relation avec les transformateurs et leurs besoins.</p></li>
+          <li><h3>Distribution</h3><p>Stocks, prix des marchés, offres et paiement.</p></li>
+          <li><h3>Gouvernance</h3><p>Interprofessions et coopératives, appuis attribués en transparence.</p></li>
+          <li><h3>Suivi-évaluation</h3><p>Indicateurs à jour par filière, par département, par programme.</p></li>
+        </ol>
+      </div>
+
+      <div class="interop">
+        <div>
+          <h3>Interopérable, pas isolée</h3>
+          <div class="xroad">
+            <div class="node"><b>X-Road</b><span>Échanges sécurisés avec les registres de l'État, sans copier les données.</span></div>
+            <div class="node"><b>SONAMA</b><span>Mécanisation agricole : besoins et prestations reliés aux parcelles.</span></div>
+            <div class="node"><b>FNDA</b><span>Financement : scoring partagé avec l'accord du producteur.</span></div>
+          </div>
+        </div>
+        <div>
+          <h3>Qui fait quoi</h3>
+          <ul class="roles">
+            <li><b>MAEP</b><span>Maître d'ouvrage, responsable du traitement des données.</span></li>
+            <li><b>MTDI</b><span>Copilote technique, corpus des langues nationales.</span></li>
+            <li><b>ATDA</b><span>Conseil de terrain, validation des fiches, alertes.</span></li>
+            <li><b>INRAB</b><span>Fiches d'itinéraires techniques qui nourrissent l'assistant.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="edge edge-to-dark light" aria-hidden="true">
+    <svg class="sillons" viewBox="0 0 1440 120" preserveAspectRatio="none" style="background:var(--canopy)"><path pathLength="1" d="M0 16 C 420 46, 1020 -14, 1440 22"/><path pathLength="1" d="M0 30 C 420 60, 1020 0, 1440 36"/><path pathLength="1" d="M0 44 C 420 74, 1020 14, 1440 50"/><path pathLength="1" d="M0 58 C 420 88, 1020 28, 1440 64"/><path pathLength="1" d="M0 72 C 420 102, 1020 42, 1440 78"/><path pathLength="1" d="M0 86 C 420 116, 1020 56, 1440 92"/><path pathLength="1" d="M0 100 C 420 130, 1020 70, 1440 106"/></svg>
+  </div>
+
+  <section class="sec dark filieres" id="filieres" aria-labelledby="t-filieres">
+    <div class="wrap">
+      <h2 id="t-filieres">Une plateforme, toutes les filières du pays.</h2>
+      <p class="lead">Du riz de la vallée du Niger à l'ananas du Sud, chaque filière a ses calendriers, ses fiches et ses acteurs.</p>
+      <ul class="crop-list">
+        <li><span>Riz</span></li><li><span>Maïs</span></li><li><span>Soja</span></li><li><span>Manioc</span></li><li><span>Niébé</span></li><li><span>Maraîchage</span></li><li><span>Anacarde</span></li><li><span>Ananas</span></li><li><span>Coton</span></li><li><span>Élevage</span></li><li><span>Pêche</span></li>
+      </ul>
+      <p class="filieres-note">Producteurs, agents ATDA, coopératives, transformateurs et distributeurs travaillent sur les mêmes fiches, chacun avec les droits de son rôle.</p>
+    </div>
+  </section>
+
+  <section class="sec light" id="confiance" aria-labelledby="t-confiance">
+    <div class="wrap trust">
+      <h2 id="t-confiance">Pensé pour le terrain, construit pour la confiance.</h2>
+      <dl>
+        <div class="row"><dt><svg aria-hidden="true"><use href="#i-key"/></svg>Vos données vous appartiennent</dt><dd>Rien n'est partagé avec un organisme de crédit sans votre accord, et vous pouvez le retirer à tout moment, en un geste.<small>Loi n° 2017-20 portant Code du numérique, art. 389 et 390. Aucune donnée personnelle n'est transférée hors du Bénin.</small></dd></div>
+        <div class="row"><dt><svg aria-hidden="true"><use href="#i-log"/></svg>Chaque accès est tracé</dt><dd>Un journal non modifiable enregistre qui a consulté quoi, et pourquoi. Aucune décision n'est prise par la machine seule.</dd></div>
+        <div class="row"><dt><svg aria-hidden="true"><use href="#i-voice"/></svg>Dans votre langue, vraiment</dt><dd>Français, fon, bariba, yoruba et dendi. Les traductions sont validées par des locuteurs natifs avant d'être publiées ; d'ici là, elles restent marquées « en cours de validation ».</dd></div>
+        <div class="row"><dt><svg aria-hidden="true"><use href="#i-signal"/></svg>Même sans réseau</dt><dd>Saisissez au champ : tout part dès que le réseau revient.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec dark" id="galerie" aria-labelledby="t-galerie">
+    <div class="wrap">
+      <div class="gallery-head">
+        <h2 id="t-galerie">Le Bénin agricole, du Nord au Sud.</h2>
+        <div class="gal-ctrl">
+          <button class="icon-btn" type="button" data-gal="-1" aria-label="Photo précédente"><svg aria-hidden="true"><use href="#i-left"/></svg></button>
+          <button class="icon-btn" type="button" data-gal="1" aria-label="Photo suivante"><svg aria-hidden="true"><use href="#i-right"/></svg></button>
+        </div>
+      </div>
+      <div class="track" id="track" tabindex="0" role="region" aria-roledescription="carrousel" aria-label="Photos du Bénin agricole"></div>
+    </div>
+  </section>
+
+  <section class="sec light" id="faq" aria-labelledby="t-faq">
+    <div class="wrap">
+      <h2 id="t-faq">Vos questions</h2>
+      <div class="faq-list">
+        <details><summary>Faut-il un smartphone ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Non. L'application s'ouvre dans le navigateur de n'importe quel téléphone récent, sans rien installer. Avec un téléphone simple, les services passent par USSD, SMS et la voix.</p></details>
+        <details><summary>Et si je n'ai pas de réseau au champ ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Vous pouvez saisir hors connexion. Vos données sont gardées sur le téléphone et envoyées automatiquement au retour du réseau.</p></details>
+        <details><summary>Qui voit mes informations ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Vous, votre agent ATDA et les responsables des programmes qui vous concernent. Un organisme de crédit ne les voit qu'avec votre accord.</p></details>
+        <details><summary>Comment obtenir des appuis ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Une fois votre fiche validée, postulez aux programmes ouverts depuis votre espace. Vous êtes prévenu de la décision et pouvez la contester.</p></details>
+        <details><summary>Les conseils sont-ils fiables ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Chaque réponse cite la fiche technique dont elle vient ; ces fiches seront relues par l'INRAB et les ATDA avant la mise en service. Pour tout dosage, l'assistant vous oriente vers votre agent.</p></details>
+        <details><summary>Comment la plateforme échange-t-elle avec les autres systèmes de l'État ?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Par X-Road, la couche d'échange sécurisée de l'administration, et par des interfaces avec la SONAMA et le FNDA. Chaque échange est tracé dans le journal d'accès.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec dark final" id="inscription" aria-labelledby="t-final">
+    <div class="wrap">
+      <div>
+        <h2 id="t-final">Votre espace vous attend.</h2>
+        <p class="lead" style="margin-top:18px">Producteur ou agent ATDA : votre espace s'ouvre avec votre numéro de téléphone. Pas de mot de passe : un code arrive par SMS.</p>
+      </div>
+      <div class="ctas" id="connexion">
+        <a class="btn btn-primary" href="#inscription">Créer mon compte producteur <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-ghost" href="#connexion">Accéder à l'espace agent ATDA</a>
+        <p class="help">Besoin d'aide ? Rapprochez-vous de votre agent ATDA.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#contenu"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit Bénin</span></a>
+        <p>La plateforme agricole du Bénin : parcelles, conseils, appuis et marché au même endroit.</p>
+      </div>
+      <div><h2>La plateforme</h2><ul><li><a href="#ch-assistant">Comment ça marche</a></li><li><a href="#etat">Pour l'État et les partenaires</a></li><li><a href="#filieres">Filières</a></li><li><a href="#confiance">Nos garanties</a></li><li><a href="#galerie">Le Bénin agricole</a></li><li><a href="#faq">Questions fréquentes</a></li></ul></div>
+      <div><h2>Espaces</h2><ul><li><a href="#inscription">Créer un compte producteur</a></li><li><a href="#connexion">Se connecter</a></li><li><a href="#connexion">Espace agent ATDA</a></li><li><a href="#etat">Espace institution</a></li></ul></div>
+      <div><h2>Informations</h2><ul><li><a href="#mentions">Mentions légales</a></li><li><a href="#mentions">Confidentialité</a></li><li><a href="#mentions">Conditions d'utilisation</a></li></ul></div>
+    </div>
+    <p class="credits" id="credits"></p>
+    <div class="foot-base" id="mentions">
+      <span>Stratégie Bénin Vert 2026–2033 · Programme 18 · MAEP. Prototype de démonstration : données non officielles.</span>
+      <button class="motion-btn" type="button" id="motion-btn" aria-pressed="false"><svg aria-hidden="true"><use href="#i-pause"/></svg><span>Réduire les animations</span></button>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="field3d.js" defer></script>
+<script src="phone.js" defer></script>
+<script src="page.js" defer></script>
+</body>
+</html>

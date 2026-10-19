@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Récoltes signalées · Agri-Digit Bénin</title>
+<meta name="description" content="Récoltes déclarées incohérentes avec l'estimation, à vérifier par l'agent (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/recoltes-signalees">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Producteur, filière…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Récoltes signalées</span></li></ol></nav>
+          <h1 class="page-title">Récoltes signalées</h1>
+          <p class="page-desc">Récoltes dont la quantité déclarée s'écarte fortement de l'estimation. Un agent les vérifie&nbsp;; rien n'est corrigé automatiquement.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Estimations simulées</span><span>L'estimation combine la surface déclarée, le rendement moyen de la commune et le NDVI simulé. Seuil de signalement&nbsp;: écart de plus de 50 %.</span></div></div>
+
+        <section class="table-card" aria-labelledby="t-rec">
+          <div class="table-toolbar">
+            <h2 class="sr-only" id="t-rec">Récoltes signalées</h2>
+            <div class="chips" role="group" aria-label="Filtrer"><button class="chip" type="button" aria-pressed="true">À vérifier <span class="count">4</span></button><button class="chip" type="button" aria-pressed="false">Vérifiées <span class="count">11</span></button></div>
+            <div class="field" style="min-width:180px;margin-left:auto"><label class="sr-only" for="r-fil">Filière</label><select class="select" id="r-fil"><option>Toutes les filières</option><option>Maïs</option><option>Soja</option><option>Coton</option></select></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Récoltes à vérifier, par écart décroissant</caption>
+              <thead><tr><th scope="col">Producteur</th><th scope="col">Filière</th><th scope="col">Date de récolte</th><th scope="col" class="num">Déclarée (kg)</th><th scope="col" class="num">Estimation (kg)</th><th scope="col" aria-sort="descending"><button class="th-sort" type="button">Écart<svg class="ic" aria-hidden="true"><use href="#i-sort-desc"/></svg></button></th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Gounou Yarou</span><span class="cell-sub num">BNK-000311 · Champ de Toura, 1,5 ha</span></td><td data-label="Filière">Maïs</td><td data-label="Date" class="num">10/10/2026</td><td class="num" data-label="Déclarée (kg)">4 200</td><td class="num" data-label="Estimation (kg)">1 750</td><td data-label="Écart" data-sort="140"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+140,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Rékiya Tamou</span><span class="cell-sub num">BNK-000256 · Founougo, 0,8 ha</span></td><td data-label="Filière">Soja</td><td data-label="Date" class="num">08/10/2026</td><td class="num" data-label="Déclarée (kg)">180</td><td class="num" data-label="Estimation (kg)">620</td><td data-label="Écart" data-sort="71"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−71,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Bio Sabi Worou</span><span class="cell-sub num">BNK-000162 · Ounet, 3,2 ha</span></td><td data-label="Filière">Coton</td><td data-label="Date" class="num">05/10/2026</td><td class="num" data-label="Déclarée (kg)">1 100</td><td class="num" data-label="Estimation (kg)">3 400</td><td data-label="Écart" data-sort="68"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−67,6 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Djamila Sanni</span><span class="cell-sub num">BNK-000189 · Founougo, 1,6 ha</span></td><td data-label="Filière">Maïs</td><td data-label="Date" class="num">12/10/2026</td><td class="num" data-label="Déclarée (kg)">3 050</td><td class="num" data-label="Estimation (kg)">1 980</td><td data-label="Écart" data-sort="54"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+54,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Rien à vérifier</span><div class="card empty" style="padding:20px"><h3>Aucune récolte signalée</h3><p>Les déclarations du secteur sont cohérentes avec les estimations.</p></div></div>
+            <div><span class="states-cap">Estimation indisponible</span><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body">Estimation&nbsp;: non disponible (parcelle sans tracé). L'écart ne peut pas être calculé.</div></div></div>
+            <div><span class="states-cap">Erreur</span><div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>Les récoltes n'ont pas pu être chargées</h3><button type="button" class="btn btn-primary">Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal modal--sheet" id="dlg-verif" aria-labelledby="dlg-v-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-v-t">Vérifier la récolte de Gounou Yarou</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-verif" novalidate>
+    <dl class="dl"><dt>Parcelle</dt><dd>Champ de Toura · maïs · 1,5 ha</dd><dt>Déclarée</dt><dd class="num">4 200 kg (2 800 kg/ha)</dd><dt>Estimation</dt><dd class="num">1 750 kg (moyenne communale 1 170 kg/ha, NDVI 0,58)</dd><dt>Stocké · vendu</dt><dd class="num">1 200 kg · 3 000 kg à 205 FCFA/kg</dd></dl>
+    <fieldset class="fieldset"><legend class="label">Conclusion</legend>
+      <label class="choice-card"><input class="radio" type="radio" name="vc"><span><b>Déclaration confirmée</b><br><span class="small muted">Vérifiée avec le producteur ou sur place.</span></span></label>
+      <label class="choice-card"><input class="radio" type="radio" name="vc" checked><span><b>Quantité corrigée</b><br><span class="small muted">Une nouvelle version est créée, l'ancienne reste visible.</span></span></label>
+      <label class="choice-card"><input class="radio" type="radio" name="vc"><span><b>Visite à programmer</b><br><span class="small muted">La récolte reste signalée.</span></span></label>
+    </fieldset>
+    <div class="field"><label class="label" for="v-q">Quantité corrigée</label><div class="input-group"><input class="input input-num" id="v-q" inputmode="decimal" value="2 400"><span class="addon addon--end">kg</span></div></div>
+    <div class="field"><label class="label" for="v-m">Motif (obligatoire)</label><textarea class="textarea" id="v-m">Le producteur avait compté la récolte de son frère (Champ de Kokey)&nbsp;: 2 400 kg pour sa parcelle.</textarea></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-verif" class="btn btn-primary" data-toast="Vérification enregistrée. Le producteur est prévenu.">Enregistrer la vérification</button></div>
+</dialog>
+</body>
+</html>

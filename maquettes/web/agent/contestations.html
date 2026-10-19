@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contestations à instruire · Agri-Digit Bénin</title>
+<meta name="description" content="Contestations des sélections validées : instruire et décider avec un motif (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.contest { display: flex; flex-direction: column; gap: 8px; }
+  .contest blockquote { margin: 0; padding: 10px 14px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+  .filters-row { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); max-width: 760px; }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/contestations">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Ferme, producteur…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Contestations à instruire</span></li></ol></nav>
+          <h1 class="page-title">Contestations à instruire</h1>
+          <p class="page-desc">Producteurs non retenus qui demandent un réexamen. Réponse attendue sous 15 jours.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><div class="al-body">Examinez chaque contestation et décidez&nbsp;: la décision est prise par une personne et toujours motivée. Le producteur est prévenu par message.</div></div>
+
+        <div class="filters-row">
+          <div class="field"><label class="label" for="c-run">Sélection</label><select class="select" id="c-run"><option>02/10/2026, Alibori (1 500 retenues)</option><option>18/06/2026, Alibori (800 retenues)</option></select></div>
+          <div class="field"><label class="label" for="c-show">Afficher</label><select class="select" id="c-show"><option>À instruire (3)</option><option>Toutes les contestations (7)</option></select></div>
+        </div>
+
+        <div class="grid" style="--min:340px">
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-02871</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 06/10/2026 par SMS · rang 1 612, score 0,701 · réponse due dans 3 jours</p>
+            <blockquote>«&nbsp;Ma parcelle fait 2 ha, pas 0,8 ha. Le satellite n'a pas vu la partie derrière le bas-fond.&nbsp;»</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-03390</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 12/10/2026 via l'application · rang 1 544, score 0,712 · réponse due dans 9 jours</p>
+            <blockquote>«&nbsp;La route goudronnée passe à 300 m de mon champ depuis 2025. La distance utilisée est ancienne.&nbsp;»</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-KAN-01118</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 14/10/2026 par un agent pour le producteur · réponse due dans 11 jours</p>
+            <blockquote>«&nbsp;Je cultive du maïs et du sorgho en association&nbsp;; le maïs n'a pas été détecté.&nbsp;»</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-00967</h2><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Acceptée</span></div>
+            <p class="small muted">Déposée le 04/10/2026 · décision du 09/10/2026 par Koffi Dossou</p>
+            <blockquote>«&nbsp;Mon champ a été mesuré au GPS par l'agent en septembre&nbsp;: 1,9 ha.&nbsp;»</blockquote>
+            <p class="small"><b>Motif de la décision&nbsp;:</b> mesure GPS de l'agent confirmée&nbsp;; ferme ajoutée aux bénéficiaires.</p>
+          </article>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Rien à instruire</span><div class="card empty" style="padding:20px"><h3>Aucune contestation à instruire pour cette sélection</h3><p>Les nouvelles demandes arriveront ici et dans votre file de travail.</p></div></div>
+            <div><span class="states-cap">Aucune sélection validée</span><div class="card empty" style="padding:20px"><h3>Aucune sélection validée&nbsp;: il n'y a rien à instruire</h3></div></div>
+            <div><span class="states-cap">Décision enregistrée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Décision enregistrée. Le producteur est prévenu par message.</div></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal" id="dlg-decide" aria-labelledby="dlg-de-t" aria-describedby="dlg-de-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-de-t">Décision sur la ferme F-BNK-02871</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-decide" novalidate>
+    <p id="dlg-de-d" class="muted">«&nbsp;Ma parcelle fait 2 ha, pas 0,8 ha. Le satellite n'a pas vu la partie derrière le bas-fond.&nbsp;»</p>
+    <dl class="dl"><dt>Surface retenue</dt><dd class="num">0,8 ha (détection satellite simulée)</dd><dt>Surface déclarée</dt><dd class="num">2,0 ha</dd><dt>Dernier retenu</dt><dd class="num">rang 1 500, score 0,744</dd></dl>
+    <fieldset class="fieldset" aria-describedby="de-st-e"><legend class="label">Décision</legend>
+      <label class="check"><input class="radio" type="radio" name="dec" aria-invalid="true"> Accepter la contestation</label>
+      <label class="check"><input class="radio" type="radio" name="dec" aria-invalid="true"> Rejeter la contestation</label>
+      <span class="error-msg" id="de-st-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez d'accepter ou de rejeter la contestation.</span>
+    </fieldset>
+    <div class="field"><label class="label" for="de-mo">Motif de la décision (obligatoire)</label><textarea class="textarea" id="de-mo" rows="4"></textarea><span class="hint">Exemple&nbsp;: mesure GPS faite sur place le 15/10, 1,9 ha.</span></div>
+    <label class="check"><input class="cb" type="checkbox"> Programmer une mesure GPS sur place avant de décider</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-decide" class="btn btn-primary" data-toast="Décision enregistrée. Le producteur est prévenu par message.">Enregistrer la décision</button></div>
+</dialog>
+</body>
+</html>

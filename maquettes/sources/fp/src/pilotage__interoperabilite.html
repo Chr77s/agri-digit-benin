@@ -1,0 +1,97 @@
+---
+{"role":"admin_maep","title":"Interopérabilité","desc":"Connecteurs X-Road, SONAMA et FNDA : état, journaux d'échanges et clés d'API (maquette).","search":"Rechercher un échange…","notif":2,"home":"pilotage/tableau-de-bord"}
+---
+<!--@head-->
+  .conn-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .conn h3 { font: 700 var(--fs-lg)/1.25 var(--font-ui); }
+  .conn .dl { grid-template-columns: minmax(110px, max-content) 1fr; gap: 6px 14px; }
+  .key { font-family: ui-monospace, Consolas, monospace; font-size: .875rem; letter-spacing: .02em; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--fs-sm); color: var(--ink-2); }
+  .flow b { color: var(--ink); }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Gouvernance</a></li><li><span aria-current="page">Interopérabilité</span></li></ol></nav>
+          <h1 class="page-title">Interopérabilité</h1>
+          <p class="page-desc">Échanges avec l'administration et les partenaires. Seuls des agrégats pseudonymisés sortent (département, filière, producteurs, hectares, campagnes) ; aucune donnée personnelle, aucune donnée hors du Bénin.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-secondary" href="journal.html"><svg class="ic" aria-hidden="true"><use href="#i-scroll"/></svg>Journal d'audit</a></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Connecteurs simulés</span><span>Aucun échange réel n'a lieu avec X-Road, la SONAMA ou le FNDA dans ce prototype.</span></div></div>
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">À faire avant d'ouvrir à un partenaire réel</span><span>Masquer les cellules de moins de 5 producteurs (seuil de petits effectifs), pour qu'aucun agrégat ne désigne une personne.</span></div></div>
+
+        <section aria-labelledby="h-conn">
+          <h2 class="section-title" id="h-conn" style="margin-bottom:12px">Connecteurs</h2>
+          <div class="conn-grid">
+            <article class="card conn">
+              <div class="card-head"><div><h3>X-Road Bénin</h3><p class="card-sub">Plateforme d'échange de l'administration</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">18/10/2026 08:30</dd><dt>Appels sur 24 h</dt><dd class="num">142</dd><dt>Temps de réponse</dt><dd class="num">320 ms</dd><dt>Données</dt><dd>Agrégats par département et filière</dd></dl>
+              <div class="card-foot"><span class="badge badge--sim">Simulé</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test réussi : 112 lignes, 298 ms (simulation).">Tester le connecteur</button></div>
+            </article>
+            <article class="card conn">
+              <div class="card-head"><div><h3>SONAMA</h3><p class="card-sub">Mécanisation agricole</p></div><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Dégradé</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">17/10/2026 22:14</dd><dt>Appels sur 24 h</dt><dd class="num">18 · 4 échecs</dd><dt>Temps de réponse</dt><dd class="num">2,8 s</dd><dt>Données</dt><dd>Surfaces par commune, pour planifier les tracteurs</dd></dl>
+              <div class="card-foot"><span class="small muted">4 dépassements de délai depuis 22 h</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test en échec : délai dépassé (simulation)." data-toast-type="error">Tester le connecteur</button></div>
+            </article>
+            <article class="card conn">
+              <div class="card-head"><div><h3>FNDA</h3><p class="card-sub">Fonds national de développement agricole</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></div>
+              <dl class="dl"><dt>Dernier échange</dt><dd class="num">14/10/2026 09:30</dd><dt>Appels sur 24 h</dt><dd class="num">0</dd><dt>Temps de réponse</dt><dd class="num">410 ms</dd><dt>Données</dt><dd>Agrégats pour le financement ; aucun score individuel</dd></dl>
+              <div class="card-foot"><span class="badge badge--sim">Simulé</span><button type="button" class="btn btn-secondary btn-sm" data-toast="Test réussi : 112 lignes, 402 ms (simulation).">Tester le connecteur</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-log">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-log" style="margin-right:auto">Journal des échanges</h2>
+            <div class="chips" role="group" aria-label="Filtrer par partenaire"><button type="button" class="chip" aria-pressed="true">Tous</button><button type="button" class="chip" aria-pressed="false">X-Road</button><button type="button" class="chip" aria-pressed="false">SONAMA</button><button type="button" class="chip" aria-pressed="false">FNDA</button><button type="button" class="chip" aria-pressed="false">Échecs <span class="count">5</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Échanges : date, partenaire, accès, lignes, état</caption>
+              <thead><tr><th scope="col">Date</th><th scope="col">Partenaire</th><th scope="col">Requête</th><th scope="col">Accès</th><th scope="col" class="num">Lignes</th><th scope="col">État</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">18/10/2026 08:30:12</span></td><td data-label="Partenaire">X-Road</td><td data-label="Requête"><span class="key">GET /interop/xroad/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">112</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>200 · réussi</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">17/10/2026 22:14:40</span></td><td data-label="Partenaire">SONAMA</td><td data-label="Requête"><span class="key">GET /interop/sonama/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>504 · délai dépassé</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">17/10/2026 03:02:51</span></td><td data-label="Partenaire">inconnu</td><td data-label="Requête"><span class="key">GET /interop/fnda/aggregates</span></td><td data-label="Accès">Clé invalide · 41.138.x.x</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>401 · refusé</span></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">14/10/2026 09:30:55</span></td><td data-label="Partenaire">FNDA</td><td data-label="Requête"><span class="key">GET /interop/fnda/aggregates</span></td><td data-label="Accès">Clé d'API</td><td class="num" data-label="Lignes">112</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>200 · réussi</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Limite : 60 appels par minute et par adresse, pour empêcher de deviner une clé.</span></div>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-keys">
+          <div class="table-toolbar"><h2 class="card-title" id="h-keys" style="margin-right:auto">Clés d'API</h2></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Clés d'API des partenaires</caption>
+              <thead><tr><th scope="col">Partenaire</th><th scope="col">Clé</th><th scope="col">Créée le</th><th scope="col">Dernier usage</th><th scope="col" class="col-actions">Actions</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">X-Road</span></td><td data-label="Clé"><span class="key">xr_live_••••••••3f9a</span></td><td class="num" data-label="Créée le">02/03/2026</td><td class="num" data-label="Dernier usage">18/10/2026 08:30</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">SONAMA</span></td><td data-label="Clé"><span class="key">sn_live_••••••••a11c</span></td><td class="num" data-label="Créée le">15/05/2026</td><td class="num" data-label="Dernier usage">17/10/2026 22:14</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Partenaire"><span class="cell-main">FNDA</span><span class="cell-sub">Renouvellement conseillé : plus de 180 jours</span></td><td data-label="Clé"><span class="key">fn_live_••••••••07be</span></td><td class="num" data-label="Créée le">11/01/2026</td><td class="num" data-label="Dernier usage">14/10/2026 09:30</td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-rot">Renouveler</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-rev">Révoquer</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Une clé n'est affichée en entier qu'une fois, au moment de sa création.</span></div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun échange pour ce filtre","Aucun partenaire n'a appelé l'API sur la période.",""],"error":["Journal des échanges indisponible","Les échanges continuent ; seul l'affichage a échoué.","ERR_INTEROP_LOG · 500"]}-->
+<!--@after-->
+<dialog class="modal" id="dlg-rot" aria-labelledby="dlg-rot-t" aria-describedby="dlg-rot-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-rot-t">Renouveler la clé FNDA ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <p id="dlg-rot-d" class="muted">Une nouvelle clé est créée. L'ancienne reste valable 7 jours pour laisser le temps au FNDA de changer sa configuration, puis elle est révoquée.</p>
+    <div class="field"><label class="label" for="rot-m">Motif</label><input class="input" id="rot-m" value="Rotation semestrielle"></div>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-primary" data-close-dialog="ok" data-toast="Nouvelle clé créée. Transmettez-la au FNDA par canal sécurisé.">Renouveler la clé</button></div>
+</dialog>
+<dialog class="modal" id="dlg-rev" aria-labelledby="dlg-rev-t" aria-describedby="dlg-rev-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-rev-t">Révoquer cette clé ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body"><p id="dlg-rev-d" class="muted">Le partenaire perd l'accès immédiatement. Utilisez-le en cas de fuite de clé. L'action est inscrite au journal d'audit.</p></div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-danger" data-close-dialog="ok" data-toast="Clé révoquée. Action journalisée.">Révoquer</button></div>
+</dialog>

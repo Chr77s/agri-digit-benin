@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poser une question · Agri-Digit Bénin</title>
+<meta name="description" content="Assistant agricole conversationnel, à l'écrit et à la voix, qui répond à partir des fiches INRAB et ATDA et renvoie à l'agent pour les dosages.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.chat-wrap { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; align-items: start; }
+.chat-hist { position: sticky; top: 16px; padding: 14px; }
+.chat-hist h2 { font-size: var(--fs-md); margin: 4px 4px 10px; }
+.hist-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.hist-list a { display: block; padding: 10px; border-radius: var(--r-md); color: var(--ink); text-decoration: none; line-height: 1.3; }
+.hist-list a:hover { background: var(--surface-2); }
+.hist-list a[aria-current] { background: var(--layer); font-weight: 700; }
+.hist-list small { display: block; color: var(--ink-2); font-weight: 400; font-size: var(--fs-xs); margin-top: 2px; }
+.hist-day { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin: 12px 10px 4px; }
+.convo { display: flex; flex-direction: column; min-height: 640px; padding: 0; overflow: hidden; }
+.convo-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.convo-head .field { flex-direction: row; align-items: center; gap: 8px; margin-left: auto; }
+.convo-head .select { width: auto; min-width: 190px; }
+.msgs { flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 22px 18px; }
+.msg { display: flex; gap: 10px; max-width: 760px; }
+.msg-me { align-self: flex-end; flex-direction: row-reverse; }
+.bubble { padding: 12px 16px; border-radius: 18px; line-height: 1.55; min-width: 0; }
+.msg-me .bubble { background: var(--leaf); color: #fff; border-bottom-right-radius: 6px; }
+.msg-bot .bubble { background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.msg-bot .bubble p + p, .msg-bot .bubble ol, .msg-bot .bubble ul { margin-top: 8px; }
+.msg-bot .bubble ol { padding-left: 20px; }
+.msg-meta { font-size: var(--fs-xs); color: var(--ink-2); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.msg-me .msg-meta { color: rgba(255,255,255,.85); }
+.voice-note { display: flex; align-items: center; gap: 8px; }
+.voice-note .wave { display: flex; gap: 3px; align-items: center; height: 22px; }
+.voice-note .wave i { width: 3px; border-radius: 2px; background: currentColor; opacity: .8; }
+.cites { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.cites p { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+.cite { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink); text-decoration: none; }
+.cite + .cite { margin-top: 6px; }
+.cite .ic { color: var(--leaf); margin-top: 1px; }
+.bot-ava { width: 32px; height: 32px; border-radius: 50%; background: var(--canopy); color: var(--maize-hover); display: grid; place-items: center; flex: none; }
+.bot-ava svg { width: 20px; height: 20px; }
+.composer { border-top: 1px solid var(--line); padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+.composer-row { display: flex; gap: 10px; align-items: flex-end; }
+.composer-row .textarea { flex: 1; min-height: 52px; resize: vertical; font-size: 1.0625rem; }
+.rec { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--r-pill); background: var(--sim-bg); color: var(--sim-ink); font-weight: 700; font-size: var(--fs-sm); }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--laterite); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.disclaimer { display: flex; gap: 8px; align-items: center; font-size: var(--fs-sm); color: var(--sun-ink); background: var(--sun-bg); padding: 8px 12px; border-radius: var(--r-md); font-weight: 600; }
+.hist-mobile { display: none; }
+@media (max-width: 960px) { .chat-wrap { grid-template-columns: 1fr; } .chat-hist { display: none; } .hist-mobile { display: block; } }
+@media (max-width: 640px) { .msgs { padding: 16px 12px; } .composer, .convo-head { padding-left: 12px; padding-right: 12px; } .convo-head .field { margin-left: 0; width: 100%; } .convo-head .select { flex: 1; min-width: 0; } .composer-row { flex-wrap: wrap; } .composer-row .textarea { flex-basis: 100%; } .bot-ava { display: none; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/assistant">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher dans mes conversations…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Poser une question</span></li></ol></nav>
+          <h1 class="page-title">Poser une question</h1>
+          <p class="page-desc">Écrivez ou parlez. Les réponses viennent des fiches techniques publiées par l'INRAB et l'ATDA, avec leurs sources.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Nouvelle conversation</button>
+        </div>
+      </div>
+
+      <details class="card hist-mobile" style="padding:4px 14px;margin-bottom:16px">
+        <summary style="min-height:44px;display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes conversations (5)</summary>
+        <ul class="hist-list" style="padding-bottom:10px"><li><a href="#" aria-current="page">Chenille sur le maïs<small>Aujourd'hui</small></a></li><li><a href="#">Quand semer le soja ?<small>12 oct.</small></a></li><li><a href="#">Stocker le maïs sans charançons<small>3 oct.</small></a></li></ul>
+      </details>
+
+      <div class="chat-wrap">
+        <nav class="card chat-hist" aria-labelledby="t-hist">
+          <h2 id="t-hist">Mes conversations</h2>
+          <div class="search" style="margin-bottom:6px"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="hq">Chercher une conversation</label><input class="input" id="hq" type="search" placeholder="Chercher…"></div>
+          <p class="hist-day">Aujourd'hui</p>
+          <ul class="hist-list"><li><a href="#" aria-current="page">Chenille sur le maïs<small>Maïs · 3 messages</small></a></li></ul>
+          <p class="hist-day">Ce mois-ci</p>
+          <ul class="hist-list">
+            <li><a href="#">Quand semer le soja ?<small>12 oct. · Soja</small></a></li>
+            <li><a href="#">Stocker le maïs sans charançons<small>3 oct. · Maïs</small></a></li>
+            <li><a href="#">Dose d'herbicide pour le coton<small>1<sup>er</sup> oct. · transmis à l'agent</small></a></li>
+            <li><a href="#">Repiquage du riz en bas-fond<small>28 sept. · Riz</small></a></li>
+          </ul>
+        </nav>
+
+        <section class="card convo" aria-labelledby="t-convo">
+          <div class="convo-head">
+            <h2 class="card-title" id="t-convo">Chenille sur le maïs</h2>
+            <div class="field"><label class="label" for="a-lang">Langue</label>
+              <select class="select" id="a-lang" data-lang><option value="fr">Français</option><option value="fon">Fɔngbè (à valider)</option><option value="bba">Baatɔnum (à valider)</option><option value="yo">Yorùbá (à valider)</option><option value="dje">Dendi (à valider)</option></select></div>
+          </div>
+
+          <div class="msgs" aria-live="polite">
+            <div class="msg msg-me">
+              <div><div class="bubble"><span class="voice-note"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="wave" aria-hidden="true"><i style="height:8px"></i><i style="height:16px"></i><i style="height:12px"></i><i style="height:20px"></i><i style="height:10px"></i><i style="height:14px"></i><i style="height:6px"></i></span><span class="num">0:09</span></span>
+                <p style="margin-top:6px">« Les feuilles de mon maïs ont des trous et il y a de la sciure au cœur. Qu'est-ce que c'est ? »</p></div>
+                <div class="msg-meta">Message vocal, transcrit · 09:42</div></div>
+            </div>
+
+            <div class="msg msg-bot">
+              <span class="bot-ava" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+              <div style="min-width:0"><div class="bubble">
+                <p>Ces signes correspondent souvent à la <b>chenille légionnaire d'automne</b> : trous irréguliers sur les jeunes feuilles et déjections comme de la sciure dans le cornet.</p>
+                <ol><li>Observez 20 plants au hasard, en zigzag dans le champ.</li><li>Si plus de 2 plants sur 10 sont touchés, prévenez votre agent ATDA.</li><li>Écrasez les masses d'œufs visibles sous les feuilles.</li></ol>
+                <p>Pour un traitement, le produit et la dose doivent être choisis avec votre agent.</p>
+                <div class="cites"><p>Sources</p>
+                  <a class="cite" href="#"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Fiche technique : la chenille légionnaire d'automne, INRAB, version 2024.2</span></a>
+                  <a class="cite" href="#"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Itinéraire technique du maïs en zone cotonnière, ATDA pôle 1, version 2023.1</span></a>
+                </div></div>
+                <div class="msg-meta"><button type="button" class="btn btn-ghost btn-sm" data-toast="Lecture de la réponse (simulée)." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter la réponse</button><button type="button" class="btn btn-ghost btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-leaf-scan"/></svg>Envoyer une photo</button><span>09:42</span></div>
+              </div>
+            </div>
+
+            <div class="msg msg-me"><div><div class="bubble">Quelle dose d'Emamectine je mets par hectare ?</div><div class="msg-meta">09:44</div></div></div>
+
+            <div class="msg msg-bot">
+              <span class="bot-ava" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+              <div style="min-width:0"><div class="bubble">
+                <div class="alert alert--warn" style="padding:10px 12px"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><div class="al-body"><span class="al-title">Question transmise à un agent</span><span>Ce sujet (dosage, produit de traitement) demande un avis humain. Moussa Yarou, votre agent ATDA, vous répondra par message.</span></div></div>
+              </div>
+              <div class="msg-meta"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de l'agent</span><span>09:44</span></div></div>
+            </div>
+          </div>
+
+          <form class="composer" novalidate onsubmit="return false">
+            <div class="disclaimer"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>Conseil indicatif, vérifiez avec votre agent ATDA.</div>
+            <div class="chips" role="group" aria-label="Questions fréquentes"><button type="button" class="chip" aria-pressed="false">Quand semer le maïs ?</button><button type="button" class="chip" aria-pressed="false">Stocker le niébé</button><button type="button" class="chip" aria-pressed="false">Taches sur le manioc</button></div>
+            <div class="composer-row">
+              <label class="sr-only" for="a-q">Votre question</label>
+              <textarea class="textarea" id="a-q" rows="2" placeholder="Écrivez votre question, par exemple « Quand semer le maïs ? »"></textarea>
+              <div class="field" style="width:170px"><label class="label" for="a-vc">Culture <span class="opt">(facultatif)</span></label><select class="select" id="a-vc"><option>Toutes</option><option selected>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option><option>Niébé</option><option>Manioc</option></select></div>
+              <button type="button" class="btn btn-secondary btn-icon" aria-label="Dicter la question" title="Dicter la question"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></button>
+              <button type="submit" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Envoyer</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+        <div class="states-body">
+          <div><span class="state-cap">Enregistrement vocal</span><div class="rec" role="status"><span class="rec-dot" aria-hidden="true"></span>Parlez maintenant… <span class="num">0:04</span><button type="button" class="btn btn-sm btn-ghost" style="margin-left:auto">Arrêter</button></div></div>
+          <div><span class="state-cap">Recherche en cours</span><div class="card" aria-busy="true"><p class="small muted" style="margin-bottom:8px">Recherche dans les fiches publiées…</p><span class="skel skel-line"></span><span class="skel skel-line" style="width:75%"></span></div></div>
+          <div><span class="state-cap">Pas de réponse</span><div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg><div class="al-body"><span class="al-title">Je ne sais pas.</span><span>Aucune fiche publiée ne répond à cette question. Demandez à votre agent ATDA.</span><div class="al-actions"><button type="button" class="btn btn-secondary btn-sm">Transmettre à mon agent</button></div></div></div></div>
+          <div><span class="state-cap">Question trop courte</span><div class="field"><label class="label" for="st-q">Votre question</label><textarea class="textarea" id="st-q" aria-invalid="true" aria-describedby="st-qe">ok</textarea><span class="error-msg" id="st-qe"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Écrivez ou dictez votre question, par exemple « Quand semer le maïs ? ».</span></div></div>
+          <div><span class="state-cap">Dictée impossible</span><div class="alert alert--danger"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><div class="al-body">La dictée n'a pas fonctionné. Écrivez votre question.</div></div></div>
+          <div><span class="state-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne : votre question partira au retour du réseau. Les fiches déjà consultées restent lisibles.</span></div></div>
+          <div><span class="state-cap">Première visite</span><div class="card empty"><h3>Posez votre première question</h3><p>Semis, engrais, maladies, stockage… Vous pouvez aussi toucher le micro et parler.</p></div></div>
+        </div>
+      </details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

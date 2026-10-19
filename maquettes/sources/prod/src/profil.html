@@ -1,0 +1,104 @@
+---
+title: Mon profil
+desc: Identité, langue, téléphone, données gardées hors ligne et suppression du compte.
+search: Rechercher…
+---
+<!--@head-->
+.prof-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.storage { height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; display: flex; }
+.storage i { display: block; height: 100%; }
+.danger-zone { border-color: #E3B29C; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mon profil</span></li></ol></nav>
+          <h1 class="page-title">Mon profil</h1>
+          <p class="page-desc">Vos informations, votre langue, votre numéro et ce qui est gardé sur ce téléphone.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="stack" style="--gap:20px">
+          <section class="card" aria-labelledby="t-id">
+            <div class="card-head"><div class="prof-head"><span class="avatar avatar--lg avatar--dark" aria-hidden="true">AS</span><div><h2 class="card-title" id="t-id">Awa Sabi</h2><p class="card-sub">Producteur · code BJ-AL-BNK-004218</p></div></div>{{B:ok|Fiche validée}}</div>
+            <dl class="dl">
+              <dt>NPI</dt><dd class="num">•••• ••• 310 <span class="badge badge--sim">Vérification ANIP simulée</span></dd>
+              <dt>Né(e) le</dt><dd class="num">14/03/1986</dd>
+              <dt>Sexe</dt><dd>Femme</dd>
+              <dt>Commune</dt><dd>Banikoara (Alibori)</dd>
+              <dt>Village</dt><dd>Sompérékou</dd>
+              <dt>Agent ATDA</dt><dd>Moussa Yarou</dd>
+            </dl>
+            <p class="hint" style="margin-top:12px">Une erreur ? L'identité vient de l'ANIP : demandez une correction à votre agent, qui la fera valider.</p>
+          </section>
+
+          <section class="card" aria-labelledby="t-tel">
+            <h2 class="card-title" id="t-tel" style="margin-bottom:12px">Téléphone</h2>
+            <p>Numéro actuel : <b class="num">01 97 •• •• 42</b> · sert à la connexion et aux SMS</p>
+            <form class="form-grid" style="margin-top:14px" novalidate onsubmit="return false">
+              <div class="field"><label class="label" for="pt">Nouveau numéro</label><div class="input-group"><span class="addon">+229</span><input class="input input-num" id="pt" type="tel" inputmode="tel" autocomplete="tel-national" value="97 12 34" aria-invalid="true" aria-describedby="pt-e"></div><span class="error-msg" id="pt-e">{{I:alert}}Saisissez 10 chiffres, commençant par 01.</span></div>
+              <div class="field" style="justify-content:flex-end"><button type="submit" class="btn btn-secondary">{{I:phone}}Recevoir un code par SMS</button></div>
+            </form>
+          </section>
+
+          <section class="card" aria-labelledby="t-lg">
+            <h2 class="card-title" id="t-lg" style="margin-bottom:12px">Langue</h2>
+            <div class="form-grid">
+              <fieldset class="fieldset"><legend class="label">Langue de l'application</legend>
+                <label class="check"><input class="radio" type="radio" name="lg" checked> Français</label>
+                <label class="check"><input class="radio" type="radio" name="lg"> Fɔngbè <span class="badge badge--demo">À valider</span></label>
+                <label class="check"><input class="radio" type="radio" name="lg"> Baatɔnum <span class="badge badge--demo">À valider</span></label>
+                <label class="check"><input class="radio" type="radio" name="lg"> Yorùbá <span class="badge badge--demo">À valider</span></label>
+                <label class="check"><input class="radio" type="radio" name="lg"> Dendi <span class="badge badge--demo">À valider</span></label>
+              </fieldset>
+              <fieldset class="fieldset"><legend class="label">Lecture et voix</legend>
+                <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Bouton « Écouter » sur chaque page</label>
+                <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch"> Messages vocaux plutôt que SMS</label>
+                <p class="hint">Les traductions sont validées avec le MTDI. L'interface reste en français en attendant.</p>
+              </fieldset>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack" style="--gap:20px">
+          <section class="card" aria-labelledby="t-off">
+            <h2 class="card-title" id="t-off" style="margin-bottom:12px">Données hors ligne</h2>
+            <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Garder mes données sur ce téléphone</label>
+            <p class="small muted" style="margin:8px 0">Utilisé : <b class="num">2,4 Mo</b> sur ce téléphone</p>
+            <div class="storage" aria-hidden="true"><i style="width:40%;background:var(--d1)"></i><i style="width:25%;background:var(--d2)"></i><i style="width:10%;background:var(--d3)"></i></div>
+            <ul class="legend" style="margin-top:8px"><li><span class="sw"></span>Parcelles et cartes</li><li><span class="sw sw--2"></span>Fiches conseil</li><li><span class="sw sw--3"></span>Photos</li></ul>
+            <div class="alert alert--info" style="margin-top:14px">{{I:sync}}<div class="al-body"><span class="al-title">2 saisies en attente</span><span>Parcelle « Champ du marigot » · Campagne : stade « Croissance »</span><div class="al-actions"><button type="button" class="btn btn-secondary btn-sm" data-toast="File d'attente envoyée (simulation).">Envoyer maintenant</button></div></div></div>
+            <button type="button" class="btn btn-ghost" style="margin-top:8px">{{I:trash}}Effacer les données de ce téléphone</button>
+            <p class="hint">Les saisies en attente seront perdues si vous effacez avant l'envoi.</p>
+          </section>
+
+          <section class="card danger-zone" aria-labelledby="t-del">
+            <h2 class="card-title" id="t-del" style="margin-bottom:8px">Supprimer mon compte</h2>
+            <p class="small">Votre accès est fermé et vos données personnelles sont effacées après le délai légal. Les remises d'appui déjà signées restent au journal d'audit, sans votre nom.</p>
+            <button type="button" class="btn btn-danger" style="margin-top:12px" data-open-dialog="dlg-del">{{I:trash}}Supprimer mon compte…</button>
+          </section>
+        </div>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+        <div class="states-body">
+          <div><span class="state-cap">Code envoyé</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body">Code envoyé au 01 96 12 34 56 (SMS simulé). Saisissez-le pour confirmer le nouveau numéro.</div></div></div>
+          <div><span class="state-cap">Fiche en vérification</span><div class="alert alert--info">{{I:clock}}<div class="al-body">Votre fiche est en cours de vérification par l'agent ATDA de Banikoara (5 jours ouvrés).</div></div></div>
+          <div><span class="state-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md)">{{I:wifi-off}}<span>Hors ligne : le changement de numéro et la suppression demandent le réseau.</span></div></div>
+        </div>
+      </details>
+<!--@after-->
+<dialog class="modal" id="dlg-del" aria-labelledby="dlg-del-t" aria-describedby="dlg-del-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-del-t">Supprimer votre compte ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer">{{I:x}}</button></div>
+  <form class="modal-body" id="f-del" method="dialog" novalidate>
+    <p id="dlg-del-d">Cette action est définitive. Vous perdrez l'accès à vos parcelles, vos appuis en cours et votre carte de producteur.</p>
+    <div class="alert alert--warn">{{I:alert}}<div class="al-body">Vous avez encore 36 000 FCFA d'appui à rembourser. La dette reste due.</div></div>
+    <div class="field"><label class="label" for="del-c">Pour confirmer, écrivez SUPPRIMER</label><input class="input" id="del-c" autocomplete="off"></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Garder mon compte</button><button type="submit" form="f-del" class="btn btn-danger" disabled>Supprimer définitivement</button></div>
+</dialog>
+<script>
+  // Le bouton de suppression ne s'active qu'avec le mot de confirmation exact
+  document.getElementById('del-c').addEventListener('input', function (e) { document.querySelector('[form="f-del"]').disabled = e.target.value.trim() !== 'SUPPRIMER'; });
+</script>

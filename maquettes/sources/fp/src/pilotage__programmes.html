@@ -1,0 +1,109 @@
+---
+{"role":"responsable_programme","title":"Programmes","desc":"Créer un programme d'appui : critères d'éligibilité, filières, calendrier de candidature et de sélection (maquette).","search":"Rechercher un programme…","notif":1}
+---
+<!--@head-->
+  .crit { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .vc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .vc-checks .check { border: 1px solid var(--line-input); border-radius: var(--r-pill); padding: 8px 14px 8px 10px; min-height: 44px; align-items: center; background: var(--surface); }
+  .vc-checks .check:has(:checked) { background: var(--ok-bg); border-color: var(--leaf); }
+  .prog-row .cell-sub { max-width: 52ch; }
+  .sticky-side { position: sticky; top: 84px; }
+  @media (max-width: 1100px) { .sticky-side { position: static; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="programmes.html">Programmes</a></li><li><span aria-current="page">Nouveau programme</span></li></ol></nav>
+          <h1 class="page-title">Programmes d'appui</h1>
+          <p class="page-desc">Définissez qui peut candidater, sur quelles filières et selon quel calendrier. Les critères sont publics : chaque producteur voit pourquoi il est éligible ou non.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="../agent/candidatures.html"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg>Candidatures</a>
+          <a class="btn btn-primary" href="#f-prog"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Créer un programme</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:24px">
+        <section class="table-card" aria-labelledby="h-list">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-list" style="margin-right:auto">Mes programmes</h2>
+            <div class="chips" role="group" aria-label="Filtrer"><button type="button" class="chip" aria-pressed="true">Ouverts <span class="count">2</span></button><button type="button" class="chip" aria-pressed="false">Clos <span class="count">1</span></button><button type="button" class="chip" aria-pressed="false">Brouillons <span class="count">1</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Programmes, état, filières, candidatures</caption>
+              <thead><tr><th scope="col">Programme</th><th scope="col">État</th><th scope="col">Filières</th><th scope="col" class="num">Candidatures</th><th scope="col">Clôture</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Engrais subventionnés maïs Nord 2026</span><span class="cell-sub">2 sacs de NPK et 1 sac d'urée par hectare, jusqu'à 2 ha</span></td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></td><td data-label="Filières">Maïs</td><td class="num" data-label="Candidatures">2 418</td><td class="num" data-label="Clôture">31/10/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Sélection</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Semences certifiées de soja</span><span class="cell-sub">25 kg de semences R1 par producteur, priorité aux femmes</span></td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></td><td data-label="Filières">Soja</td><td class="num" data-label="Candidatures">806</td><td class="num" data-label="Clôture">15/11/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Sélection</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Kits de stockage post-récolte</span><span class="cell-sub">Sacs hermétiques PICS pour maïs et niébé</span></td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>Clos</span></td><td data-label="Filières">Maïs, niébé</td><td class="num" data-label="Candidatures">688</td><td class="num" data-label="Clôture">30/06/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Résultats</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Motopompes pour bas-fonds rizicoles</span><span class="cell-sub">Brouillon enregistré le 16/10/2026</span></td><td data-label="État"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon</span></td><td data-label="Filières">Riz</td><td class="num" data-label="Candidatures">—</td><td class="num" data-label="Clôture">non fixée</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#f-prog">Reprendre</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="split">
+          <form class="card stack" id="f-prog" style="--gap:22px" novalidate onsubmit="return false" aria-labelledby="h-new">
+            <div class="card-head" style="margin:0"><div><h2 class="section-title" id="h-new">Nouveau programme</h2><p class="card-sub">Champs marqués * obligatoires. Rien n'est publié avant « Publier ».</p></div><span class="badge badge--draft">Brouillon</span></div>
+
+            <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Le formulaire contient 2 erreurs</span><span><a href="#pg-close">Fixez la date de clôture</a> · <a href="#pg-vc">Choisissez au moins une filière</a></span></div></div>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">1. Le programme</legend>
+              <div class="field"><label class="label" for="pg-name">Nom <span class="req" aria-hidden="true">*</span></label><input class="input" id="pg-name" value="Motopompes pour bas-fonds rizicoles"></div>
+              <div class="field"><label class="label" for="pg-desc">Description</label><textarea class="textarea" id="pg-desc">Mise à disposition d'une motopompe partagée pour 5 producteurs de riz de bas-fonds, avec formation à l'entretien par l'ATDA.</textarea><span class="hint">Lue aux producteurs par SMS vocal : phrases courtes, sans sigle.</span></div>
+              <fieldset class="fieldset"><legend class="label" id="pg-vc">Filières <span class="req" aria-hidden="true">*</span></legend>
+                <div class="vc-checks" aria-describedby="pg-vc-e">
+                  <label class="check"><input class="cb" type="checkbox" aria-invalid="true"> Riz</label><label class="check"><input class="cb" type="checkbox"> Maïs</label><label class="check"><input class="cb" type="checkbox"> Soja</label><label class="check"><input class="cb" type="checkbox"> Maraîchage</label><label class="check"><input class="cb" type="checkbox"> Manioc</label><label class="check"><input class="cb" type="checkbox"> Niébé</label>
+                </div>
+                <span class="error-msg" id="pg-vc-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez au moins une filière.</span>
+              </fieldset>
+            </fieldset>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">2. Critères d'éligibilité</legend>
+              <div class="crit">
+                <div class="field"><label class="label" for="pg-zone">Départements</label><select class="select" id="pg-zone"><option>Alibori, Borgou</option><option>Tout le Bénin</option><option>Ouémé, Plateau</option></select></div>
+                <div class="field"><label class="label" for="pg-surf">Surface maximale</label><div class="input-group"><input class="input input-num" id="pg-surf" inputmode="decimal" value="3"><span class="addon addon--end">ha</span></div></div>
+                <div class="field"><label class="label" for="pg-quota">Bénéficiaires prévus</label><input class="input input-num" id="pg-quota" inputmode="numeric" value="400"></div>
+              </div>
+              <label class="check"><input class="cb" type="checkbox" checked disabled> Fiche producteur validée par l'agent ATDA (toujours exigé)</label>
+              <label class="check"><input class="cb" type="checkbox" checked> Parcelle de riz déclarée pour la campagne en cours</label>
+              <label class="check"><input class="cb" type="checkbox" checked> Priorité aux femmes et aux moins de 35 ans à score égal</label>
+              <div class="field"><label class="label" for="pg-cond">Conditions affichées aux producteurs</label><textarea class="textarea" id="pg-cond">Être membre d'un groupement de 5 producteurs de bas-fonds. S'engager à suivre la formation d'entretien.</textarea></div>
+            </fieldset>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">3. Calendrier</legend>
+              <div class="crit">
+                <div class="field"><label class="label" for="pg-open">Ouverture des candidatures</label><input class="input" id="pg-open" type="date" value="2026-11-02"></div>
+                <div class="field"><label class="label" for="pg-close">Clôture <span class="req" aria-hidden="true">*</span></label><input class="input" id="pg-close" type="date" aria-invalid="true" aria-describedby="pg-close-e"><span class="error-msg" id="pg-close-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Fixez la date de clôture, au moins 14 jours après l'ouverture.</span></div>
+                <div class="field"><label class="label" for="pg-sel">Sélection en comité</label><input class="input" id="pg-sel" type="date" value="2026-12-10"></div>
+              </div>
+              <p class="hint">Après la sélection, une période de contestation de 15 jours s'ouvre automatiquement. Elle ne peut pas être raccourcie.</p>
+            </fieldset>
+
+            <div class="cluster" style="justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" data-toast="Brouillon enregistré.">Enregistrer le brouillon</button>
+              <button type="submit" class="btn btn-primary">Publier le programme</button>
+            </div>
+          </form>
+
+          <aside class="stack sticky-side" style="--gap:16px" aria-label="Aperçu">
+            <section class="card" aria-labelledby="h-cal">
+              <div class="card-head"><h2 class="card-title" id="h-cal">Calendrier prévu</h2></div>
+              <ol class="timeline">
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/11/2026</div><div class="tl-title">Ouverture des candidatures</div><div class="tl-text">SMS aux producteurs éligibles.</div></li>
+                <li class="tl-alert"><span class="tl-dot"></span><div class="tl-time">À fixer</div><div class="tl-title">Clôture</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time num">10/12/2026</div><div class="tl-title">Sélection en comité</div><div class="tl-text">Classement par critères, validé par 2 personnes.</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time num">11 → 25/12/2026</div><div class="tl-title">Contestations ouvertes 15 jours</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time">Janvier 2027</div><div class="tl-title">Remise des appuis, signée</div></li>
+              </ol>
+            </section>
+            <section class="card card--tint" aria-labelledby="h-elig">
+              <div class="card-head" style="margin-bottom:6px"><h2 class="card-title" id="h-elig">Producteurs éligibles</h2><span class="badge badge--sim">Estimation</span></div>
+              <p class="stat-value num">1 136</p>
+              <p class="small muted">Riz déclaré, fiche validée, ≤ 3 ha, Alibori et Borgou. Pour 400 places prévues.</p>
+            </section>
+          </aside>
+        </div>
+      </div>
+
+      <!--STATES {"empty":["Aucun programme pour l'instant","Créez le premier programme : nom, filières, critères et calendrier. Il reste en brouillon jusqu'à sa publication.","Créer un programme"],"error":["Le programme n'a pas été enregistré","Le serveur a refusé la date de clôture (format attendu AAAA-MM-JJ). Vos saisies sont conservées.","ERR_VALIDATION · 400"],"extra":"<div class=\"alert alert--ok\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-check-circle\"/></svg><div class=\"al-body\"><span class=\"al-title\">Programme publié</span><span>1 136 producteurs éligibles seront prévenus par SMS (simulé) le 02/11/2026.</span></div></div>"}-->

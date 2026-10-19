@@ -1,0 +1,81 @@
+---
+title: Mes coopératives
+desc: Coopératives dont le producteur est membre, historique des adhésions et demande d'adhésion à une coopérative de sa commune.
+search: Rechercher une coopérative…
+---
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes coopératives</span></li></ol></nav>
+          <h1 class="page-title">Mes coopératives</h1>
+          <p class="page-desc">Les coopératives dont vous êtes membre. Le gestionnaire de la coopérative ou votre agent ATDA valide chaque adhésion.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-primary" href="#t-adh">{{I:plus}}Demander une adhésion</a></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="grid" style="--min:340px">
+          <article class="card" aria-labelledby="c1">
+            <div class="card-head"><div><h2 class="card-title" id="c1">Union des producteurs de maïs de Sompérékou</h2><p class="card-sub">Siège : Sompérékou, Banikoara · n° ADP/AL/2019-044</p></div>{{B:ok|Active}}</div>
+            <dl class="dl">
+              <dt>Mon rôle</dt><dd>Trésorière</dd>
+              <dt>Membre</dt><dd class="num">depuis le 12 mars 2019</dd>
+              <dt>Filières</dt><dd>Maïs, soja</dd>
+              <dt>Membres actifs</dt><dd class="num">86</dd>
+              <dt>Gestionnaire</dt><dd>Orou Gounou · 01 95 •• •• 07</dd>
+            </dl>
+            <div class="card-foot"><span class="small muted">Vos offres de maïs peuvent être regroupées par la coopérative.</span><a class="btn btn-secondary btn-sm" href="marche.html">Offres groupées</a></div>
+          </article>
+          <article class="card" aria-labelledby="c2">
+            <div class="card-head"><div><h2 class="card-title" id="c2">Groupement des femmes productrices de soja de Kokey</h2><p class="card-sub">Siège : Kokey, Banikoara</p></div>{{B:ok|Active}}</div>
+            <dl class="dl">
+              <dt>Mon rôle</dt><dd>Membre</dd>
+              <dt>Membre</dt><dd class="num">depuis le 4 février 2024</dd>
+              <dt>Filières</dt><dd>Soja</dd>
+              <dt>Membres actifs</dt><dd class="num">31</dd>
+            </dl>
+            <div class="card-foot"><span class="small muted">Prochaine réunion : 26 oct. (simulé)</span></div>
+          </article>
+        </div>
+
+        <section class="card" aria-labelledby="t-histo">
+          <h2 class="card-title" id="t-histo" style="margin-bottom:10px">Historique (adhésions terminées)</h2>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon">{{I:building}}</span><span class="li-main"><span class="li-title">Coopérative cotonnière de Goumori</span><span class="li-meta num">Membre du 10 avril 2016 au 30 septembre 2021 · motif : déménagement de la parcelle</span></span><span class="li-end">{{B:neutral|Terminée le 30/09/2021}}</span></li>
+          </ul>
+        </section>
+
+        <section class="card" aria-labelledby="t-adh" id="adh">
+          <div class="card-head"><div><h2 class="card-title" id="t-adh">Demander une adhésion</h2><p class="card-sub">Coopératives enregistrées dans votre commune</p></div></div>
+          <div class="cluster" style="margin-bottom:14px">
+            <div class="search" style="flex:1;min-width:220px">{{I:search}}<label class="sr-only" for="cq">Nom de la coopérative</label><input class="input" id="cq" type="search" placeholder="Nom de la coopérative"></div>
+            <label class="sr-only" for="cf">Filière</label><select class="select" id="cf" style="width:auto"><option>Toutes les filières</option><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option></select>
+          </div>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon">{{I:users}}</span><span class="li-main"><span class="li-title">Coopérative rizicole des bas-fonds de Banikoara</span><span class="li-meta">Riz · 54 membres · siège à Banikoara centre</span></span><span class="li-end">{{B:wait|Demande envoyée le 16 oct.}}</span></li>
+            <li class="list-item"><span class="li-icon">{{I:users}}</span><span class="li-main"><span class="li-title">Coopérative des producteurs de coton de Founougo</span><span class="li-meta">Coton · 112 membres · siège à Founougo</span></span><span class="li-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-adh">Demander à adhérer</button></span></li>
+            <li class="list-item"><span class="li-icon">{{I:users}}</span><span class="li-main"><span class="li-title">Union communale des producteurs de Banikoara</span><span class="li-meta">Maïs, coton, soja · 1 240 membres</span></span><span class="li-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-adh">Demander à adhérer</button></span></li>
+          </ul>
+          <p class="hint" style="margin-top:10px">Votre coopérative n'est pas dans la liste ? Demandez à votre agent ATDA de l'enregistrer.</p>
+        </section>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Aucune coopérative</span><div class="card empty"><h3>Vous n'êtes membre d'aucune coopérative</h3><p>Demandez à votre agent ATDA ou au gestionnaire de la coopérative de vous inscrire.</p></div></div>
+            <div><span class="state-cap">Demande refusée</span><div class="alert alert--danger">{{I:x-circle}}<div class="al-body"><span class="al-title">Adhésion refusée par la Coopérative de Founougo</span><span>Motif : les parcelles doivent être situées dans l'arrondissement. Vous pouvez <a href="contestations.html">contester cette décision</a>.</span></div></div></div>
+            <div><span class="state-cap">Recherche sans résultat</span><div class="card empty"><h3>Aucune coopérative pour ce filtre</h3><p>Changez le filtre ou demandez à un agent ATDA de créer la coopérative.</p></div></div>
+          </div>
+        </details>
+      </div>
+<!--@after-->
+<dialog class="modal" id="dlg-adh" aria-labelledby="dlg-adh-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-adh-t">Demander à adhérer</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer">{{I:x}}</button></div>
+  <form class="modal-body" id="f-adh" method="dialog">
+    <p>Coopérative des producteurs de coton de Founougo</p>
+    <div class="field"><label class="label" for="adh-p">Parcelles concernées</label><select class="select" id="adh-p"><option>Champ de la route (coton, 1,20 ha)</option></select></div>
+    <div class="field"><label class="label" for="adh-m">Message au gestionnaire <span class="opt">(facultatif)</span></label><textarea class="textarea" id="adh-m"></textarea></div>
+    <label class="check"><input class="cb" type="checkbox" checked> J'accepte que la coopérative voie mon nom, mon village et mes parcelles de coton.</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-adh" class="btn btn-primary" data-toast="Demande envoyée au gestionnaire de la coopérative.">Envoyer la demande</button></div>
+</dialog>

@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inscription d'un producteur · Agri-Digit Bénin</title>
+<meta name="description" content="Inscription d'un producteur en six étapes : identité vérifiée ANIP, contact, langue, filières, consentement, récapitulatif (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  /* Inscription */
+  .reg { flex: 1; width: 100%; max-width: 860px; margin: 0 auto; padding: 28px var(--gutter) 56px; display: flex; flex-direction: column; gap: 22px; }
+  .reg-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; }
+  .reg-head > div { flex: 1 1 360px; min-width: 0; }
+  .reg-step { display: flex; flex-direction: column; gap: 20px; }
+  .reg-step h2 { scroll-margin-top: 90px; }
+  .reg-step h2:focus { outline: none; }
+  .reg-step[hidden] { display: none; }
+  @media (max-width: 640px) { #stepper .step .st-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  .step-nav { display: flex; flex-wrap: wrap-reverse; justify-content: space-between; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .step-nav .btn-primary { margin-left: auto; }
+  .npi-row { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .npi-row .input { flex: 1 1 200px; width: auto; }
+  .choice-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+  .choice-grid--sm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); }
+  .choice-card { align-items: center; min-height: 52px; }
+  .choice-card .cc-sub { display: block; font-size: var(--fs-sm); color: var(--ink-2); font-weight: 400; }
+  .consent { margin: 0; padding: 20px; border: 2px solid var(--leaf); border-radius: var(--r-lg); background: var(--surface); display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .consent legend { padding: 0 6px; font: 700 var(--fs-lg)/1.3 var(--font-ui); }
+  .consent-text { max-width: 66ch; padding: 16px 18px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); font-size: 1.0625rem; line-height: 1.6; }
+  .consent-text ul { margin: 10px 0 0; padding-left: 20px; }
+  .consent-text li { margin-top: 4px; }
+  .guardian { margin: 0; padding: 20px; border: 1.5px solid #E9C3A9; border-radius: var(--r-lg); background: #FDF6EE; display: grid; gap: 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); min-width: 0; }
+  .guardian legend { padding: 0 6px; font: 700 var(--fs-lg)/1.3 var(--font-ui); color: var(--bad-ink); }
+  .guardian .span-all { grid-column: 1 / -1; }
+  .recap { display: grid; gap: 14px; }
+  .recap-block { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+  .recap-block header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .recap-block h3 { font: 700 1rem/1.3 var(--font-ui); }
+  .done-head { display: flex; align-items: center; gap: 12px; }
+  .done-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--ok-bg); color: var(--leaf); flex: none; }
+  .code-box { padding: 16px 18px; border-radius: var(--r-md); border: 1.5px solid var(--leaf); background: #F4FAEE; }
+  .code-box .code { display: block; margin-top: 2px; font: 700 clamp(1.4rem, 1.1rem + 1.2vw, 1.8rem)/1.2 var(--font-ui); letter-spacing: .04em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .save-note { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--ink-2); }
+  .save-note .ic { color: var(--leaf); width: 18px; height: 18px; }
+</style>
+</head>
+<body data-page="acces/inscription">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-ecoute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol></svg>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · vérification ANIP simulée, données de démonstration</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+  <main class="reg" id="contenu" tabindex="-1">
+    <div class="reg-head">
+      <div>
+        <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="connexion.html">Connexion</a></li><li><span aria-current="page">Inscription</span></li></ol></nav>
+        <h1 class="page-title">Inscription d'un producteur</h1>
+        <p class="page-desc">Six étapes courtes. Votre agent ATDA vérifie ensuite votre fiche avant d'ouvrir vos services.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" data-toast="Inscription. Saisissez votre numéro N P I, votre nom, votre date de naissance, votre commune et votre téléphone. Puis lisez et cochez le consentement." data-toast-title="Lecture à voix haute (simulée)"><svg class="ic" aria-hidden="true"><use href="#i-ecoute"/></svg>Écouter</button>
+    </div>
+
+    <div id="stepper">
+      <p class="steps-compact" id="steps-compact">Étape 1 sur 6 · Identité NPI</p>
+      <ol class="steps" aria-label="Étapes de l'inscription">
+        <li class="step" aria-current="step"><span class="st-label">Identité NPI</span></li>
+        <li class="step"><span class="st-label">Contact et commune</span></li>
+        <li class="step"><span class="st-label">Langue</span></li>
+        <li class="step"><span class="st-label">Filières</span></li>
+        <li class="step"><span class="st-label">Consentement</span></li>
+        <li class="step"><span class="st-label">Récapitulatif</span></li>
+      </ol>
+    </div>
+
+    <form id="f-reg" novalidate>
+      <!-- 1. Identité -->
+      <section class="card reg-step" data-step aria-labelledby="h-s1">
+        <div>
+          <h2 class="section-title" id="h-s1" tabindex="-1">Identité (vérifiée auprès de l'ANIP)</h2>
+          <p class="muted" style="margin-top:4px">Recopiez exactement ce qui figure sur votre carte ou votre certificat d'identification.</p>
+        </div>
+        <div class="field">
+          <label class="label" for="npi">NPI <span class="opt">(numéro personnel d'identification)</span></label>
+          <div class="npi-row">
+            <input class="input input-num" id="npi" inputmode="numeric" maxlength="10" pattern="\d{10}" required value="1042887310" aria-describedby="npi-h npi-e" data-err="npi-e">
+            <button class="btn btn-secondary" type="button" id="anip-btn"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Vérifier auprès de l'ANIP</button>
+          </div>
+          <span class="hint" id="npi-h">10 chiffres. Vérification ANIP simulée dans ce prototype.</span>
+          <span class="error-msg" id="npi-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le NPI contient 10 chiffres. Recopiez-le depuis votre carte ou votre certificat.</span>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label class="label" for="prenom">Prénom</label><input class="input" id="prenom" autocomplete="given-name" required value="Awa" data-err="prenom-e"><span class="error-msg" id="prenom-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez le prénom tel qu'il figure sur la fiche ANIP.</span></div>
+          <div class="field"><label class="label" for="nom">Nom</label><input class="input" id="nom" autocomplete="family-name" required value="Sabi" data-err="nom-e"><span class="error-msg" id="nom-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez le nom tel qu'il figure sur la fiche ANIP.</span></div>
+          <fieldset class="fieldset"><legend class="label">Sexe</legend>
+            <div class="cluster" style="--gap:4px 20px">
+              <label class="check"><input class="radio" type="radio" name="sexe" value="Femme" checked> Femme</label>
+              <label class="check"><input class="radio" type="radio" name="sexe" value="Homme"> Homme</label>
+            </div>
+          </fieldset>
+          <div class="field"><label class="label" for="naiss">Date de naissance</label><input class="input" id="naiss" type="date" required value="1988-03-14" max="2026-10-18" data-err="naiss-e"><span class="error-msg" id="naiss-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez la date de naissance.</span></div>
+        </div>
+        <div class="alert alert--ok" id="anip-ok" aria-live="polite">
+          <svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>
+          <div class="al-body">
+            <span class="al-title">Identité vérifiée auprès de l'ANIP</span>
+            <span>Le NPI, le nom, le prénom et la date de naissance concordent. <span class="badge badge--sim">Simulé</span></span>
+          </div>
+        </div>
+        <div class="alert alert--warn" id="minor-note" hidden>
+          <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>
+          <div class="al-body"><span class="al-title">Moins de 16 ans</span><span>Un parent ou tuteur légal devra donner son consentement à l'étape 5 (loi n° 2017-20, art. 446).</span></div>
+        </div>
+        <div class="step-nav">
+          <span class="save-note"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Vos réponses restent sur ce téléphone jusqu'à l'envoi.</span>
+          <button class="btn btn-primary" type="button" data-next>Continuer<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </section>
+
+      <!-- 2. Contact -->
+      <section class="card reg-step" data-step aria-labelledby="h-s2" hidden>
+        <div>
+          <h2 class="section-title" id="h-s2" tabindex="-1">Contact et localisation</h2>
+          <p class="muted" style="margin-top:4px">Votre commune désigne l'agent ATDA qui validera votre fiche.</p>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label class="label" for="dep">Département</label>
+            <select class="select" id="dep" required data-err="dep-e">
+              <option value="">Choisir</option><option selected>Alibori</option><option>Atacora</option><option>Borgou</option><option>Collines</option><option>Zou</option>
+            </select>
+            <span class="error-msg" id="dep-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez un département.</span>
+          </div>
+          <div class="field"><label class="label" for="com">Commune</label>
+            <select class="select" id="com" required data-err="com-e" aria-describedby="com-h"></select>
+            <span class="hint" id="com-h">Liste du département choisi.</span>
+            <span class="error-msg" id="com-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez une commune du département.</span>
+          </div>
+          <div class="field span-all"><label class="label" for="tel">Téléphone</label>
+            <div class="input-group" style="max-width:360px"><span class="addon"><span aria-hidden="true">BJ</span> +229</span><input class="input input-num" id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="01\d{8}" required value="0197421806" aria-describedby="tel-h tel-e" data-err="tel-e"></div>
+            <span class="hint" id="tel-h">10 chiffres, commence par 01. Ce numéro reçoit vos codes de connexion et vos alertes.</span>
+            <span class="error-msg" id="tel-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez 10 chiffres commençant par 01.</span>
+          </div>
+        </div>
+        <p class="small muted">Démonstration : 5 départements sur 12 sont proposés dans cette maquette.</p>
+        <div class="step-nav">
+          <button class="btn btn-ghost" type="button" data-prev><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Retour</button>
+          <button class="btn btn-primary" type="button" data-next>Continuer<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </section>
+
+      <!-- 3. Langue -->
+      <section class="card reg-step" data-step aria-labelledby="h-s3" hidden>
+        <div>
+          <h2 class="section-title" id="h-s3" tabindex="-1">Langue préférée</h2>
+          <p class="muted" style="margin-top:4px">Langue des SMS, des messages vocaux et de l'assistant.</p>
+        </div>
+        <fieldset class="fieldset"><legend class="sr-only">Langue préférée</legend>
+          <div class="choice-grid">
+            <label class="choice-card"><input class="radio" type="radio" name="langue" value="Français" checked><span><b>Français</b><span class="cc-sub">Disponible</span></span></label>
+            <label class="choice-card"><input class="radio" type="radio" name="langue" value="Fon"><span><b>Fon</b><span class="cc-sub">Traduction en cours de validation</span></span></label>
+            <label class="choice-card"><input class="radio" type="radio" name="langue" value="Bariba"><span><b>Bariba</b><span class="cc-sub">Traduction en cours de validation</span></span></label>
+            <label class="choice-card"><input class="radio" type="radio" name="langue" value="Yoruba"><span><b>Yoruba</b><span class="cc-sub">Traduction en cours de validation</span></span></label>
+            <label class="choice-card"><input class="radio" type="radio" name="langue" value="Dendi"><span><b>Dendi</b><span class="cc-sub">Traduction en cours de validation</span></span></label>
+          </div>
+        </fieldset>
+        <div class="alert alert--info">
+          <svg class="ic" aria-hidden="true"><use href="#i-languages"/></svg>
+          <div class="al-body">Les textes en langues nationales sont validés avec le MTDI avant diffusion. En attendant, vous recevez les messages en français, et vous pourrez changer de langue plus tard dans votre profil.</div>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-ghost" type="button" data-prev><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Retour</button>
+          <button class="btn btn-primary" type="button" data-next>Continuer<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </section>
+
+      <!-- 4. Filières -->
+      <section class="card reg-step" data-step aria-labelledby="h-s4" hidden>
+        <div>
+          <h2 class="section-title" id="h-s4" tabindex="-1">Vos filières</h2>
+          <p class="muted" style="margin-top:4px">Ce que vous cultivez. Vous recevrez les conseils et les programmes de ces filières.</p>
+        </div>
+        <fieldset class="fieldset" data-min1 aria-describedby="fil-e"><legend class="label">Cultures pratiquées <span class="opt">(au moins une)</span></legend>
+          <div class="choice-grid choice-grid--sm">
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Maïs" checked><b>Maïs</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Coton" checked><b>Coton</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Soja"><b>Soja</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Riz"><b>Riz</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Manioc"><b>Manioc</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Igname"><b>Igname</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Anacarde"><b>Anacarde</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Ananas"><b>Ananas</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Karité"><b>Karité</b></label>
+            <label class="choice-card"><input class="cb" type="checkbox" name="fil" value="Cultures maraîchères"><b>Maraîchage</b></label>
+          </div>
+          <span class="error-msg" id="fil-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Cochez au moins une culture. Votre agent pourra compléter plus tard.</span>
+        </fieldset>
+        <div class="step-nav">
+          <button class="btn btn-ghost" type="button" data-prev><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Retour</button>
+          <button class="btn btn-primary" type="button" data-next>Continuer<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </section>
+
+      <!-- 5. Consentement -->
+      <section class="card reg-step" data-step aria-labelledby="h-s5" hidden>
+        <div>
+          <h2 class="section-title" id="h-s5" tabindex="-1">Votre consentement</h2>
+          <p class="muted" style="margin-top:4px">Lisez ou écoutez ce texte. Sans votre accord, l'inscription n'est pas possible.</p>
+        </div>
+
+        <fieldset class="guardian" id="guardian" hidden>
+          <legend>Moins de 16 ans : parent ou tuteur légal</legend>
+          <p class="span-all">Le consentement d'un titulaire de l'autorité parentale est obligatoire (loi n° 2017-20, art. 446).</p>
+          <div class="field"><label class="label" for="g-nom">Nom complet du parent ou tuteur</label><input class="input" id="g-nom" required data-err="g-nom-e" autocomplete="off"><span class="error-msg" id="g-nom-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Moins de 16 ans : saisissez le nom du parent ou tuteur légal.</span></div>
+          <div class="field"><label class="label" for="g-npi">NPI du parent ou tuteur</label><input class="input input-num" id="g-npi" inputmode="numeric" maxlength="10" pattern="\d{10}" required data-err="g-npi-e"><span class="error-msg" id="g-npi-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez le NPI du parent ou tuteur (10 chiffres).</span></div>
+          <div class="span-all">
+            <label class="check"><input class="cb" type="checkbox" id="g-ok" required data-err="g-ok-e"> <span>Je suis le parent ou tuteur légal et j'accepte l'inscription de cet enfant aux conditions ci-dessous.</span></label>
+            <span class="error-msg" id="g-ok-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le parent ou tuteur doit cocher cette case.</span>
+          </div>
+        </fieldset>
+
+        <fieldset class="consent">
+          <legend>Consentement (texte v1)</legend>
+          <div class="consent-text" id="consent-text">
+            <p>J'accepte que le ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), responsable du traitement, enregistre mes informations pour me fournir des conseils agricoles, des alertes et l'accès aux programmes d'appui.</p>
+            <ul>
+              <li>Informations enregistrées : identité, téléphone, commune, parcelles.</li>
+              <li>Mes données ne sont pas vendues ni envoyées hors du Bénin.</li>
+              <li>Je peux retirer ce consentement à tout moment dans « Mes consentements ».</li>
+            </ul>
+          </div>
+          <div class="cluster">
+            <button class="btn btn-secondary btn-sm" type="button" data-toast="Lecture du texte de consentement, version 1 (simulée)." data-toast-title="Écoute en cours"><svg class="ic" aria-hidden="true"><use href="#i-ecoute"/></svg>Écouter le texte</button>
+            <a class="small" href="legal.html#confidentialite">Lire la politique de confidentialité</a>
+          </div>
+          <div>
+            <label class="check"><input class="cb" type="checkbox" id="consent" required data-err="consent-e" aria-describedby="consent-text consent-e"> <b>J'ai lu ce texte et je donne mon consentement.</b></label>
+            <span class="error-msg" id="consent-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Cochez la case pour donner votre consentement. Sans lui, l'inscription n'est pas possible.</span>
+          </div>
+        </fieldset>
+        <p class="small muted">Ce consentement est séparé des conditions d'utilisation. Le partage de votre profil avec un organisme de crédit vous sera demandé à part, plus tard, et restera facultatif.</p>
+        <div class="step-nav">
+          <button class="btn btn-ghost" type="button" data-prev><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Retour</button>
+          <button class="btn btn-primary" type="button" data-next>Voir le récapitulatif<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </section>
+
+      <!-- 6. Récapitulatif -->
+      <section class="card reg-step" data-step aria-labelledby="h-s6" hidden>
+        <div>
+          <h2 class="section-title" id="h-s6" tabindex="-1">Vérifiez avant d'envoyer</h2>
+          <p class="muted" style="margin-top:4px">Après l'envoi, seul votre agent ATDA pourra corriger la fiche.</p>
+        </div>
+        <div class="recap">
+          <div class="recap-block">
+            <header><h3>Identité</h3><button class="btn btn-ghost btn-sm" type="button" data-goto="0"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier</button></header>
+            <dl class="dl"><dt>NPI</dt><dd class="num" data-r="npi"></dd><dt>Nom complet</dt><dd data-r="nomc"></dd><dt>Sexe</dt><dd data-r="sexe"></dd><dt>Date de naissance</dt><dd class="num" data-r="naiss"></dd><dt>Vérification</dt><dd><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>ANIP concordante</span> <span class="badge badge--sim">Simulé</span></dd></dl>
+          </div>
+          <div class="recap-block">
+            <header><h3>Contact</h3><button class="btn btn-ghost btn-sm" type="button" data-goto="1"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier</button></header>
+            <dl class="dl"><dt>Commune</dt><dd data-r="lieu"></dd><dt>Téléphone</dt><dd class="num" data-r="tel"></dd></dl>
+          </div>
+          <div class="recap-block">
+            <header><h3>Langue et filières</h3><button class="btn btn-ghost btn-sm" type="button" data-goto="2"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier</button></header>
+            <dl class="dl"><dt>Langue</dt><dd data-r="langue"></dd><dt>Filières</dt><dd data-r="fil"></dd></dl>
+          </div>
+          <div class="recap-block">
+            <header><h3>Consentement</h3><button class="btn btn-ghost btn-sm" type="button" data-goto="4"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier</button></header>
+            <dl class="dl"><dt>Données personnelles</dt><dd>Donné, texte v1, le 18/10/2026</dd><dt data-r-minor hidden>Parent ou tuteur</dt><dd data-r="tuteur" data-r-minor hidden></dd></dl>
+          </div>
+        </div>
+        <div class="alert alert--danger" id="send-err" role="alert" hidden>
+          <svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>
+          <div class="al-body"><span class="al-title">Ce producteur est déjà inscrit (NPI ou téléphone déjà utilisé).</span><span>Fiche existante : <b class="num">BJ-AGR-2026-000731</b>. <a href="connexion.html">Se connecter</a></span></div>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-ghost" type="button" data-prev><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Retour</button>
+          <button class="btn btn-primary" type="submit" id="send"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Envoyer l'inscription</button>
+        </div>
+      </section>
+    </form>
+
+    <!-- 7. Confirmation -->
+    <section class="card reg-step" data-step aria-labelledby="h-s7" hidden role="status">
+      <div class="done-head">
+        <span class="done-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+        <h2 class="section-title" id="h-s7" tabindex="-1">Inscription enregistrée</h2>
+      </div>
+      <div class="code-box"><span class="small muted">Votre code producteur</span><span class="code">BJ-AGR-2026-004218</span></div>
+      <p>Statut : <span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de validation</span> par l'agent ATDA de votre commune. Vous recevrez un message dès qu'il aura vérifié votre fiche.</p>
+      <ol class="timeline">
+        <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">18/10/2026 · 14:41</div><div class="tl-title">Inscription envoyée</div><div class="tl-text">SMS de confirmation envoyé au 01 97 42 18 06 (simulé).</div></li>
+        <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Sous 5 jours ouvrés</div><div class="tl-title">Vérification par l'agent ATDA de Banikoara</div><div class="tl-text">Il peut vous appeler pour confirmer une information.</div></li>
+        <li><span class="tl-dot"></span><div class="tl-time">Après validation</div><div class="tl-title">Carte de producteur et accès aux programmes</div></li>
+      </ol>
+      <div class="cluster">
+        <a class="btn btn-primary" href="connexion.html">Aller à la connexion</a>
+        <button class="btn btn-ghost" type="button" data-toast="Inscription enregistrée. Votre code producteur est B J, A G R, 2026, 004218. Votre fiche attend la validation de votre agent." data-toast-title="Lecture à voix haute (simulée)"><svg class="ic" aria-hidden="true"><use href="#i-ecoute"/></svg>Écouter</button>
+      </div>
+    </section>
+
+    <details class="review" id="etats">
+      <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de l'écran (revue)<svg class="ic chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+      <div class="review-body">
+        <div class="card">
+          <span class="review-cap">Aller à une étape</span>
+          <div class="cluster">
+            <button class="btn btn-secondary btn-sm" type="button" data-goto="0">1</button><button class="btn btn-secondary btn-sm" type="button" data-goto="1">2</button><button class="btn btn-secondary btn-sm" type="button" data-goto="2">3</button><button class="btn btn-secondary btn-sm" type="button" data-goto="3">4</button><button class="btn btn-secondary btn-sm" type="button" data-goto="4">5</button><button class="btn btn-secondary btn-sm" type="button" data-goto="5">6</button><button class="btn btn-secondary btn-sm" type="button" data-goto="6">Confirmation</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" type="button" id="demo-minor" style="margin-top:10px"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Simuler un mineur de 14 ans</button>
+        </div>
+        <div class="card">
+          <span class="review-cap">ANIP · NPI inconnu</span>
+          <div class="field"><label class="label" for="s-npi">NPI</label><input class="input input-num" id="s-npi" value="1042887319" aria-invalid="true" aria-describedby="s-npi-e"><span class="error-msg" id="s-npi-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Ce NPI est inconnu de l'ANIP. Vérifiez les 10 chiffres.</span></div>
+        </div>
+        <div class="alert alert--danger">
+          <svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>
+          <div class="al-body"><span class="al-title">Le nom ou le prénom ne correspond pas à la fiche ANIP.</span><span>Recopiez-les exactement comme sur la carte. La date de naissance est vérifiée de la même façon.</span></div>
+        </div>
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+          <div class="al-body"><span class="al-title">Le service de vérification ANIP ne répond pas.</span><span>Réessayez dans quelques minutes. Vos réponses sont gardées.</span><div class="al-actions"><button class="btn btn-secondary btn-sm" type="button">Réessayer</button></div></div>
+        </div>
+        <div class="alert alert--danger">
+          <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>
+          <div class="al-body"><span class="al-title">Ce producteur est déjà inscrit (NPI ou téléphone déjà utilisé).</span><span>Fiche existante : <b class="num">BJ-AGR-2026-000731</b>. <a href="connexion.html">Se connecter</a></span></div>
+        </div>
+        <div class="alert alert--danger">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Liste des départements indisponible.</span><div class="al-actions"><button class="btn btn-secondary btn-sm" type="button">Réessayer</button></div></div>
+        </div>
+        <div class="card">
+          <span class="review-cap">Envoi en cours</span>
+          <button class="btn btn-primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Envoi de l'inscription…</button>
+        </div>
+        <div class="banner banner--offline" style="border-radius:var(--r-md)">
+          <svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>
+          <span>Hors ligne. Vos réponses restent sur ce téléphone ; la vérification ANIP et l'envoi reprendront avec le réseau.</span>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<script>
+  // Démonstration : parcours en étapes, validation visible, cas du mineur, récapitulatif
+  (function () {
+    var $ = function (s, r) { return (r || document).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+    var steps = $$('[data-step]'), lis = $$('#stepper .step'), cur = 0;
+    var COMMUNES = {
+      Alibori: ['Banikoara', 'Gogounou', 'Kandi', 'Karimama', 'Malanville', 'Ségbana'],
+      Atacora: ['Boukoumbé', 'Cobly', 'Kérou', 'Kouandé', 'Matéri', 'Natitingou', 'Péhunco', 'Tanguiéta', 'Toucountouna'],
+      Borgou: ['Bembèrèkè', 'Kalalé', "N'Dali", 'Nikki', 'Parakou', 'Pèrèrè', 'Sinendé', 'Tchaourou'],
+      Collines: ['Bantè', 'Dassa-Zoumè', 'Glazoué', 'Ouèssè', 'Savalou', 'Savè'],
+      Zou: ['Abomey', 'Agbangnizoun', 'Bohicon', 'Covè', 'Djidja', 'Ouinhi', 'Za-Kpota', 'Zagnanado', 'Zogbodomey']
+    };
+    var dep = $('#dep'), com = $('#com'), naiss = $('#naiss');
+    function fillCommunes(keep) {
+      var list = COMMUNES[dep.value] || [];
+      com.disabled = !list.length;
+      com.innerHTML = '<option value="">Choisir</option>' + list.map(function (c) { return '<option' + (c === keep ? ' selected' : '') + '>' + c + '</option>'; }).join('');
+      $('#com-h').textContent = list.length ? 'Liste du département choisi.' : "Choisissez d'abord le département.";
+    }
+    function age(d) { var b = new Date(d), n = new Date('2026-10-18'), a = n.getFullYear() - b.getFullYear(), m = n.getMonth() - b.getMonth(); if (m < 0 || (m === 0 && n.getDate() < b.getDate())) a--; return a; }
+    function minor() { return /^\d{4}-\d{2}-\d{2}$/.test(naiss.value) && age(naiss.value) < 16; }
+    function syncMinor() { var m = minor(); $('#minor-note').hidden = !m; $('#guardian').hidden = !m; }
+    function valid(sec) {
+      var first = null;
+      $$('[required]', sec).forEach(function (i) {
+        var bad = !i.closest('[hidden]') && (i.type === 'checkbox' ? !i.checked : !i.value.trim() || (i.pattern && !new RegExp('^(?:' + i.pattern + ')$').test(i.value)));
+        if (bad) i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid');
+        var e = document.getElementById(i.dataset.err); if (e) e.hidden = !bad;
+        if (bad && !first) first = i;
+      });
+      $$('[data-min1]', sec).forEach(function (g) {
+        var bad = !$$('input:checked', g).length, e = document.getElementById(g.getAttribute('aria-describedby'));
+        e.hidden = !bad; if (bad && !first) first = g.querySelector('input');
+      });
+      if (first) first.focus();
+      return !first;
+    }
+    var fmtDate = function (v) { var p = v.split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : v; };
+    function recap() {
+      var r = function (k, v) { var el = $('[data-r="' + k + '"]'); if (el) el.textContent = v; };
+      var tel = $('#tel').value;
+      r('npi', $('#npi').value); r('nomc', $('#prenom').value + ' ' + $('#nom').value.toUpperCase());
+      r('sexe', $('input[name="sexe"]:checked').value); r('naiss', fmtDate(naiss.value) + ' (' + age(naiss.value) + ' ans)');
+      r('lieu', com.value + ', ' + dep.value); r('tel', '+229 ' + tel.replace(/(\d{2})(?=\d)/g, '$1 '));
+      r('langue', $('input[name="langue"]:checked').value);
+      r('fil', $$('input[name="fil"]:checked').map(function (i) { return i.value; }).join(', '));
+      var m = minor(); $$('[data-r-minor]').forEach(function (e) { e.hidden = !m; });
+      r('tuteur', $('#g-nom').value + ' · NPI ' + $('#g-npi').value + ' · consentement parental donné');
+    }
+    function go(n, focus) {
+      cur = n;
+      steps.forEach(function (s, i) { s.hidden = i !== n; });
+      lis.forEach(function (li, i) { li.classList.toggle('is-done', i < n); if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+      $('#stepper').hidden = n > 5;
+      if (n <= 5) $('#steps-compact').textContent = 'Étape ' + (n + 1) + ' sur 6 · ' + lis[n].textContent;
+      if (n === 5) recap();
+      try { history.replaceState(null, '', n > 5 ? '#confirmation' : '#etape-' + (n + 1)); } catch (e) { /* aperçu local */ }
+      if (focus) { var h = $('h2', steps[n]); h.focus(); h.scrollIntoView({ block: 'start' }); }
+    }
+    dep.addEventListener('change', function () { fillCommunes(); });
+    naiss.addEventListener('change', syncMinor);
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-next]'); if (t) { if (valid(steps[cur])) go(cur + 1, true); return; }
+      t = e.target.closest('[data-prev]'); if (t) { go(cur - 1, true); return; }
+      t = e.target.closest('[data-goto]'); if (t) { go(+t.dataset.goto, true); return; }
+      if (e.target.closest('#anip-btn')) {
+        var ok = $('#anip-ok'); if (!valid(steps[0])) { ok.hidden = true; return; }
+        var b = $('#anip-btn'); b.setAttribute('aria-busy', 'true'); ok.hidden = true;
+        setTimeout(function () { b.removeAttribute('aria-busy'); ok.hidden = false; }, 900);
+      }
+      if (e.target.closest('#demo-minor')) { naiss.value = '2012-06-02'; syncMinor(); go(4, true); }
+    });
+    $('#f-reg').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var b = $('#send'); b.setAttribute('aria-busy', 'true'); b.lastChild.textContent = "Envoi de l'inscription…";
+      setTimeout(function () { go(6, true); }, 1000);
+    });
+    fillCommunes('Banikoara'); syncMinor();
+    var m = /^#etape-([1-6])$/.exec(location.hash);
+    if (m) go(+m[1] - 1); else if (location.hash === '#confirmation') go(6);
+  })();
+</script>
+</body>
+</html>

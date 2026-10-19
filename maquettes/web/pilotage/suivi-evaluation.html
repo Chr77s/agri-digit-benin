@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indicateurs SEA · Agri-Digit Bénin</title>
+<meta name="description" content="Suivi-évaluation du programme : producteurs et hectares suivis, rendements, adoption, accès aux intrants et au crédit, femmes et jeunes (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.ind { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .ind:first-of-type { border-top: 0; padding-top: 0; }
+  .ind-name { font-weight: 700; }
+  .ind-val { font: 700 1.375rem/1.2 var(--font-ui); font-variant-numeric: tabular-nums; text-align: right; }
+  .ind-val .na { font-size: 1rem; }
+  .ind .src { grid-column: 1 / -1; }
+  .ind-def { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--ink-2); }
+  .meter { position: relative; height: 12px; border-radius: 0 4px 4px 0; background: var(--rain-2); grid-column: 1 / -1; margin-top: 4px; }
+  .meter > span { display: block; height: 100%; width: var(--v); background: var(--d1); border-radius: 0 4px 4px 0; }
+  .meter > i { position: absolute; top: -4px; bottom: -4px; width: 2px; left: var(--t); background: var(--canopy); }
+  .stack-bar { display: flex; gap: 2px; height: 22px; margin: 10px 0 8px; grid-column: 1 / -1; }
+  .stack-bar > span { display: block; height: 100%; }
+  .stack-bar > span:first-child { border-radius: 4px 0 0 4px; } .stack-bar > span:last-child { border-radius: 0 4px 4px 0; }
+  .sea-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); align-items: start; }
+  .theme-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-md); background: var(--layer); color: var(--leaf); flex: none; }
+</style>
+</head>
+<body data-role="admin_maep" data-page="pilotage/suivi-evaluation">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/tableau-de-bord.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un indicateur…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 2 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">2</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Pilotage</a></li><li><span aria-current="page">Indicateurs SEA</span></li></ol></nav>
+          <h1 class="page-title">Indicateurs de suivi-évaluation</h1>
+          <p class="page-desc">Les indicateurs demandés par les termes de référence, regroupés par question de suivi. Chaque valeur porte sa source et sa date de mise à jour.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" onclick="window.print()"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Imprimer</button>
+          <a class="btn btn-primary" href="exports.html"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Calculé sur les données fictives du prototype</span><span>La mention «&nbsp;non disponible&nbsp;» signifie qu'aucune source n'existe encore&nbsp;: ce n'est pas zéro.</span></div>
+        </div>
+
+        <div class="cluster" style="justify-content:space-between;align-items:flex-end">
+          <div class="field" style="min-width:min(100%,260px)"><label class="label" for="sea-dep">Département</label>
+            <select class="select" id="sea-dep"><option value="">Tout le Bénin</option><option selected>Alibori</option><option>Atacora</option><option>Borgou</option><option>Collines</option><option>Donga</option><option>Zou</option></select></div>
+          <p class="cluster" style="--gap:8px" aria-live="polite"><b>Périmètre&nbsp;: Alibori</b><span class="badge badge--demo">Démonstration</span></p>
+        </div>
+
+        <div class="sea-grid">
+          <section class="card" aria-labelledby="h-couv">
+            <div class="card-head"><h2 class="card-title" id="h-couv">Qui et combien suit-on&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Producteurs validés suivis</span><span class="ind-val num">6&nbsp;214</span><span class="src">Registre Agri-Digit · mis à jour le 18/10/2026 07:55</span></div>
+            <ul class="hbars" style="margin:4px 0 14px" aria-label="Producteurs validés par filière, Alibori">
+              <li class="hbar" title="Coton : 2 980"><span class="hbar-label">Coton</span><span class="hbar-track"><span class="hbar-fill" style="--v:100%"></span></span><span class="hbar-val">2&nbsp;980</span></li>
+              <li class="hbar" title="Maïs : 2 410"><span class="hbar-label">Maïs</span><span class="hbar-track"><span class="hbar-fill" style="--v:80.9%"></span></span><span class="hbar-val">2&nbsp;410</span></li>
+              <li class="hbar" title="Soja : 512"><span class="hbar-label">Soja</span><span class="hbar-track"><span class="hbar-fill" style="--v:17.2%"></span></span><span class="hbar-val">512</span></li>
+              <li class="hbar" title="Riz : 204"><span class="hbar-label">Riz</span><span class="hbar-track"><span class="hbar-fill" style="--v:6.8%"></span></span><span class="hbar-val">204</span></li>
+              <li class="hbar" title="Niébé : 108"><span class="hbar-label">Niébé</span><span class="hbar-track"><span class="hbar-fill" style="--v:3.6%"></span></span><span class="hbar-val">108</span></li>
+            </ul>
+            <div class="ind"><span class="ind-name">Hectares suivis</span><span class="ind-val num">14&nbsp;872,6&nbsp;ha</span><span class="ind-def">Surface des parcelles ayant une campagne 2026 (coton 7&nbsp;104&nbsp;ha, maïs 6&nbsp;012&nbsp;ha, autres 1&nbsp;756&nbsp;ha).</span><span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Producteurs et surface par filière, Alibori</caption><thead><tr><th scope="col">Filière</th><th scope="col" class="num">Producteurs</th><th scope="col" class="num">Surface (ha)</th></tr></thead><tbody>
+                <tr><th scope="row">Coton</th><td class="num">2&nbsp;980</td><td class="num">7&nbsp;104,1</td></tr><tr><th scope="row">Maïs</th><td class="num">2&nbsp;410</td><td class="num">6&nbsp;012,3</td></tr><tr><th scope="row">Soja</th><td class="num">512</td><td class="num">1&nbsp;080,4</td></tr><tr><th scope="row">Riz</th><td class="num">204</td><td class="num">431,0</td></tr><tr><th scope="row">Niébé</th><td class="num">108</td><td class="num">244,8</td></tr>
+              </tbody></table></div>
+            </details>
+          </section>
+
+          <section class="card" aria-labelledby="h-incl">
+            <div class="card-head"><h2 class="card-title" id="h-incl">Les femmes et les jeunes participent-ils&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Part de femmes</span><span class="ind-val num">27,4&nbsp;%</span>
+              <span class="meter" role="img" aria-label="27,4 % de femmes, cible du programme 30 %"><span style="--v:27.4%"></span><i style="--t:30%"></i></span>
+              <span class="ind-def">1&nbsp;703 productrices validées sur 6&nbsp;214. Trait sombre&nbsp;: cible du programme (30&nbsp;%).</span>
+              <span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <div class="ind"><span class="ind-name">Part de moins de 35 ans</span><span class="ind-val num">38,1&nbsp;%</span>
+              <span class="meter" role="img" aria-label="38,1 % de jeunes, cible 35 %"><span style="--v:38.1%"></span><i style="--t:35%"></i></span>
+              <span class="ind-def">2&nbsp;368 producteurs nés après le 18/10/1991. Cible&nbsp;: 35&nbsp;%, atteinte.</span>
+              <span class="src">Registre Agri-Digit · 18/10/2026 07:55</span></div>
+            <div class="ind"><span class="ind-name">Taux d'acceptation des candidatures</span><span class="ind-val num">61,8&nbsp;%</span><span class="ind-def">Sur 1&nbsp;204 candidatures tranchées&nbsp;; 312 encore en instruction.</span><span class="src">Registre Agri-Digit · 18/10/2026 07:41</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-prod">
+            <div class="card-head"><h2 class="card-title" id="h-prod">Où en est la production&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Campagnes par stade</span><span class="ind-val num">5&nbsp;918</span>
+              <div class="stack-bar" role="img" aria-label="Semis 412, croissance 1 380, floraison 1 966, récolte 1 744, terminée 416">
+                <span style="flex:412;background:var(--d5)" title="Semis : 412"></span><span style="flex:1380;background:var(--d2)" title="Croissance : 1 380"></span><span style="flex:1966;background:var(--d1)" title="Floraison : 1 966"></span><span style="flex:1744;background:var(--d3)" title="Récolte : 1 744"></span><span style="flex:416;background:var(--d4)" title="Terminée : 416"></span>
+              </div>
+              <ul class="legend" style="grid-column:1/-1"><li><span class="sw sw--5"></span>Semis · <b class="num">412</b></li><li><span class="sw sw--2"></span>Croissance · <b class="num">1&nbsp;380</b></li><li><span class="sw"></span>Floraison · <b class="num">1&nbsp;966</b></li><li><span class="sw sw--3"></span>Récolte · <b class="num">1&nbsp;744</b></li><li><span class="sw sw--4"></span>Terminée · <b class="num">416</b></li></ul>
+              <span class="src">Registre Agri-Digit · 18/10/2026 06:10</span></div>
+            <div class="ind"><span class="ind-name">Rendement moyen, maïs</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">Aucune pesée de récolte n'est encore reliée. Les prévisions simulées sont dans «&nbsp;Prévisions&nbsp;».</span><span class="src">Aucune source</span></div>
+            <div class="ind"><span class="ind-name">Récoltes signalées à vérifier</span><span class="ind-val num">23</span><span class="ind-def">Déclarations jugées incohérentes (surface, quantité) et transmises à l'agent ATDA.</span><span class="src">Registre Agri-Digit · 17/10/2026 16:32</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-acces">
+            <div class="card-head"><h2 class="card-title" id="h-acces">Les producteurs accèdent-ils aux intrants et au crédit&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Appuis remis et confirmés</span><span class="ind-val num">184,6 M FCFA</span><span class="ind-def">Remis par l'agent&nbsp;: 112,3 M FCFA · confirmés par le producteur&nbsp;: 72,3 M FCFA (engrais, semences certifiées).</span><span class="src">Registre Agri-Digit · 18/10/2026 07:12</span></div>
+            <div class="ind"><span class="ind-name">Producteurs ayant consenti au partage pour le crédit</span><span class="ind-val num">418</span><span class="ind-def">Consentement explicite et retirable&nbsp;; le score reste une aide, jamais une décision.</span><span class="src">Registre des consentements · 18/10/2026 07:30</span></div>
+            <div class="ind"><span class="ind-name">Crédits accordés</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">La décision se prend hors plateforme&nbsp;; le connecteur FNDA ne renvoie pas encore les décisions.</span><span class="src">Aucune source</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-adop">
+            <div class="card-head"><h2 class="card-title" id="h-adop">Le conseil est-il utilisé et adopté&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Questions à l'assistant</span><span class="ind-val num">9&nbsp;412</span><span class="ind-def">Tout le Bénin&nbsp;: le journal de l'assistant ne porte aucune localisation.</span><span class="src">Journal de l'assistant · 18/10/2026 08:02</span></div>
+            <div class="ind"><span class="ind-name">Taux d'escalade de l'assistant</span><span class="ind-val num">7,9&nbsp;%</span><span class="ind-def">Questions transmises à un agent faute de réponse sûre.</span><span class="src">Journal de l'assistant · 18/10/2026 08:02</span></div>
+            <div class="ind"><span class="ind-name">Adoption des pratiques recommandées</span><span class="ind-val"><span class="na">non disponible</span></span><span class="ind-def">Exige une enquête terrain ATDA, pas encore saisie dans la plateforme.</span><span class="src">Aucune source</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-alert">
+            <div class="card-head"><h2 class="card-title" id="h-alert">Les alertes arrivent-elles&nbsp;?</h2></div>
+            <div class="ind"><span class="ind-name">Taux de livraison des alertes</span><span class="ind-val num">92,3&nbsp;%</span>
+              <span class="meter" role="img" aria-label="92,3 % des messages livrés"><span style="--v:92.3%"></span></span>
+              <span class="ind-def">11&nbsp;204 messages livrés sur 12&nbsp;138 envoyés (SMS simulés).</span><span class="src">Boîte d'envoi simulée · 17/10/2026 18:02</span></div>
+          </section>
+        </div>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun indicateur pour ce périmètre</h3><p>Ce département n'a encore aucun producteur validé. Choisissez un autre département ou tout le Bénin.</p><button type="button" class="btn btn-secondary">Tout le Bénin</button></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Indicateurs indisponibles</h3><p>Le calcul n'a pas abouti. Réessayez&nbsp;; si l'erreur persiste, prévenez l'administrateur MAEP.</p><code>ERR_SEA · 500</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Vue agent ATDA</span><span>Le filtre de département disparaît&nbsp;: l'agent ne voit que son département, imposé par le serveur.</span></div></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

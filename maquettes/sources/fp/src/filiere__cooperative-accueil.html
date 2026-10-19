@@ -1,0 +1,108 @@
+---
+{"role":"gestionnaire_cooperative","title":"Ma coopérative","desc":"Espace du gestionnaire de coopérative : membres, offre groupée en cours et livraisons à venir (maquette).","search":"Rechercher un membre, une livraison…","notif":2}
+---
+<!--@head-->
+  .coop-id { display: grid; gap: 12px 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+  .coop-id dt { font-size: var(--fs-sm); color: var(--ink-2); }
+  .coop-id dd { margin: 0; font-weight: 700; }
+  .goal { display: flex; height: 22px; gap: 2px; margin: 8px 0; }
+  .goal > span { height: 100%; }
+  .goal > span:first-child { border-radius: 4px 0 0 4px; }
+  .goal > span:last-child { border-radius: 0 4px 4px 0; }
+  .big { font: 700 2rem/1.1 var(--font-ui); font-variant-numeric: tabular-nums; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="cooperative-accueil.html">Ma coopérative</a></li><li><span aria-current="page">Coop. Kandi Maïs</span></li></ol></nav>
+          <h1 class="page-title">Coopérative Kandi Maïs</h1>
+          <p class="page-desc">Vos membres, ce que vous vendez ensemble et ce qui doit partir cette semaine.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="collecte.html"><svg class="ic" aria-hidden="true"><use href="#i-warehouse"/></svg>Planning de collecte</a>
+          <button type="button" class="btn btn-primary" data-open-dialog="dlg-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ajouter un membre</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="card card--tint" aria-label="Identité de la coopérative">
+          <dl class="coop-id">
+            <div><dt>Siège</dt><dd>Kandi, Alibori</dd></div>
+            <div><dt>Filières</dt><dd>Maïs, soja</dd></div>
+            <div><dt>Membres actifs</dt><dd class="num">86 <span class="small muted" style="font-weight:600">dont 31 femmes</span></dd></div>
+            <div><dt>Enregistrement</dt><dd class="num">RB/KDI/23 C 0412</dd></div>
+          </dl>
+        </section>
+
+        <div class="split">
+          <section class="card" aria-labelledby="h-offer">
+            <div class="card-head"><div><h2 class="card-title" id="h-offer">Offre groupée en cours · maïs grain</h2><p class="card-sub">Campagne 2026 · objectif fixé le 20/09/2026</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Publiée au marché</span></div>
+            <p><span class="big">142 t</span> <span class="muted">engagées sur 200 t</span></p>
+            <div class="goal" role="img" aria-label="Collecté 96 tonnes, engagé non collecté 46 tonnes, reste à engager 58 tonnes"><span style="flex:96;background:var(--d1)" title="Collecté en magasin : 96 t"></span><span style="flex:46;background:var(--d2)" title="Engagé, pas encore collecté : 46 t"></span><span style="flex:58;background:var(--rain-2)" title="Reste à engager : 58 t"></span></div>
+            <ul class="legend"><li><span class="sw"></span>Collecté en magasin · <b class="num">96 t</b></li><li><span class="sw sw--2"></span>Engagé, à collecter · <b class="num">46 t</b></li><li><span class="sw" style="background:var(--rain-2)"></span>Reste à engager · <b class="num">58 t</b></li></ul>
+            <dl class="dl" style="margin-top:16px">
+              <dt>Prix demandé</dt><dd class="num">215 FCFA le kg, bord magasin</dd>
+              <dt>Membres engagés</dt><dd class="num">64 sur 86</dd>
+              <dt>Acheteurs intéressés</dt><dd>2 demandes de contact : Sika Transfo (Parakou), Agri Distrib (Bohicon)</dd>
+            </dl>
+            <div class="card-foot"><span class="small muted">Prix moyen à Parakou cette semaine : 205 FCFA le kg</span><div class="cluster" style="--gap:8px"><a class="btn btn-ghost btn-sm" href="offres.html">Modifier l'offre</a><a class="btn btn-secondary btn-sm" href="marche-acheteur.html">Voir les demandes</a></div></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-deliv">
+            <div class="card-head"><h2 class="card-title" id="h-deliv">Livraisons à venir</h2><a class="small" href="collecte.html">Tout le planning</a></div>
+            <ul class="list">
+              <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg></span><span class="li-main"><span class="li-title">20 t vers Sika Transfo, Parakou</span><span class="li-meta num">Mar. 21/10 · 7 h · magasin de Kandi</span></span><span class="li-end"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Payé</span></span></li>
+              <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg></span><span class="li-main"><span class="li-title">12 t vers Agri Distrib, Bohicon</span><span class="li-meta num">Ven. 24/10 · camion à confirmer</span></span><span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></span></li>
+              <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg></span><span class="li-main"><span class="li-title">8 t de soja vers SOJAGNON, Glazoué</span><span class="li-meta num">Lun. 03/11</span></span><span class="li-end"><span class="badge badge--draft">À planifier</span></span></li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-mem">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-mem" style="margin-right:auto">Membres</h2>
+            <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="m-q">Rechercher un membre</label><input class="input" id="m-q" type="search" placeholder="Nom ou code"></div>
+            <div class="tabs" role="tablist" aria-label="Afficher" style="border:0">
+              <button class="tab" role="tab" id="mt1" aria-controls="mp1" aria-selected="true">Membres actifs <span class="count">86</span></button>
+              <button class="tab" role="tab" id="mt2" aria-controls="mp2" aria-selected="false">Historique <span class="count">7</span></button>
+            </div>
+          </div>
+          <div id="mp1" role="tabpanel" aria-labelledby="mt1">
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <caption class="sr-only">Membres actifs : code, nom, rôle, adhésion, engagement</caption>
+                <thead><tr><th scope="col">Code</th><th scope="col" aria-sort="ascending"><button type="button" class="th-sort">Nom<svg class="ic" aria-hidden="true"><use href="#i-sort-asc"/></svg></button></th><th scope="col">Rôle dans la coopérative</th><th scope="col">Adhésion</th><th scope="col" class="num">Engagé (offre)</th><th scope="col" class="col-actions"><span class="sr-only">Action</span></th></tr></thead>
+                <tbody>
+                  <tr><td class="num" data-label="Code">ALI-KAN-01187</td><td class="td-primary" data-label="Nom"><span class="cell-main">Bio Gounou</span></td><td data-label="Rôle">Président ou présidente</td><td class="num" data-label="Adhésion">12/03/2023</td><td class="num" data-label="Engagé (offre)">6,0 t</td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="num" data-label="Code">ALI-KAN-00954</td><td class="td-primary" data-label="Nom"><span class="cell-main">Fati Yarou</span></td><td data-label="Rôle">Trésorier ou trésorière</td><td class="num" data-label="Adhésion">12/03/2023</td><td class="num" data-label="Engagé (offre)">3,5 t</td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="num" data-label="Code">ALI-BNK-00412</td><td class="td-primary" data-label="Nom"><span class="cell-main">Awa Sabi</span></td><td data-label="Rôle">Membre</td><td class="num" data-label="Adhésion">04/05/2023</td><td class="num" data-label="Engagé (offre)">2,8 t</td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="num" data-label="Code">ALI-KAN-01402</td><td class="td-primary" data-label="Nom"><span class="cell-main">Orou Sanni</span></td><td data-label="Rôle">Secrétaire</td><td class="num" data-label="Adhésion">18/01/2024</td><td class="num" data-label="Engagé (offre)"><span class="na">pas encore</span></td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span class="num">1–4 sur 86 membres</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><span aria-hidden="true">…</span><button class="page-btn" type="button">22</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+          </div>
+          <div id="mp2" role="tabpanel" aria-labelledby="mt2" hidden>
+            <div class="table-scroll"><table class="table table--cards"><caption class="sr-only">Adhésions terminées</caption><thead><tr><th scope="col">Code</th><th scope="col">Nom</th><th scope="col">Adhésion</th><th scope="col">Fin</th><th scope="col">Motif</th></tr></thead><tbody>
+              <tr><td class="num" data-label="Code">ALI-KAN-00711</td><td class="td-primary" data-label="Nom"><span class="cell-main">Séidou Bachabi</span></td><td class="num" data-label="Adhésion">12/03/2023</td><td class="num" data-label="Fin">30/06/2026</td><td data-label="Motif">Départ vers la coopérative de Gogounou</td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun membre actif","Ajoutez un producteur validé avec le bouton « Ajouter un membre ». Son identifiant vous est donné par l'agent ATDA.","Ajouter un membre"],"error":["Membre non ajouté","Ce producteur n'est pas encore validé par l'agent ATDA. Il pourra rejoindre la coopérative après validation.","producer_not_validated · 400"],"extra":"<div class=\"alert alert--ok\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-check-circle\"/></svg><div class=\"al-body\"><span>Adhésion terminée. Elle reste visible dans l'historique.</span></div></div>"}-->
+<!--@after-->
+<dialog class="modal" id="dlg-add" aria-labelledby="dlg-add-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-add-t">Ajouter un membre</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-add" method="dialog" novalidate>
+    <div class="field"><label class="label" for="ad-p">Producteur</label><input class="input input-num" id="ad-p" aria-invalid="true" aria-describedby="ad-e ad-h"><span class="error-msg" id="ad-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez un producteur validé.</span><span class="hint" id="ad-h">Identifiant du producteur (fourni par l'agent ATDA). Vous n'avez pas accès au registre.</span></div>
+    <div class="field"><label class="label" for="ad-r">Rôle dans la coopérative</label><select class="select" id="ad-r"><option>Membre</option><option>Président ou présidente</option><option>Trésorier ou trésorière</option><option>Secrétaire</option></select></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-add" class="btn btn-primary">Ajouter à la coopérative</button></div>
+</dialog>
+<dialog class="modal" id="dlg-end" aria-labelledby="dlg-end-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-end-t">Mettre fin à l'adhésion d'Orou Sanni</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-end" method="dialog">
+    <div class="field"><label class="label" for="en-r">Motif de fin d'adhésion</label><textarea class="textarea" id="en-r">Départ volontaire, annoncé en assemblée du 12/10/2026.</textarea><span class="hint">Une phrase suffit (5 caractères minimum). L'adhésion reste dans l'historique.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-end" class="btn btn-danger" data-toast="Adhésion terminée. Elle reste visible dans l'historique.">Confirmer la fin d'adhésion</button></div>
+</dialog>

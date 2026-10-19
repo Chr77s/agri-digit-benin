@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connexion · Agri-Digit Bénin</title>
+<meta name="description" content="Connexion par numéro de téléphone et code reçu par SMS, pour les producteurs, les agents et les partenaires (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  /* Panneau « États » repliable, pour la revue */
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  /* Écran d'accès : formulaire + visuel nature */
+  .auth { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .82fr); }
+  .auth-col { padding: clamp(28px, 5vw, 56px) var(--gutter) 56px; }
+  .auth-inner { width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  .auth-art { position: sticky; top: var(--topbar-h); align-self: start; height: calc(100vh - var(--topbar-h)); margin: 0; overflow: hidden; background: var(--canopy); }
+  .auth-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 72%; }
+  .auth-art figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 96px 36px 32px; background: linear-gradient(rgba(10,36,21,0), rgba(10,36,21,.9) 55%); color: var(--on-dark); }
+  .auth-art .art-line { font: 700 clamp(1.3rem, 1rem + .9vw, 1.7rem)/1.18 var(--font-display); letter-spacing: -.015em; max-width: 21ch; color: #fff; }
+  .auth-art .art-credit { margin-top: 12px; font-size: var(--fs-xs); color: var(--on-dark-2); }
+  @media (max-width: 1023px) {
+    .auth { grid-template-columns: minmax(0, 1fr); }
+    .auth-art { order: -1; position: relative; top: 0; height: 128px; }
+    .auth-art figcaption { padding: 28px var(--gutter) 14px; }
+    .auth-art .art-line { font-size: 1.0625rem; max-width: none; }
+    .auth-art .art-credit { display: none; }
+  }
+  @media (max-width: 440px) { .otp { gap: 6px; } .otp input { width: 42px; height: 52px; } .auth-inner .card { padding: 16px; } }
+  .title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+  .pw { position: relative; }
+  .pw .input { padding-right: 52px; }
+  .pw .btn-icon { position: absolute; right: 0; top: 0; }
+  .sms { font-variant-numeric: tabular-nums; }
+  .sms b { letter-spacing: .08em; }
+  .resend-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  .attempts { font-size: var(--fs-sm); color: var(--ink-2); }
+  .aside-links { display: flex; flex-direction: column; gap: 4px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .aside-links a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 700; }
+</style>
+</head>
+<body data-page="acces/connexion">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-ecoute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol></svg>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, SMS simulés, aucune donnée officielle</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+  <div class="auth">
+    <main class="auth-col" id="contenu" tabindex="-1">
+      <div class="auth-inner">
+        <div>
+          <div class="title-row">
+            <h1 class="page-title">Se connecter</h1>
+            <button type="button" class="btn btn-ghost btn-sm" data-toast="Connexion. Saisissez votre numéro de téléphone, puis le code reçu par SMS." data-toast-title="Lecture à voix haute (simulée)"><svg class="ic" aria-hidden="true"><use href="#i-ecoute"/></svg>Écouter</button>
+          </div>
+          <p class="page-desc">Pas de mot de passe à retenir pour les producteurs : un code arrive par SMS à chaque connexion.</p>
+        </div>
+
+        <div>
+          <div class="tabs" role="tablist" aria-label="Type de compte">
+            <button class="tab" role="tab" type="button" id="tb-prod" aria-controls="tp-prod" aria-selected="true">Producteur</button>
+            <button class="tab" role="tab" type="button" id="tb-agent" aria-controls="tp-agent" aria-selected="false">Agent ou partenaire</button>
+          </div>
+
+          <!-- Producteur : étape 2 (code) -->
+          <div class="tab-panel stack" role="tabpanel" id="tp-prod" aria-labelledby="tb-prod" style="--gap:18px">
+            <div>
+              <p class="steps-compact">Étape 2 sur 2 · Code reçu par SMS</p>
+              <ol class="steps" aria-label="Connexion">
+                <li class="step is-done"><span class="st-label">Numéro</span></li>
+                <li class="step" aria-current="step"><span class="st-label">Code reçu par SMS</span></li>
+              </ol>
+            </div>
+            <form class="card stack" id="f-prod" novalidate style="--gap:18px">
+              <p aria-live="polite">Code envoyé au <strong class="num">01 97 42 18 06</strong>.</p>
+              <fieldset class="fieldset">
+                <legend class="label">Code à 6 chiffres</legend>
+                <div class="otp" role="group" aria-label="Code à 6 chiffres" aria-describedby="prod-h prod-e">
+                  <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" placeholder=" " aria-label="Chiffre 1"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 2"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 3"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 4"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 5"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 6">
+                </div>
+                <span class="hint" id="prod-h">Valable 10 minutes. Après 5 essais incorrects, le compte est bloqué 15 minutes.</span>
+                <span class="error-msg" id="prod-e" role="alert" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span></span></span>
+              </fieldset>
+              <div class="resend-row">
+                <div class="timer" data-timer="45" data-enables="prod-resend"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Renvoyer le code dans <b>0:45</b></span><span class="timer-bar" aria-hidden="true"><span></span></span></div>
+                <button class="btn btn-ghost btn-sm" id="prod-resend" type="button" disabled data-toast="Nouveau code envoyé au 01 97 42 18 06 (SMS simulé).">Renvoyer le code</button>
+              </div>
+              <div class="alert alert--demo">
+                <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
+                <div class="al-body">
+                  <span class="al-title">SMS simulé, reçu le 18/10/2026 à 14:32</span>
+                  <span class="sms">Agri-Digit : votre code de connexion est <b>482913</b>. Il expire dans 10 minutes.</span>
+                </div>
+              </div>
+              <div class="stack" style="--gap:8px">
+                <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+                <a class="btn btn-ghost btn-block" href="#etats">Changer de numéro</a>
+              </div>
+            </form>
+          </div>
+
+          <!-- Agent ou partenaire : même flux, avec mot de passe en plus du code -->
+          <div class="tab-panel stack" role="tabpanel" id="tp-agent" aria-labelledby="tb-agent" hidden style="--gap:18px">
+            <div class="alert alert--info">
+              <svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>
+              <div class="al-body"><span class="al-title">Agents ATDA, administrateurs, coopératives et partenaires</span><span>Même numéro, même code SMS. Votre compte demande en plus votre mot de passe : il protège l'accès aux fiches des producteurs.</span></div>
+            </div>
+            <form class="card stack" id="f-agent" novalidate style="--gap:18px">
+              <p aria-live="polite">Code envoyé au <strong class="num">01 66 21 40 87</strong>.</p>
+              <fieldset class="fieldset">
+                <legend class="label">Code à 6 chiffres</legend>
+                <div class="otp" role="group" aria-label="Code à 6 chiffres" aria-describedby="ag-h ag-e">
+                  <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" placeholder=" " aria-label="Chiffre 1"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 2"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 3"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 4"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 5"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 6">
+                </div>
+                <span class="hint" id="ag-h">Valable 10 minutes.</span>
+                <span class="error-msg" id="ag-e" role="alert" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span></span></span>
+              </fieldset>
+              <div class="field">
+                <label class="label" for="ag-pw">Mot de passe</label>
+                <div class="pw">
+                  <input class="input" id="ag-pw" type="password" autocomplete="current-password" aria-describedby="ag-pw-h">
+                  <button class="btn btn-icon" type="button" data-pw-toggle aria-label="Afficher le mot de passe" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></button>
+                </div>
+                <span class="hint" id="ag-pw-h">Oublié ? L'administrateur MAEP le réinitialise sur demande.</span>
+              </div>
+              <div class="resend-row">
+                <div class="timer" data-timer="45" data-enables="ag-resend"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Renvoyer le code dans <b>0:45</b></span><span class="timer-bar" aria-hidden="true"><span></span></span></div>
+                <button class="btn btn-ghost btn-sm" id="ag-resend" type="button" disabled data-toast="Nouveau code envoyé (SMS simulé).">Renvoyer le code</button>
+              </div>
+              <div class="alert alert--demo">
+                <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
+                <div class="al-body"><span class="al-title">SMS simulé, reçu le 18/10/2026 à 14:33</span><span class="sms">Agri-Digit : votre code de connexion est <b>275640</b>. Il expire dans 10 minutes.</span></div>
+              </div>
+              <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+            </form>
+          </div>
+        </div>
+
+        <nav class="aside-links" aria-label="Autres accès">
+          <span>Pas encore inscrit ?</span>
+          <a href="inscription.html">S'inscrire comme producteur<svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          <a href="verification-carte.html"><svg class="ic" aria-hidden="true"><use href="#i-qr"/></svg>Vérifier une carte de producteur</a>
+        </nav>
+
+        <details class="review" id="etats">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de l'écran (revue)<svg class="ic chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="review-body">
+            <div class="card">
+              <span class="review-cap">Étape 1 · numéro invalide</span>
+              <div class="stack" style="--gap:14px">
+                <div class="field">
+                  <label class="label" for="s-tel">Numéro de téléphone</label>
+                  <div class="input-group"><span class="addon"><span aria-hidden="true">BJ</span> +229</span><input class="input input-num" id="s-tel" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" value="97421806" aria-invalid="true" aria-describedby="s-tel-e"></div>
+                  <span class="error-msg" id="s-tel-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez 10 chiffres commençant par 01, par exemple 0197000001.</span>
+                </div>
+                <button class="btn btn-primary btn-block" type="button">Recevoir le code</button>
+              </div>
+            </div>
+            <div class="card">
+              <span class="review-cap">Étape 1 · envoi du code</span>
+              <div class="stack" style="--gap:14px">
+                <div class="field">
+                  <label class="label" for="s-tel2">Numéro de téléphone</label>
+                  <div class="input-group"><span class="addon"><span aria-hidden="true">BJ</span> +229</span><input class="input input-num" id="s-tel2" type="tel" value="0197421806" readonly></div>
+                  <span class="hint">10 chiffres, commence par 01</span>
+                </div>
+                <button class="btn btn-primary btn-block" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Envoi du code…</button>
+              </div>
+            </div>
+            <div class="card">
+              <span class="review-cap">Code incorrect</span>
+              <div class="otp" data-invalid role="group" aria-label="Code saisi" aria-describedby="s-otp-e">
+                <input value="4" maxlength="1" aria-label="Chiffre 1"><input value="8" maxlength="1" aria-label="Chiffre 2"><input value="2" maxlength="1" aria-label="Chiffre 3"><input value="9" maxlength="1" aria-label="Chiffre 4"><input value="3" maxlength="1" aria-label="Chiffre 5"><input value="1" maxlength="1" aria-label="Chiffre 6">
+              </div>
+              <span class="error-msg" id="s-otp-e" style="margin-top:8px"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Code incorrect. Il vous reste 2 essais avant le blocage.</span>
+            </div>
+            <div class="alert alert--danger">
+              <svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>
+              <div class="al-body">
+                <span class="al-title">Compte bloqué après 5 échecs</span>
+                <span>Réessayez dans 15 minutes. Si ce n'est pas vous, prévenez votre agent ATDA.</span>
+                <span class="timer"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Déblocage dans <b>14:32</b></span></span>
+              </div>
+            </div>
+            <div class="alert alert--warn">
+              <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+              <div class="al-body">
+                <span class="al-title">Code expiré, demandez-en un nouveau.</span>
+                <span>Un code reste valable 10 minutes.</span>
+                <div class="al-actions"><button class="btn btn-secondary btn-sm" type="button">Renvoyer le code</button></div>
+              </div>
+            </div>
+            <div class="alert alert--demo">
+              <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
+              <div class="al-body"><span class="al-title">En attente du SMS simulé…</span><span>Si rien n'arrive : boîte de réception simulée indisponible. Le code reste utilisable s'il vous parvient.</span></div>
+            </div>
+            <div class="banner banner--offline" style="border-radius:var(--r-md)">
+              <svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>
+              <span>Pas de réseau. La connexion a besoin du réseau pour recevoir le SMS.</span>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <figure class="auth-art">
+      <picture><source media="(max-width: 1023px)" srcset="../../landing/img/champ-390.jpg"><img src="../../landing/img/champ-1440.jpg" alt="" width="1440" height="900"></picture>
+      <figcaption>
+        <p class="art-line">Votre champ, vos conseils, vos appuis : tout tient dans votre téléphone.</p>
+        <p class="art-credit">Image : capture du rendu 3D de la page d'accueil Agri-Digit.</p>
+      </figcaption>
+    </figure>
+  </div>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<script>
+  // Démonstration : vérification du code (482913 / 275640), essais restants, blocage après 5 échecs
+  (function () {
+    var GOOD = { 'f-prod': '482913', 'f-agent': '275640' }, left = { 'f-prod': 5, 'f-agent': 5 };
+    document.addEventListener('submit', function (e) {
+      var f = e.target; if (!GOOD[f.id]) return;
+      e.preventDefault();
+      var otp = f.querySelector('.otp'), err = f.querySelector('.error-msg'), msg = err.querySelector('span');
+      var code = Array.prototype.map.call(otp.querySelectorAll('input'), function (i) { return i.value; }).join('');
+      var pw = f.querySelector('#ag-pw');
+      var say = function (t) { otp.setAttribute('data-invalid', ''); msg.textContent = t; err.hidden = false; };
+      if (!/^\d{6}$/.test(code)) return say('Le code contient 6 chiffres. Recopiez le code reçu par SMS.');
+      if (pw && !pw.value) { pw.setAttribute('aria-invalid', 'true'); pw.focus(); return; }
+      if (code !== GOOD[f.id]) {
+        left[f.id]--;
+        if (left[f.id] <= 0) { say('Compte bloqué après 5 échecs. Réessayez dans 15 minutes.'); f.querySelector('[type="submit"]').disabled = true; return; }
+        return say('Code incorrect. Il vous reste ' + left[f.id] + ' essai' + (left[f.id] > 1 ? 's' : '') + ' avant le blocage.');
+      }
+      err.hidden = true;
+      var b = f.querySelector('[type="submit"]'); b.setAttribute('aria-busy', 'true'); b.innerHTML = '<span class="spinner" aria-hidden="true"></span>Connexion…';
+      setTimeout(function () { location.href = f.id === 'f-agent' ? '../agent/accueil.html' : '../producteur/accueil.html'; }, 900);
+    });
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-pw-toggle]'); if (!t) return;
+      var i = t.parentNode.querySelector('input'), on = i.type === 'password';
+      i.type = on ? 'text' : 'password'; t.setAttribute('aria-pressed', String(on));
+      t.setAttribute('aria-label', on ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      t.querySelector('use').setAttribute('href', on ? '#i-eye-off' : '#i-eye');
+    });
+  })();
+</script>
+</body>
+</html>

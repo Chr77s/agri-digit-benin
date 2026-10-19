@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prévisions · Agri-Digit Bénin</title>
+<meta name="description" content="Prévisions simulées de rendement et risques climatiques (sécheresse, inondation, ravageurs) par commune (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+  .filters .field { min-width: min(100%, 200px); }
+  .chart .band { fill: rgba(226,177,50,.18); }
+  .chart .obs-lab { font: 600 12px var(--font-ui); fill: var(--ink-2); }
+  .chart svg .hit:hover + circle, .chart svg circle:hover { r: 6; }
+  .risk-cell { display: inline-flex; flex-direction: column; gap: 2px; }
+  .method li { margin-bottom: 6px; }
+</style>
+</head>
+<body data-role="responsable_programme" data-page="pilotage/previsions">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/programmes.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une commune…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 1 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">1</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Suivi</a></li><li><span aria-current="page">Prévisions</span></li></ol></nav>
+          <h1 class="page-title">Prévisions de rendement et risques</h1>
+          <p class="page-desc">Une aide pour anticiper les appuis et les alertes. Ces prévisions sont simulées&nbsp;: elles ne remplacent ni l'avis de l'agent ATDA ni celui de l'INRAB.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="../agent/alertes.html"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Préparer une alerte</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Calcul simulé</span><span>Aucun modèle réel n'est branché&nbsp;: pluie, indice de végétation et historique sont générés pour la démonstration. Ne prenez aucune décision sur ces seuls chiffres.</span></div>
+        </div>
+
+        <form class="card card--flat filters" onsubmit="return false" aria-label="Paramètres de la prévision">
+          <div class="field"><label class="label" for="pv-vc">Filière</label><select class="select" id="pv-vc"><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option></select></div>
+          <div class="field"><label class="label" for="pv-dep">Département</label><select class="select" id="pv-dep"><option>Alibori</option><option>Borgou</option><option>Atacora</option><option>Donga</option></select></div>
+          <div class="field"><label class="label" for="pv-h">Horizon</label><select class="select" id="pv-h"><option>Fin de campagne 2026</option><option>Campagne 2027</option></select></div>
+          <span class="badge badge--sim" style="margin-left:auto">Simulé · calculé le 18/10/2026 05:00</span>
+        </form>
+
+        <div class="split">
+          <figure class="card chart" aria-labelledby="h-rdt">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title" id="h-rdt">Rendement du maïs, Alibori</h2><p class="card-sub">Tonnes par hectare · observé puis prévu</p></div><span class="badge badge--sim">Prévision simulée</span></div>
+            <svg viewBox="0 0 560 230" role="img" aria-labelledby="rdt-t"><title id="rdt-t">Rendement observé de 2021 à 2025&nbsp;: 1,6&nbsp;; 1,7&nbsp;; 1,5&nbsp;; 1,8&nbsp;; 1,9&nbsp;t/ha. Prévision 2026&nbsp;: 2,0 (fourchette 1,7 à 2,2)&nbsp;; 2027&nbsp;: 2,1 (fourchette 1,7 à 2,4).</title>
+              <g class="grid"><line x1="44" x2="548" y1="20" y2="20"/><line x1="44" x2="548" y1="70" y2="70"/><line x1="44" x2="548" y1="120" y2="120"/><line x1="44" x2="548" y1="170" y2="170"/><line x1="44" x2="548" y1="200" y2="200"/></g>
+              <g class="tick" text-anchor="end"><text x="36" y="24">2,4</text><text x="36" y="74">2,0</text><text x="36" y="124">1,6</text><text x="36" y="174">1,2</text></g>
+              <path class="band" d="M410 108 L480 95 L548 70 L548 145 L480 145 L410 133Z" style="fill:rgba(226,177,50,.12)"/>
+              <path class="area" d="M60 120 L147 108 L235 133 L322 95 L410 83 L410 200 L60 200Z" style="fill:rgba(31,90,50,.08)"/>
+              <path class="line" d="M60 120 L147 108 L235 133 L322 95 L410 83"/>
+              <path class="line line--forecast" d="M410 83 L480 70 L548 58"/>
+              <g><circle class="point" cx="60" cy="120" r="4"><title>2021&nbsp;: 1,6&nbsp;t/ha observé</title></circle><circle class="point" cx="147" cy="108" r="4"><title>2022&nbsp;: 1,7&nbsp;t/ha observé</title></circle><circle class="point" cx="235" cy="133" r="4"><title>2023&nbsp;: 1,5&nbsp;t/ha observé (sécheresse d'août)</title></circle><circle class="point" cx="322" cy="95" r="4"><title>2024&nbsp;: 1,8&nbsp;t/ha observé</title></circle><circle class="point" cx="410" cy="83" r="4"><title>2025&nbsp;: 1,9&nbsp;t/ha observé</title></circle>
+                <circle cx="480" cy="70" r="5" fill="#E2B132" stroke="#fff" stroke-width="2"><title>2026&nbsp;: 2,0&nbsp;t/ha prévu (1,7 à 2,2)</title></circle><circle cx="548" cy="58" r="5" fill="#E2B132" stroke="#fff" stroke-width="2"><title>2027&nbsp;: 2,1&nbsp;t/ha prévu (1,7 à 2,4)</title></circle></g>
+              <text class="val" x="410" y="70" text-anchor="middle">1,9</text><text class="val" x="540" y="45" text-anchor="end">2,1 prévu</text>
+              <text class="obs-lab" x="235" y="152" text-anchor="middle">sécheresse</text>
+              <g class="tick" text-anchor="middle"><text x="60" y="220">2021</text><text x="147" y="220">2022</text><text x="235" y="220">2023</text><text x="322" y="220">2024</text><text x="410" y="220">2025</text><text x="480" y="220">2026</text><text x="548" y="220" text-anchor="end">2027</text></g>
+            </svg>
+            <ul class="legend"><li><span class="sw"></span>Observé (registre, démonstration)</li><li><span class="sw sw--dash"></span>Prévision simulée</li><li><span class="sw" style="background:rgba(226,177,50,.35)"></span>Fourchette probable</li></ul>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Rendement du maïs par année</caption><thead><tr><th scope="col">Année</th><th scope="col" class="num">t/ha</th><th scope="col">Nature</th></tr></thead><tbody>
+                <tr><th scope="row">2021</th><td class="num">1,6</td><td>Observé</td></tr><tr><th scope="row">2022</th><td class="num">1,7</td><td>Observé</td></tr><tr><th scope="row">2023</th><td class="num">1,5</td><td>Observé</td></tr><tr><th scope="row">2024</th><td class="num">1,8</td><td>Observé</td></tr><tr><th scope="row">2025</th><td class="num">1,9</td><td>Observé</td></tr><tr><th scope="row">2026</th><td class="num">2,0 (1,7–2,2)</td><td><span class="badge badge--sim">Simulé</span></td></tr><tr><th scope="row">2027</th><td class="num">2,1 (1,7–2,4)</td><td><span class="badge badge--sim">Simulé</span></td></tr>
+              </tbody></table></div>
+            </details>
+          </figure>
+
+          <section class="card" aria-labelledby="h-meth">
+            <div class="card-head"><h2 class="card-title" id="h-meth">Comment c'est calculé</h2><span class="badge badge--sim">Simulé</span></div>
+            <ul class="method small" style="padding-left:18px">
+              <li><b>Pluie</b>&nbsp;: cumul décadaire simulé, comparé à la normale 1991–2020.</li>
+              <li><b>Végétation</b>&nbsp;: indice NDVI simulé sur les parcelles tracées.</li>
+              <li><b>Historique</b>&nbsp;: rendements déclarés des 5 dernières campagnes.</li>
+              <li><b>Ravageurs</b>&nbsp;: signalements des diagnostics photo et des agents.</li>
+            </ul>
+            <div class="alert alert--info" style="margin-top:12px"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><div class="al-body"><span>Aucune décision automatique&nbsp;: une alerte part seulement après double validation d'un agent ou d'un administrateur.</span></div></div>
+          </section>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-risk">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-risk" style="margin-right:auto">Risques par commune · 30 prochains jours</h2>
+            <div class="chips" role="group" aria-label="Filtrer par risque">
+              <button type="button" class="chip" aria-pressed="true">Tous <span class="count">6</span></button>
+              <button type="button" class="chip" aria-pressed="false">Sécheresse</button>
+              <button type="button" class="chip" aria-pressed="false">Inondation</button>
+              <button type="button" class="chip" aria-pressed="false">Ravageurs</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Niveau de risque simulé par commune&nbsp;: sécheresse, inondation, ravageurs</caption>
+              <thead><tr><th scope="col">Commune</th><th scope="col">Sécheresse</th><th scope="col">Inondation</th><th scope="col">Ravageurs</th><th scope="col" class="num">Rendement prévu</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Banikoara</span><span class="cell-sub">2&nbsp;410 producteurs de maïs</span></td><td data-label="Sécheresse"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Élevé</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="risk-cell"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span><span class="small muted">Chenille légionnaire</span></span></td><td class="num" data-label="Rendement prévu">1,8&nbsp;t/ha</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Kandi</span><span class="cell-sub">1&nbsp;120 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,0&nbsp;t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Malanville</span><span class="cell-sub">Vallée du Niger · 640 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Élevé</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,2&nbsp;t/ha</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Gogounou</span><span class="cell-sub">880 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="risk-cell"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span><span class="small muted">Chenille légionnaire</span></span></td><td class="num" data-label="Rendement prévu">1,9&nbsp;t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Karimama</span><span class="cell-sub">310 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu"><span class="na">non disponible</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Ségbana</span><span class="cell-sub">402 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,1&nbsp;t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Niveaux simulés. Karimama&nbsp;: trop peu de parcelles tracées pour estimer un rendement.</span></div>
+        </section>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Pas assez de données pour prévoir</h3><p>Il faut au moins 3 campagnes déclarées et 20 parcelles tracées sur le périmètre. Choisissez un autre département ou une autre filière.</p></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>La prévision n'a pas pu être calculée</h3><p>Le service de simulation ne répond pas. La dernière prévision date du 17/10/2026 05:00.</p><code>ERR_FORECAST · 504</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

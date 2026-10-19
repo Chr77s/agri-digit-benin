@@ -1,0 +1,95 @@
+---
+title: Mes appuis
+desc: Appuis reçus à confirmer, historique des semences, engrais et matériel remis, et suivi du remboursement.
+search: Rechercher un appui…
+---
+<!--@head-->
+.confirm-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.confirm-card .li-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--r-lg); background: var(--layer); color: var(--leaf); }
+.confirm-card .li-icon .ic { width: 26px; height: 26px; }
+.confirm-card .cluster { justify-content: flex-end; }
+.repay { display: flex; flex-direction: column; gap: 10px; }
+.repay .progress { height: 10px; }
+.repay-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.repay-figs div { padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+.repay-figs b { display: block; font-size: 1.125rem; }
+@media (max-width: 640px) { .confirm-card { grid-template-columns: 1fr; } .confirm-card .cluster { justify-content: flex-start; } .repay-figs { grid-template-columns: 1fr; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes appuis</span></li></ol></nav>
+          <h1 class="page-title">Mes appuis</h1>
+          <p class="page-desc">Semences, engrais et matériel remis par votre agent. Confirmez chaque réception : c'est la preuve que l'appui vous est bien parvenu.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes appuis. Touchez Confirmer la réception quand vous avez bien reçu l'appui." data-toast-type="demo">{{I:megaphone}}Écouter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="stack" style="--gap:12px" aria-labelledby="t-conf">
+          <div class="between"><h2 class="section-title" id="t-conf">À confirmer</h2>{{B:wait|1 en attente}}</div>
+          <article class="card confirm-card">
+            <span class="li-icon">{{I:gift}}</span>
+            <div><h3 class="card-title">Engrais NPK 15-15-15 · 2 sacs de 50 kg</h3>
+              <p class="small muted">Remis le 14 octobre 2026 par Moussa Yarou (ATDA Banikoara) · Programme intrants maïs 2026</p>
+              <p class="small" style="margin-top:4px">Valeur : <b class="num">36 000 FCFA</b> · {{B:wait|À rembourser}}</p></div>
+            <div class="cluster"><button type="button" class="btn btn-ghost" data-open-dialog="dlg-pb">Signaler un problème</button><button type="button" class="btn btn-primary" data-toast="Merci. Votre confirmation est enregistrée." data-toast-title="Réception confirmée">{{I:check}}Confirmer la réception</button></div>
+          </article>
+        </section>
+
+        <div class="split">
+          <section class="table-card" aria-labelledby="t-hist">
+            <div class="table-toolbar"><h2 class="card-title" id="t-hist" style="margin-right:auto">Historique des appuis</h2><div class="chips" role="group" aria-label="Saison"><button type="button" class="chip" aria-pressed="true">2026</button><button type="button" class="chip" aria-pressed="false">2025</button></div></div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <caption class="sr-only">Appuis reçus en 2026</caption>
+                <thead><tr><th scope="col">Appui</th><th scope="col" class="num">Quantité</th><th scope="col" class="num">Valeur (FCFA)</th><th scope="col">Type</th><th scope="col">État</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-primary" data-label="Appui"><span class="cell-main">Engrais NPK 15-15-15</span><span class="cell-sub">14 oct. · Programme intrants maïs</span></td><td class="num" data-label="Quantité">2 sacs</td><td class="num" data-label="Valeur (FCFA)">36 000</td><td data-label="Type">À rembourser</td><td data-label="État">{{B:wait|Remis}}</td></tr>
+                  <tr><td class="td-primary" data-label="Appui"><span class="cell-main">Semences de maïs EVDT 97</span><span class="cell-sub">2 mai · Programme intrants maïs</span></td><td class="num" data-label="Quantité">25 kg</td><td class="num" data-label="Valeur (FCFA)">17 500</td><td data-label="Type">À rembourser</td><td data-label="État">{{B:ok|Confirmé le 2 mai}}</td></tr>
+                  <tr><td class="td-primary" data-label="Appui"><span class="cell-main">Urée 46 %</span><span class="cell-sub">3 juin · Programme intrants maïs</span></td><td class="num" data-label="Quantité">1 sac</td><td class="num" data-label="Valeur (FCFA)">16 000</td><td data-label="Type">À rembourser</td><td data-label="État">{{B:ok|Confirmé le 4 juin}}</td></tr>
+                  <tr><td class="td-primary" data-label="Appui"><span class="cell-main">Bâche de séchage</span><span class="cell-sub">20 sept. · sans programme</span></td><td class="num" data-label="Quantité">1 unité</td><td class="num" data-label="Valeur (FCFA)">8 000</td><td data-label="Type">Don</td><td data-label="État">{{B:ok|Confirmé le 21 sept.}}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span class="num">4 appuis · 77 500 FCFA</span><span class="badge badge--demo">Démonstration</span></div>
+          </section>
+
+          <section class="card repay" aria-labelledby="t-remb">
+            <div class="between"><h2 class="card-title" id="t-remb">Remboursement</h2><span class="badge badge--sim">Simulé</span></div>
+            <p class="small muted">Appuis à rembourser après la récolte, au plus tard le 31 janvier 2027.</p>
+            <span class="progress" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" aria-label="Remboursé à 48 %"><span style="--v:48%"></span></span>
+            <div class="repay-figs">
+              <div><span class="small muted">Dû</span><b class="num">69 500</b></div>
+              <div><span class="small muted">Remboursé</span><b class="num">33 500</b></div>
+              <div><span class="small muted">Reste</span><b class="num">36 000</b></div>
+            </div>
+            <ol class="timeline" style="margin-top:6px">
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">05/10/2026</div><div class="tl-title">33 500 FCFA · Mobile Money</div><div class="tl-text">Retenue sur la vente de maïs (FKP-2A9C-1187)</div></li>
+              <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Avant le 31/01/2027</div><div class="tl-title">36 000 FCFA restants</div></li>
+            </ol>
+            <button type="button" class="btn btn-secondary" data-toast="Demande de paiement envoyée sur votre téléphone (simulation)." data-toast-type="demo">{{I:wallet}}Rembourser par Mobile Money</button>
+          </section>
+        </div>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Confirmation enregistrée</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body">Merci. Votre confirmation est enregistrée.</div></div></div>
+            <div><span class="state-cap">Confirmation hors ligne</span><div class="alert alert--warn">{{I:wifi-off}}<div class="al-body">Pas de réseau : votre confirmation partira au retour de la connexion.</div></div></div>
+            <div><span class="state-cap">Aucun appui</span><div class="card empty"><h3>Aucun appui pour le moment</h3><p>Les appuis remis par votre agent (semences, engrais, matériel) apparaîtront ici.</p></div></div>
+          </div>
+        </details>
+      </div>
+<!--@after-->
+<dialog class="modal" id="dlg-pb" aria-labelledby="dlg-pb-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-pb-t">Signaler un problème sur cet appui</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer">{{I:x}}</button></div>
+  <form class="modal-body" id="f-pb" method="dialog">
+    <fieldset class="fieldset"><legend class="label">Que s'est-il passé ?</legend>
+      <label class="check"><input class="radio" type="radio" name="pb" checked> Je n'ai rien reçu</label>
+      <label class="check"><input class="radio" type="radio" name="pb"> Quantité différente</label>
+      <label class="check"><input class="radio" type="radio" name="pb"> Produit abîmé ou différent</label></fieldset>
+    <div class="field"><label class="label" for="pb-c">Précisions <span class="opt">(facultatif)</span></label><textarea class="textarea" id="pb-c" placeholder="Ex. un seul sac reçu sur deux"></textarea></div>
+    <p class="hint">Le signalement est transmis au responsable du programme. Vous pourrez le suivre dans « Mes contestations ».</p>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-pb" class="btn btn-primary" data-toast="Signalement envoyé. Vous recevrez une réponse motivée.">Envoyer le signalement</button></div>
+</dialog>

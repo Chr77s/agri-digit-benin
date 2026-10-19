@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agri-Digit Bénin · Maquettes</title>
+<link rel="icon" href="../frontend/public/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="landing/fonts.css">
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<header class="hub-head">
+  <a class="brand" href="index.html"><img src="../frontend/public/icon.svg" width="36" height="36" alt=""><span>Agri-Digit Bénin</span></a>
+  <p class="tag">Maquettes du projet · prototype, données de démonstration</p>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1>Toutes les maquettes, prêtes à montrer.</h1>
+      <p class="lead">La vitrine, la plateforme web des 11 rôles et l'application mobile du producteur, dans le monde visuel « Bénin Vert ».</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="presentation.html">Lancer la démonstration</a>
+        <a class="btn btn-ghost" href="landing/index.html">Ouvrir la page d'accueil</a>
+      </div>
+      <p class="hint">Dans la démonstration : flèches ← → du clavier pour changer d'étape, F pour le plein écran.</p>
+    </div>
+    <img class="hero-img" src="landing/img/champ-1440.jpg" alt="Champ de maïs en 3D, rendu de la page d'accueil" width="1440" height="900">
+  </section>
+
+  <section class="doors" aria-label="Les trois ensembles">
+    <a class="door" href="landing/index.html">
+      <b>Page d'accueil</b>
+      <span>Champ de maïs 3D, téléphone du producteur qui joue 7 écrans, pilotage de l'État.</span>
+    </a>
+    <a class="door" href="web/index.html">
+      <b>Plateforme web · 53 pages</b>
+      <span>Accès, producteur, agent ATDA, filière, pilotage. Galerie et planche de composants.</span>
+    </a>
+    <a class="door" href="mobile/index.html">
+      <b>Application mobile · 81 écrans</b>
+      <span>16 parcours, mode agent terrain, USSD et SMS sur téléphone simple.</span>
+    </a>
+  </section>
+
+  <section class="path" aria-labelledby="t-path">
+    <h2 id="t-path">Parcours de démonstration conseillé</h2>
+    <ol id="steps"></ol>
+  </section>
+
+  <section class="more">
+    <h2>Pour l'équipe</h2>
+    <ul>
+      <li><a href="web/composants.html">Planche des composants du kit</a></li>
+      <li><a href="landing/phone-test.html">Téléphone simulé seul</a></li>
+      <li><a href="archives/">Explorations abandonnées (v1, v2)</a></li>
+    </ul>
+    <p class="src">Photos : Wikimedia Commons (licences CC BY-SA), crédits dans chaque page. Système de design : <code>DESIGN.md</code>.</p>
+  </section>
+</main>
+
+<script src="demo-etapes.js"></script>
+<script>
+  document.getElementById('steps').innerHTML = DEMO.map((s, i) =>
+    `<li><a href="presentation.html#${i + 1}"><span class="n">${i + 1}</span><span class="p">${s.part}</span><b>${s.title}</b><small>${s.note}</small></a></li>`).join('');
+</script>
+</body>
+</html>

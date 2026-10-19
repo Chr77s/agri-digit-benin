@@ -1,0 +1,67 @@
+---
+{"role":"agent_financier","title":"Crédit","desc":"Producteurs ayant consenti au partage, score indicatif expliqué facteur par facteur ; jamais une décision automatique (maquette).","search":"Rechercher un code producteur…","notif":0}
+---
+<!--@head-->
+  .score-big { display: flex; align-items: baseline; gap: 6px; }
+  .score-big b { font: 700 3.25rem/1 var(--font-ui); font-variant-numeric: tabular-nums; }
+  .fx { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .fx li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .fx .fx-track { grid-column: 1 / -1; height: 14px; width: var(--w); background: var(--rain-2); border-radius: 0 4px 4px 0; }
+  .fx .fx-track > span { display: block; height: 100%; width: var(--v); background: var(--d1); border-radius: 0 4px 4px 0; }
+  .fx .fx-why { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fx .pts { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .never { border: 2px solid var(--laterite); border-radius: var(--r-lg); padding: 14px 16px; background: var(--sim-bg); color: var(--sim-ink); font-weight: 700; display: flex; gap: 10px; align-items: flex-start; }
+  tr[aria-selected="true"] td { background: var(--ok-bg); }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="credit.html">Crédit</a></li><li><span aria-current="page">Producteurs ayant consenti</span></li></ol></nav>
+          <h1 class="page-title">Score de crédit indicatif</h1>
+          <p class="page-desc">Vous ne voyez que les producteurs qui ont accepté le partage, et seulement tant que leur accord tient. Le score explique ; il ne décide pas.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><div class="al-body"><span class="al-title">Le score est une aide</span><span>La décision de crédit revient à une personne et se prend hors de la plateforme. Chaque consultation est enregistrée dans le journal d'audit.</span></div></div>
+
+        <div class="split">
+          <section class="table-card" aria-labelledby="h-cons">
+            <div class="table-toolbar"><h2 class="card-title" id="h-cons" style="margin-right:auto">Producteurs ayant consenti au partage <span class="muted num" style="font-weight:600">· 418</span></h2>
+              <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="cr-q">Rechercher</label><input class="input" id="cr-q" type="search" placeholder="Code ou commune"></div></div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <caption class="sr-only">Producteurs ayant consenti : code, nom, commune, consentement</caption>
+                <thead><tr><th scope="col">Code</th><th scope="col">Nom</th><th scope="col">Commune</th><th scope="col">Accord depuis</th><th scope="col" class="col-actions"><span class="sr-only">Score</span></th></tr></thead>
+                <tbody>
+                  <tr aria-selected="true"><td class="td-primary num" data-label="Code"><span class="cell-main">ALI-BNK-00412</span></td><td data-label="Nom">Awa Sabi</td><td data-label="Commune">Banikoara</td><td class="num" data-label="Accord depuis">03/09/2026</td><td class="col-actions"><button type="button" class="btn btn-primary btn-sm" aria-pressed="true">Score affiché</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">ALI-KAN-01187</span></td><td data-label="Nom">Bio Gounou</td><td data-label="Commune">Kandi</td><td class="num" data-label="Accord depuis">21/08/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">BOR-NIK-00342</span></td><td data-label="Nom">Mariama Saka</td><td data-label="Commune">Nikki</td><td class="num" data-label="Accord depuis">11/10/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">ZOU-DJI-00078</span></td><td data-label="Nom">Codjo Hounkpatin</td><td data-label="Commune">Djidja</td><td class="num" data-label="Accord depuis">30/07/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span>Un producteur qui retire son accord disparaît de cette liste immédiatement.</span></div>
+          </section>
+
+          <section class="card stack" style="--gap:16px" aria-labelledby="h-score" aria-live="polite">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title" id="h-score">Score d'Awa Sabi (ALI-BNK-00412)</h2><p class="card-sub">Calculé le 18/10/2026 à 09:02 · campagnes 2022 à 2026</p></div><span class="badge badge--sim">Calcul simulé</span></div>
+            <p class="score-big"><b>64</b><span class="muted">/ 100</span></p>
+            <ul class="fx" aria-label="Facteurs du score">
+              <li><span>Régularité des campagnes</span><span class="pts">20 / 25</span><span class="fx-track" style="--w:100%"><span style="--v:80%"></span></span><span class="fx-why">4 campagnes déclarées sur les 5 dernières années.</span></li>
+              <li><span>Surface cultivée</span><span class="pts">14 / 25</span><span class="fx-track" style="--w:100%"><span style="--v:56%"></span></span><span class="fx-why">4,6 ha déclarés, 3 parcelles validées par l'agent.</span></li>
+              <li><span>Rendement par rapport à la commune</span><span class="pts">11 / 20</span><span class="fx-track" style="--w:80%"><span style="--v:55%"></span></span><span class="fx-why">2,1 t/ha de maïs contre 1,9 t/ha en moyenne à Banikoara.</span></li>
+              <li><span>Membre d'une coopérative</span><span class="pts">10 / 15</span><span class="fx-track" style="--w:60%"><span style="--v:66.7%"></span></span><span class="fx-why">Membre de la Coop. Kandi Maïs depuis 2023.</span></li>
+              <li><span>Appuis reçus et confirmés</span><span class="pts">9 / 15</span><span class="fx-track" style="--w:60%"><span style="--v:60%"></span></span><span class="fx-why">3 appuis confirmés ; aucun historique de remboursement disponible.</span></li>
+            </ul>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir le calcul en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Facteurs du score : poids, valeur, contribution</caption><thead><tr><th scope="col">Facteur</th><th scope="col" class="num">Poids</th><th scope="col">Valeur</th><th scope="col" class="num">Contribution</th></tr></thead><tbody>
+                <tr><th scope="row">Régularité</th><td class="num">0,25</td><td class="num">0,80</td><td class="num">20,0</td></tr><tr><th scope="row">Surface</th><td class="num">0,25</td><td class="num">0,56</td><td class="num">14,0</td></tr><tr><th scope="row">Rendement relatif</th><td class="num">0,20</td><td class="num">0,55</td><td class="num">11,0</td></tr><tr><th scope="row">Coopérative</th><td class="num">0,15</td><td>oui, depuis 3 ans</td><td class="num">10,0</td></tr><tr><th scope="row">Appuis confirmés</th><td class="num">0,15</td><td class="num">0,60</td><td class="num">9,0</td></tr>
+              </tbody></table></div>
+            </details>
+            <p class="never"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><span>Ce score n'est pas une décision. Il ne peut ni accorder ni refuser un crédit. Le producteur peut demander l'explication de ce calcul.</span></p>
+            <p class="small muted"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-scroll"/></svg> Consultation inscrite au journal d'audit le 18/10/2026 à 09:02.</p>
+          </section>
+        </div>
+      </div>
+
+      <!--STATES {"empty":["Aucun producteur n'a donné son consentement","Le producteur l'accorde dans « Mes consentements ». Vous ne pouvez pas le demander à sa place.",""],"error":["Accord retiré","Ce producteur a retiré son accord à 08:55. Son score n'est plus consultable.","consent_withdrawn · 403"]}-->

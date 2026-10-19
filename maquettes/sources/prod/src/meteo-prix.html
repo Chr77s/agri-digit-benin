@@ -1,0 +1,110 @@
+---
+title: Météo et prix
+desc: Prévisions sur 7 jours, alertes climatiques et prix des produits agricoles par marché et par filière.
+search: Rechercher un marché, une filière…
+---
+<!--@head-->
+.week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.week li { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface-2); text-align: center; font-size: var(--fs-sm); }
+.week li.is-today { border-color: var(--leaf); background: var(--surface); box-shadow: inset 0 0 0 1px var(--leaf); }
+.week li.is-rain { background: #EEF5FA; border-color: #C7DCE8; }
+.week .ic { width: 26px; height: 26px; color: var(--leaf); }
+.week .is-rain .ic { color: #2E6A8E; }
+.week .d { font-weight: 700; }
+.week .tmax { font-size: 1.125rem; font-weight: 700; }
+.week .rainbar { width: 8px; height: 40px; border-radius: var(--r-pill); background: var(--rain-2); position: relative; overflow: hidden; }
+.week .rainbar i { position: absolute; left: 0; right: 0; bottom: 0; background: #2E6A8E; border-radius: var(--r-pill); }
+.up, .down { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; font-weight: 700; } .up { color: var(--leaf); } .down { color: var(--bad-ink); }
+.up .ic, .down .ic { width: 16px; height: 16px; vertical-align: -3px; }
+@media (max-width: 900px) { .week { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .week { grid-template-columns: repeat(2, minmax(0, 1fr)); } .week .rainbar { display: none; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Météo et prix</span></li></ol></nav>
+          <h1 class="page-title">Météo et prix</h1>
+          <p class="page-desc">Prévisions pour votre commune et prix relevés sur les marchés du Bénin, pour décider quand semer, traiter et vendre.</p>
+        </div>
+        <div class="page-actions">
+          <div class="field" style="min-width:220px"><label class="label" for="m-com">Commune</label><select class="select" id="m-com"><option selected>Banikoara (Alibori)</option><option>Kandi (Alibori)</option><option>Parakou (Borgou)</option><option>Bohicon (Zou)</option><option>Kétou (Plateau)</option></select></div>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="card" aria-labelledby="t-7j">
+          <div class="card-head"><div><h2 class="card-title" id="t-7j">Prévisions sur 7 jours · Banikoara</h2><p class="card-sub">Mise à jour aujourd'hui à 6 h 00</p></div><span class="badge badge--sim">Prévision simulée</span></div>
+          <ul class="week">
+            <li class="is-today"><span class="d">Aujourd'hui</span>{{I:cloud-sun}}<span class="tmax num">31°</span><span class="muted num">22°</span><span class="rainbar" aria-hidden="true"><i style="height:4%"></i></span><span class="num">1 mm · 10 %</span></li>
+            <li><span class="d">Mer. 19</span>{{I:sun}}<span class="tmax num">33°</span><span class="muted num">23°</span><span class="rainbar" aria-hidden="true"><i style="height:0"></i></span><span class="num">0 mm · 5 %</span></li>
+            <li class="is-rain"><span class="d">Jeu. 20</span>{{I:drop}}<span class="tmax num">27°</span><span class="muted num">21°</span><span class="rainbar" aria-hidden="true"><i style="height:100%"></i></span><span class="num"><b>62 mm</b> · 90 %</span></li>
+            <li class="is-rain"><span class="d">Ven. 21</span>{{I:drop}}<span class="tmax num">28°</span><span class="muted num">21°</span><span class="rainbar" aria-hidden="true"><i style="height:30%"></i></span><span class="num">18 mm · 70 %</span></li>
+            <li><span class="d">Sam. 22</span>{{I:cloud-sun}}<span class="tmax num">30°</span><span class="muted num">22°</span><span class="rainbar" aria-hidden="true"><i style="height:4%"></i></span><span class="num">2 mm · 20 %</span></li>
+            <li><span class="d">Dim. 23</span>{{I:sun}}<span class="tmax num">32°</span><span class="muted num">22°</span><span class="rainbar" aria-hidden="true"><i style="height:0"></i></span><span class="num">0 mm · 5 %</span></li>
+            <li><span class="d">Lun. 24</span>{{I:sun}}<span class="tmax num">33°</span><span class="muted num">23°</span><span class="rainbar" aria-hidden="true"><i style="height:0"></i></span><span class="num">0 mm · 5 %</span></li>
+          </ul>
+          <p class="hint" style="margin-top:12px">Total sur 7 jours : <b class="num">83 mm</b>. Températures maximale et minimale, pluie prévue et probabilité.</p>
+        </section>
+
+        <section aria-labelledby="t-alertes" class="stack" style="--gap:12px">
+          <h2 class="section-title" id="t-alertes">Alertes climatiques</h2>
+          <div class="alert alert--warn">{{I:drop}}<div class="al-body"><span class="al-title">Pluie forte jeudi 20 octobre · Alibori</span><span>Plus de 60 mm attendus. Reportez l'épandage d'engrais, dégagez les rigoles des bas-fonds.</span><span class="small muted">Envoyée par l'ATDA Alibori le 17 oct. · aussi reçue par SMS</span></div></div>
+          <div class="alert alert--info">{{I:sun}}<div class="al-body"><span class="al-title">Risque de stress hydrique fin octobre · nord Bénin</span><span>Fin des pluies probable après le 25 octobre. Récoltez le soja à maturité et séchez-le sur bâche.</span><span class="small muted">Prévision saisonnière simulée</span></div></div>
+        </section>
+
+        <section class="table-card" aria-labelledby="t-prix">
+          <div class="table-toolbar">
+            <div style="margin-right:auto"><h2 class="card-title" id="t-prix">Prix sur les marchés</h2><p class="card-sub">Prix de gros en FCFA par kg, relevés le lundi 17 octobre</p></div>
+            <div class="chips" role="group" aria-label="Filière">
+              <button type="button" class="chip" aria-pressed="true">Maïs</button><button type="button" class="chip" aria-pressed="false">Soja</button><button type="button" class="chip" aria-pressed="false">Riz paddy</button><button type="button" class="chip" aria-pressed="false">Niébé</button><button type="button" class="chip" aria-pressed="false">Gari</button><button type="button" class="chip" aria-pressed="false">Anacarde</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Prix du maïs par marché</caption>
+              <thead><tr><th scope="col" aria-sort="none"><button type="button" class="th-sort">Marché{{I:sort}}</button></th><th scope="col">Département</th><th scope="col" class="num" aria-sort="none"><button type="button" class="th-sort">Prix (FCFA/kg){{I:sort}}</button></th><th scope="col" class="num">Sur 7 jours</th><th scope="col">Distance</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Banikoara</span><span class="cell-sub">Votre commune</span></td><td data-label="Département">Alibori</td><td class="num" data-label="Prix (FCFA/kg)"><b>190</b></td><td class="num" data-label="Sur 7 jours"><span class="down">{{I:arrow-down}}−5 %</span></td><td data-label="Distance">sur place</td></tr>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Kandi</span></td><td data-label="Département">Alibori</td><td class="num" data-label="Prix (FCFA/kg)"><b>200</b></td><td class="num" data-label="Sur 7 jours"><span class="down">{{I:arrow-down}}−2 %</span></td><td data-label="Distance">68 km</td></tr>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Parakou (Arzéké)</span></td><td data-label="Département">Borgou</td><td class="num" data-label="Prix (FCFA/kg)"><b>215</b></td><td class="num" data-label="Sur 7 jours"><span class="down">{{I:arrow-down}}−4 %</span></td><td data-label="Distance">240 km</td></tr>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Malanville</span></td><td data-label="Département">Alibori</td><td class="num" data-label="Prix (FCFA/kg)"><b>225</b></td><td class="num" data-label="Sur 7 jours"><span class="up">{{I:arrow-up}}+3 %</span></td><td data-label="Distance">170 km</td></tr>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Bohicon</span></td><td data-label="Département">Zou</td><td class="num" data-label="Prix (FCFA/kg)"><b>245</b></td><td class="num" data-label="Sur 7 jours"><span class="muted">stable</span></td><td data-label="Distance">520 km</td></tr>
+                <tr><td class="td-primary" data-label="Marché"><span class="cell-main">Dantokpa (Cotonou)</span></td><td data-label="Département">Littoral</td><td class="num" data-label="Prix (FCFA/kg)"><b>265</b></td><td class="num" data-label="Sur 7 jours"><span class="up">{{I:arrow-up}}+2 %</span></td><td data-label="Distance">640 km</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Source : relevés de marché, démonstration</span><span class="badge badge--demo">Démonstration</span></div>
+        </section>
+
+        <div class="grid" style="--min:320px">
+          <figure class="card chart">
+            <div class="card-head" style="margin:0"><h3 class="card-title">Maïs à Banikoara, 8 semaines</h3><span class="badge badge--demo">Démonstration</span></div>
+            <svg viewBox="0 0 360 190" role="img" aria-labelledby="ch-p"><title id="ch-p">Prix du maïs à Banikoara de 230 à 190 FCFA par kg sur 8 semaines, en baisse à l'approche de la récolte</title>
+              <g class="grid"><line x1="40" x2="352" y1="20" y2="20"/><line x1="40" x2="352" y1="70" y2="70"/><line x1="40" x2="352" y1="120" y2="120"/><line x1="40" x2="352" y1="160" y2="160"/></g>
+              <g class="tick" text-anchor="end"><text x="34" y="24">240</text><text x="34" y="74">220</text><text x="34" y="124">200</text><text x="34" y="164">184</text></g>
+              <path class="area" d="M50 45 L93 40 L136 50 L179 62 L222 78 L265 95 L308 112 L340 120 L340 160 L50 160Z"/>
+              <path class="line" d="M50 45 L93 40 L136 50 L179 62 L222 78 L265 95 L308 112 L340 120"/>
+              <circle class="point" cx="340" cy="120" r="4"/><text class="val" x="340" y="108" text-anchor="middle">190</text>
+              <g class="tick" text-anchor="middle"><text x="50" y="180">29 août</text><text x="179" y="180">19 sept.</text><text x="340" y="180">17 oct.</text></g>
+            </svg>
+            <figcaption>Les prix baissent pendant la récolte. Stocker au sec peut permettre de vendre plus tard, plus cher.</figcaption>
+          </figure>
+          <section class="card" aria-labelledby="t-abo">
+            <h3 class="card-title" id="t-abo" style="margin-bottom:12px">Recevoir par SMS</h3>
+            <fieldset class="fieldset"><legend class="sr-only">Abonnements SMS</legend>
+              <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Alertes météo urgentes</label>
+              <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Prix du maïs chaque lundi</label>
+              <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch"> Prix du soja chaque lundi</label>
+            </fieldset>
+            <p class="hint" style="margin-top:10px">Envoi simulé au <span class="num">01 97 •• •• 42</span>. Aussi disponible par USSD.</p>
+          </section>
+        </div>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Prix indisponibles</span><div class="card state-error" role="alert"><span class="se-icon">{{I:wifi-off:lg}}</span><h3>Impossible de charger les prix</h3><p>Le réseau ne répond pas. Les derniers prix connus datent d'hier, 18 h.</p><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">{{I:sync}}Réessayer</button><button class="btn btn-ghost" type="button">Voir les prix d'hier</button></div></div></div>
+            <div><span class="state-cap">Aucun relevé pour la filière</span><div class="card empty"><h3>Pas de prix relevé pour l'anacarde cette semaine</h3><p>Choisissez une autre filière ou revenez lundi prochain.</p></div></div>
+            <div><span class="state-cap">Chargement</span><div class="card" aria-busy="true"><span class="skel skel-title"></span><span class="skel skel-block"></span></div></div>
+          </div>
+        </details>
+      </div>

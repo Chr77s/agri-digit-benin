@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes coopératives · Agri-Digit Bénin</title>
+<meta name="description" content="Coopératives dont le producteur est membre, historique des adhésions et demande d'adhésion à une coopérative de sa commune.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/cooperatives">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une coopérative…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes coopératives</span></li></ol></nav>
+          <h1 class="page-title">Mes coopératives</h1>
+          <p class="page-desc">Les coopératives dont vous êtes membre. Le gestionnaire de la coopérative ou votre agent ATDA valide chaque adhésion.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-primary" href="#t-adh"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Demander une adhésion</a></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="grid" style="--min:340px">
+          <article class="card" aria-labelledby="c1">
+            <div class="card-head"><div><h2 class="card-title" id="c1">Union des producteurs de maïs de Sompérékou</h2><p class="card-sub">Siège : Sompérékou, Banikoara · n° ADP/AL/2019-044</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></div>
+            <dl class="dl">
+              <dt>Mon rôle</dt><dd>Trésorière</dd>
+              <dt>Membre</dt><dd class="num">depuis le 12 mars 2019</dd>
+              <dt>Filières</dt><dd>Maïs, soja</dd>
+              <dt>Membres actifs</dt><dd class="num">86</dd>
+              <dt>Gestionnaire</dt><dd>Orou Gounou · 01 95 •• •• 07</dd>
+            </dl>
+            <div class="card-foot"><span class="small muted">Vos offres de maïs peuvent être regroupées par la coopérative.</span><a class="btn btn-secondary btn-sm" href="marche.html">Offres groupées</a></div>
+          </article>
+          <article class="card" aria-labelledby="c2">
+            <div class="card-head"><div><h2 class="card-title" id="c2">Groupement des femmes productrices de soja de Kokey</h2><p class="card-sub">Siège : Kokey, Banikoara</p></div><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></div>
+            <dl class="dl">
+              <dt>Mon rôle</dt><dd>Membre</dd>
+              <dt>Membre</dt><dd class="num">depuis le 4 février 2024</dd>
+              <dt>Filières</dt><dd>Soja</dd>
+              <dt>Membres actifs</dt><dd class="num">31</dd>
+            </dl>
+            <div class="card-foot"><span class="small muted">Prochaine réunion : 26 oct. (simulé)</span></div>
+          </article>
+        </div>
+
+        <section class="card" aria-labelledby="t-histo">
+          <h2 class="card-title" id="t-histo" style="margin-bottom:10px">Historique (adhésions terminées)</h2>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg></span><span class="li-main"><span class="li-title">Coopérative cotonnière de Goumori</span><span class="li-meta num">Membre du 10 avril 2016 au 30 septembre 2021 · motif : déménagement de la parcelle</span></span><span class="li-end"><span class="badge badge--neutral">Terminée le 30/09/2021</span></span></li>
+          </ul>
+        </section>
+
+        <section class="card" aria-labelledby="t-adh" id="adh">
+          <div class="card-head"><div><h2 class="card-title" id="t-adh">Demander une adhésion</h2><p class="card-sub">Coopératives enregistrées dans votre commune</p></div></div>
+          <div class="cluster" style="margin-bottom:14px">
+            <div class="search" style="flex:1;min-width:220px"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="cq">Nom de la coopérative</label><input class="input" id="cq" type="search" placeholder="Nom de la coopérative"></div>
+            <label class="sr-only" for="cf">Filière</label><select class="select" id="cf" style="width:auto"><option>Toutes les filières</option><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option></select>
+          </div>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><span class="li-main"><span class="li-title">Coopérative rizicole des bas-fonds de Banikoara</span><span class="li-meta">Riz · 54 membres · siège à Banikoara centre</span></span><span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Demande envoyée le 16 oct.</span></span></li>
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><span class="li-main"><span class="li-title">Coopérative des producteurs de coton de Founougo</span><span class="li-meta">Coton · 112 membres · siège à Founougo</span></span><span class="li-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-adh">Demander à adhérer</button></span></li>
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><span class="li-main"><span class="li-title">Union communale des producteurs de Banikoara</span><span class="li-meta">Maïs, coton, soja · 1 240 membres</span></span><span class="li-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-adh">Demander à adhérer</button></span></li>
+          </ul>
+          <p class="hint" style="margin-top:10px">Votre coopérative n'est pas dans la liste ? Demandez à votre agent ATDA de l'enregistrer.</p>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Aucune coopérative</span><div class="card empty"><h3>Vous n'êtes membre d'aucune coopérative</h3><p>Demandez à votre agent ATDA ou au gestionnaire de la coopérative de vous inscrire.</p></div></div>
+            <div><span class="state-cap">Demande refusée</span><div class="alert alert--danger"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Adhésion refusée par la Coopérative de Founougo</span><span>Motif : les parcelles doivent être situées dans l'arrondissement. Vous pouvez <a href="contestations.html">contester cette décision</a>.</span></div></div></div>
+            <div><span class="state-cap">Recherche sans résultat</span><div class="card empty"><h3>Aucune coopérative pour ce filtre</h3><p>Changez le filtre ou demandez à un agent ATDA de créer la coopérative.</p></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-adh" aria-labelledby="dlg-adh-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-adh-t">Demander à adhérer</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-adh" method="dialog">
+    <p>Coopérative des producteurs de coton de Founougo</p>
+    <div class="field"><label class="label" for="adh-p">Parcelles concernées</label><select class="select" id="adh-p"><option>Champ de la route (coton, 1,20 ha)</option></select></div>
+    <div class="field"><label class="label" for="adh-m">Message au gestionnaire <span class="opt">(facultatif)</span></label><textarea class="textarea" id="adh-m"></textarea></div>
+    <label class="check"><input class="cb" type="checkbox" checked> J'accepte que la coopérative voie mon nom, mon village et mes parcelles de coton.</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-adh" class="btn btn-primary" data-toast="Demande envoyée au gestionnaire de la coopérative.">Envoyer la demande</button></div>
+</dialog>
+</body>
+</html>

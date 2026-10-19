@@ -1,0 +1,119 @@
+---
+{"role":"transformateur","title":"Marché","desc":"Marché acheteur : offres par filière et zone, prévisions de récolte, mise en relation et paiement en un clic simulé (maquette).","search":"Rechercher une offre, une coopérative…","notif":3}
+---
+<!--@head-->
+  .filters { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); align-items: end; }
+  .offer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .offer:first-child { border-top: 0; padding-top: 4px; }
+  .offer-line { font: 700 var(--fs-lg)/1.3 var(--font-ui); }
+  .offer-price { text-align: right; }
+  .offer-price b { font: 700 1.375rem/1.1 var(--font-ui); font-variant-numeric: tabular-nums; display: block; }
+  .offer-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pay-ok { border: 1px solid var(--leaf); }
+  @media (max-width: 480px) { .offer { grid-template-columns: 1fr; } .offer-price { text-align: left; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="marche-acheteur.html">Marché</a></li><li><span aria-current="page">Offres et demandes</span></li></ol></nav>
+          <h1 class="page-title">Marché : offres et demandes</h1>
+          <p class="page-desc">Trouvez du maïs, du soja ou du manioc près de votre usine, voyez ce qui sera récolté bientôt, et payez la coopérative quand l'accord est conclu.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary" data-open-dialog="dlg-pub"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Publier une demande</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg><div class="al-body"><span class="al-title">Simulation FakePay : aucun argent réel n'est échangé</span><span>Les paiements Mobile Money de cette page sont simulés.</span></div></div>
+
+        <div class="tabs" role="tablist" aria-label="Rubriques du marché">
+          <button class="tab" role="tab" id="t-off" aria-controls="p-off" aria-selected="true">Offres et demandes <span class="count">38</span></button>
+          <button class="tab" role="tab" id="t-mat" aria-controls="p-mat" aria-selected="false">Mes mises en relation <span class="count">3</span></button>
+          <button class="tab" role="tab" id="t-pay" aria-controls="p-pay" aria-selected="false">Paiement</button>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="p-off" aria-labelledby="t-off">
+          <div class="stack" style="--gap:20px">
+            <form class="card card--flat filters" role="search" aria-label="Rechercher des offres" onsubmit="return false">
+              <div class="field"><label class="label" for="o-type">Type</label><select class="select" id="o-type"><option>Offres</option><option>Demandes</option><option>Tous</option></select></div>
+              <div class="field"><label class="label" for="o-vc">Filière</label><select class="select" id="o-vc"><option>Maïs</option><option>Soja</option><option>Manioc</option><option>Riz</option><option>Anacarde</option><option>Ananas</option><option>Toutes</option></select></div>
+              <div class="field"><label class="label" for="o-dep">Zone</label><select class="select" id="o-dep"><option>Borgou et Alibori</option><option>Tout le Bénin</option><option>Collines</option><option>Zou</option></select></div>
+              <div class="field"><label class="label" for="o-min">Quantité minimale</label><div class="input-group"><input class="input input-num" id="o-min" inputmode="numeric" value="5"><span class="addon addon--end">t</span></div></div>
+            </form>
+
+            <div class="split">
+              <section class="card" aria-labelledby="h-res">
+                <div class="card-head"><h2 class="card-title" id="h-res">4 offres de maïs, Borgou et Alibori</h2><label class="cluster" style="--gap:8px"><span class="small muted">Trier</span><select class="select" style="width:auto"><option>Prix croissant</option><option>Quantité</option><option>Distance de Parakou</option></select></label></div>
+                <div>
+                  <article class="offer"><div><div class="cluster" style="--gap:6px;margin-bottom:6px"><span class="badge badge--ok">Offre</span><span class="badge badge--neutral">En relation</span></div><p class="offer-line">Maïs grain : 58 000 kg</p><p class="small muted">Coop. Kandi Maïs · Kandi (Alibori), Gestionnaire de coopérative · 165 km</p><p class="small">Séché, triage manuel, sacs de 100 kg. Enlèvement au magasin.</p></div><div class="offer-price"><b>215</b><span class="small muted">FCFA le kg</span></div><div class="offer-foot"><span class="small muted">Votre demande est en attente de réponse</span></div></article>
+                  <article class="offer"><div><div class="cluster" style="--gap:6px;margin-bottom:6px"><span class="badge badge--ok">Offre</span><span class="badge badge--neutral">Ouverte</span></div><p class="offer-line">Maïs grain : 12 500 kg</p><p class="small muted">Union des producteurs de N'Dali · N'Dali (Borgou) · 55 km</p><p class="small">Humidité annoncée 13 %.</p></div><div class="offer-price"><b>208</b><span class="small muted">FCFA le kg</span></div><div class="offer-foot"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-contact">Prendre contact</button></div></article>
+                  <article class="offer"><div><div class="cluster" style="--gap:6px;margin-bottom:6px"><span class="badge badge--ok">Offre</span><span class="badge badge--neutral">Ouverte</span></div><p class="offer-line">Maïs grain : 6 000 kg</p><p class="small muted">Producteur · Bembèrèkè (Borgou) · 110 km</p></div><div class="offer-price"><b>200</b><span class="small muted">FCFA le kg</span></div><div class="offer-foot"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-contact">Prendre contact</button></div></article>
+                  <article class="offer"><div><div class="cluster" style="--gap:6px;margin-bottom:6px"><span class="badge badge--wait">Demande</span><span class="badge badge--ok">Mon annonce</span></div><p class="offer-line">Maïs grain : 80 000 kg recherchés</p><p class="small muted">Sika Transfo · Parakou (Borgou)</p><p class="small">Livraison avant le 15/11/2026, pour la farine infantile.</p></div><div class="offer-price"><b>210</b><span class="small muted">FCFA le kg</span></div><div class="offer-foot"><span class="small muted">2 réponses reçues</span><button type="button" class="btn btn-ghost btn-sm">Retirer l'annonce</button></div></article>
+                </div>
+              </section>
+
+              <section class="card" aria-labelledby="h-fc">
+                <div class="card-head"><div><h2 class="card-title" id="h-fc">Récoltes attendues</h2><p class="card-sub">Maïs · 60 prochains jours · Borgou et Alibori</p></div><span class="badge badge--sim">Prévision simulée</span></div>
+                <ul class="hbars">
+                  <li class="hbar" title="Fin octobre : 4 200 t"><span class="hbar-label">Fin octobre</span><span class="hbar-track"><span class="hbar-fill" style="--v:53.8%"></span></span><span class="hbar-val">4 200 t</span></li>
+                  <li class="hbar" title="Début novembre : 7 800 t"><span class="hbar-label">Début nov.</span><span class="hbar-track"><span class="hbar-fill" style="--v:100%"></span></span><span class="hbar-val">7 800 t</span></li>
+                  <li class="hbar" title="Fin novembre : 5 100 t"><span class="hbar-label">Fin nov.</span><span class="hbar-track"><span class="hbar-fill" style="--v:65.4%"></span></span><span class="hbar-val">5 100 t</span></li>
+                  <li class="hbar" title="Décembre : 1 900 t"><span class="hbar-label">Décembre</span><span class="hbar-track"><span class="hbar-fill" style="--v:24.4%"></span></span><span class="hbar-val">1 900 t</span></li>
+                </ul>
+                <p class="small muted" style="margin-top:12px">Estimé à partir des campagnes déclarées et du stade des parcelles. Le pic de début novembre devrait faire baisser les prix.</p>
+                <div class="card-foot"><span class="small"><b class="num">205 FCFA/kg</b> <span class="muted">prix moyen à Parakou, 7 j</span></span><span class="stat-delta stat-delta--down"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−4 %</span></div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="p-mat" aria-labelledby="t-mat" hidden>
+          <ul class="stack" style="--gap:12px;list-style:none;margin:0;padding:0">
+            <li class="card"><div class="cluster" style="--gap:6px"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Acceptée</span><span class="badge badge--neutral">Demande envoyée</span></div><p class="card-title" style="margin-top:8px">Offre : Maïs : 20 000 kg à 215 FCFA le kg</p><p>Téléphone de l'autre partie : <a class="num" href="tel:0167339015" style="font-weight:700">01 67 33 90 15</a> (Issa Orou, Coop. Kandi Maïs)</p><div class="card-foot"><span class="small muted">Acceptée le 16/10/2026</span><button type="button" class="btn btn-primary btn-sm">Payer</button></div></li>
+            <li class="card"><div class="cluster" style="--gap:6px"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de réponse</span><span class="badge badge--neutral">Demande envoyée</span></div><p class="card-title" style="margin-top:8px">Offre : Maïs : 58 000 kg à 215 FCFA le kg</p><p class="muted">Le numéro de l'autre partie sera visible après acceptation.</p></li>
+            <li class="card"><div class="cluster" style="--gap:6px"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de réponse</span><span class="badge badge--neutral">Demande reçue</span></div><p class="card-title" style="margin-top:8px">Demande : Maïs : 80 000 kg à 210 FCFA le kg</p><p>Message : « Nous avons 12 t séchées à N'Dali, livrables sous 5 jours. »</p><div class="card-foot"><span></span><div class="cluster" style="--gap:8px"><button type="button" class="btn btn-danger btn-sm">Refuser</button><button type="button" class="btn btn-primary btn-sm" data-toast="Mise en relation acceptée. Les numéros sont partagés.">Accepter</button></div></div></li>
+          </ul>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="p-pay" aria-labelledby="t-pay" hidden>
+          <div class="split">
+            <form class="card stack" style="--gap:16px" novalidate onsubmit="return false" aria-labelledby="h-pay">
+              <h2 class="card-title" id="h-pay">Payer en un clic</h2>
+              <div class="field"><label class="label" for="py-m">Mise en relation à payer</label><select class="select" id="py-m"><option>Offre : Maïs : 20 000 kg à 215 FCFA le kg · Coop. Kandi Maïs</option></select></div>
+              <div class="field"><label class="label" for="py-a">Montant (FCFA)</label><input class="input input-num" id="py-a" inputmode="numeric" value="4 300 000"><span class="hint">20 000 kg × 215 FCFA, calculé depuis l'accord.</span></div>
+              <div class="field"><label class="label" for="py-p">Numéro Mobile Money du payeur</label><input class="input input-num" id="py-p" type="tel" inputmode="numeric" maxlength="10" value="0196" aria-invalid="true" aria-describedby="py-e py-h"><span class="error-msg" id="py-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez 10 chiffres, commençant par 01.</span><span class="hint" id="py-h">Pour la démonstration, un numéro qui se termine par 0 fait échouer le paiement.</span></div>
+              <button type="submit" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg>Payer (simulation)</button>
+            </form>
+            <section class="card pay-ok stack" style="--gap:12px" aria-labelledby="h-rec" role="status">
+              <h2 class="card-title" id="h-rec">Suivi du paiement</h2>
+              <div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span>Paiement réussi (simulation).</span></div></div>
+              <dl class="dl"><dt>Référence</dt><dd class="num">FKP-2026-10-17-04831 (FakePay)</dd><dt>Montant</dt><dd class="num">4 300 000 FCFA</dd><dt>Payeur</dt><dd class="num">01 96 •• •• 21</dd><dt>Bénéficiaire</dt><dd class="num">01 67 •• •• 15</dd><dt>Payé le</dt><dd class="num">17/10/2026 10:42</dd></dl>
+              <button type="button" class="btn btn-secondary btn-sm" style="align-self:flex-start" onclick="window.print()"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Imprimer le reçu</button>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!--STATES {"empty":["Aucune annonce pour ce filtre","Changez les filtres pour voir d'autres annonces, ou publiez votre demande : les coopératives vous répondront.","Publier une demande"],"error":["Le paiement a échoué (simulation)","Vérifiez le numéro puis recommencez. Aucun montant n'a été débité.","echoue · FakePay"],"extra":"<div class=\"alert alert--warn\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-clock\"/></svg><div class=\"al-body\"><span>Paiement en cours : en attente de confirmation (simulation). Cette page se met à jour toute seule.</span></div></div>"}-->
+<!--@after-->
+<dialog class="modal" id="dlg-contact" aria-labelledby="dlg-c-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-c-t">Prendre contact</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-c" method="dialog">
+    <p class="muted">Le propriétaire de l'annonce recevra votre demande. Les numéros de téléphone ne sont visibles qu'après son acceptation.</p>
+    <div class="field"><label class="label" for="c-msg">Votre message <span class="opt">(facultatif)</span></label><textarea class="textarea" id="c-msg" maxlength="1000">Intéressés par 12 t livrées à Parakou avant le 30 octobre.</textarea><span class="hint">Ne donnez pas votre numéro ici : il sera partagé automatiquement si la demande est acceptée.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-c" class="btn btn-primary" data-toast="Demande envoyée. Vous la retrouverez dans « Mes mises en relation ».">Envoyer la demande</button></div>
+</dialog>
+<dialog class="modal" id="dlg-pub" aria-labelledby="dlg-p-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-p-t">Publier une annonce</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-p" method="dialog" novalidate>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="p-t">Type d'annonce</label><select class="select" id="p-t"><option>Demande</option><option>Offre</option></select></div>
+      <div class="field"><label class="label" for="p-vc">Filière</label><select class="select" id="p-vc"><option>Maïs</option><option>Soja</option></select></div>
+      <div class="field"><label class="label" for="p-q">Quantité (kg)</label><input class="input input-num" id="p-q" inputmode="numeric" value="0" aria-invalid="true" aria-describedby="p-q-e"><span class="error-msg" id="p-q-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez une quantité entière en kg, de 1 à 10 000 000.</span></div>
+      <div class="field"><label class="label" for="p-pr">Prix proposé (FCFA par kg)</label><input class="input input-num" id="p-pr" inputmode="numeric" value="210"></div>
+      <div class="field"><label class="label" for="p-d">Département</label><select class="select" id="p-d"><option>Borgou</option></select></div>
+      <div class="field"><label class="label" for="p-c">Commune</label><select class="select" id="p-c"><option>Parakou</option></select></div>
+    </div>
+    <div class="field"><label class="label" for="p-de">Description <span class="opt">(facultatif)</span></label><textarea class="textarea" id="p-de" rows="3"></textarea></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-p" class="btn btn-primary">Publier l'annonce</button></div>
+</dialog>

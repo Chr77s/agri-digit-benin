@@ -1,0 +1,98 @@
+---
+{"role":"gestionnaire_cooperative","title":"Collecte","desc":"Circuit de collecte de la coopérative : points, volumes engagés et collectés, planning des tournées et pesées (maquette).","search":"Rechercher un point de collecte…","notif":2,"sync":["pending","3 en attente"],"home":"filiere/cooperative-accueil"}
+---
+<!--@head-->
+  .map--route { aspect-ratio: 16 / 9; }
+  @media (max-width: 640px) { .map--route { aspect-ratio: 1; } }
+  .route-lab { font: 700 13px var(--font-ui); fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .plan { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  .day { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; background: var(--surface); }
+  .day h3 { font-size: var(--fs-sm); font-weight: 700; margin-bottom: 8px; }
+  .day--today { border-color: var(--leaf); background: var(--ok-bg); }
+  .stop { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-sm); padding: 6px 0; border-top: 1px solid var(--line); }
+  .stop:first-of-type { border-top: 0; }
+<!--@main-->
+      <div class="banner banner--offline" style="border-radius:var(--r-md);margin-bottom:16px;padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>3 pesées saisies à Sonsoro attendent le réseau. Elles partiront automatiquement.</span><button class="btn btn-sm" type="button" style="background:var(--maize);color:var(--canopy)" data-toast="File d'attente : 3 pesées, 1,9 t au total.">Voir la file</button></div>
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="cooperative-accueil.html">Ma coopérative</a></li><li><span aria-current="page">Collecte</span></li></ol></nav>
+          <h1 class="page-title">Circuit de collecte</h1>
+          <p class="page-desc">Les points où le camion passe, ce que chacun a engagé et collecté, et la tournée de la semaine. Les pesées se saisissent même sans réseau.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-open-dialog="dlg-pt"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg>Ajouter un point</button>
+          <a class="btn btn-primary" href="#f-pesee"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Saisir une pesée</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <section class="card" aria-labelledby="h-map">
+            <div class="card-head"><div><h2 class="card-title" id="h-map">Tournée de mardi 21/10</h2><p class="card-sub">4 points · 62 km · départ 6 h du magasin de Kandi</p></div><span class="badge badge--sim">Fond simulé</span></div>
+            <div class="map map--route" role="img" aria-label="Tournée : magasin de Kandi, puis Sonsoro, Angaradébou, Donwari et retour ; schéma simulé">
+              <svg viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="480" height="270" fill="#DDE9CF"/>
+                <path d="M0 60 L160 30 L190 140 L0 170Z" fill="#CFE1BC"/><path d="M300 0 L480 0 L480 120 L340 150Z" fill="#D3E4C2"/><path d="M0 200 L150 190 L180 270 L0 270Z" fill="#C7DCB2"/>
+                <path d="M-10 230 C120 200 260 230 490 160" stroke="#F8FBF4" stroke-width="10" fill="none"/>
+                <path d="M110 190 L200 90 L330 70 L390 180 L110 190" fill="none" stroke="#1F5A32" stroke-width="3" stroke-linejoin="round" stroke-dasharray="10 6"/>
+                <g stroke="#fff" stroke-width="3"><circle cx="110" cy="190" r="10" fill="#0E2F1C"/><circle cx="200" cy="90" r="9" fill="#1F5A32"/><circle cx="330" cy="70" r="9" fill="#1F5A32"/><circle cx="390" cy="180" r="9" fill="#6FA83A"/></g>
+                <text class="route-lab" x="126" y="214">Magasin de Kandi</text><text class="route-lab" x="150" y="72">1 · Sonsoro</text><text class="route-lab" x="300" y="52">2 · Angaradébou</text><text class="route-lab" x="350" y="210">3 · Donwari</text>
+              </svg>
+              <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-in"/></svg></button><button class="btn btn-icon" type="button" aria-label="Dézoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-out"/></svg></button></div>
+              <div class="map-legend"><ul class="legend"><li><span class="sw" style="background:var(--canopy)"></span>Magasin</li><li><span class="sw"></span>Point de collecte</li><li><span class="sw sw--2"></span>Point à confirmer</li></ul></div>
+            </div>
+          </section>
+
+          <form class="card stack" id="f-pesee" style="--gap:14px" novalidate onsubmit="return false" aria-labelledby="h-pes">
+            <div class="card-head" style="margin:0"><h2 class="card-title" id="h-pes">Saisir une pesée</h2><span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Hors ligne possible</span></div>
+            <div class="field"><label class="label" for="pe-pt">Point de collecte</label><select class="select" id="pe-pt"><option>Sonsoro</option><option>Angaradébou</option><option>Donwari</option><option>Magasin de Kandi</option></select></div>
+            <div class="field"><label class="label" for="pe-m">Membre</label><select class="select" id="pe-m"><option>Bio Gounou · ALI-KAN-01187</option><option>Fati Yarou · ALI-KAN-00954</option><option>Awa Sabi · ALI-BNK-00412</option></select></div>
+            <div class="form-grid">
+              <div class="field"><label class="label" for="pe-s">Sacs</label><input class="input input-num" id="pe-s" inputmode="numeric" value="12"></div>
+              <div class="field"><label class="label" for="pe-w">Poids net</label><div class="input-group"><input class="input input-num" id="pe-w" inputmode="decimal" value="1 180"><span class="addon addon--end">kg</span></div></div>
+            </div>
+            <div class="field"><label class="label" for="pe-h">Humidité</label><div class="input-group"><input class="input input-num" id="pe-h" inputmode="decimal" value="16,5" aria-invalid="true" aria-describedby="pe-h-e"><span class="addon addon--end">%</span></div><span class="error-msg" id="pe-h-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Au-dessus de 14 %, le maïs doit sécher encore : enregistrez en « à resécher ».</span></div>
+            <label class="check"><input class="cb" type="checkbox"> Lot à resécher avant stockage</label>
+            <button type="submit" class="btn btn-primary" data-toast="Pesée gardée sur cet appareil. Elle partira à la prochaine connexion." data-toast-type="offline">Enregistrer la pesée</button>
+          </form>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-pts">
+          <div class="table-toolbar"><h2 class="card-title" id="h-pts" style="margin-right:auto">Points de collecte</h2><span class="small muted num">Maïs · offre groupée de 200 t</span></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Points de collecte : membres, volumes engagés et collectés, prochain passage</caption>
+              <thead><tr><th scope="col">Point</th><th scope="col" class="num">Membres</th><th scope="col" class="num">Engagé</th><th scope="col" class="num">Collecté</th><th scope="col">Avancement</th><th scope="col">Prochain passage</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Point"><span class="cell-main">Magasin de Kandi</span><span class="cell-sub">Dépôt direct</span></td><td class="num" data-label="Membres">22</td><td class="num" data-label="Engagé">38 t</td><td class="num" data-label="Collecté">34 t</td><td data-label="Avancement"><span class="progress" style="max-width:140px" role="img" aria-label="89 %"><span style="--v:89%"></span></span></td><td data-label="Prochain passage">Ouvert tous les jours</td></tr>
+                <tr><td class="td-primary" data-label="Point"><span class="cell-main">Sonsoro</span><span class="cell-sub">Hangar de l'école</span></td><td class="num" data-label="Membres">18</td><td class="num" data-label="Engagé">36 t</td><td class="num" data-label="Collecté">24 t <span class="badge badge--offline">+1,9 t en attente</span></td><td data-label="Avancement"><span class="progress" style="max-width:140px" role="img" aria-label="67 %"><span style="--v:67%"></span></span></td><td data-label="Prochain passage">Mar. 21/10, 7 h</td></tr>
+                <tr><td class="td-primary" data-label="Point"><span class="cell-main">Angaradébou</span></td><td class="num" data-label="Membres">15</td><td class="num" data-label="Engagé">40 t</td><td class="num" data-label="Collecté">26 t</td><td data-label="Avancement"><span class="progress" style="max-width:140px" role="img" aria-label="65 %"><span style="--v:65%"></span></span></td><td data-label="Prochain passage">Mar. 21/10, 9 h 30</td></tr>
+                <tr><td class="td-primary" data-label="Point"><span class="cell-main">Donwari</span><span class="cell-sub">Piste coupée après la pluie de jeudi</span></td><td class="num" data-label="Membres">9</td><td class="num" data-label="Engagé">28 t</td><td class="num" data-label="Collecté">12 t</td><td data-label="Avancement"><span class="progress" style="max-width:140px" role="img" aria-label="43 %"><span style="--v:43%"></span></span></td><td data-label="Prochain passage"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>À confirmer</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">Total : 142 t engagées, 96 t collectées</span></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-plan">
+          <div class="card-head"><h2 class="card-title" id="h-plan">Planning de la semaine</h2><button type="button" class="btn btn-ghost btn-sm" data-toast="Planning envoyé par SMS aux 64 membres engagés (simulé).">Prévenir les membres par SMS</button></div>
+          <div class="plan">
+            <div class="day day--today"><h3>Lun. 20/10 · aujourd'hui</h3><div class="stop"><span>Magasin de Kandi</span><span class="num">réception</span></div><div class="stop"><span>Livraison Sika Transfo</span><span class="num">préparation 20 t</span></div></div>
+            <div class="day"><h3>Mar. 21/10</h3><div class="stop"><span>Sonsoro</span><span class="num">7 h · ~6 t</span></div><div class="stop"><span>Angaradébou</span><span class="num">9 h 30 · ~8 t</span></div><div class="stop"><span>Départ vers Parakou</span><span class="num">14 h</span></div></div>
+            <div class="day"><h3>Jeu. 23/10</h3><div class="stop"><span>Donwari</span><span class="badge badge--wait">À confirmer</span></div></div>
+            <div class="day"><h3>Ven. 24/10</h3><div class="stop"><span>Livraison Agri Distrib</span><span class="num">12 t</span></div></div>
+          </div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun point de collecte","Ajoutez le magasin de la coopérative puis les villages où le camion passe.","Ajouter un point"],"error":["Pesée refusée","Le poids net dépasse l'engagement restant du membre (2,8 t). Vérifiez la balance ou corrigez l'engagement.","over_commitment · 400"],"offline":"Hors ligne. 3 pesées gardées sur cet appareil ; elles partiront au retour du réseau."}-->
+<!--@after-->
+<dialog class="modal" id="dlg-pt" aria-labelledby="dlg-pt-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-pt-t">Ajouter un point de collecte</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-pt" method="dialog">
+    <div class="field"><label class="label" for="pt-n">Nom du point</label><input class="input" id="pt-n" placeholder="Ex. Hangar de Kassakou"></div>
+    <div class="field"><label class="label" for="pt-c">Commune</label><select class="select" id="pt-c"><option>Kandi</option><option>Gogounou</option><option>Banikoara</option></select></div>
+    <button type="button" class="btn btn-secondary" style="align-self:flex-start"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg>Prendre ma position (GPS)</button>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-pt" class="btn btn-primary" data-toast="Point ajouté à la tournée.">Ajouter</button></div>
+</dialog>

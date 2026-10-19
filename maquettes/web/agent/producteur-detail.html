@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bawa Orou · fiche producteur · Agri-Digit Bénin</title>
+<meta name="description" content="Fiche producteur instruite par l'agent ATDA : identité, parcelles, campagnes, appuis, consentements, historique, validation motivée (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.who { display: flex; align-items: center; gap: 14px; }
+  .who .page-title { margin: 0; }
+  .decision { position: sticky; top: calc(var(--topbar-h) + 12px); }
+  .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: var(--fs-sm); }
+  .checklist .ic { margin-top: 1px; }
+  .checklist .ok { color: var(--leaf); }
+  .checklist .ko { color: var(--laterite); }
+  .diff { font-size: var(--fs-sm); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .diff del { color: var(--bad-ink); }
+  .diff ins { color: var(--leaf); text-decoration: none; font-weight: 700; }
+  @media (max-width: 1100px) { .decision { position: static; } }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/producteur-detail">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Nom, code, NPI ou village…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><a href="producteurs.html">Producteurs</a></li><li><span aria-current="page">Bawa Orou</span></li></ol></nav>
+          <div class="who">
+            <span class="avatar avatar--lg" aria-hidden="true">BO</span>
+            <div>
+              <h1 class="page-title">Bawa Orou</h1>
+              <div class="cluster" style="margin-top:4px"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de validation</span><span class="small muted num">BNK-000412 · inscrit le 12/10/2026 par l'application</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-open-dialog="dlg-edit"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Corriger la fiche</button>
+          <a class="btn btn-ghost" href="#" aria-disabled="true" title="Disponible après validation"><svg class="ic" aria-hidden="true"><use href="#i-id-card"/></svg>Carte (après validation)</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><div class="al-body">Cette consultation est inscrite au journal d'accès (Koffi Dossou, 18/10/2026 10:24, motif&nbsp;: instruction de l'inscription).</div></div>
+
+        <div class="split">
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-label="Dossier du producteur">
+              <div class="tabs" role="tablist" aria-label="Fiche producteur">
+                <button class="tab" role="tab" id="tb1" aria-controls="tp1" aria-selected="true">Identité</button>
+                <button class="tab" role="tab" id="tb2" aria-controls="tp2" aria-selected="false">Parcelles <span class="count">2</span></button>
+                <button class="tab" role="tab" id="tb3" aria-controls="tp3" aria-selected="false">Campagnes <span class="count">1</span></button>
+                <button class="tab" role="tab" id="tb4" aria-controls="tp4" aria-selected="false">Appuis <span class="count">0</span></button>
+                <button class="tab" role="tab" id="tb5" aria-controls="tp5" aria-selected="false">Consentements <span class="count">1</span></button>
+                <button class="tab" role="tab" id="tb6" aria-controls="tp6" aria-selected="false">Historique <span class="count">2</span></button>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp1" aria-labelledby="tb1">
+                <dl class="dl">
+                  <dt>Code</dt><dd class="num">BNK-000412</dd>
+                  <dt>NPI</dt><dd class="num">1 042 113 902 <span class="badge badge--sim">Vérification ANIP simulée</span></dd>
+                  <dt>Sexe</dt><dd>Homme</dd>
+                  <dt>Naissance</dt><dd class="num">03/02/1989 (37 ans)</dd>
+                  <dt>Département</dt><dd>Alibori</dd>
+                  <dt>Commune</dt><dd>Banikoara · arrondissement de Kokey</dd>
+                  <dt>Téléphone</dt><dd class="num">+229 01 97 41 22 18</dd>
+                  <dt>Langue</dt><dd>Baatɔnum (bariba), messages vocaux</dd>
+                  <dt>Inscrit le</dt><dd class="num">12/10/2026 16:02</dd>
+                  <dt>Validé le</dt><dd class="muted">Pas encore validé</dd>
+                </dl>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp2" aria-labelledby="tb2" hidden>
+                <ul class="list">
+                  <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-parcel"/></svg></span><span class="li-main"><span class="li-title">Champ de Kokey nord</span><span class="li-meta num">Maïs · 0,9 ha · tracé GPS simulé</span></span><span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>À vérifier</span></span></li>
+                  <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-parcel"/></svg></span><span class="li-main"><span class="li-title">Bas-fond de la rivière</span><span class="li-meta num">Riz · 0,4 ha · sans tracé</span></span><span class="li-end"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Sans tracé</span></span></li>
+                </ul>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp3" aria-labelledby="tb3" hidden>
+                <ol class="timeline">
+                  <li class="tl-done"><span class="tl-dot"></span><div class="tl-time">28/05/2026</div><div class="tl-title">Semis du maïs déclaré</div><div class="tl-text">Variété EVDT 97 · 25 kg de semences.</div></li>
+                  <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">En cours</div><div class="tl-title">Maturation</div></li>
+                  <li><span class="tl-dot"></span><div class="tl-time">Vers le 05/11</div><div class="tl-title">Récolte prévue</div></li>
+                </ol>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp4" aria-labelledby="tb4" hidden>
+                <p class="muted">Aucun appui remis. Un appui ne peut être enregistré qu'après validation de la fiche.</p>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp5" aria-labelledby="tb5" hidden>
+                <ul class="list">
+                  <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg></span><span class="li-main"><span class="li-title">Données personnelles (inscription et services agricoles)</span><span class="li-meta">Texte v1.2, donné le 12/10/2026, canal application</span></span><span class="li-end"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></span></li>
+                  <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-coins"/></svg></span><span class="li-main"><span class="li-title">Partage du profil pour le crédit</span><span class="li-meta">Non donné</span></span><span class="li-end"><span class="badge badge--neutral">Non donné</span></span></li>
+                </ul>
+                <p class="hint" style="margin-top:8px">Seul le producteur peut donner ou retirer un consentement.</p>
+              </div>
+              <div class="tab-panel" role="tabpanel" id="tp6" aria-labelledby="tb6" hidden>
+                <ol class="timeline">
+                  <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">16/10/2026 11:30 · Koffi Dossou</div><div class="tl-title">Version 2&nbsp;: correction du téléphone</div><div class="diff"><del class="num">01 97 41 22 81</del><ins class="num">01 97 41 22 18</ins></div></li>
+                  <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">12/10/2026 16:02 · Bawa Orou</div><div class="tl-title">Version 1&nbsp;: inscription</div></li>
+                </ol>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="h-carte">
+              <div class="card-head"><div><h2 class="card-title" id="h-carte">Parcelles sur la carte</h2><p class="card-sub">Vérifiez que le tracé se trouve bien dans le secteur.</p></div><span class="badge badge--sim">Fond et tracé simulés</span></div>
+              <div class="map" role="img" aria-label="Champ de Kokey nord, 0,9 ha, à 2 km au nord du village de Kokey, dans le secteur (tracé simulé)">
+                <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="400" height="250" fill="#DDE9CF"/>
+                  <path d="M0 40 L140 20 L170 120 L0 150Z" fill="#CFE1BC"/><path d="M260 0 L400 0 L400 110 L300 130Z" fill="#D3E4C2"/><path d="M0 170 L120 160 L150 250 L0 250Z" fill="#C7DCB2"/>
+                  <path d="M-10 200 C100 170 220 200 410 140" stroke="#F8FBF4" stroke-width="10" fill="none"/>
+                  <path d="M330 250 C320 200 350 170 340 120 C330 80 360 40 350 0" stroke="#9CC3D8" stroke-width="6" fill="none" stroke-linecap="round"/>
+                  <path d="M180 70 L250 58 L268 128 L200 146 Z" fill="rgba(111,168,58,.35)" stroke="#1F5A32" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M318 150 L346 146 L350 176 L322 180 Z" fill="rgba(226,177,50,.35)" stroke="#8A6A10" stroke-width="2" stroke-dasharray="5 4"/>
+                  <circle cx="110" cy="214" r="6" fill="#B4532D"/>
+                </svg>
+                <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-in"/></svg></button><button class="btn btn-icon" type="button" aria-label="Dézoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-out"/></svg></button></div>
+                <div class="map-legend"><ul class="legend"><li><span class="sw sw--2"></span>Champ de Kokey nord · <span class="num">0,9 ha</span></li><li><span class="sw sw--3"></span>Bas-fond (position déclarée)</li><li><span class="sw sw--4"></span>Village de Kokey</li></ul></div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="card decision" aria-labelledby="h-dec">
+            <h2 class="card-title" id="h-dec">Décision sur l'inscription</h2>
+            <p class="card-sub" style="margin-bottom:14px">Contrôles avant de valider</p>
+            <ul class="checklist">
+              <li><svg class="ic ok" aria-hidden="true"><use href="#i-check-circle"/></svg><span>NPI trouvé, nom et date de naissance concordants (simulé)</span></li>
+              <li><svg class="ic ok" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Téléphone confirmé par code SMS</span></li>
+              <li><svg class="ic ok" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Parcelle principale dans le secteur Banikoara</span></li>
+              <li><svg class="ic ko" aria-hidden="true"><use href="#i-alert"/></svg><span>Doublon possible&nbsp;: «&nbsp;Bawa Orou Sabi&nbsp;», Gogounou, même année de naissance. <a href="#">Comparer</a></span></li>
+            </ul>
+            <div class="stack" style="--gap:10px;margin-top:18px">
+              <button type="button" class="btn btn-primary btn-block" data-toast="Fiche validée. Le producteur a été notifié (SMS simulé)." data-toast-title="Validation enregistrée"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Valider la fiche</button>
+              <button type="button" class="btn btn-danger-ghost btn-block" data-open-dialog="dlg-reject">Rejeter avec un motif…</button>
+            </div>
+            <p class="hint" style="margin-top:12px">Le producteur reçoit la décision par SMS dans sa langue. En cas de rejet, il peut corriger et se réinscrire.</p>
+          </aside>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Après validation</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Fiche validée</span><span>Le producteur a été notifié. Sa carte est disponible.</span><div class="al-actions"><a class="btn btn-secondary btn-sm" href="#">Voir la carte</a></div></div></div></div>
+            <div><span class="states-cap">Fiche rejetée</span><div class="alert alert--danger"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Inscription rejetée le 18/10/2026</span><span>Motif&nbsp;: doublon avec la fiche BNK-000233 (Gogounou). Le producteur a reçu le motif.</span></div></div></div>
+            <div><span class="states-cap">Historique vide</span><div class="card empty" style="padding:20px"><h3>Aucune version antérieure</h3><p>Chaque correction crée une version ici.</p></div></div>
+            <div><span class="states-cap">Erreur d'enregistrement</span><div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">La validation n'a pas été enregistrée</span><span>Une autre personne a modifié la fiche. Rechargez puis recommencez.</span></div></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal" id="dlg-reject" aria-labelledby="dlg-reject-t" aria-describedby="dlg-reject-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-reject-t">Rejeter l'inscription de Bawa Orou&nbsp;?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-reject" novalidate>
+    <p id="dlg-reject-d" class="muted">Le producteur recevra ce motif par SMS. Aucune décision n'est prise automatiquement.</p>
+    <div class="field"><label class="label" for="rj-type">Raison</label><select class="select" id="rj-type"><option>Doublon d'une fiche existante</option><option>NPI non concordant</option><option>Parcelle hors secteur</option><option>Informations incomplètes</option></select></div>
+    <div class="field"><label class="label" for="rj-motif">Motif du rejet (obligatoire)</label><textarea class="textarea" id="rj-motif" aria-invalid="true" aria-describedby="rj-motif-e"></textarea><span class="error-msg" id="rj-motif-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Expliquez le motif en une phrase (5 caractères minimum). Le producteur le recevra.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-reject" class="btn btn-danger" data-toast="Inscription rejetée. Le producteur a reçu le motif.">Confirmer le rejet</button></div>
+</dialog>
+<dialog class="modal" id="dlg-edit" aria-labelledby="dlg-edit-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-edit-t">Corriger la fiche</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-edit">
+    <div class="form-grid">
+      <div class="field"><label class="label" for="e-pre">Prénom</label><input class="input" id="e-pre" value="Bawa"></div>
+      <div class="field"><label class="label" for="e-nom">Nom</label><input class="input" id="e-nom" value="Orou"></div>
+    </div>
+    <div class="field"><label class="label" for="e-tel">Téléphone</label><div class="input-group"><span class="addon">+229</span><input class="input input-num" id="e-tel" type="tel" inputmode="tel" value="01 97 41 22 18"></div><span class="hint">Chaque correction crée une nouvelle version, visible dans l'historique.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-edit" class="btn btn-primary" data-toast="Correction enregistrée. Une nouvelle version a été créée.">Enregistrer la correction</button></div>
+</dialog>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accueil · Agri-Digit Bénin</title>
+<meta name="description" content="Accueil du producteur : météo du jour, alertes, stade des parcelles, tâches de la semaine et appuis à confirmer.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.wx-now { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.wx-now .wx-ic { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--sun-bg); color: var(--sun-ink); flex: none; }
+.wx-now .wx-ic .ic { width: 34px; height: 34px; }
+.wx-temp { font: 700 2.5rem/1 var(--font-display); letter-spacing: -.02em; }
+.wx-days { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.wx-days li { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); text-align: center; }
+.wx-days li.is-rain { background: #EEF5FA; border-color: #C7DCE8; }
+.wx-days b { font-size: var(--fs-md); }
+.wx-days .ic { color: var(--leaf); }
+.wx-days .is-rain .ic { color: #2E6A8E; }
+.task { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.task:first-child { border-top: 0; padding-top: 0; }
+.task label { flex: 1; min-width: 0; cursor: pointer; }
+.task .cb { margin-top: 2px; }
+.task .t-title { display: block; font-weight: 700; }
+.task .t-meta { display: block; font-size: var(--fs-sm); color: var(--ink-2); }
+.task input:checked + label .t-title { text-decoration: line-through; color: var(--ink-2); }
+.shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.shortcut { display: flex; flex-direction: column; gap: 10px; min-height: 104px; padding: 14px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; line-height: 1.25; transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease); }
+.shortcut:hover { border-color: #B9C8AF; background: var(--surface-2); }
+.shortcut .sc-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--layer); color: var(--leaf); }
+.shortcut small { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--ink-2); }
+.parcel-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 8px 20px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.parcel-row:first-of-type { border-top: 0; padding-top: 0; }
+.parcel-row a { font-weight: 700; color: var(--ink); }
+@media (max-width: 560px) { .parcel-row { grid-template-columns: 1fr; } .wx-days { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/accueil">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une parcelle, un message…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <h1 class="page-title">Bonjour Awa</h1>
+          <p class="page-desc">Mardi 18 octobre 2026 · Banikoara, Alibori. Voici ce qui compte aujourd'hui pour vos champs.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture à voix haute de la page (simulée)." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter la page</button>
+          <a class="btn btn-primary" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Poser une question</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn" role="status">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body">
+            <span class="al-title">Chenille légionnaire signalée à Sompérékou et Kokey</span>
+            <span>Votre agent ATDA, Moussa Yarou, a vu des dégâts sur le maïs cette semaine. Regardez le cœur des plants du Champ de Sompérékou avant samedi.</span>
+            <div class="al-actions">
+              <a class="btn btn-secondary btn-sm" href="diagnostic.html"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg>Envoyer une photo</a>
+              <a class="btn btn-ghost btn-sm" href="messages.html">Lire l'alerte complète</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-meteo">
+              <div class="card-head">
+                <div><h2 class="card-title" id="t-meteo">Météo à Banikoara</h2><p class="card-sub">Mise à jour à 6 h 00</p></div>
+                <span class="badge badge--sim">Prévision simulée</span>
+              </div>
+              <div class="wx-now">
+                <span class="wx-ic"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"/></svg></span>
+                <div>
+                  <p class="wx-temp num">31 °C</p>
+                  <p class="muted">Ciel voilé, vent faible. Pluie : <span class="num">10 %</span>.</p>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="meteo-prix.html" style="margin-left:auto">Prévisions sur 7 jours<svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+              </div>
+              <ul class="wx-days" aria-label="Prochains jours">
+                <li><span>Mer.</span><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg><b class="num">33°</b><span class="num muted">0 mm</span></li>
+                <li class="is-rain"><span>Jeu.</span><svg class="ic" aria-hidden="true"><use href="#i-drop"/></svg><b class="num">27°</b><span class="num">62 mm</span></li>
+                <li class="is-rain"><span>Ven.</span><svg class="ic" aria-hidden="true"><use href="#i-drop"/></svg><b class="num">28°</b><span class="num">18 mm</span></li>
+                <li><span>Sam.</span><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"/></svg><b class="num">30°</b><span class="num muted">2 mm</span></li>
+              </ul>
+              <div class="alert alert--info" style="margin-top:14px">
+                <svg class="ic" aria-hidden="true"><use href="#i-drop"/></svg>
+                <div class="al-body"><span class="al-title">Pluie forte jeudi</span><span>Reportez l'apport d'urée sur le maïs à samedi : la pluie le lessiverait.</span></div>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="t-stade">
+              <div class="card-head">
+                <div><h2 class="card-title" id="t-stade">Où en sont mes parcelles</h2><p class="card-sub">Saison 2026-pluie-1 · 4 campagnes ouvertes</p></div>
+                <a class="btn btn-ghost btn-sm" href="campagnes.html">Mes campagnes<svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Champ de Sompérékou</a><p class="small muted">Maïs · <span class="num">1,82 ha</span></p></div>
+                <ol class="stagebar" aria-label="Stade 3 sur 4 : Floraison"><li class="is-done"><span>Semis</span></li><li class="is-done"><span>Croissance</span></li><li class="is-now" aria-current="step"><span>Floraison</span></li><li><span>Récolte</span></li></ol>
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Champ de la route</a><p class="small muted">Coton · <span class="num">1,20 ha</span></p></div>
+                <ol class="stagebar" aria-label="Stade 2 sur 4 : Croissance"><li class="is-done"><span>Semis</span></li><li class="is-now" aria-current="step"><span>Croissance</span></li><li><span>Floraison</span></li><li><span>Récolte</span></li></ol>
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Bas-fond Kokey</a><p class="small muted">Riz · <span class="num">0,94 ha</span> · <span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Chevauchement à vérifier</span></p></div>
+                <ol class="stagebar" aria-label="Stade 2 sur 4 : Croissance"><li class="is-done"><span>Semis</span></li><li class="is-now" aria-current="step"><span>Croissance</span></li><li><span>Floraison</span></li><li><span>Récolte</span></li></ol>
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Jardin de case</a><p class="small muted">Soja · <span class="num">0,68 ha</span></p></div>
+                <ol class="stagebar" aria-label="Stade 4 sur 4 : Récolte"><li class="is-done"><span>Semis</span></li><li class="is-done"><span>Croissance</span></li><li class="is-done"><span>Floraison</span></li><li class="is-now" aria-current="step"><span>Récolte</span></li></ol>
+              </div>
+            </section>
+          </div>
+
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-taches">
+              <div class="card-head"><h2 class="card-title" id="t-taches">À faire cette semaine</h2><span class="small muted num">1 sur 4 fait</span></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk1"><label for="tk1"><span class="t-title">Inspecter le maïs (chenille)</span><span class="t-meta">Champ de Sompérékou · avant samedi</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk2"><label for="tk2"><span class="t-title">Apport d'urée, 1 sac</span><span class="t-meta">Champ de Sompérékou · samedi, après la pluie</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk3" checked><label for="tk3"><span class="t-title">Sarclage du coton</span><span class="t-meta">Champ de la route · fait le 15 oct.</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk4"><label for="tk4"><span class="t-title">Déclarer la récolte de soja</span><span class="t-meta">Jardin de case · stade Récolte atteint</span></label></div>
+              <p class="hint" style="margin-top:8px">Tâches proposées d'après le calendrier cultural INRAB (démonstration).</p>
+            </section>
+
+            <section class="card" aria-labelledby="t-appuis">
+              <div class="card-head"><h2 class="card-title" id="t-appuis">Appui à confirmer</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>1 en attente</span></div>
+              <ul class="list">
+                <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="li-main"><span class="li-title">Engrais NPK 15-15-15, 2 sacs</span><span class="li-meta">Remis le 14 oct. par Moussa Yarou · à rembourser</span></span></li>
+              </ul>
+              <div class="cluster" style="margin-top:12px">
+                <button type="button" class="btn btn-primary" data-toast="Merci. Votre confirmation est enregistrée." data-toast-title="Réception confirmée"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>J'ai bien reçu</button>
+                <a class="btn btn-ghost" href="appuis.html">Voir mes appuis</a>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="t-raccourcis">
+              <h2 class="card-title" id="t-raccourcis" style="margin-bottom:14px">Accès rapides</h2>
+              <div class="shortcuts">
+                <a class="shortcut" href="diagnostic.html"><span class="sc-ic"><svg class="ic" aria-hidden="true"><use href="#i-leaf-scan"/></svg></span><span>Photo de plante<small>Une feuille malade ?</small></span></a>
+                <a class="shortcut" href="marche.html"><span class="sc-ic"><svg class="ic" aria-hidden="true"><use href="#i-market"/></svg></span><span>Vendre<small>Publier une offre</small></span></a>
+                <a class="shortcut" href="meteo-prix.html"><span class="sc-ic"><svg class="ic" aria-hidden="true"><use href="#i-coins"/></svg></span><span>Prix du marché<small>Maïs à Parakou</small></span></a>
+                <a class="shortcut" href="carte.html"><span class="sc-ic"><svg class="ic" aria-hidden="true"><use href="#i-id-card"/></svg></span><span>Ma carte<small>Code producteur</small></span></a>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Hors ligne</span>
+              <div class="banner banner--offline" style="border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Météo et alertes datent d'hier, 18 h. 2 saisies attendent le réseau.</span></div>
+            </div>
+            <div><span class="state-cap">Nouveau compte, rien encore</span>
+              <div class="card empty">
+                <h3>Commencez par déclarer un champ</h3>
+                <p>Dessinez votre parcelle sur la carte : la météo, les conseils et les tâches s'adapteront à votre culture.</p>
+                <a class="btn btn-primary" href="parcelles.html"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Déclarer une parcelle</a>
+              </div>
+            </div>
+            <div><span class="state-cap">Chargement</span>
+              <div class="card" aria-busy="true" aria-label="Chargement de l'accueil"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:12px"></span></div>
+            </div>
+            <div><span class="state-cap">Erreur météo</span>
+              <div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-cloud-sun"/></svg></span><h3>Météo indisponible</h3><p>Le service météo ne répond pas. Réessayez dans quelques minutes.</p><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

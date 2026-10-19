@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes parcelles · Agri-Digit Bénin</title>
+<meta name="description" content="Page modèle de l'application Agri-Digit Bénin (maquette).">
+<!-- MODÈLE : copiez ce fichier dans un sous-dossier (producteur/, agent/, filiere/, pilotage/, acces/)
+     puis remplacez « kit.css » / « kit.js » par « ../kit.css » / « ../kit.js ».
+     body[data-role] choisit la navigation ; body[data-page] = « dossier/fichier » sans .html surligne l'entrée active.
+     Icônes : <svg class="ic" aria-hidden="true"><use href="#i-nom"/></svg> (sprite injecté par kit.js). -->
+<link rel="icon" href="../../frontend/public/icon.svg">
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js" defer></script>
+</head>
+<body data-role="producteur" data-page="producteur/parcelles">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="#"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une parcelle, un message…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 3 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane">
+            <ol><li><a href="#">Accueil</a></li><li><span aria-current="page">Mes parcelles</span></li></ol>
+          </nav>
+          <h1 class="page-title">Mes parcelles</h1>
+          <p class="page-desc">Vos champs déclarés, leur culture de la saison et leur état de validation par l'agent ATDA.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button>
+          <button type="button" class="btn btn-primary" data-open-dialog="dlg-ajout"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Déclarer une parcelle</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo">
+          <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+          <div class="al-body"><span class="al-title">Données de démonstration</span><span>Les surfaces et rendements affichés sont fictifs. Le tracé GPS est simulé.</span></div>
+        </div>
+
+        <div class="grid" style="--min:200px">
+          <div class="stat"><span class="stat-label">Surface déclarée</span><span class="stat-value num">4,6<small>ha</small></span><span class="stat-foot"><span class="badge badge--demo">Démonstration</span></span></div>
+          <div class="stat"><span class="stat-label">Parcelles validées</span><span class="stat-value num">3<small>sur 4</small></span><span class="stat-foot">1 en attente de l'agent</span></div>
+          <div class="stat"><span class="stat-label">Rendement estimé, maïs</span><span class="stat-value num">2,1<small>t/ha</small></span><span class="stat-delta"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+0,3 sur 2025</span></div>
+        </div>
+
+        <div class="split">
+          <section class="table-card" aria-labelledby="t-parcelles">
+            <div class="table-toolbar">
+              <h2 class="card-title" id="t-parcelles" style="margin-right:auto">Parcelles · saison 2026</h2>
+              <div class="chips" role="group" aria-label="Filtrer par état">
+                <button type="button" class="chip" aria-pressed="true">Toutes <span class="count">4</span></button>
+                <button type="button" class="chip" aria-pressed="false">En attente <span class="count">1</span></button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <thead><tr>
+                  <th scope="col" aria-sort="none"><button type="button" class="th-sort">Parcelle<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                  <th scope="col">Culture</th>
+                  <th scope="col" class="num" aria-sort="none"><button type="button" class="th-sort">Surface (ha)<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                  <th scope="col">État</th>
+                  <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+                </tr></thead>
+                <tbody>
+                  <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de Sompérékou</span><span class="cell-sub">Banikoara · GPS simulé</span></td><td data-label="Culture">Maïs</td><td class="num" data-label="Surface (ha)">1,8</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+                  <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Bas-fond Kokey</span><span class="cell-sub">Banikoara</span></td><td data-label="Culture">Riz</td><td class="num" data-label="Surface (ha)">0,9</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+                  <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de la route</span><span class="cell-sub">Banikoara</span></td><td data-label="Culture">Coton</td><td class="num" data-label="Surface (ha)">1,2</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+                  <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Jardin de case</span><span class="cell-sub">Banikoara</span></td><td data-label="Culture">Soja</td><td class="num" data-label="Surface (ha)">0,7</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="t-saison">
+            <div class="card-head"><div><h2 class="card-title" id="t-saison">Saison du maïs</h2><p class="card-sub">Champ de Sompérékou</p></div><span class="badge badge--sim">Simulé</span></div>
+            <ol class="timeline">
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time">12 mai</div><div class="tl-title">Semis déclaré</div></li>
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time">3 juin</div><div class="tl-title">Engrais reçu (NPK, 2 sacs)</div><div class="tl-text">Remise confirmée par l'agent ATDA.</div></li>
+              <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Aujourd'hui</div><div class="tl-title">Floraison</div><div class="tl-text">Surveillez la chenille légionnaire.</div></li>
+              <li><span class="tl-dot"></span><div class="tl-time">Vers le 20 sept.</div><div class="tl-title">Récolte prévue</div></li>
+            </ol>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="acces/legal.html">Mentions légales</a><a href="acces/legal.html#confidentialite">Confidentialité</a><a href="acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-ajout" aria-labelledby="dlg-ajout-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-ajout-t">Déclarer une parcelle</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-ajout">
+    <div class="field"><label class="label" for="p-nom">Nom de la parcelle</label><input class="input" id="p-nom" placeholder="Ex. Champ de la route"></div>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="p-cult">Culture</label><select class="select" id="p-cult"><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option></select></div>
+      <div class="field"><label class="label" for="p-surf">Surface</label><div class="input-group"><input class="input input-num" id="p-surf" inputmode="decimal" placeholder="1,5"><span class="addon addon--end">ha</span></div></div>
+    </div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-ajout" class="btn btn-primary" data-toast="Parcelle enregistrée sur cet appareil. Elle partira à la prochaine connexion.">Enregistrer</button></div>
+</dialog>
+</body>
+</html>

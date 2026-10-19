@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File de travail · Agri-Digit Bénin</title>
+<meta name="description" content="File de travail du jour de l'agent ATDA : fiches, alertes, appuis, récoltes et contestations à traiter (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.queue-nav { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
+  .queue-nav a { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); color: var(--ink); text-decoration: none; box-shadow: var(--sh-card); transition: border-color var(--t-fast) var(--ease); }
+  .queue-nav a:hover { border-color: var(--leaf); }
+  .queue-nav .qn-n { font: 700 1.5rem/1 var(--font-ui); font-variant-numeric: tabular-nums; min-width: 2ch; }
+  .queue-nav .qn-l { font-size: var(--fs-sm); font-weight: 600; line-height: 1.3; color: var(--ink-2); }
+  .queue-nav a.is-hot .qn-n { color: var(--bad-ink); }
+  .work { display: flex; flex-direction: column; gap: 20px; }
+  .work .card-head { margin-bottom: 4px; }
+  .li-end .btn { white-space: nowrap; }
+  @media (max-width: 560px) { .work .list-item { flex-wrap: wrap; } .work .li-end { width: 100%; justify-content: flex-start; padding-left: 52px; } }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/accueil">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Producteur, code, NPI ou village…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><span aria-current="page">Accueil</span></li></ol></nav>
+          <h1 class="page-title">File de travail du jour</h1>
+          <p class="page-desc">Samedi 18 octobre 2026 · secteur Banikoara (Alibori). Les éléments les plus anciens et les urgences sont en tête de chaque liste.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="alertes.html"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Rédiger une alerte</a>
+          <a class="btn btn-primary" href="appuis.html"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg>Enregistrer une remise</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo">
+          <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+          <div class="al-body"><span class="al-title">Données de démonstration</span><span>Noms, codes et quantités sont fictifs. Aucun SMS réel n'est envoyé depuis cet espace.</span></div>
+        </div>
+
+        <nav class="queue-nav" aria-label="Résumé de la file">
+          <a href="#q-fiches"><span class="qn-n num">5</span><span class="qn-l">fiches à valider</span></a>
+          <a href="#q-alertes" class="is-hot"><span class="qn-n num">1</span><span class="qn-l">alerte urgente attend votre validation</span></a>
+          <a href="#q-appuis"><span class="qn-n num">3</span><span class="qn-l">appuis à remettre ou à faire confirmer</span></a>
+          <a href="#q-recoltes"><span class="qn-n num">2</span><span class="qn-l">récoltes signalées</span></a>
+          <a href="#q-contest"><span class="qn-n num">3</span><span class="qn-l">contestations à instruire</span></a>
+        </nav>
+
+        <div class="split">
+          <div class="work">
+            <section class="card" id="q-alertes" aria-labelledby="h-alertes">
+              <div class="card-head">
+                <div><h2 class="card-title" id="h-alertes">Alerte urgente à valider</h2><p class="card-sub">Une alerte urgente part seulement après la validation d'un second agent.</p></div>
+                <span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Urgent</span>
+              </div>
+              <ul class="list">
+                <li class="list-item">
+                  <span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-drop"/></svg></span>
+                  <span class="li-main"><span class="li-title">Pluies fortes jeudi&nbsp;: reportez l'épandage</span><span class="li-meta">Rédigée par Florentin Kpadé (Kandi) il y a 40 min · Alibori, 3 communes · SMS et vocal · ≈ 4 860 producteurs</span></span>
+                  <span class="li-end"><a class="btn btn-primary btn-sm" href="alertes.html#a-pluie">Relire et valider</a></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="card" id="q-fiches" aria-labelledby="h-fiches">
+              <div class="card-head">
+                <div><h2 class="card-title" id="h-fiches">Fiches à valider</h2><p class="card-sub">Vérifiez l'identité et la parcelle, puis validez ou rejetez avec un motif.</p></div>
+                <a class="small" href="producteurs.html">Les 5 fiches</a>
+              </div>
+              <ul class="list">
+                <li class="list-item">
+                  <span class="avatar" aria-hidden="true">BO</span>
+                  <span class="li-main"><span class="li-title">Bawa Orou</span><span class="li-meta">Kokey · maïs, 0,9 ha · inscrit il y a 6 jours</span></span>
+                  <span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Délai dépassé</span><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Ouvrir</a></span>
+                </li>
+                <li class="list-item">
+                  <span class="avatar" aria-hidden="true">ZC</span>
+                  <span class="li-main"><span class="li-title">Zénabou Chabi</span><span class="li-meta">Founougo · coton, 2,3 ha · inscrite il y a 3 jours · NPI non vérifié</span></span>
+                  <span class="li-end"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Ouvrir</a></span>
+                </li>
+                <li class="list-item">
+                  <span class="avatar" aria-hidden="true">YS</span>
+                  <span class="li-main"><span class="li-title">Yacoubou Sounon</span><span class="li-meta">Goumori · soja, 1,1 ha · inscrit hier par USSD</span></span>
+                  <span class="li-end"><a class="btn btn-secondary btn-sm" href="producteur-detail.html">Ouvrir</a></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="card" id="q-appuis" aria-labelledby="h-appuis">
+              <div class="card-head">
+                <div><h2 class="card-title" id="h-appuis">Appuis à remettre</h2><p class="card-sub">Programme intrants maïs 2026 · magasin de Banikoara</p></div>
+                <a class="small" href="appuis.html">Registre des appuis</a>
+              </div>
+              <ul class="list">
+                <li class="list-item">
+                  <span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg></span>
+                  <span class="li-main"><span class="li-title">Adjara Bio · 2 sacs d'engrais NPK</span><span class="li-meta">Bénéficiaire retenu le 2 octobre · pas encore remis</span></span>
+                  <span class="li-end"><a class="btn btn-secondary btn-sm" href="appuis.html">Enregistrer la remise</a></span>
+                </li>
+                <li class="list-item">
+                  <span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span>
+                  <span class="li-main"><span class="li-title">Orou Sika · 25 kg de semences de maïs</span><span class="li-meta">Remis le 14 octobre · confirmation du producteur attendue depuis 4 jours</span></span>
+                  <span class="li-end"><button type="button" class="btn btn-ghost btn-sm" data-toast="Rappel envoyé à Orou Sika (SMS simulé).">Relancer</button></span>
+                </li>
+                <li class="list-item">
+                  <span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-coins"/></svg></span>
+                  <span class="li-main"><span class="li-title">Chabi Gado · remboursement en retard</span><span class="li-meta">Échéance du 30 septembre · 15 000 sur 45 000 FCFA reçus</span></span>
+                  <span class="li-end"><a class="btn btn-ghost btn-sm" href="appuis.html">Voir le suivi</a></span>
+                </li>
+              </ul>
+            </section>
+
+            <div class="grid" style="--min:300px">
+              <section class="card" id="q-recoltes" aria-labelledby="h-recoltes">
+                <div class="card-head"><h2 class="card-title" id="h-recoltes">Récoltes signalées</h2><a class="small" href="recoltes-signalees.html">Vérifier</a></div>
+                <ul class="list">
+                  <li class="list-item"><span class="li-main"><span class="li-title">Gounou Yarou · maïs</span><span class="li-meta num">4 200 kg déclarés pour 1 750 estimés</span></span><span class="li-end"><span class="badge badge--bad">+140 %</span></span></li>
+                  <li class="list-item"><span class="li-main"><span class="li-title">Rékiya Tamou · soja</span><span class="li-meta num">180 kg déclarés pour 620 estimés</span></span><span class="li-end"><span class="badge badge--bad">−71 %</span></span></li>
+                </ul>
+              </section>
+              <section class="card" id="q-contest" aria-labelledby="h-contest">
+                <div class="card-head"><h2 class="card-title" id="h-contest">Contestations</h2><a class="small" href="contestations.html">Instruire</a></div>
+                <ul class="list">
+                  <li class="list-item"><span class="li-main"><span class="li-title">Ferme F-BNK-02871</span><span class="li-meta">Réponse due dans 3 jours</span></span><span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>À instruire</span></span></li>
+                  <li class="list-item"><span class="li-main"><span class="li-title">Ferme F-BNK-03390</span><span class="li-meta">Réponse due dans 9 jours</span></span><span class="li-end"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>À instruire</span></span></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+
+          <aside class="stack" aria-label="Terrain et synchronisation">
+            <section class="card" aria-labelledby="h-sync">
+              <div class="card-head"><h2 class="card-title" id="h-sync">Saisies sur cet appareil</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-cloud-upload"/></svg>2 en attente</span></div>
+              <ul class="list">
+                <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span><span class="li-main"><span class="li-title">Validation de Mariama Bani</span><span class="li-meta">Saisie hors ligne à Toura, 08:12</span></span></li>
+                <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="li-main"><span class="li-title">Remise&nbsp;: 1 pulvérisateur, Séidou Kora</span><span class="li-meta">Photo du bordereau jointe, 09:40</span></span></li>
+              </ul>
+              <div class="banner banner--warn" style="border-radius:var(--r-md);margin-top:12px;padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span>Conflit&nbsp;: la fiche de Mariama Bani a aussi été modifiée au bureau. <a href="producteur-detail.html">Choisir la bonne version</a></span></div>
+              <div class="card-foot"><span class="small muted">Dernier envoi réussi&nbsp;: 07:55</span><button type="button" class="btn btn-secondary btn-sm" data-toast="File d'attente envoyée (simulation).">Envoyer maintenant</button></div>
+            </section>
+
+            <section class="card" aria-labelledby="h-secteur">
+              <div class="card-head"><h2 class="card-title" id="h-secteur">Mon secteur</h2><span class="badge badge--demo">Démonstration</span></div>
+              <dl class="dl">
+                <dt>Producteurs validés</dt><dd class="num">412</dd>
+                <dt>En attente</dt><dd class="num">23, dont 5 de plus de 5 jours</dd>
+                <dt>Surface suivie</dt><dd class="num">1 186 ha</dd>
+                <dt>Coopératives</dt><dd class="num">7</dd>
+              </dl>
+              <div class="card-foot"><a class="small" href="satellite.html">Anomalies satellite&nbsp;: 2 communes</a></div>
+            </section>
+
+            <section class="card card--tint" aria-labelledby="h-regles">
+              <h2 class="card-title" id="h-regles" style="margin-bottom:8px">Règles de décision</h2>
+              <p class="small muted">Chaque validation, rejet ou décision porte votre nom et un motif. Rien n'est décidé automatiquement. Chaque fiche ouverte est inscrite au journal d'accès.</p>
+            </section>
+          </aside>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">File vide</span>
+              <div class="card empty">
+                <svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg>
+                <h3>Rien à traiter aujourd'hui</h3>
+                <p>Toutes les fiches sont instruites. Les nouvelles inscriptions du secteur arriveront ici.</p>
+                <a class="btn btn-secondary" href="producteurs.html">Voir le registre</a>
+              </div>
+            </div>
+            <div><span class="states-cap">Chargement</span>
+              <div class="card" aria-busy="true" aria-label="Chargement de la file">
+                <span class="skel skel-title"></span>
+                <div class="cluster" style="flex-wrap:nowrap"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:70%"></span><span class="skel skel-line" style="width:45%"></span></div></div>
+                <div class="cluster" style="flex-wrap:nowrap;margin-top:12px"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:60%"></span><span class="skel skel-line" style="width:35%"></span></div></div>
+              </div>
+            </div>
+            <div><span class="states-cap">Hors ligne</span>
+              <div class="stack" style="--gap:10px">
+                <div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. La file affichée date de 07:55&nbsp;; vos décisions partiront au retour du réseau.</span></div>
+                <div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>La file n'a pas pu être chargée</h3><p>Le serveur ne répond pas. Réessayez&nbsp;; les saisies de cet appareil sont conservées.</p><code>ERR_RESEAU · 504</code><button type="button" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+</body>
+</html>

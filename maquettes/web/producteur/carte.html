@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma carte de producteur · Agri-Digit Bénin</title>
+<meta name="description" content="Carte de producteur avec code producteur, QR code de vérification et impression.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.pcard { width: min(100%, 520px); aspect-ratio: 85.6 / 54; border-radius: 18px; background: var(--canopy); color: var(--on-dark); padding: clamp(14px, 3.5vw, 22px); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr auto; gap: 8px 16px; box-shadow: 0 30px 60px -34px rgba(6,22,12,.8); position: relative; overflow: hidden; }
+.pcard::after { content: ""; position: absolute; right: -60px; bottom: -80px; width: 260px; height: 260px; border-radius: 50%; border: 30px solid rgba(111,168,58,.12); pointer-events: none; }
+.pc-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; font-size: .75rem; color: var(--on-dark-2); }
+.pc-top svg { width: 26px; height: 26px; flex: none; }
+.pc-top b { color: var(--on-dark); font-size: .875rem; display: block; }
+.pc-id { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; }
+.pc-name { font: 700 clamp(1.1rem, 4vw, 1.5rem)/1.15 var(--font-display); }
+.pc-id .small { color: var(--on-dark-2); }
+.pc-code { font: 700 clamp(1rem, 3.6vw, 1.25rem)/1.2 var(--font-ui); letter-spacing: .06em; color: var(--maize-hover); margin-top: 6px; }
+.pc-qr { background: #fff; border-radius: 10px; padding: 6px; align-self: center; width: clamp(84px, 24vw, 128px); }
+.pc-qr svg { display: block; width: 100%; height: auto; }
+.pc-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; font-size: .75rem; color: var(--on-dark-2); position: relative; z-index: 1; }
+.pc-foot b { color: var(--on-dark); }
+.card-zone { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+@media print {
+  body { background: #fff; }
+  .page-head .page-actions, .no-print, .app-foot, .states { display: none !important; }
+  .pcard { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none; width: 85.6mm; }
+}
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/carte">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Ma carte</span></li></ol></nav>
+          <h1 class="page-title">Ma carte de producteur</h1>
+          <p class="page-desc">Montrez-la à l'agent, au magasin d'intrants ou à l'acheteur : le QR code permet de vérifier qu'elle est authentique.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-toast="Carte enregistrée sur le téléphone : visible même hors réseau."><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Garder hors ligne</button>
+          <button type="button" class="btn btn-primary" onclick="window.print()"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Imprimer la carte</button>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card-zone">
+          <div class="pcard" role="img" aria-label="Carte de producteur d'Awa Sabi, code BJ-AL-BNK-004218, délivrée le 14 mai 2026">
+            <div class="pc-top"><svg aria-hidden="true"><use href="#i-logo"/></svg><span><b>Agri-Digit Bénin</b>Carte de producteur · MAEP</span><span class="badge badge--sim" style="margin-left:auto">Spécimen</span></div>
+            <div class="pc-id">
+              <span class="pc-name">Awa Sabi</span>
+              <span class="small">Banikoara, Alibori · Maïs, coton, soja</span>
+              <span class="pc-code num">BJ-AL-BNK-004218</span>
+            </div>
+            <div class="pc-qr"><svg id="qr" viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"></svg></div>
+            <div class="pc-foot"><span>Délivrée le <b class="num">14/05/2026</b></span><span>Vérification <b class="num">7K4-QM9</b></span></div>
+          </div>
+          <p class="hint no-print">QR code simulé : il ne renvoie à aucune donnée réelle.</p>
+        </div>
+
+        <div class="stack" style="--gap:20px">
+          <section class="card" aria-labelledby="t-inf">
+            <h2 class="card-title" id="t-inf" style="margin-bottom:12px">Informations de la carte</h2>
+            <dl class="dl">
+              <dt>Code producteur</dt><dd class="num">BJ-AL-BNK-004218</dd>
+              <dt>Délivrée le</dt><dd class="num">14 mai 2026</dd>
+              <dt>Code de vérification</dt><dd class="num">7K4-QM9</dd>
+              <dt>Vérifiable à l'adresse</dt><dd>agri-digit.bj/verifier</dd>
+              <dt>Validée par</dt><dd>Moussa Yarou, agent ATDA</dd>
+            </dl>
+          </section>
+          <section class="card card--tint" aria-labelledby="t-use">
+            <h2 class="card-title" id="t-use" style="margin-bottom:8px">Ce que la carte montre à qui la scanne</h2>
+            <p class="small">Votre nom, votre commune, vos filières et la validité de la carte. Jamais votre NPI, votre téléphone ni vos parcelles.</p>
+          </section>
+        </div>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+        <div class="states-body">
+          <div><span class="state-cap">Fiche pas encore validée</span><div class="card empty"><h3>Carte non disponible</h3><p>La carte est délivrée quand l'agent ATDA a validé votre fiche. Votre fiche est en cours de vérification.</p></div></div>
+          <div><span class="state-cap">Aucune fiche liée</span><div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body">Aucune fiche producteur n'est liée à ce compte. Contactez votre agent ATDA.</div></div></div>
+        </div>
+      </details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<script>
+  // QR simulé : motifs de repérage + modules pseudo-aléatoires stables (aucune donnée encodée)
+  (function () {
+    var n = 29, s = 4218, out = '';
+    var rnd = function () { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    var finder = function (x, y) { return '<path d="M' + x + ' ' + y + 'h7v7h-7z M' + (x + 1) + ' ' + (y + 1) + 'v5h5v-5z" fill-rule="evenodd"/><rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="3" height="3"/>'; };
+    var inF = function (x, y) { return (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9); };
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) if (!inF(x, y) && rnd() > .52) out += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+    document.getElementById('qr').innerHTML = '<g fill="#0E2F1C">' + finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) + out + '</g>';
+  })();
+</script>
+</body>
+</html>

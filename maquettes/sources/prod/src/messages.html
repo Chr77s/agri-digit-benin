@@ -1,0 +1,102 @@
+---
+title: Mes messages
+desc: Notifications et SMS reçus : alertes de l'agent, décisions sur les demandes, marché et programmes.
+search: Rechercher un message…
+---
+<!--@head-->
+.inbox { padding: 0; overflow: hidden; }
+.msg-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; padding: 14px 18px; border-top: 1px solid var(--line); align-items: start; }
+.msg-row:first-child { border-top: 0; }
+.msg-row.is-unread { background: #F6FAF1; }
+.msg-row .li-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-md); background: var(--layer); color: var(--leaf); }
+.msg-row.is-urgent .li-icon { background: var(--bad-bg); color: var(--bad-ink); }
+.msg-row h2 { font-size: var(--fs-md); font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.msg-row .unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--maize); flex: none; }
+.msg-row p { color: var(--ink-2); margin-top: 2px; }
+.msg-row .m-meta { font-size: var(--fs-xs); color: var(--ink-2); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.sms { font-family: ui-monospace, Consolas, monospace; font-size: var(--fs-sm); background: var(--surface-2); border: 1px dashed var(--line-input); border-radius: var(--r-md); padding: 8px 10px; margin-top: 8px; color: var(--ink); }
+@media (max-width: 640px) { .msg-row { grid-template-columns: 40px minmax(0, 1fr); padding: 14px 12px; } .msg-row .m-act { grid-column: 2; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes messages</span></li></ol></nav>
+          <h1 class="page-title">Mes messages</h1>
+          <p class="page-desc">Vos alertes et les nouvelles de vos demandes. Les messages importants arrivent aussi par SMS.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary" data-toast="3 messages marqués comme lus.">{{I:check}}Tout marquer comme lu</button></div>
+      </div>
+
+      <div class="split">
+        <div class="stack" style="--gap:14px">
+          <div class="chips" role="group" aria-label="Filtrer les messages">
+            <button type="button" class="chip" aria-pressed="true">Tous <span class="count">8</span></button>
+            <button type="button" class="chip" aria-pressed="false">Non lus <span class="count">3</span></button>
+            <button type="button" class="chip" aria-pressed="false">Alertes <span class="count">3</span></button>
+            <button type="button" class="chip" aria-pressed="false">Décisions <span class="count">3</span></button>
+            <button type="button" class="chip" aria-pressed="false">Marché <span class="count">2</span></button>
+          </div>
+          <section class="card inbox" aria-label="Messages">
+            <article class="msg-row is-unread is-urgent">
+              <span class="li-icon">{{I:alert}}</span>
+              <div><h2><span class="unread-dot" aria-hidden="true"></span><span class="sr-only">Non lu :</span>Chenille légionnaire à Sompérékou et Kokey {{B:urgent|Urgent}}</h2>
+                <p>Inspectez vos champs de maïs avant samedi. Signalez les dégâts à votre agent ou envoyez une photo.</p>
+                <div class="sms" aria-label="Texte du SMS reçu">ATDA Banikoara: chenille legionnaire signalee a Somperekou et Kokey. Inspectez le mais avant samedi. Info: *456#</div>
+                <div class="m-meta"><span>Moussa Yarou, ATDA</span><span class="num">Aujourd'hui, 07:15</span><span>Application et SMS</span></div></div>
+              <div class="m-act"><button type="button" class="btn btn-ghost btn-sm">Marquer comme lu</button></div>
+            </article>
+            <article class="msg-row is-unread">
+              <span class="li-icon">{{I:market}}</span>
+              <div><h2><span class="unread-dot" aria-hidden="true"></span><span class="sr-only">Non lu :</span>Paiement reçu : 246 000 FCFA</h2>
+                <p>La Coopérative Nonvignon a payé votre maïs (simulation). Référence FKP-7Q2M-4410.</p>
+                <div class="m-meta"><span>Marché</span><span class="num">Aujourd'hui, 10:12</span><span>Application</span></div></div>
+              <div class="m-act"><a class="btn btn-ghost btn-sm" href="marche.html">Voir</a></div>
+            </article>
+            <article class="msg-row is-unread">
+              <span class="li-icon">{{I:gift}}</span>
+              <div><h2><span class="unread-dot" aria-hidden="true"></span><span class="sr-only">Non lu :</span>Appui remis : 2 sacs de NPK</h2>
+                <p>Confirmez la réception dans « Mes appuis ».</p>
+                <div class="m-meta"><span>Moussa Yarou, ATDA</span><span class="num">14 oct., 16:40</span><span>Application et SMS</span></div></div>
+              <div class="m-act"><a class="btn btn-ghost btn-sm" href="appuis.html">Confirmer</a></div>
+            </article>
+            <article class="msg-row">
+              <span class="li-icon">{{I:cloud-sun}}</span>
+              <div><h2>Pluie forte jeudi 20 octobre</h2><p>Plus de 60 mm attendus. Reportez l'épandage d'engrais.</p>
+                <div class="m-meta"><span>ATDA Alibori</span><span class="num">17 oct., 18:02</span><span>SMS</span></div></div>
+              <div class="m-act">{{B:neutral|Lu}}</div>
+            </article>
+            <article class="msg-row">
+              <span class="li-icon">{{I:scale}}</span>
+              <div><h2>Votre contestation a bien été reçue</h2><p>Sélection du 6 octobre : un agent vous répondra avant le 24 octobre.</p>
+                <div class="m-meta"><span>Programme intrants coton</span><span class="num">9 oct., 11:20</span><span>Application</span></div></div>
+              <div class="m-act">{{B:neutral|Lu}}</div>
+            </article>
+            <article class="msg-row">
+              <span class="li-icon">{{I:check-circle}}</span>
+              <div><h2>Votre fiche producteur est validée</h2><p>Votre carte de producteur est disponible.</p>
+                <div class="m-meta"><span>Moussa Yarou, ATDA</span><span class="num">14 mai, 09:05</span><span>SMS</span></div></div>
+              <div class="m-act"><a class="btn btn-ghost btn-sm" href="carte.html">Ma carte</a></div>
+            </article>
+          </section>
+          <div class="pagination"><span class="num">6 sur 8 messages</span><button type="button" class="btn btn-ghost btn-sm">Voir les plus anciens</button></div>
+        </div>
+
+        <section class="card" aria-labelledby="t-pref">
+          <h2 class="card-title" id="t-pref" style="margin-bottom:12px">Comment me prévenir</h2>
+          <fieldset class="fieldset"><legend class="sr-only">Canaux de notification</legend>
+            <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> SMS pour les alertes urgentes</label>
+            <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> SMS pour les décisions (appuis, programmes)</label>
+            <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch"> Message vocal dans ma langue</label>
+            <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Prix du marché chaque lundi</label>
+          </fieldset>
+          <p class="hint" style="margin-top:10px">Envoi au <span class="num">01 97 •• •• 42</span>. SMS et appels simulés dans le prototype. <a href="profil.html">Changer de numéro</a></p>
+        </section>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+        <div class="states-body">
+          <div><span class="state-cap">Aucun message</span><div class="card empty"><h2>Aucun message pour le moment</h2><p>Les alertes de votre agent et les décisions sur vos demandes apparaîtront ici.</p></div></div>
+          <div><span class="state-cap">Chargement</span><div class="card" aria-busy="true"><div class="cluster" style="flex-wrap:nowrap"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:70%"></span><span class="skel skel-line" style="width:45%"></span></div></div><div class="cluster" style="flex-wrap:nowrap;margin-top:12px"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:60%"></span><span class="skel skel-line" style="width:35%"></span></div></div></div></div>
+          <div><span class="state-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md)">{{I:wifi-off}}<span>Hors ligne : messages reçus jusqu'à hier 18 h. Les SMS continuent d'arriver.</span></div></div>
+        </div>
+      </details>

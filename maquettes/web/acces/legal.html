@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documents légaux · Agri-Digit Bénin</title>
+<meta name="description" content="Mentions légales, politique de confidentialité et conditions d'utilisation d'Agri-Digit Bénin (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  /* Panneau « États » repliable, pour la revue */
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  .lg { flex: 1; width: 100%; max-width: 1080px; margin: 0 auto; padding: 28px var(--gutter) 56px; display: flex; flex-direction: column; gap: 22px; }
+  .lg-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; }
+  .lg-head > div { flex: 1 1 420px; min-width: 0; }
+  .lg-tabs { position: sticky; top: var(--topbar-h); z-index: 5; background: var(--bg); }
+  .lg-panel { display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: 40px; align-items: start; }
+  .lg-panel[hidden] { display: none; }
+  .lg-doc { max-width: 70ch; display: flex; flex-direction: column; gap: 28px; }
+  .lg-doc .lead { font-size: 1.125rem; line-height: 1.55; color: var(--ink); }
+  .lg-doc section { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 140px; }
+  .lg-doc h2 { font: 700 var(--fs-xl)/1.25 var(--font-ui); }
+  .lg-doc p { line-height: 1.65; }
+  .lg-toc { position: sticky; top: 140px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+  .lg-toc h2 { font-size: var(--fs-sm); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .lg-toc ol { list-style: none; margin: 0; padding: 0; }
+  .lg-toc a { display: flex; align-items: center; min-height: 36px; padding: 4px 0; font-size: var(--fs-sm); color: var(--ink); text-decoration: none; line-height: 1.3; }
+  .lg-toc a:hover { color: var(--leaf); text-decoration: underline; }
+  .todo { background: var(--sun-bg); color: var(--sun-ink); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+  .lg-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: var(--fs-sm); color: var(--ink-2); padding-top: 18px; border-top: 1px solid var(--line); }
+  @media (max-width: 900px) { .lg-panel { grid-template-columns: 1fr; } .lg-toc { display: none; } }
+  @media print { .pub-head, .proto-band, .lg-tabs, .lg-toc, .app-foot, .lg-head .btn { display: none !important; } .lg-panel[hidden] { display: grid; } }
+</style>
+</head>
+<body data-page="acces/legal">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+
+  <main class="lg" id="contenu" tabindex="-1">
+    <div class="lg-head">
+      <div>
+        <h1 class="page-title">Documents légaux</h1>
+        <p class="page-desc">Prototype de démonstration, données non officielles. Dernière mise à jour : 16 octobre 2026. Les mentions « à compléter » seront renseignées par le MAEP avant la mise en service.</p>
+      </div>
+      <button class="btn btn-secondary" type="button" onclick="window.print()"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Imprimer</button>
+    </div>
+
+    <div class="lg-tabs">
+      <div class="tabs" role="tablist" aria-label="Documents légaux">
+        <button class="tab" role="tab" type="button" id="tb-mentions" aria-controls="mentions" aria-selected="true">Mentions légales</button>
+        <button class="tab" role="tab" type="button" id="tb-confidentialite" aria-controls="confidentialite" aria-selected="false">Confidentialité</button>
+        <button class="tab" role="tab" type="button" id="tb-conditions" aria-controls="conditions" aria-selected="false">Conditions d'utilisation</button>
+      </div>
+    </div>
+
+    <div class="tab-panel lg-panel" role="tabpanel" id="mentions" aria-labelledby="tb-mentions">
+      <article class="lg-doc" aria-labelledby="mentions-t">
+        <div class="stack" style="--gap:8px"><h2 class="page-title" id="mentions-t" style="font-size:var(--fs-2xl)">Mentions légales</h2><p class="lead">Qui édite Agri-Digit Bénin, qui l'héberge et à qui appartiennent ses contenus.</p></div>
+        <section id="mentions-1" aria-labelledby="mentions-h1">
+          <h2 id="mentions-h1">Éditeur et responsable du traitement</h2>
+          <p>Ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), République du Bénin, Cotonou. Le prestataire technique agit en qualité de sous-traitant pour le compte du MAEP (loi n° 2017-20 portant Code du numérique, art. 328).</p>
+          <p>Directeur ou directrice de la publication : <mark class="todo">à compléter par le MAEP</mark>.</p>
+        </section>
+        <section id="mentions-2" aria-labelledby="mentions-h2">
+          <h2 id="mentions-h2">Conception et réalisation</h2>
+          <p>Prestataire technique agissant comme sous-traitant du MAEP : identité <mark class="todo">à compléter</mark>. Il n'utilise les données que sur instruction du MAEP.</p>
+        </section>
+        <section id="mentions-3" aria-labelledby="mentions-h3">
+          <h2 id="mentions-h3">Hébergement</h2>
+          <p>Hébergement : <mark class="todo">à décider avec le comité de pilotage (CoPil)</mark>. Aucune donnée personnelle n'est transférée hors du Bénin (art. 391).</p>
+        </section>
+        <section id="mentions-4" aria-labelledby="mentions-h4">
+          <h2 id="mentions-h4">Propriété intellectuelle</h2>
+          <p>Les textes, le logo, les illustrations et le code de la plateforme sont la propriété du MAEP, sous réserve du contrat avec le prestataire. Toute reproduction demande son accord.</p>
+          <p>Les fiches techniques de l'assistant citent leurs sources ; elles restent soumises aux droits de leurs auteurs.</p>
+        </section>
+        <section id="mentions-5" aria-labelledby="mentions-h5">
+          <h2 id="mentions-h5">Crédits photographiques</h2>
+          <p>Galerie « Le Bénin agricole », photos publiées sur Wikimedia Commons sous licence CC BY-SA 4.0 : champ de maïs à Pobé, Rachad Sanoussi ; champ de coton dans l'Atakora, Ji-Elle ; battage du fonio près de Natitingou, Crop Trust.</p>
+          <p>Carte du relief : fermes du prototype regroupées par carré d'environ 5 km, données non officielles.</p>
+        </section>
+        <section id="mentions-6" aria-labelledby="mentions-h6">
+          <h2 id="mentions-h6">Contact</h2>
+          <p>Pour toute question sur la plateforme, adressez-vous à votre agent ATDA. Délégué à la protection des données du MAEP : <mark class="todo">à désigner</mark>.</p>
+        </section>
+      </article>
+      <nav class="lg-toc" aria-label="Sommaire : Mentions légales"><h2>Sur cette page</h2><ol><li><a href="#mentions-1">Éditeur et responsable du traitement</a></li><li><a href="#mentions-2">Conception et réalisation</a></li><li><a href="#mentions-3">Hébergement</a></li><li><a href="#mentions-4">Propriété intellectuelle</a></li><li><a href="#mentions-5">Crédits photographiques</a></li><li><a href="#mentions-6">Contact</a></li></ol></nav>
+    </div>
+    <div class="tab-panel lg-panel" role="tabpanel" id="confidentialite" aria-labelledby="tb-confidentialite" hidden>
+      <article class="lg-doc" aria-labelledby="confidentialite-t">
+        <div class="stack" style="--gap:8px"><h2 class="page-title" id="confidentialite-t" style="font-size:var(--fs-2xl)">Politique de confidentialité</h2><p class="lead">Mentions légales. Le ministère de l'Agriculture, de l'Élevage et de la Pêche est responsable du traitement de vos données. Vous pouvez demander l'accès, la correction ou la suppression de vos données.</p></div>
+        <section id="confidentialite-1" aria-labelledby="confidentialite-h1">
+          <h2 id="confidentialite-h1">Responsable du traitement</h2>
+          <p>Le ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), dans le cadre de la loi n° 2017-20 portant Code du numérique.</p>
+        </section>
+        <section id="confidentialite-2" aria-labelledby="confidentialite-h2">
+          <h2 id="confidentialite-h2">Données traitées</h2>
+          <p>Identité : NPI, prénom, nom, sexe, date de naissance (vérifiés auprès de l'ANIP).</p>
+          <p>Contact et localisation : téléphone, département, commune, langue préférée.</p>
+          <p>Exploitation : parcelles (contour, surface, statut foncier), campagnes, candidatures aux programmes.</p>
+          <p>Questions posées à l'assistant (sans donnée de santé ni photo de visage).</p>
+          <p>Aucune donnée biométrique, ethnique, religieuse ou politique n'est collectée (art. 394).</p>
+        </section>
+        <section id="confidentialite-3" aria-labelledby="confidentialite-h3">
+          <h2 id="confidentialite-h3">Finalités et base légale</h2>
+          <p>Conseil agricole, alertes, accès aux programmes d'appui et pilotage du secteur. Traitement fondé sur votre consentement explicite, donné séparément et retirable à tout moment (art. 389 et 390). Pour un enfant de moins de 16 ans, le consentement d'un titulaire de l'autorité parentale est requis (art. 446).</p>
+          <p>Aucune décision qui vous affecte (sélection, crédit) n'est prise par un traitement automatisé seul : un agent valide et motive, et vous pouvez contester (art. 401).</p>
+        </section>
+        <section id="confidentialite-4" aria-labelledby="confidentialite-h4">
+          <h2 id="confidentialite-h4">Qui voit vos données</h2>
+          <p>Votre agent ATDA et les responsables des programmes auxquels vous postulez, chacun dans son périmètre.</p>
+          <p>Un organisme de crédit ne voit vos informations qu'avec votre accord explicite, que vous pouvez retirer à tout moment.</p>
+          <p>Les tableaux de bord du ministère n'affichent que des chiffres agrégés, sans nom ni téléphone.</p>
+        </section>
+        <section id="confidentialite-5" aria-labelledby="confidentialite-h5">
+          <h2 id="confidentialite-h5">Durée de conservation</h2>
+          <p>Chaque type de donnée a une durée de conservation, après laquelle il est supprimé (art. 433). Les durées seront fixées avec le délégué à la protection des données.</p>
+        </section>
+        <section id="confidentialite-6" aria-labelledby="confidentialite-h6">
+          <h2 id="confidentialite-h6">Sécurité</h2>
+          <p>Connexion par un code à usage unique envoyé sur votre téléphone, accès limité selon le rôle de chacun, et journal non modifiable de chaque consultation et de chaque export.</p>
+        </section>
+        <section id="confidentialite-7" aria-labelledby="confidentialite-h7">
+          <h2 id="confidentialite-h7">Stockage sur votre appareil</h2>
+          <p>Agri-Digit n'utilise ni cookie publicitaire ni outil de mesure d'audience. Il garde seulement sur votre appareil : un cookie de session pour rester connecté, votre langue, votre thème, votre choix d'animations, et les saisies faites hors connexion jusqu'à leur envoi.</p>
+        </section>
+        <section id="confidentialite-8" aria-labelledby="confidentialite-h8">
+          <h2 id="confidentialite-h8">Transferts hors du Bénin</h2>
+          <p>Aucune donnée personnelle n'est transférée hors du Bénin (art. 391). Les services externes éventuels ne reçoivent que des questions anonymes, après avis de l'APDP.</p>
+        </section>
+        <section id="confidentialite-9" aria-labelledby="confidentialite-h9">
+          <h2 id="confidentialite-h9">Vos droits</h2>
+          <p>Vous pouvez demander l'accès à vos données, leur correction, leur suppression, et retirer votre consentement dans « Mes consentements ». Les données sont conservées pour la durée nécessaire à la finalité (art. 433). Vous pouvez saisir l'Autorité de protection des données personnelles (APDP).</p>
+        </section>
+        <section id="confidentialite-10" aria-labelledby="confidentialite-h10">
+          <h2 id="confidentialite-h10">Contact</h2>
+          <p>Délégué à la protection des données du MAEP : <mark class="todo">à désigner</mark>. En attendant, adressez votre demande à votre agent ATDA.</p>
+        </section>
+      </article>
+      <nav class="lg-toc" aria-label="Sommaire : Politique de confidentialité"><h2>Sur cette page</h2><ol><li><a href="#confidentialite-1">Responsable du traitement</a></li><li><a href="#confidentialite-2">Données traitées</a></li><li><a href="#confidentialite-3">Finalités et base légale</a></li><li><a href="#confidentialite-4">Qui voit vos données</a></li><li><a href="#confidentialite-5">Durée de conservation</a></li><li><a href="#confidentialite-6">Sécurité</a></li><li><a href="#confidentialite-7">Stockage sur votre appareil</a></li><li><a href="#confidentialite-8">Transferts hors du Bénin</a></li><li><a href="#confidentialite-9">Vos droits</a></li><li><a href="#confidentialite-10">Contact</a></li></ol></nav>
+    </div>
+    <div class="tab-panel lg-panel" role="tabpanel" id="conditions" aria-labelledby="tb-conditions" hidden>
+      <article class="lg-doc" aria-labelledby="conditions-t">
+        <div class="stack" style="--gap:8px"><h2 class="page-title" id="conditions-t" style="font-size:var(--fs-2xl)">Conditions d'utilisation</h2><p class="lead">Les règles d'usage d'Agri-Digit Bénin, pour les producteurs, les agents et les partenaires.</p></div>
+        <section id="conditions-1" aria-labelledby="conditions-h1">
+          <h2 id="conditions-h1">Objet</h2>
+          <p>Agri-Digit Bénin réunit le suivi des parcelles et des campagnes, le conseil agricole, les alertes, l'accès aux programmes d'appui et la mise en relation sur le marché. Utiliser la plateforme vaut acceptation de ces conditions.</p>
+        </section>
+        <section id="conditions-2" aria-labelledby="conditions-h2">
+          <h2 id="conditions-h2">Compte</h2>
+          <p>Le compte est créé avec votre numéro de téléphone ; un code à usage unique vous est envoyé à chaque connexion. Vous vous engagez à fournir des informations exactes. Votre fiche est validée par un agent ATDA.</p>
+          <p>Le compte est personnel : ne communiquez jamais vos codes de connexion.</p>
+        </section>
+        <section id="conditions-3" aria-labelledby="conditions-h3">
+          <h2 id="conditions-h3">Bon usage</h2>
+          <p>Il est interdit d'usurper l'identité d'une autre personne, de déclarer des parcelles ou des récoltes fausses, de publier des offres trompeuses ou d'utiliser les données d'autrui hors du cadre prévu. Tout manquement peut entraîner la suspension du compte.</p>
+        </section>
+        <section id="conditions-4" aria-labelledby="conditions-h4">
+          <h2 id="conditions-h4">Conseils et diagnostics</h2>
+          <p>Les réponses de l'assistant et les diagnostics photo sont indicatifs. Vérifiez-les avec votre agent ATDA avant d'agir. Pour toute dose de produit, l'assistant vous renvoie vers un agent.</p>
+        </section>
+        <section id="conditions-5" aria-labelledby="conditions-h5">
+          <h2 id="conditions-h5">Programmes d'appui</h2>
+          <p>Chaque décision de sélection est prise et motivée par un agent, jamais par un traitement automatisé seul. Vous pouvez la contester depuis votre espace.</p>
+        </section>
+        <section id="conditions-6" aria-labelledby="conditions-h6">
+          <h2 id="conditions-h6">Marché</h2>
+          <p>La plateforme met en relation vendeurs et acheteurs. Le prix, la qualité et la livraison relèvent de l'accord entre les parties ; signalez tout abus à votre agent ATDA.</p>
+        </section>
+        <section id="conditions-7" aria-labelledby="conditions-h7">
+          <h2 id="conditions-h7">Disponibilité</h2>
+          <p>Le service est accessible sans interruption autant que possible, y compris en saisie hors connexion. Des interruptions pour maintenance peuvent survenir.</p>
+        </section>
+        <section id="conditions-8" aria-labelledby="conditions-h8">
+          <h2 id="conditions-h8">Évolution des conditions</h2>
+          <p>Ces conditions peuvent évoluer ; la date de mise à jour figure en bas de page. Les changements importants vous sont signalés dans l'application.</p>
+        </section>
+        <section id="conditions-9" aria-labelledby="conditions-h9">
+          <h2 id="conditions-h9">Droit applicable</h2>
+          <p>Ces conditions relèvent du droit béninois, notamment de la loi n° 2017-20 portant Code du numérique.</p>
+        </section>
+      </article>
+      <nav class="lg-toc" aria-label="Sommaire : Conditions d&#x27;utilisation"><h2>Sur cette page</h2><ol><li><a href="#conditions-1">Objet</a></li><li><a href="#conditions-2">Compte</a></li><li><a href="#conditions-3">Bon usage</a></li><li><a href="#conditions-4">Conseils et diagnostics</a></li><li><a href="#conditions-5">Programmes d'appui</a></li><li><a href="#conditions-6">Marché</a></li><li><a href="#conditions-7">Disponibilité</a></li><li><a href="#conditions-8">Évolution des conditions</a></li><li><a href="#conditions-9">Droit applicable</a></li></ol></nav>
+    </div>
+
+    <div class="lg-meta">
+      <span>Une question sur vos données ? Adressez-vous à votre agent ATDA.</span>
+      <a href="connexion.html">Se connecter pour gérer « Mes consentements »</a>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<script>
+  // Onglet ouvert depuis l'adresse (#confidentialite, #conditions) et adresse mise à jour au changement d'onglet
+  (function () {
+    function pick() {
+      var id = location.hash.slice(1), tab = id && document.getElementById('tb-' + id);
+      if (tab) tab.click();
+    }
+    window.addEventListener('hashchange', pick);
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('.lg-tabs [role="tab"]'); if (!t) return;
+      try { history.replaceState(null, '', '#' + t.getAttribute('aria-controls')); } catch (err) { /* aperçu local */ }
+    });
+    window.addEventListener('DOMContentLoaded', function () { setTimeout(pick, 0); });
+  })();
+</script>
+</body>
+</html>

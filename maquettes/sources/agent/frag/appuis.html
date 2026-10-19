@@ -1,0 +1,85 @@
+<!--{"title":"Appuis","desc":"Remise d'un appui avec preuve, confirmation par le producteur et suivi du recouvrement (maquette).","search":"Producteur, appui…"}-->
+<!--STYLE-->
+  .recov { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+  @media (max-width: 640px) { .recov { align-items: flex-end; } }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Appuis</span></li></ol></nav>
+          <h1 class="page-title">Appuis</h1>
+          <p class="page-desc">Tracez chaque remise de semences, d'engrais ou de matériel : preuve, confirmation par le producteur, remboursement.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <form class="card stack" style="--gap:18px" novalidate onsubmit="return false" aria-labelledby="h-form">
+            <div class="card-head" style="margin:0"><h2 class="card-title" id="h-form">Enregistrer un appui remis</h2><span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Fonctionne hors ligne</span></div>
+            <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Le formulaire contient 2 erreurs</span><span><a href="#s-qte">Saisissez une quantité</a> · <a href="#s-val">Saisissez la valeur en FCFA</a></span></div></div>
+            <div class="form-grid">
+              <div class="field"><label class="label" for="s-prod">Producteur</label><select class="select" id="s-prod"><option>BNK-000118 Adjara Bio</option><option>BNK-000097 Orou Sika</option><option>BNK-000207 Chabi Gado</option></select><span class="hint">Producteurs validés uniquement.</span></div>
+              <div class="field"><label class="label" for="s-prog">Programme <span class="opt">(facultatif)</span></label><select class="select" id="s-prog"><option>Programme intrants maïs 2026</option><option>Aucun programme</option><option>Kits niébé pour les femmes</option></select></div>
+              <div class="field"><label class="label" for="s-item">Appui</label><input class="input" id="s-item" value="Engrais NPK 15-15-15"><span class="hint">Par exemple : sacs de semences de maïs, engrais NPK.</span></div>
+              <div class="field"><label class="label" for="s-qte">Quantité</label><div class="input-group"><input class="input input-num" id="s-qte" inputmode="decimal" aria-invalid="true" aria-describedby="s-qte-e"><select class="select" aria-label="Unité" style="max-width:110px"><option>sac</option><option>kg</option><option>litre</option><option>unité</option></select></div><span class="error-msg" id="s-qte-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez une quantité supérieure à 0.</span></div>
+              <div class="field"><label class="label" for="s-val">Valeur (FCFA)</label><div class="input-group"><input class="input input-num" id="s-val" inputmode="numeric" aria-invalid="true" aria-describedby="s-val-e"><span class="addon addon--end">FCFA</span></div><span class="error-msg" id="s-val-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez la valeur en FCFA (0 si inconnue).</span></div>
+              <div class="field"><label class="label" for="s-date">Date de remise</label><input class="input" id="s-date" type="date" value="2026-10-18"></div>
+            </div>
+            <div class="field"><span class="label" id="s-preuve">Preuve de remise</span>
+              <label class="dropzone" aria-labelledby="s-preuve"><span class="dz-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-camera"/></svg></span><strong>Photo du bordereau signé ou de la remise</strong><span class="small">JPG ou PDF, 8 Mo au plus. Gardée sur l'appareil jusqu'au retour du réseau.</span><input type="file" accept="image/*,application/pdf" capture="environment"></label>
+            </div>
+            <fieldset class="fieldset"><legend class="label">Remboursement</legend>
+              <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Appui à rembourser</label>
+              <div class="form-grid" style="margin-top:8px">
+                <div class="field"><label class="label" for="s-ech">Échéance</label><input class="input" id="s-ech" type="date" value="2027-01-31"></div>
+                <div class="field"><label class="label" for="s-mode">Mode</label><select class="select" id="s-mode"><option>En nature, après récolte (maïs)</option><option>Mobile Money (simulé)</option><option>Espèces au magasin</option></select></div>
+              </div>
+            </fieldset>
+            <div class="cluster" style="justify-content:flex-end"><button type="submit" class="btn btn-primary" data-toast="Appui enregistré. Le producteur doit maintenant le confirmer.">Enregistrer l'appui</button></div>
+          </form>
+
+          <aside class="stack" aria-label="Confirmation">
+            <section class="card" aria-labelledby="h-conf">
+              <h2 class="card-title" id="h-conf" style="margin-bottom:10px">Confirmation par le producteur</h2>
+              <ol class="timeline">
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-title">Vous enregistrez la remise</div><div class="tl-text">Avec la preuve, même hors ligne.</div></li>
+                <li class="tl-now"><span class="tl-dot"></span><div class="tl-title">Le producteur confirme</div><div class="tl-text">Dans l'application, ou en répondant OUI au SMS (simulé).</div></li>
+                <li><span class="tl-dot"></span><div class="tl-title">L'appui est compté</div><div class="tl-text">Il entre dans les indicateurs du programme.</div></li>
+              </ol>
+            </section>
+            <div class="grid" style="--min:150px">
+              <div class="stat"><span class="stat-label">À confirmer</span><span class="stat-value num">7</span></div>
+              <div class="stat"><span class="stat-label">Remboursements en retard</span><span class="stat-value num">2</span></div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-app">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="t-app" style="margin-right:auto">Registre des appuis</h2>
+            <div class="chips" role="group" aria-label="Filtrer"><button class="chip" type="button" aria-pressed="false">À confirmer <span class="count">7</span></button><button class="chip" type="button" aria-pressed="false">À rembourser <span class="count">19</span></button><button class="chip" type="button" aria-pressed="false">En retard <span class="count">2</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Appuis remis dans le secteur</caption>
+              <thead><tr><th scope="col">Producteur</th><th scope="col">Appui</th><th scope="col" class="num">Valeur (FCFA)</th><th scope="col">Preuve</th><th scope="col">Confirmation</th><th scope="col">Recouvrement</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Orou Sika</span><span class="cell-sub num">BNK-000097 · remis le 14/10</span></td><td data-label="Appui">Semences de maïs, 25 kg</td><td class="num" data-label="Valeur (FCFA)">17 500</td><td data-label="Preuve"><a href="#" class="small"><svg class="ic ic--sm" aria-hidden="true" style="display:inline;vertical-align:-3px"><use href="#i-paperclip"/></svg> bordereau.jpg</a></td><td data-label="Confirmation"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Attendue · 4 j</span></td><td data-label="Recouvrement"><span class="muted">Non remboursable</span></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Chabi Gado</span><span class="cell-sub num">BNK-000207 · remis le 20/06</span></td><td data-label="Appui">Engrais NPK, 3 sacs</td><td class="num" data-label="Valeur (FCFA)">45 000</td><td data-label="Preuve"><a href="#" class="small">bordereau.pdf</a></td><td data-label="Confirmation"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Confirmé le 21/06</span></td><td data-label="Recouvrement"><span class="recov"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>En retard depuis le 30/09</span><span class="progress" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" aria-label="Remboursé 33 %"><span style="--v:33%"></span></span><span class="small num">15 000 sur 45 000</span></span></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Séidou Kora</span><span class="cell-sub num">BNK-000140 · remis aujourd'hui</span></td><td data-label="Appui">Pulvérisateur à dos, 1 unité</td><td class="num" data-label="Valeur (FCFA)">32 000</td><td data-label="Preuve"><span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Sur l'appareil</span></td><td data-label="Confirmation"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-cloud-upload"/></svg>Pas encore envoyé</span></td><td data-label="Recouvrement"><span class="recov"><span class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Remboursé 0 %"><span style="--v:0%"></span></span><span class="small num">0 sur 32 000 · échéance 31/01</span></span></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Mariama Bani</span><span class="cell-sub num">BNK-000418 · remis le 02/07</span></td><td data-label="Appui">Semences de niébé, 10 kg</td><td class="num" data-label="Valeur (FCFA)">8 000</td><td data-label="Preuve"><a href="#" class="small">photo-remise.jpg</a></td><td data-label="Confirmation"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Confirmé le 02/07</span></td><td data-label="Recouvrement"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Remboursé</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–4 sur 86 appuis · 2 314 500 FCFA remis</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Registre vide</span><div class="card empty" style="padding:20px"><h3>Aucun appui pour le moment</h3><p>Enregistrez un appui remis avec le formulaire ci-dessus.</p></div></div>
+            <div><span class="states-cap">Enregistré hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Appui gardé sur cet appareil. Il partira avec sa preuve au retour du réseau.</span></div></div>
+            <div><span class="states-cap">Enregistré</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Appui enregistré. Le producteur doit maintenant le confirmer.</div></div></div>
+          </div>
+        </details>
+      </div>

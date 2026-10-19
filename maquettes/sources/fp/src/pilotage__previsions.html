@@ -1,0 +1,101 @@
+---
+{"role":"responsable_programme","title":"Prévisions","desc":"Prévisions simulées de rendement et risques climatiques (sécheresse, inondation, ravageurs) par commune (maquette).","search":"Rechercher une commune…","notif":1,"home":"pilotage/programmes"}
+---
+<!--@head-->
+  .filters { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+  .filters .field { min-width: min(100%, 200px); }
+  .chart .band { fill: rgba(226,177,50,.18); }
+  .chart .obs-lab { font: 600 12px var(--font-ui); fill: var(--ink-2); }
+  .chart svg .hit:hover + circle, .chart svg circle:hover { r: 6; }
+  .risk-cell { display: inline-flex; flex-direction: column; gap: 2px; }
+  .method li { margin-bottom: 6px; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Suivi</a></li><li><span aria-current="page">Prévisions</span></li></ol></nav>
+          <h1 class="page-title">Prévisions de rendement et risques</h1>
+          <p class="page-desc">Une aide pour anticiper les appuis et les alertes. Ces prévisions sont simulées : elles ne remplacent ni l'avis de l'agent ATDA ni celui de l'INRAB.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="../agent/alertes.html"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Préparer une alerte</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Calcul simulé</span><span>Aucun modèle réel n'est branché : pluie, indice de végétation et historique sont générés pour la démonstration. Ne prenez aucune décision sur ces seuls chiffres.</span></div>
+        </div>
+
+        <form class="card card--flat filters" onsubmit="return false" aria-label="Paramètres de la prévision">
+          <div class="field"><label class="label" for="pv-vc">Filière</label><select class="select" id="pv-vc"><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option></select></div>
+          <div class="field"><label class="label" for="pv-dep">Département</label><select class="select" id="pv-dep"><option>Alibori</option><option>Borgou</option><option>Atacora</option><option>Donga</option></select></div>
+          <div class="field"><label class="label" for="pv-h">Horizon</label><select class="select" id="pv-h"><option>Fin de campagne 2026</option><option>Campagne 2027</option></select></div>
+          <span class="badge badge--sim" style="margin-left:auto">Simulé · calculé le 18/10/2026 05:00</span>
+        </form>
+
+        <div class="split">
+          <figure class="card chart" aria-labelledby="h-rdt">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title" id="h-rdt">Rendement du maïs, Alibori</h2><p class="card-sub">Tonnes par hectare · observé puis prévu</p></div><span class="badge badge--sim">Prévision simulée</span></div>
+            <svg viewBox="0 0 560 230" role="img" aria-labelledby="rdt-t"><title id="rdt-t">Rendement observé de 2021 à 2025 : 1,6 ; 1,7 ; 1,5 ; 1,8 ; 1,9 t/ha. Prévision 2026 : 2,0 (fourchette 1,7 à 2,2) ; 2027 : 2,1 (fourchette 1,7 à 2,4).</title>
+              <g class="grid"><line x1="44" x2="548" y1="20" y2="20"/><line x1="44" x2="548" y1="70" y2="70"/><line x1="44" x2="548" y1="120" y2="120"/><line x1="44" x2="548" y1="170" y2="170"/><line x1="44" x2="548" y1="200" y2="200"/></g>
+              <g class="tick" text-anchor="end"><text x="36" y="24">2,4</text><text x="36" y="74">2,0</text><text x="36" y="124">1,6</text><text x="36" y="174">1,2</text></g>
+              <path class="band" d="M410 108 L480 95 L548 70 L548 145 L480 145 L410 133Z" style="fill:rgba(226,177,50,.12)"/>
+              <path class="area" d="M60 120 L147 108 L235 133 L322 95 L410 83 L410 200 L60 200Z" style="fill:rgba(31,90,50,.08)"/>
+              <path class="line" d="M60 120 L147 108 L235 133 L322 95 L410 83"/>
+              <path class="line line--forecast" d="M410 83 L480 70 L548 58"/>
+              <g><circle class="point" cx="60" cy="120" r="4"><title>2021 : 1,6 t/ha observé</title></circle><circle class="point" cx="147" cy="108" r="4"><title>2022 : 1,7 t/ha observé</title></circle><circle class="point" cx="235" cy="133" r="4"><title>2023 : 1,5 t/ha observé (sécheresse d'août)</title></circle><circle class="point" cx="322" cy="95" r="4"><title>2024 : 1,8 t/ha observé</title></circle><circle class="point" cx="410" cy="83" r="4"><title>2025 : 1,9 t/ha observé</title></circle>
+                <circle cx="480" cy="70" r="5" fill="#E2B132" stroke="#fff" stroke-width="2"><title>2026 : 2,0 t/ha prévu (1,7 à 2,2)</title></circle><circle cx="548" cy="58" r="5" fill="#E2B132" stroke="#fff" stroke-width="2"><title>2027 : 2,1 t/ha prévu (1,7 à 2,4)</title></circle></g>
+              <text class="val" x="410" y="70" text-anchor="middle">1,9</text><text class="val" x="540" y="45" text-anchor="end">2,1 prévu</text>
+              <text class="obs-lab" x="235" y="152" text-anchor="middle">sécheresse</text>
+              <g class="tick" text-anchor="middle"><text x="60" y="220">2021</text><text x="147" y="220">2022</text><text x="235" y="220">2023</text><text x="322" y="220">2024</text><text x="410" y="220">2025</text><text x="480" y="220">2026</text><text x="548" y="220" text-anchor="end">2027</text></g>
+            </svg>
+            <ul class="legend"><li><span class="sw"></span>Observé (registre, démonstration)</li><li><span class="sw sw--dash"></span>Prévision simulée</li><li><span class="sw" style="background:rgba(226,177,50,.35)"></span>Fourchette probable</li></ul>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Rendement du maïs par année</caption><thead><tr><th scope="col">Année</th><th scope="col" class="num">t/ha</th><th scope="col">Nature</th></tr></thead><tbody>
+                <tr><th scope="row">2021</th><td class="num">1,6</td><td>Observé</td></tr><tr><th scope="row">2022</th><td class="num">1,7</td><td>Observé</td></tr><tr><th scope="row">2023</th><td class="num">1,5</td><td>Observé</td></tr><tr><th scope="row">2024</th><td class="num">1,8</td><td>Observé</td></tr><tr><th scope="row">2025</th><td class="num">1,9</td><td>Observé</td></tr><tr><th scope="row">2026</th><td class="num">2,0 (1,7–2,2)</td><td><span class="badge badge--sim">Simulé</span></td></tr><tr><th scope="row">2027</th><td class="num">2,1 (1,7–2,4)</td><td><span class="badge badge--sim">Simulé</span></td></tr>
+              </tbody></table></div>
+            </details>
+          </figure>
+
+          <section class="card" aria-labelledby="h-meth">
+            <div class="card-head"><h2 class="card-title" id="h-meth">Comment c'est calculé</h2><span class="badge badge--sim">Simulé</span></div>
+            <ul class="method small" style="padding-left:18px">
+              <li><b>Pluie</b> : cumul décadaire simulé, comparé à la normale 1991–2020.</li>
+              <li><b>Végétation</b> : indice NDVI simulé sur les parcelles tracées.</li>
+              <li><b>Historique</b> : rendements déclarés des 5 dernières campagnes.</li>
+              <li><b>Ravageurs</b> : signalements des diagnostics photo et des agents.</li>
+            </ul>
+            <div class="alert alert--info" style="margin-top:12px"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><div class="al-body"><span>Aucune décision automatique : une alerte part seulement après double validation d'un agent ou d'un administrateur.</span></div></div>
+          </section>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-risk">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-risk" style="margin-right:auto">Risques par commune · 30 prochains jours</h2>
+            <div class="chips" role="group" aria-label="Filtrer par risque">
+              <button type="button" class="chip" aria-pressed="true">Tous <span class="count">6</span></button>
+              <button type="button" class="chip" aria-pressed="false">Sécheresse</button>
+              <button type="button" class="chip" aria-pressed="false">Inondation</button>
+              <button type="button" class="chip" aria-pressed="false">Ravageurs</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Niveau de risque simulé par commune : sécheresse, inondation, ravageurs</caption>
+              <thead><tr><th scope="col">Commune</th><th scope="col">Sécheresse</th><th scope="col">Inondation</th><th scope="col">Ravageurs</th><th scope="col" class="num">Rendement prévu</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Banikoara</span><span class="cell-sub">2 410 producteurs de maïs</span></td><td data-label="Sécheresse"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Élevé</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="risk-cell"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span><span class="small muted">Chenille légionnaire</span></span></td><td class="num" data-label="Rendement prévu">1,8 t/ha</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Kandi</span><span class="cell-sub">1 120 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,0 t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Malanville</span><span class="cell-sub">Vallée du Niger · 640 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Élevé</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,2 t/ha</td><td class="col-actions"><a class="btn btn-secondary btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Gogounou</span><span class="cell-sub">880 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="risk-cell"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span><span class="small muted">Chenille légionnaire</span></span></td><td class="num" data-label="Rendement prévu">1,9 t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Karimama</span><span class="cell-sub">310 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Modéré</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu"><span class="na">non disponible</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Ségbana</span><span class="cell-sub">402 producteurs</span></td><td data-label="Sécheresse"><span class="badge badge--neutral">Faible</span></td><td data-label="Inondation"><span class="badge badge--neutral">Faible</span></td><td data-label="Ravageurs"><span class="badge badge--neutral">Faible</span></td><td class="num" data-label="Rendement prévu">2,1 t/ha</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/alertes.html">Préparer une alerte</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Niveaux simulés. Karimama : trop peu de parcelles tracées pour estimer un rendement.</span></div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Pas assez de données pour prévoir","Il faut au moins 3 campagnes déclarées et 20 parcelles tracées sur le périmètre. Choisissez un autre département ou une autre filière.",""],"error":["La prévision n'a pas pu être calculée","Le service de simulation ne répond pas. La dernière prévision date du 17/10/2026 05:00.","ERR_FORECAST · 504"]}-->

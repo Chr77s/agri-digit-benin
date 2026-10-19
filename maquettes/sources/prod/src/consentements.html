@@ -1,0 +1,85 @@
+---
+title: Mes consentements
+desc: Consentements donnés, retrait en un clic, partage du profil pour le crédit et journal des accès à mes données.
+search: Rechercher…
+---
+<!--@head-->
+.cs { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; align-items: start; padding: 18px 0; border-top: 1px solid var(--line); }
+.cs:first-of-type { border-top: 0; padding-top: 0; }
+.cs h3 { font-size: var(--fs-md); font-weight: 700; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+@media (max-width: 640px) { .cs { grid-template-columns: 1fr; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes consentements</span></li></ol></nav>
+          <h1 class="page-title">Mes consentements</h1>
+          <p class="page-desc">Vos données vous appartiennent. Vous pouvez retirer chaque consentement à tout moment, en un clic (loi n° 2017-20, art. 389 et 390).</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes consentements. Vous pouvez retirer votre accord à tout moment en touchant le bouton Retirer." data-toast-type="demo">{{I:megaphone}}Écouter</button></div>
+      </div>
+
+      <div class="split">
+        <div class="stack" style="--gap:20px">
+          <section class="card" aria-labelledby="t-cs">
+            <h2 class="card-title" id="t-cs" style="margin-bottom:14px">Consentements donnés</h2>
+            <div class="cs">
+              <div><h3>Données personnelles (inscription et services agricoles) {{B:ok|Actif}}</h3>
+                <p class="small muted num">Texte v1.2, donné le 2 mai 2026, canal USSD</p>
+                <p class="small" style="margin-top:6px">Nécessaire pour le registre, les appuis et les conseils. Le retirer ferme l'accès aux services : vos données sont alors conservées le temps légal puis effacées.</p></div>
+              <button type="button" class="btn btn-danger-ghost" data-open-dialog="dlg-ret">Retirer ce consentement</button>
+            </div>
+            <div class="cs">
+              <div><h3>Partage du profil pour le crédit {{B:ok|Actif}}</h3>
+                <p class="small muted num">Texte v1.0, donné le 20 juillet 2026, application</p>
+                <p class="small" style="margin-top:6px">Un agent financier peut voir un score calculé à partir de vos parcelles et campagnes, avec ses facteurs. La décision de crédit revient à une personne.</p></div>
+              <button type="button" class="btn btn-danger-ghost" data-open-dialog="dlg-ret">Retirer le partage pour le crédit</button>
+            </div>
+            <div class="cs">
+              <div><h3>Partage avec ma coopérative {{B:neutral|Retiré}}</h3>
+                <p class="small muted num">Texte v1.0, donné le 12 mars 2025 · retiré le 1<sup>er</sup> septembre 2025</p></div>
+              <button type="button" class="btn btn-secondary">Donner à nouveau</button>
+            </div>
+          </section>
+
+          <section class="table-card" aria-labelledby="t-acc">
+            <div class="table-toolbar"><div style="margin-right:auto"><h2 class="card-title" id="t-acc">Qui a consulté mes données</h2><p class="card-sub">Journal d'accès non modifiable · 30 derniers jours</p></div></div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <thead><tr><th scope="col">Date</th><th scope="col">Qui</th><th scope="col">Pourquoi</th><th scope="col">Données vues</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">16/10/2026 · 14:02</span></td><td data-label="Qui">Moussa Yarou · agent ATDA</td><td data-label="Pourquoi">Remise d'appui</td><td data-label="Données vues">Fiche, parcelles</td></tr>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">05/10/2026 · 09:30</span></td><td data-label="Qui">Agent financier · CLCAM Banikoara</td><td data-label="Pourquoi">Consultation du score crédit</td><td data-label="Données vues">Score et facteurs</td></tr>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">05/10/2026 · 08:47</span></td><td data-label="Qui">Responsable de programme · Interprofession coton</td><td data-label="Pourquoi">Instruction de candidature</td><td data-label="Données vues">Fiche, parcelles de coton</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span class="badge badge--demo">Démonstration</span><a href="contestations.html" class="small">Un accès vous semble anormal ? Le signaler</a></div>
+          </section>
+        </div>
+
+        <section class="card card--tint" aria-labelledby="t-dr">
+          <h2 class="card-title" id="t-dr" style="margin-bottom:10px">Vos droits</h2>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon">{{I:eye}}</span><span class="li-main"><span class="li-title">Voir vos données</span><span class="li-meta">Tout ce qui est enregistré sur vous, dans <a href="profil.html">Mon profil</a>.</span></span></li>
+            <li class="list-item"><span class="li-icon">{{I:download}}</span><span class="li-main"><span class="li-title">Récupérer une copie</span><span class="li-meta">Fichier envoyé sous 30 jours.</span></span></li>
+            <li class="list-item"><span class="li-icon">{{I:lock}}</span><span class="li-main"><span class="li-title">Données au Bénin</span><span class="li-meta">Aucune donnée n'est stockée hors du pays.</span></span></li>
+          </ul>
+          <button type="button" class="btn btn-secondary btn-block" style="margin-top:12px" data-toast="Demande enregistrée. Votre copie sera prête sous 30 jours.">{{I:download}}Demander une copie de mes données</button>
+          <p class="hint" style="margin-top:10px">Délégué à la protection des données : à désigner par le MAEP.</p>
+        </section>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+        <div class="states-body">
+          <div><span class="state-cap">Retrait enregistré</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body">Consentement retiré. Le retrait est enregistré avec sa date.</div></div></div>
+          <div><span class="state-cap">Mineur : consentement parental</span><div class="alert alert--info">{{I:users}}<div class="al-body"><span class="al-title">Consentement parental (moins de 16 ans)</span><span>Donné par le tuteur, Issa Sabi, le 2 mai 2026.</span></div></div></div>
+          <div><span class="state-cap">Aucun consentement</span><div class="card empty"><h3>Aucun consentement enregistré</h3></div></div>
+        </div>
+      </details>
+<!--@after-->
+<dialog class="modal" id="dlg-ret" aria-labelledby="dlg-ret-t" aria-describedby="dlg-ret-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-ret-t">Retirer le partage pour le crédit ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer">{{I:x}}</button></div>
+  <div class="modal-body"><p id="dlg-ret-d">Les agents financiers ne verront plus votre score. Une demande de crédit en cours n'est pas annulée. Vous pourrez redonner votre accord plus tard.</p></div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Garder</button><button type="button" class="btn btn-danger" data-close-dialog="ok" data-toast="Consentement retiré. Le retrait est enregistré avec sa date.">Retirer</button></div>
+</dialog>

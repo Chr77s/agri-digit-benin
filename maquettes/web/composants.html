@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planche des composants · Agri-Digit Bénin</title>
+<meta name="description" content="Tous les composants du kit Bénin Vert et leurs états.">
+<link rel="icon" href="../../frontend/public/icon.svg">
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js" defer></script>
+<style>
+  /* Propre à la planche : états figés pour la revue (survol, focus) */
+  .board { max-width: 1240px; margin: 0 auto; padding: 24px var(--gutter) 64px; display: flex; flex-direction: column; gap: 28px; }
+  .board-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: end; }
+  .board-nav { position: sticky; top: 0; z-index: 30; background: rgba(243,247,238,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 8px var(--gutter); overflow-x: auto; }
+  .board-nav .chips { flex-wrap: nowrap; }
+  .board-nav a.chip { text-decoration: none; }
+  .sec { scroll-margin-top: 70px; }
+  .sec > h2 { margin-bottom: 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  .cell { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .cap { font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; }
+  .swatch { width: 132px; border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); background: var(--surface); font-size: var(--fs-xs); }
+  .swatch i { display: block; height: 56px; }
+  .swatch span { display: block; padding: 6px 8px; }
+  .btn-primary.is-hover { background: var(--leaf-hover); }
+  .btn-secondary.is-hover { background: var(--rain); }
+  .btn-ghost.is-hover, .btn-icon.is-hover { background: rgba(14,47,28,.07); }
+  .btn-danger.is-hover { background: #9C4524; }
+  .is-focus { outline: 2px solid var(--canopy); outline-offset: 2px; box-shadow: 0 0 0 6px var(--sun); }
+  .input.is-hover { border-color: var(--ink-2); }
+  .input.is-focusin { border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(31,90,50,.18); }
+  .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+  .icons div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); font-size: .75rem; color: var(--ink-2); text-align: center; overflow-wrap: anywhere; }
+  .icons .ic { width: 24px; height: 24px; color: var(--ink); }
+  .demo-shell { border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line); display: grid; grid-template-columns: 240px 1fr; min-height: 220px; }
+  .demo-shell .sidebar { position: static; height: auto; visibility: visible; transform: none; width: auto; border-radius: 0; box-shadow: none; }
+  @media (max-width: 760px) { .demo-shell { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<div class="proto-band" role="note"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><strong>Prototype</strong> · planche des composants du kit Bénin Vert</span></div>
+
+<nav class="board-nav" aria-label="Sections de la planche">
+  <div class="chips">
+    <a class="chip" href="#couleurs">Couleurs</a><a class="chip" href="#boutons">Boutons</a><a class="chip" href="#champs">Champs</a><a class="chip" href="#otp">OTP</a>
+    <a class="chip" href="#navigation">Étapes et onglets</a><a class="chip" href="#tableau">Tableau</a><a class="chip" href="#cartes">Cartes</a><a class="chip" href="#badges">Badges</a>
+    <a class="chip" href="#alertes">Alertes</a><a class="chip" href="#surimpression">Modale</a><a class="chip" href="#etats">États</a><a class="chip" href="#donnees">Données</a><a class="chip" href="#icones">Icônes</a>
+  </div>
+</nav>
+
+<main class="board" id="contenu" tabindex="-1">
+  <div class="board-head">
+    <div>
+      <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="index.html">Galerie</a></li><li><span aria-current="page">Composants</span></li></ol></nav>
+      <h1 class="page-title">Planche des composants</h1>
+      <p class="page-desc">Chaque composant avec ses états : normal, survol, focus, désactivé, erreur, chargement. Classes à reprendre telles quelles dans les maquettes.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-secondary" href="_modele.html">Page modèle</a><a class="btn btn-primary" href="index.html">Galerie des pages</a></div>
+  </div>
+
+  <!-- Couleurs et typographie -->
+  <section class="sec card" id="couleurs" aria-labelledby="h-couleurs">
+    <h2 class="section-title" id="h-couleurs">Couleurs et typographie</h2>
+    <div class="row">
+      <div class="swatch"><i style="background:var(--canopy)"></i><span><b>Canopée</b><br>#0E2F1C · barre latérale</span></div>
+      <div class="swatch"><i style="background:var(--leaf)"></i><span><b>Feuille</b><br>#1F5A32 · action</span></div>
+      <div class="swatch"><i style="background:var(--maize)"></i><span><b>Jeune maïs</b><br>#6FA83A · actif, séries</span></div>
+      <div class="swatch"><i style="background:var(--sun)"></i><span><b>Soleil</b><br>#F3C54A · données, focus</span></div>
+      <div class="swatch"><i style="background:var(--laterite)"></i><span><b>Latérite</b><br>#B4532D · alerte, simulé</span></div>
+      <div class="swatch"><i style="background:var(--bg)"></i><span><b>Fond de travail</b><br>#F3F7EE</span></div>
+      <div class="swatch"><i style="background:var(--layer)"></i><span><b>Pluie</b><br>#E8F1DF · second neutre</span></div>
+      <div class="swatch"><i style="background:var(--surface)"></i><span><b>Surface</b><br>#FFFFFF · cartes</span></div>
+    </div>
+    <div class="stack" style="margin-top:20px;--gap:8px">
+      <p class="page-title" style="margin:0">Titre de page · Bricolage 28</p>
+      <p class="section-title">Titre de section · Atkinson 22</p>
+      <p class="card-title">Titre de carte · Atkinson 18</p>
+      <p>Corps 16 · Atkinson Hyperlegible Next, conçu pour la lisibilité. Chiffres alignés : <span class="num">1 284,50 FCFA · 12,4 ha</span></p>
+      <p class="small muted">Méta 14 · secondaire, contraste 6,3:1</p>
+    </div>
+  </section>
+
+  <!-- Boutons -->
+  <section class="sec card" id="boutons" aria-labelledby="h-boutons">
+    <h2 class="section-title" id="h-boutons">Boutons</h2>
+    <div class="stack">
+      <div class="row">
+        <div class="cell"><span class="cap">Primaire</span><button class="btn btn-primary" type="button">Valider la fiche</button></div>
+        <div class="cell"><span class="cap">Survol</span><button class="btn btn-primary is-hover" type="button">Valider la fiche</button></div>
+        <div class="cell"><span class="cap">Focus</span><button class="btn btn-primary is-focus" type="button">Valider la fiche</button></div>
+        <div class="cell"><span class="cap">Désactivé</span><button class="btn btn-primary" type="button" disabled>Valider la fiche</button></div>
+        <div class="cell"><span class="cap">Chargement</span><button class="btn btn-primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Envoi…</button></div>
+      </div>
+      <div class="row">
+        <div class="cell"><span class="cap">Secondaire</span><button class="btn btn-secondary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+        <div class="cell"><span class="cap">Survol</span><button class="btn btn-secondary is-hover" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+        <div class="cell"><span class="cap">Fantôme</span><button class="btn btn-ghost" type="button">Annuler</button></div>
+        <div class="cell"><span class="cap">Survol</span><button class="btn btn-ghost is-hover" type="button">Annuler</button></div>
+        <div class="cell"><span class="cap">Danger</span><button class="btn btn-danger" type="button"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg>Rejeter</button></div>
+        <div class="cell"><span class="cap">Danger discret</span><button class="btn btn-danger-ghost" type="button">Retirer mon consentement</button></div>
+      </div>
+      <div class="row">
+        <div class="cell"><span class="cap">Icône</span><button class="btn btn-icon" type="button" aria-label="Modifier"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button></div>
+        <div class="cell"><span class="cap">Survol</span><button class="btn btn-icon is-hover" type="button" aria-label="Modifier"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button></div>
+        <div class="cell"><span class="cap">Icône cerclée</span><button class="btn btn-icon btn-secondary" type="button" aria-label="Plus d'actions"><svg class="ic" aria-hidden="true"><use href="#i-more"/></svg></button></div>
+        <div class="cell"><span class="cap">Petit (cible 44)</span><button class="btn btn-secondary btn-sm" type="button">Ouvrir</button></div>
+        <div class="cell"><span class="cap">Sur sombre</span><div class="on-dark" style="background:var(--canopy);padding:8px;border-radius:12px;display:flex;gap:8px"><button class="btn btn-icon" type="button" aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button><button class="btn" type="button" style="background:var(--maize);color:var(--canopy)">Continuer</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Champs -->
+  <section class="sec card" id="champs" aria-labelledby="h-champs">
+    <h2 class="section-title" id="h-champs">Champs de formulaire</h2>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="c1">Nom complet</label><input class="input" id="c1" placeholder="Ex. Awa Sabi"><span class="hint">Tel qu'il figure sur votre pièce d'identité.</span></div>
+      <div class="field"><label class="label" for="c2">Survol</label><input class="input is-hover" id="c2" value="Awa Sabi"></div>
+      <div class="field"><label class="label" for="c3">Focus</label><input class="input is-focusin" id="c3" value="Awa Sab"></div>
+      <div class="field"><label class="label" for="c4">Village <span class="req" aria-hidden="true">*</span></label><input class="input" id="c4" aria-invalid="true" aria-describedby="c4e"><span class="error-msg" id="c4e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Indiquez votre village pour que l'agent vous retrouve.</span></div>
+      <div class="field"><label class="label" for="c5">Désactivé</label><input class="input" id="c5" value="Banikoara" disabled></div>
+      <div class="field"><label class="label" for="c6">Lecture seule</label><input class="input" id="c6" value="Alibori" readonly></div>
+      <div class="field"><label class="label" for="c7">Téléphone</label><div class="input-group"><span class="addon"><span aria-hidden="true">BJ</span> +229</span><input class="input input-num" id="c7" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="01 97 00 00 00"></div><span class="hint">10 chiffres, commence par 01.</span></div>
+      <div class="field"><label class="label" for="c8">NPI <span class="opt">(numéro personnel d'identification)</span></label><input class="input input-num" id="c8" inputmode="numeric" maxlength="10" placeholder="10 chiffres" aria-describedby="c8h"><span class="hint" id="c8h">Vérification ANIP simulée.</span></div>
+      <div class="field"><label class="label" for="c9">Culture principale</label><select class="select" id="c9"><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option><option>Manioc</option></select></div>
+      <div class="field"><label class="label" for="c10">Date de semis</label><input class="input" id="c10" type="date" value="2026-05-12"></div>
+      <div class="field"><label class="label" for="c11">Surface</label><div class="input-group"><input class="input input-num" id="c11" inputmode="decimal" value="1,8"><span class="addon addon--end">ha</span></div></div>
+      <div class="field"><label class="label" for="c12">Recherche</label><div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="c12" type="search" placeholder="Nom, NPI ou village"></div></div>
+      <div class="field span-all"><label class="label" for="c13">Description du problème</label><textarea class="textarea" id="c13" placeholder="Feuilles trouées, taches jaunes…"></textarea><span class="hint">Vous pouvez aussi enregistrer un message vocal.</span></div>
+    </div>
+    <div class="form-grid" style="margin-top:20px">
+      <fieldset class="fieldset"><legend class="label">Cases à cocher</legend>
+        <label class="check"><input class="cb" type="checkbox" checked> Recevoir les alertes météo par SMS</label>
+        <label class="check"><input class="cb" type="checkbox"> Partager mes données avec ma coopérative</label>
+        <label class="check"><input class="cb" type="checkbox" disabled> Option indisponible</label>
+        <label class="check"><input class="cb" type="checkbox" aria-invalid="true"> J'accepte les conditions (obligatoire)</label>
+      </fieldset>
+      <fieldset class="fieldset"><legend class="label">Langue préférée</legend>
+        <label class="check"><input class="radio" type="radio" name="lg" checked> Français</label>
+        <label class="check"><input class="radio" type="radio" name="lg"> Fɔngbè <span class="badge badge--demo">À valider</span></label>
+        <label class="check"><input class="radio" type="radio" name="lg"> Baatɔnum <span class="badge badge--demo">À valider</span></label>
+        <label class="check"><input class="radio" type="radio" name="lg" disabled> Dendi (bientôt)</label>
+      </fieldset>
+      <fieldset class="fieldset"><legend class="label">Interrupteurs</legend>
+        <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" checked> Mode hors ligne automatique</label>
+        <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch"> Messages vocaux</label>
+        <label class="check" style="align-items:center"><input class="switch" type="checkbox" role="switch" disabled> Paiement Mobile Money (simulé)</label>
+      </fieldset>
+      <fieldset class="fieldset"><legend class="label">Choix en carte</legend>
+        <label class="choice-card"><input class="radio" type="radio" name="cc" checked><span><b>Je suis producteur</b><br><span class="small muted">Je cultive et je déclare mes parcelles.</span></span></label>
+        <label class="choice-card"><input class="radio" type="radio" name="cc"><span><b>J'inscris un mineur</b><br><span class="small muted">Un tuteur signe le consentement.</span></span></label>
+      </fieldset>
+    </div>
+    <div class="form-grid" style="margin-top:20px">
+      <div class="field"><span class="label" id="ph">Photo de la plante</span>
+        <label class="dropzone" aria-labelledby="ph"><span class="dz-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-camera"/></svg></span><strong>Prendre ou choisir une photo</strong><span class="small">JPG ou PNG, 8 Mo au plus. Feuille entière, en plein jour.</span><input type="file" accept="image/*" capture="environment"></label>
+      </div>
+      <div class="field"><span class="label">Fichiers joints</span>
+        <ul class="file-list">
+          <li class="file-item"><span class="thumb"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span><span class="fi-main"><span class="fi-name">feuille-mais-01.jpg</span><span class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Envoi de feuille-mais-01.jpg"><span style="--v:64%"></span></span></span><span class="small muted num">64 %</span></li>
+          <li class="file-item"><span class="thumb"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><span class="fi-main"><span class="fi-name">attestation-cooperative.pdf</span><span class="small muted">240 Ko · envoyé</span></span><button class="btn btn-icon btn-sm" type="button" aria-label="Retirer attestation-cooperative.pdf"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- OTP, minuteur -->
+  <section class="sec card" id="otp" aria-labelledby="h-otp">
+    <h2 class="section-title" id="h-otp">Code de connexion et minuteur</h2>
+    <div class="row" style="align-items:flex-start;gap:32px">
+      <fieldset class="fieldset"><legend class="label">Code reçu par SMS</legend>
+        <div class="otp" role="group" aria-label="Code à 6 chiffres">
+          <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" placeholder=" " aria-label="Chiffre 1"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 2"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 3"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 4"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 5"><input inputmode="numeric" maxlength="1" placeholder=" " aria-label="Chiffre 6">
+        </div>
+        <span class="hint">SMS simulé : le code de démonstration s'affiche à l'écran.</span>
+        <div class="timer" data-timer="45" data-enables="resend"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Renvoyer le code dans <b>0:45</b></span><span class="timer-bar" aria-hidden="true"><span></span></span></div>
+        <button class="btn btn-ghost" id="resend" type="button" disabled style="align-self:flex-start">Renvoyer le code</button>
+      </fieldset>
+      <fieldset class="fieldset"><legend class="label">Code erroné</legend>
+        <div class="otp" data-invalid role="group" aria-label="Code à 6 chiffres" aria-describedby="otpe">
+          <input value="4" maxlength="1" aria-label="Chiffre 1"><input value="8" maxlength="1" aria-label="Chiffre 2"><input value="1" maxlength="1" aria-label="Chiffre 3"><input value="0" maxlength="1" aria-label="Chiffre 4"><input value="2" maxlength="1" aria-label="Chiffre 5"><input value="7" maxlength="1" aria-label="Chiffre 6">
+        </div>
+        <span class="error-msg" id="otpe"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Ce code ne correspond pas. Il vous reste 2 essais.</span>
+      </fieldset>
+      <div class="stack" style="--gap:8px"><span class="label">Synchronisation</span>
+        <div class="row">
+          <button type="button" class="sync" data-state="online"><span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">Synchronisé</span></button>
+          <button type="button" class="sync" data-state="pending"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">3 en attente</span></button>
+          <button type="button" class="sync" data-state="syncing"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">Envoi en cours…</span></button>
+          <button type="button" class="sync" data-state="offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span class="sync-label">Hors ligne · 3 en attente</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Étapes, onglets, filtres -->
+  <section class="sec card" id="navigation" aria-labelledby="h-nav">
+    <h2 class="section-title" id="h-nav">Étapes, onglets, filtres, fil d'Ariane</h2>
+    <div class="stack" style="--gap:24px">
+      <div>
+        <p class="steps-compact">Étape 3 sur 5 · Langue</p>
+        <ol class="steps" aria-label="Inscription">
+          <li class="step is-done"><span class="st-label">Identité NPI</span></li>
+          <li class="step is-done"><span class="st-label">Contact</span></li>
+          <li class="step" aria-current="step"><span class="st-label">Langue</span></li>
+          <li class="step"><span class="st-label">Consentement</span></li>
+          <li class="step"><span class="st-label">Confirmation</span></li>
+        </ol>
+      </div>
+      <div>
+        <div class="tabs" role="tablist" aria-label="Fiche producteur">
+          <button class="tab" role="tab" id="tb1" aria-controls="tp1" aria-selected="true">Identité</button>
+          <button class="tab" role="tab" id="tb2" aria-controls="tp2" aria-selected="false">Parcelles <span class="count">4</span></button>
+          <button class="tab" role="tab" id="tb3" aria-controls="tp3" aria-selected="false">Appuis <span class="count">2</span></button>
+          <button class="tab" role="tab" id="tb4" aria-controls="tp4" aria-selected="false">Journal d'accès</button>
+        </div>
+        <div class="tab-panel" role="tabpanel" id="tp1" aria-labelledby="tb1"><dl class="dl"><dt>NPI</dt><dd class="num">1 042 887 310</dd><dt>Commune</dt><dd>Banikoara</dd><dt>Statut</dt><dd><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></dd></dl></div>
+        <div class="tab-panel" role="tabpanel" id="tp2" aria-labelledby="tb2" hidden><p>4 parcelles déclarées, 4,6 ha.</p></div>
+        <div class="tab-panel" role="tabpanel" id="tp3" aria-labelledby="tb3" hidden><p>2 appuis reçus cette saison.</p></div>
+        <div class="tab-panel" role="tabpanel" id="tp4" aria-labelledby="tb4" hidden><p>Chaque consultation de la fiche est journalisée.</p></div>
+      </div>
+      <div class="row">
+        <div class="chips" role="group" aria-label="Filtrer par culture">
+          <button class="chip" type="button" aria-pressed="true">Maïs <span class="count">128</span></button>
+          <button class="chip" type="button" aria-pressed="false">Coton <span class="count">64</span></button>
+          <button class="chip" type="button" aria-pressed="false">Soja <span class="count">31</span></button>
+          <button class="chip" type="button" aria-pressed="false" disabled>Riz <span class="count">0</span></button>
+        </div>
+        <nav class="crumbs" aria-label="Fil d'Ariane (exemple)"><ol><li><a href="#">Producteurs</a></li><li><a href="#">Banikoara</a></li><li><span aria-current="page">Awa Sabi</span></li></ol></nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tableau -->
+  <section class="sec" id="tableau" aria-labelledby="h-table">
+    <h2 class="section-title" id="h-table">Tableau de données (cartes sous 640 px)</h2>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="ts">Rechercher un producteur</label><input class="input" id="ts" type="search" placeholder="Nom, NPI ou village"></div>
+        <div class="chips" role="group" aria-label="Filtrer par état"><button class="chip" type="button" aria-pressed="false">En attente <span class="count">2</span></button><button class="chip" type="button" aria-pressed="false">Rejetés <span class="count">1</span></button></div>
+        <button class="btn btn-secondary" type="button" style="margin-left:auto"><svg class="ic" aria-hidden="true"><use href="#i-filter"/></svg>Plus de filtres</button>
+      </div>
+      <div class="bulkbar" hidden><span><span data-bulk-count>0</span> sélectionné(s)</span><button class="btn btn-sm" type="button" style="background:var(--maize);color:var(--canopy)">Valider</button><button class="btn btn-sm btn-ghost" type="button" style="color:var(--on-dark)">Exporter</button></div>
+      <div class="table-scroll">
+        <table class="table table--cards">
+          <caption class="sr-only">Producteurs du secteur, triables par nom et surface</caption>
+          <thead><tr>
+            <th scope="col" class="col-check"><input class="cb" type="checkbox" aria-label="Tout sélectionner"></th>
+            <th scope="col" aria-sort="ascending"><button class="th-sort" type="button">Producteur<svg class="ic" aria-hidden="true"><use href="#i-sort-asc"/></svg></button></th>
+            <th scope="col">Village</th>
+            <th scope="col" class="num" aria-sort="none"><button class="th-sort" type="button">Surface (ha)<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+            <th scope="col">État</th>
+            <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Adjara Bio"></td><td class="td-primary" data-label="Producteur"><span class="cell-main">Adjara Bio</span><span class="cell-sub num">NPI 1 042 887 310</span></td><td data-label="Village">Sompérékou</td><td class="num" data-label="Surface (ha)">2,4</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+            <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Bawa Orou" checked></td><td class="td-primary" data-label="Producteur"><span class="cell-main">Bawa Orou</span><span class="cell-sub num">NPI 1 042 113 902</span></td><td data-label="Village">Kokey</td><td class="num" data-label="Surface (ha)">0,9</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+            <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Chabi Gado"></td><td class="td-primary" data-label="Producteur"><span class="cell-main">Chabi Gado</span><span class="cell-sub num">NPI 1 042 554 018</span></td><td data-label="Village">Goumori</td><td class="num" data-label="Surface (ha)">5,1</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Rejeté</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+            <tr><td class="col-check"><input class="cb" type="checkbox" aria-label="Sélectionner Djamila Sanni"></td><td class="td-primary" data-label="Producteur"><span class="cell-main">Djamila Sanni</span><span class="cell-sub num">NPI 1 042 670 245</span></td><td data-label="Village">Founougo</td><td class="num" data-label="Surface (ha)">1,6</td><td data-label="État"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Ouvrir</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="num">1–4 sur 248 producteurs</span>
+        <nav class="pages" aria-label="Pagination">
+          <button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
+          <button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button">3</button><span aria-hidden="true">…</span><button class="page-btn" type="button">62</button>
+          <button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cartes, listes, stat, avatar -->
+  <section class="sec" id="cartes" aria-labelledby="h-cartes">
+    <h2 class="section-title" id="h-cartes" style="margin-bottom:14px">Cartes, listes, tuiles de stat, avatars</h2>
+    <div class="grid" style="--min:300px">
+      <article class="card">
+        <div class="card-head"><div><h3 class="card-title">Alerte pluie forte</h3><p class="card-sub">Alibori · envoyée à 1 240 producteurs</p></div><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Urgent</span></div>
+        <p class="muted">Plus de 60 mm attendus jeudi. Reportez l'épandage d'engrais.</p>
+        <div class="card-foot"><span class="small muted">Double validation : 1 sur 2</span><button class="btn btn-secondary btn-sm" type="button">Valider l'envoi</button></div>
+      </article>
+      <article class="card">
+        <div class="card-head"><h3 class="card-title">Derniers messages</h3><a href="#" class="small">Tout voir</a></div>
+        <ul class="list">
+          <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"/></svg></span><span class="li-main"><span class="li-title">Météo de la semaine</span><span class="li-meta">Il y a 2 h · SMS</span></span><span class="li-end"><span class="badge badge--neutral">Lu</span></span></li>
+          <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="li-main"><span class="li-title">Engrais disponible au magasin</span><span class="li-meta">Hier · Agent ATDA</span></span><span class="li-end"><span class="badge badge--ok">Nouveau</span></span></li>
+          <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-market"/></svg></span><span class="li-main"><span class="li-title">Prix du maïs à Parakou</span><span class="li-meta">Lundi · Marché</span></span></li>
+        </ul>
+      </article>
+      <div class="stack" style="--gap:12px">
+        <div class="stat"><span class="stat-label">Producteurs validés</span><span class="stat-value num">18 402</span><span class="stat-delta"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+6,2 % ce mois</span><span class="stat-foot"><span class="badge badge--demo">Démonstration</span></span></div>
+        <div class="stat"><span class="stat-label">Prix du maïs, Parakou</span><span class="stat-value num">215<small>FCFA/kg</small></span><span class="stat-delta stat-delta--down"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−4 % sur 7 jours</span></div>
+      </div>
+      <article class="card card--dark on-dark">
+        <div class="card-head"><h3 class="card-title">Carte sombre (usage rare)</h3><span class="badge badge--sim">Simulé</span></div>
+        <p class="muted">Pour un encart de synthèse ou une console. Texte secondaire en on-dark-2.</p>
+        <div class="cluster" style="margin-top:14px"><span class="avatar avatar--sm">AS</span><span class="avatar">KD</span><span class="avatar avatar--lg avatar--dark">MY<span class="presence" aria-label="En ligne"></span></span><span class="badge badge--demo">Démonstration</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Badges -->
+  <section class="sec card" id="badges" aria-labelledby="h-badges">
+    <h2 class="section-title" id="h-badges">Badges d'état</h2>
+    <div class="row">
+      <span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span>
+      <span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span>
+      <span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Rejeté</span>
+      <span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon</span>
+      <span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Urgent</span>
+      <span class="badge badge--demo">Démonstration</span>
+      <span class="badge badge--sim">Simulé</span>
+      <span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Hors ligne</span>
+      <span class="badge badge--neutral">Neutre</span>
+    </div>
+    <p class="hint" style="margin-top:12px">Règle : jamais la couleur seule. Validé, En attente, Rejeté, Brouillon, Urgent et Hors ligne portent une icône ; Démonstration (soleil) et Simulé (latérite, bord pointillé) sont des étiquettes d'honnêteté.</p>
+  </section>
+
+  <!-- Alertes, bandeaux, toasts -->
+  <section class="sec card" id="alertes" aria-labelledby="h-alertes">
+    <h2 class="section-title" id="h-alertes">Alertes, bandeaux, toasts</h2>
+    <div class="stack" style="--gap:12px">
+      <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Votre fiche est en cours de vérification</span><span>L'agent ATDA de Banikoara la valide sous 5 jours ouvrés.</span></div></div>
+      <div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Remise confirmée</span><span>2 sacs de NPK remis le 3 juin, signés par le producteur.</span></div></div>
+      <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">Risque de sécheresse en août</span><span>Prévision simulée. Pensez au paillage.</span><div class="al-actions"><button class="btn btn-secondary btn-sm" type="button">Voir le conseil</button></div></div></div>
+      <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Le formulaire contient 2 erreurs</span><span><a href="#c4">Indiquez votre village</a> · <a href="#c8">Vérifiez le NPI</a></span></div></div>
+      <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Données de démonstration</span><span>Aucune donnée officielle n'est affichée sur cette page.</span></div></div>
+      <div class="banner banner--offline" style="border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. 3 saisies attendent le réseau.</span><button class="btn btn-sm" type="button" style="background:var(--maize);color:var(--canopy)">Voir la file</button></div>
+      <div class="banner banner--warn" style="border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span>Conflit de saisie sur « Champ de la route » : choisissez la bonne version.</span></div>
+      <div class="row">
+        <div class="toast" style="animation:none;max-width:400px"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="to-body"><b>Parcelle enregistrée</b>Elle partira à la prochaine connexion.</div><button class="btn btn-icon" type="button" aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <button class="btn btn-secondary" type="button" data-toast="Fiche validée. Le producteur est prévenu par SMS (simulé)." data-toast-title="Validation enregistrée">Afficher un toast</button>
+        <button class="btn btn-ghost" type="button" data-toast="Échec d'envoi. Réessai automatique dans 30 s." data-toast-type="error">Toast d'erreur</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modale et tiroir -->
+  <section class="sec card" id="surimpression" aria-labelledby="h-modale">
+    <h2 class="section-title" id="h-modale">Modale et tiroir latéral</h2>
+    <p class="muted" style="margin-bottom:14px">Uniquement pour une décision qui protège (confirmation, double validation) ou un détail consulté sans quitter la liste. Sinon, rester en ligne.</p>
+    <div class="row"><button class="btn btn-danger" type="button" data-open-dialog="dlg-confirm">Rejeter la fiche…</button><button class="btn btn-secondary" type="button" data-open-dialog="dlg-sheet">Ouvrir le détail (tiroir)</button></div>
+  </section>
+
+  <!-- États -->
+  <section class="sec" id="etats" aria-labelledby="h-etats">
+    <h2 class="section-title" id="h-etats" style="margin-bottom:14px">État vide, chargement, erreur</h2>
+    <div class="grid" style="--min:300px">
+      <div class="card empty">
+        <svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round">
+          <path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/>
+          <path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/>
+          <path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/>
+          <circle cx="112" cy="20" r="7" fill="#F3C54A"/>
+        </svg>
+        <h3>Aucune parcelle pour l'instant</h3>
+        <p>Déclarez votre premier champ : nom, culture et surface suffisent. Le tracé GPS peut venir plus tard.</p>
+        <button class="btn btn-primary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Déclarer une parcelle</button>
+      </div>
+      <div class="card" aria-busy="true" aria-label="Chargement des producteurs">
+        <span class="skel skel-title"></span>
+        <div class="cluster" style="flex-wrap:nowrap"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:70%"></span><span class="skel skel-line" style="width:45%"></span></div></div>
+        <div class="cluster" style="flex-wrap:nowrap;margin-top:12px"><span class="skel skel-circle"></span><div style="flex:1"><span class="skel skel-line" style="width:60%"></span><span class="skel skel-line" style="width:35%"></span></div></div>
+        <span class="skel skel-block" style="margin-top:16px"></span>
+      </div>
+      <div class="card state-error" role="alert">
+        <span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span>
+        <h3>Impossible de charger les prix</h3>
+        <p>Le réseau ne répond pas. Les derniers prix connus datent d'hier, 18 h.</p>
+        <code>ERR_RESEAU · 504</code>
+        <div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button><button class="btn btn-ghost" type="button">Voir les prix d'hier</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Données : chronologie, carte, graphiques -->
+  <section class="sec" id="donnees" aria-labelledby="h-donnees">
+    <h2 class="section-title" id="h-donnees" style="margin-bottom:14px">Chronologie, carte, graphiques</h2>
+    <div class="grid" style="--min:340px">
+      <div class="card">
+        <div class="card-head"><h3 class="card-title">Suivi de la candidature</h3></div>
+        <ol class="timeline">
+          <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/04/2026 · 09:12</div><div class="tl-title">Candidature déposée</div></li>
+          <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">05/04/2026 · 15:40</div><div class="tl-title">Éligibilité vérifiée</div><div class="tl-text">Critères : surface &lt; 5 ha, culture maïs.</div></li>
+          <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">En cours</div><div class="tl-title">Sélection par le comité</div></li>
+          <li class="tl-alert"><span class="tl-dot"></span><div class="tl-time">Possible</div><div class="tl-title">Contestation ouverte 15 jours</div></li>
+        </ol>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 class="card-title">Plan de la parcelle</h3><span class="badge badge--sim">Fond simulé</span></div>
+        <div class="map" role="img" aria-label="Parcelle de 1,8 ha au nord de Sompérékou, contour tracé au GPS (simulé)">
+          <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="250" fill="#DDE9CF"/>
+            <path d="M0 40 L140 20 L170 120 L0 150Z" fill="#CFE1BC"/><path d="M260 0 L400 0 L400 110 L300 130Z" fill="#D3E4C2"/><path d="M0 170 L120 160 L150 250 L0 250Z" fill="#C7DCB2"/>
+            <path d="M-10 200 C100 170 220 200 410 140" stroke="#F8FBF4" stroke-width="10" fill="none"/>
+            <path d="M-10 200 C100 170 220 200 410 140" stroke="#C9B79A" stroke-width="1" stroke-dasharray="6 6" fill="none"/>
+            <path d="M330 250 C320 200 350 170 340 120 C330 80 360 40 350 0" stroke="#9CC3D8" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M175 60 L265 45 L290 135 L205 160 Z" fill="rgba(111,168,58,.35)" stroke="#1F5A32" stroke-width="2.5" stroke-linejoin="round"/>
+            <g fill="#fff" stroke="#1F5A32" stroke-width="2"><circle cx="175" cy="60" r="4"/><circle cx="265" cy="45" r="4"/><circle cx="290" cy="135" r="4"/><circle cx="205" cy="160" r="4"/></g>
+          </svg>
+          <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-in"/></svg></button><button class="btn btn-icon" type="button" aria-label="Dézoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-out"/></svg></button><button class="btn btn-icon" type="button" aria-label="Ma position"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg></button></div>
+          <div class="map-legend"><ul class="legend"><li><span class="sw sw--2"></span>Parcelle · <span class="num">1,8 ha</span></li><li><span class="sw" style="background:#9CC3D8"></span>Cours d'eau</li></ul></div>
+        </div>
+      </div>
+      <figure class="card chart">
+        <div class="card-head" style="margin:0"><h3 class="card-title">Pluie par mois, Banikoara</h3><span class="badge badge--demo">Démonstration</span></div>
+        <svg viewBox="0 0 360 190" role="img" aria-labelledby="ch1t"><title id="ch1t">Pluie mensuelle en mm : mai 85, juin 140, juillet 190, août 230, septembre 160, octobre 60</title>
+          <g class="grid"><line x1="36" x2="352" y1="20" y2="20"/><line x1="36" x2="352" y1="70" y2="70"/><line x1="36" x2="352" y1="120" y2="120"/><line x1="36" x2="352" y1="160" y2="160"/></g>
+          <g class="tick" text-anchor="end"><text x="30" y="24">240</text><text x="30" y="74">160</text><text x="30" y="124">80</text><text x="30" y="164">0</text></g>
+          <rect class="bar" x="48" y="107" width="34" height="53" rx="4"/><rect class="bar" x="100" y="72" width="34" height="88" rx="4"/><rect class="bar" x="152" y="41" width="34" height="119" rx="4"/>
+          <rect class="bar bar--2" x="204" y="16" width="34" height="144" rx="4"/><rect class="bar" x="256" y="60" width="34" height="100" rx="4"/><rect class="bar" x="308" y="122" width="34" height="38" rx="4"/>
+          <text class="val" x="221" y="11" text-anchor="middle">230</text>
+          <g class="tick" text-anchor="middle"><text x="65" y="180">mai</text><text x="117" y="180">juin</text><text x="169" y="180">juil.</text><text x="221" y="180">août</text><text x="273" y="180">sept.</text><text x="325" y="180">oct.</text></g>
+        </svg>
+        <ul class="legend"><li><span class="sw"></span>Pluie (mm)</li><li><span class="sw sw--2"></span>Mois le plus pluvieux</li></ul>
+      </figure>
+      <figure class="card chart">
+        <div class="card-head" style="margin:0"><h3 class="card-title">Rendement du maïs (t/ha)</h3><span class="badge badge--sim">Prévision simulée</span></div>
+        <svg viewBox="0 0 360 190" role="img" aria-labelledby="ch2t"><title id="ch2t">Rendement observé de 2021 à 2025, de 1,6 à 1,9 t/ha, puis prévision 2,1 pour 2026 et 2,2 pour 2027</title>
+          <g class="grid"><line x1="36" x2="352" y1="20" y2="20"/><line x1="36" x2="352" y1="70" y2="70"/><line x1="36" x2="352" y1="120" y2="120"/><line x1="36" x2="352" y1="160" y2="160"/></g>
+          <g class="tick" text-anchor="end"><text x="30" y="24">2,4</text><text x="30" y="74">2,0</text><text x="30" y="124">1,6</text><text x="30" y="164">1,2</text></g>
+          <path class="area" d="M50 120 L95 108 L140 114 L185 95 L230 83 L230 160 L50 160Z"/>
+          <path class="line" d="M50 120 L95 108 L140 114 L185 95 L230 83"/>
+          <path class="line line--forecast" d="M230 83 L280 58 L330 46"/>
+          <g><circle class="point" cx="50" cy="120" r="4"/><circle class="point" cx="95" cy="108" r="4"/><circle class="point" cx="140" cy="114" r="4"/><circle class="point" cx="185" cy="95" r="4"/><circle class="point" cx="230" cy="83" r="4"/><circle cx="330" cy="46" r="4.5" fill="#E2B132"/></g>
+          <text class="val" x="330" y="34" text-anchor="middle">2,2</text>
+          <g class="tick" text-anchor="middle"><text x="50" y="180">2021</text><text x="140" y="180">2023</text><text x="230" y="180">2025</text><text x="330" y="180">2027</text></g>
+        </svg>
+        <ul class="legend"><li><span class="sw"></span>Observé</li><li><span class="sw sw--dash"></span>Prévision (simulée)</li></ul>
+      </figure>
+      <figure class="card chart">
+        <div class="card-head" style="margin:0"><h3 class="card-title">Fiches validées</h3><span class="badge badge--demo">Démonstration</span></div>
+        <div class="cluster" style="--gap:20px;flex-wrap:nowrap">
+          <svg viewBox="0 0 120 120" style="width:120px;flex:none" role="img" aria-labelledby="ch3t"><title id="ch3t">72 % des fiches validées</title>
+            <circle class="ring-track" cx="60" cy="60" r="48" stroke-width="12"/>
+            <circle class="ring-value" cx="60" cy="60" r="48" stroke-width="12" stroke-dasharray="217 302" transform="rotate(-90 60 60)"/>
+            <text x="60" y="66" text-anchor="middle" style="font:700 22px var(--font-ui);fill:var(--ink)" class="num">72 %</text>
+          </svg>
+          <ul class="legend" style="flex-direction:column;gap:8px"><li><span class="sw"></span>Validées · <b class="num">14 480</b></li><li><span class="sw sw--5"></span>En attente · <b class="num">5 630</b></li></ul>
+        </div>
+        <figcaption>Secteur Banikoara, saison 2026.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Coque (aperçu) -->
+  <section class="sec" aria-labelledby="h-coque">
+    <h2 class="section-title" id="h-coque" style="margin-bottom:14px">Barre latérale (aperçu statique)</h2>
+    <div class="demo-shell">
+      <div class="sidebar on-dark">
+        <a class="sb-brand" href="#"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit Bénin</span></a>
+        <p class="sb-group">Mon exploitation</p>
+        <ul style="list-style:none;margin:0;padding:0"><li><a class="sb-link" href="#"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span class="sb-label">Accueil</span></a></li><li><a class="sb-link" href="#" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-parcel"/></svg><span class="sb-label">Mes parcelles</span></a></li><li><a class="sb-link" href="#"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><span class="sb-label">Mes messages</span><span class="sb-count">3</span></a></li></ul>
+      </div>
+      <div style="padding:20px" class="stack"><p class="muted">Entrée active : fond jeune maïs à 20 %, texte blanc, icône maïs. Survol : voile clair à 7 %. Repliée (≥ 1024 px) : icônes seules avec infobulle. Sous 1024 px : tiroir flottant au-dessus d'un voile, focus piégé, Échap pour fermer.</p></div>
+    </div>
+  </section>
+
+  <!-- Icônes -->
+  <section class="sec card" id="icones" aria-labelledby="h-icones">
+    <h2 class="section-title" id="h-icones">Icônes (trait 1,75)</h2>
+    <p class="muted" style="margin:6px 0 14px">Usage : <code>&lt;svg class="ic" aria-hidden="true"&gt;&lt;use href="#i-nom"/&gt;&lt;/svg&gt;</code></p>
+    <div class="icons" id="icon-grid"></div>
+  </section>
+</main>
+
+<dialog class="modal" id="dlg-confirm" aria-labelledby="dlg-c-t" aria-describedby="dlg-c-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-c-t">Rejeter la fiche de Chabi Gado ?</h2><button class="btn btn-icon" type="button" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <p id="dlg-c-d" class="muted">Le producteur sera prévenu par SMS et pourra contester sous 15 jours. Aucune décision n'est prise automatiquement.</p>
+    <div class="field"><label class="label" for="motif">Motif du rejet</label><select class="select" id="motif"><option>NPI non concordant</option><option>Parcelle hors secteur</option><option>Doublon</option></select></div>
+    <div class="field"><label class="label" for="cm">Commentaire <span class="opt">(facultatif)</span></label><textarea class="textarea" id="cm"></textarea></div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" type="button" data-close-dialog>Annuler</button><button class="btn btn-danger" type="button" data-close-dialog="ok" data-toast="Fiche rejetée. Le producteur est prévenu (SMS simulé).">Rejeter la fiche</button></div>
+</dialog>
+<dialog class="modal modal--sheet" id="dlg-sheet" aria-labelledby="dlg-s-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-s-t">Bawa Orou</h2><button class="btn btn-icon" type="button" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <span class="badge badge--wait" style="align-self:flex-start"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span>
+    <dl class="dl"><dt>NPI</dt><dd class="num">1 042 113 902</dd><dt>Village</dt><dd>Kokey</dd><dt>Téléphone</dt><dd class="num">+229 01 97 00 00 00</dd><dt>Surface</dt><dd class="num">0,9 ha</dd></dl>
+    <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><div class="al-body">Cette consultation est inscrite au journal d'accès.</div></div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-danger-ghost" type="button">Rejeter…</button><button class="btn btn-primary" type="button" data-close-dialog data-toast="Fiche validée.">Valider la fiche</button></div>
+</dialog>
+
+<script>
+  // Grille des icônes, lue depuis le sprite
+  fetch('icons.svg').then(function (r) { return r.text(); }).then(function (t) {
+    var ids = (t.match(/id="i-[^"]+"/g) || []).map(function (s) { return s.slice(6, -1); });
+    document.getElementById('icon-grid').innerHTML = ids.map(function (id) {
+      return '<div><svg class="ic" aria-hidden="true"><use href="#i-' + id + '"/></svg>' + id + '</div>';
+    }).join('');
+  });
+</script>
+</body>
+</html>

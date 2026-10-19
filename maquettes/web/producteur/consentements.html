@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes consentements · Agri-Digit Bénin</title>
+<meta name="description" content="Consentements donnés, retrait en un clic, partage du profil pour le crédit et journal des accès à mes données.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.cs { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; align-items: start; padding: 18px 0; border-top: 1px solid var(--line); }
+.cs:first-of-type { border-top: 0; padding-top: 0; }
+.cs h3 { font-size: var(--fs-md); font-weight: 700; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+@media (max-width: 640px) { .cs { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/consentements">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes consentements</span></li></ol></nav>
+          <h1 class="page-title">Mes consentements</h1>
+          <p class="page-desc">Vos données vous appartiennent. Vous pouvez retirer chaque consentement à tout moment, en un clic (loi n° 2017-20, art. 389 et 390).</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes consentements. Vous pouvez retirer votre accord à tout moment en touchant le bouton Retirer." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter</button></div>
+      </div>
+
+      <div class="split">
+        <div class="stack" style="--gap:20px">
+          <section class="card" aria-labelledby="t-cs">
+            <h2 class="card-title" id="t-cs" style="margin-bottom:14px">Consentements donnés</h2>
+            <div class="cs">
+              <div><h3>Données personnelles (inscription et services agricoles) <span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></h3>
+                <p class="small muted num">Texte v1.2, donné le 2 mai 2026, canal USSD</p>
+                <p class="small" style="margin-top:6px">Nécessaire pour le registre, les appuis et les conseils. Le retirer ferme l'accès aux services : vos données sont alors conservées le temps légal puis effacées.</p></div>
+              <button type="button" class="btn btn-danger-ghost" data-open-dialog="dlg-ret">Retirer ce consentement</button>
+            </div>
+            <div class="cs">
+              <div><h3>Partage du profil pour le crédit <span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></h3>
+                <p class="small muted num">Texte v1.0, donné le 20 juillet 2026, application</p>
+                <p class="small" style="margin-top:6px">Un agent financier peut voir un score calculé à partir de vos parcelles et campagnes, avec ses facteurs. La décision de crédit revient à une personne.</p></div>
+              <button type="button" class="btn btn-danger-ghost" data-open-dialog="dlg-ret">Retirer le partage pour le crédit</button>
+            </div>
+            <div class="cs">
+              <div><h3>Partage avec ma coopérative <span class="badge badge--neutral">Retiré</span></h3>
+                <p class="small muted num">Texte v1.0, donné le 12 mars 2025 · retiré le 1<sup>er</sup> septembre 2025</p></div>
+              <button type="button" class="btn btn-secondary">Donner à nouveau</button>
+            </div>
+          </section>
+
+          <section class="table-card" aria-labelledby="t-acc">
+            <div class="table-toolbar"><div style="margin-right:auto"><h2 class="card-title" id="t-acc">Qui a consulté mes données</h2><p class="card-sub">Journal d'accès non modifiable · 30 derniers jours</p></div></div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <thead><tr><th scope="col">Date</th><th scope="col">Qui</th><th scope="col">Pourquoi</th><th scope="col">Données vues</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">16/10/2026 · 14:02</span></td><td data-label="Qui">Moussa Yarou · agent ATDA</td><td data-label="Pourquoi">Remise d'appui</td><td data-label="Données vues">Fiche, parcelles</td></tr>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">05/10/2026 · 09:30</span></td><td data-label="Qui">Agent financier · CLCAM Banikoara</td><td data-label="Pourquoi">Consultation du score crédit</td><td data-label="Données vues">Score et facteurs</td></tr>
+                  <tr><td class="td-primary" data-label="Date"><span class="cell-main num">05/10/2026 · 08:47</span></td><td data-label="Qui">Responsable de programme · Interprofession coton</td><td data-label="Pourquoi">Instruction de candidature</td><td data-label="Données vues">Fiche, parcelles de coton</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span class="badge badge--demo">Démonstration</span><a href="contestations.html" class="small">Un accès vous semble anormal ? Le signaler</a></div>
+          </section>
+        </div>
+
+        <section class="card card--tint" aria-labelledby="t-dr">
+          <h2 class="card-title" id="t-dr" style="margin-bottom:10px">Vos droits</h2>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></span><span class="li-main"><span class="li-title">Voir vos données</span><span class="li-meta">Tout ce qui est enregistré sur vous, dans <a href="profil.html">Mon profil</a>.</span></span></li>
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg></span><span class="li-main"><span class="li-title">Récupérer une copie</span><span class="li-meta">Fichier envoyé sous 30 jours.</span></span></li>
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span><span class="li-main"><span class="li-title">Données au Bénin</span><span class="li-meta">Aucune donnée n'est stockée hors du pays.</span></span></li>
+          </ul>
+          <button type="button" class="btn btn-secondary btn-block" style="margin-top:12px" data-toast="Demande enregistrée. Votre copie sera prête sous 30 jours."><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Demander une copie de mes données</button>
+          <p class="hint" style="margin-top:10px">Délégué à la protection des données : à désigner par le MAEP.</p>
+        </section>
+      </div>
+
+      <details class="states" style="margin-top:20px">
+        <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+        <div class="states-body">
+          <div><span class="state-cap">Retrait enregistré</span><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Consentement retiré. Le retrait est enregistré avec sa date.</div></div></div>
+          <div><span class="state-cap">Mineur : consentement parental</span><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><div class="al-body"><span class="al-title">Consentement parental (moins de 16 ans)</span><span>Donné par le tuteur, Issa Sabi, le 2 mai 2026.</span></div></div></div>
+          <div><span class="state-cap">Aucun consentement</span><div class="card empty"><h3>Aucun consentement enregistré</h3></div></div>
+        </div>
+      </details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-ret" aria-labelledby="dlg-ret-t" aria-describedby="dlg-ret-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-ret-t">Retirer le partage pour le crédit ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body"><p id="dlg-ret-d">Les agents financiers ne verront plus votre score. Une demande de crédit en cours n'est pas annulée. Vous pourrez redonner votre accord plus tard.</p></div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Garder</button><button type="button" class="btn btn-danger" data-close-dialog="ok" data-toast="Consentement retiré. Le retrait est enregistré avec sa date.">Retirer</button></div>
+</dialog>
+</body>
+</html>

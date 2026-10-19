@@ -1,0 +1,58 @@
+<!--{"title":"Récoltes signalées","desc":"Récoltes déclarées incohérentes avec l'estimation, à vérifier par l'agent (maquette).","search":"Producteur, filière…"}-->
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Récoltes signalées</span></li></ol></nav>
+          <h1 class="page-title">Récoltes signalées</h1>
+          <p class="page-desc">Récoltes dont la quantité déclarée s'écarte fortement de l'estimation. Un agent les vérifie ; rien n'est corrigé automatiquement.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Estimations simulées</span><span>L'estimation combine la surface déclarée, le rendement moyen de la commune et le NDVI simulé. Seuil de signalement : écart de plus de 50 %.</span></div></div>
+
+        <section class="table-card" aria-labelledby="t-rec">
+          <div class="table-toolbar">
+            <h2 class="sr-only" id="t-rec">Récoltes signalées</h2>
+            <div class="chips" role="group" aria-label="Filtrer"><button class="chip" type="button" aria-pressed="true">À vérifier <span class="count">4</span></button><button class="chip" type="button" aria-pressed="false">Vérifiées <span class="count">11</span></button></div>
+            <div class="field" style="min-width:180px;margin-left:auto"><label class="sr-only" for="r-fil">Filière</label><select class="select" id="r-fil"><option>Toutes les filières</option><option>Maïs</option><option>Soja</option><option>Coton</option></select></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Récoltes à vérifier, par écart décroissant</caption>
+              <thead><tr><th scope="col">Producteur</th><th scope="col">Filière</th><th scope="col">Date de récolte</th><th scope="col" class="num">Déclarée (kg)</th><th scope="col" class="num">Estimation (kg)</th><th scope="col" aria-sort="descending"><button class="th-sort" type="button">Écart<svg class="ic" aria-hidden="true"><use href="#i-sort-desc"/></svg></button></th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Gounou Yarou</span><span class="cell-sub num">BNK-000311 · Champ de Toura, 1,5 ha</span></td><td data-label="Filière">Maïs</td><td data-label="Date" class="num">10/10/2026</td><td class="num" data-label="Déclarée (kg)">4 200</td><td class="num" data-label="Estimation (kg)">1 750</td><td data-label="Écart" data-sort="140"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+140,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Rékiya Tamou</span><span class="cell-sub num">BNK-000256 · Founougo, 0,8 ha</span></td><td data-label="Filière">Soja</td><td data-label="Date" class="num">08/10/2026</td><td class="num" data-label="Déclarée (kg)">180</td><td class="num" data-label="Estimation (kg)">620</td><td data-label="Écart" data-sort="71"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−71,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Bio Sabi Worou</span><span class="cell-sub num">BNK-000162 · Ounet, 3,2 ha</span></td><td data-label="Filière">Coton</td><td data-label="Date" class="num">05/10/2026</td><td class="num" data-label="Déclarée (kg)">1 100</td><td class="num" data-label="Estimation (kg)">3 400</td><td data-label="Écart" data-sort="68"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"/></svg>−67,6 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Djamila Sanni</span><span class="cell-sub num">BNK-000189 · Founougo, 1,6 ha</span></td><td data-label="Filière">Maïs</td><td data-label="Date" class="num">12/10/2026</td><td class="num" data-label="Déclarée (kg)">3 050</td><td class="num" data-label="Estimation (kg)">1 980</td><td data-label="Écart" data-sort="54"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>+54,0 %</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-verif">Vérifier</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Rien à vérifier</span><div class="card empty" style="padding:20px"><h3>Aucune récolte signalée</h3><p>Les déclarations du secteur sont cohérentes avec les estimations.</p></div></div>
+            <div><span class="states-cap">Estimation indisponible</span><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body">Estimation : non disponible (parcelle sans tracé). L'écart ne peut pas être calculé.</div></div></div>
+            <div><span class="states-cap">Erreur</span><div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>Les récoltes n'ont pas pu être chargées</h3><button type="button" class="btn btn-primary">Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>
+<!--DIALOGS-->
+<dialog class="modal modal--sheet" id="dlg-verif" aria-labelledby="dlg-v-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-v-t">Vérifier la récolte de Gounou Yarou</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-verif" novalidate>
+    <dl class="dl"><dt>Parcelle</dt><dd>Champ de Toura · maïs · 1,5 ha</dd><dt>Déclarée</dt><dd class="num">4 200 kg (2 800 kg/ha)</dd><dt>Estimation</dt><dd class="num">1 750 kg (moyenne communale 1 170 kg/ha, NDVI 0,58)</dd><dt>Stocké · vendu</dt><dd class="num">1 200 kg · 3 000 kg à 205 FCFA/kg</dd></dl>
+    <fieldset class="fieldset"><legend class="label">Conclusion</legend>
+      <label class="choice-card"><input class="radio" type="radio" name="vc"><span><b>Déclaration confirmée</b><br><span class="small muted">Vérifiée avec le producteur ou sur place.</span></span></label>
+      <label class="choice-card"><input class="radio" type="radio" name="vc" checked><span><b>Quantité corrigée</b><br><span class="small muted">Une nouvelle version est créée, l'ancienne reste visible.</span></span></label>
+      <label class="choice-card"><input class="radio" type="radio" name="vc"><span><b>Visite à programmer</b><br><span class="small muted">La récolte reste signalée.</span></span></label>
+    </fieldset>
+    <div class="field"><label class="label" for="v-q">Quantité corrigée</label><div class="input-group"><input class="input input-num" id="v-q" inputmode="decimal" value="2 400"><span class="addon addon--end">kg</span></div></div>
+    <div class="field"><label class="label" for="v-m">Motif (obligatoire)</label><textarea class="textarea" id="v-m">Le producteur avait compté la récolte de son frère (Champ de Kokey) : 2 400 kg pour sa parcelle.</textarea></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-verif" class="btn btn-primary" data-toast="Vérification enregistrée. Le producteur est prévenu.">Enregistrer la vérification</button></div>
+</dialog>

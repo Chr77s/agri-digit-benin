@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erreur du serveur · Agri-Digit Bénin</title>
+<meta name="description" content="Écran d'erreur serveur : réessayer, retour, contacter l'agent ATDA avec la référence (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  /* Panneau « États » repliable, pour la revue */
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  /* Écran d'état (404, erreur) : texte + visuel nature discret */
+  .st { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) var(--gutter) 56px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 32px clamp(24px, 5vw, 64px); align-items: start; }
+  .st-text { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .st-code { align-self: flex-start; display: inline-flex; align-items: center; min-height: 28px; padding: 2px 12px; border-radius: var(--r-pill); background: var(--layer); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .st-code--bad { background: var(--bad-bg); color: var(--bad-ink); }
+  .st-title { font: 700 clamp(2rem, 1.4rem + 2.2vw, 3rem)/1.05 var(--font-display); letter-spacing: -.025em; max-width: 18ch; }
+  .st-lead { font-size: 1.125rem; line-height: 1.55; color: var(--ink-2); max-width: 52ch; }
+  .st-path { font-size: var(--fs-sm); background: var(--layer); padding: 2px 8px; border-radius: var(--r-sm); overflow-wrap: anywhere; }
+  .st-actions { margin-top: 4px; }
+  .st-links { margin-top: 12px; }
+  .st-links h2 { font: 700 var(--fs-md)/1.3 var(--font-ui); color: var(--ink-2); margin-bottom: 4px; }
+  .st-links .list-item { color: var(--ink); text-decoration: none; min-height: 56px; border-radius: var(--r-md); padding: 10px 8px; }
+  .st-links .list-item > .ic { color: var(--ink-2); }
+  .st-art { position: sticky; top: calc(var(--topbar-h) + 24px); margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .st-art img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 58% 78%; border-radius: var(--r-xl); box-shadow: var(--sh-card); background: var(--canopy); }
+  .st-art figcaption { font-size: var(--fs-xs); color: var(--ink-2); }
+  .st-review { grid-column: 1 / -1; }
+  @media (max-width: 860px) {
+    .st { grid-template-columns: 1fr; }
+    .st-art { order: -1; position: static; }
+    .st-art img { aspect-ratio: 16 / 7; object-position: 60% 80%; }
+    .st-art figcaption { display: none; }
+  }
+  .agent { display: flex; flex-direction: column; gap: 14px; }
+  .agent-id { display: flex; align-items: center; gap: 12px; }
+  .agent-id b { display: block; }
+  .ref { font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: .04em; }
+</style>
+</head>
+<body data-page="acces/erreur">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+
+  <main class="st" id="contenu" tabindex="-1">
+    <div class="st-text">
+      <span class="st-code st-code--bad">Erreur du serveur · 500</span>
+      <h1 class="st-title">Cet écran n'a pas pu s'afficher</h1>
+      <p class="st-lead">Le problème vient de notre côté, pas de votre téléphone. Vos saisies restent gardées sur cet appareil : rien n'est perdu.</p>
+      <div class="cluster st-actions">
+        <button class="btn btn-primary" type="button" id="retry"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button>
+        <a class="btn btn-secondary" href="../../landing/index.html">Retour à l'accueil</a>
+      </div>
+      <p class="small muted" role="status" id="retry-msg">Référence de l'erreur : <span class="ref">7F3A-21C9</span> · 18/10/2026 à 14:47</p>
+
+      <section class="card agent" aria-labelledby="h-agent">
+        <div class="card-head" style="margin:0"><h2 class="card-title" id="h-agent">Le problème continue ?</h2><span class="badge badge--demo">Démonstration</span></div>
+        <div class="agent-id">
+          <span class="avatar avatar--lg" aria-hidden="true">KD</span>
+          <span><b>Koffi Dossou</b><span class="small muted">Agent ATDA · secteur Banikoara</span></span>
+        </div>
+        <p class="small">Appelez ou écrivez à votre agent et donnez-lui la référence <span class="ref">7F3A-21C9</span>.</p>
+        <div class="cluster">
+          <a class="btn btn-secondary" href="tel:+2290166214087"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Appeler le 01 66 21 40 87</a>
+          <a class="btn btn-ghost" href="sms:+2290166214087?body=Agri-Digit%20erreur%207F3A-21C9"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Envoyer un SMS</a>
+        </div>
+      </section>
+    </div>
+    <figure class="st-art">
+      <picture><source media="(max-width: 860px)" srcset="../../landing/img/champ-390.jpg"><img src="../../landing/img/champ-1440.jpg" alt="" width="1440" height="900"></picture>
+      <figcaption>Image : capture du rendu 3D de la page d'accueil.</figcaption>
+    </figure>
+
+    <details class="review st-review" id="etats">
+      <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>Autres erreurs (revue)<svg class="ic chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+      <div class="review-body">
+        <div class="card state-error" role="alert">
+          <span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span>
+          <h3>Le serveur ne répond pas</h3>
+          <p>Vérifiez la connexion puis réessayez.</p>
+          <code>ERR_RESEAU · 504</code>
+          <button class="btn btn-primary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button>
+        </div>
+        <div class="card state-error">
+          <span class="se-icon" style="background:var(--sun-bg);color:var(--sun-ink)"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-settings"/></svg></span>
+          <h3>Maintenance en cours</h3>
+          <p>Agri-Digit revient vers 16:00. La saisie hors connexion reste possible pendant ce temps.</p>
+          <code>503</code>
+        </div>
+        <div class="card state-error">
+          <span class="se-icon" style="background:var(--layer);color:var(--ink-2)"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-lock"/></svg></span>
+          <h3>Page réservée</h3>
+          <p>Cette page n'est pas accessible avec votre rôle.</p>
+          <code>403</code>
+          <a class="btn btn-secondary" href="../../landing/index.html">Retour à l'accueil</a>
+        </div>
+        <div class="alert alert--danger">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Session expirée</span><span>Reconnectez-vous avec un nouveau code SMS. Vos saisies hors ligne sont gardées.</span><div class="al-actions"><a class="btn btn-secondary btn-sm" href="connexion.html">Se connecter</a></div></div>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<script>
+  document.getElementById('retry').addEventListener('click', function () {
+    var b = this; b.setAttribute('aria-busy', 'true'); b.disabled = true;
+    setTimeout(function () {
+      b.removeAttribute('aria-busy'); b.disabled = false;
+      document.getElementById('retry-msg').innerHTML = 'Toujours indisponible à 14:48. Nouvel essai possible dans un instant. Référence : <span class="ref">7F3A-21C9</span>';
+    }, 1200);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Téléphone simulé · test</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="phone.css">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; min-height: 100vh; background: #E8F1DF; color: #0E2F1C; font: 15px/1.5 'Figtree', system-ui, sans-serif;
+    display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 20px; padding: 24px 16px 40px; box-sizing: border-box; }
+  h1 { margin: 0; font-size: 18px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 720px; }
+  button { font: inherit; font-weight: 600; min-height: 44px; padding: 0 14px; border-radius: 22px; border: 1.5px solid #1F5A32;
+    background: #fff; color: #1F5A32; cursor: pointer; }
+  button[aria-pressed="true"] { background: #1F5A32; color: #fff; }
+  button:focus-visible { outline: 3px solid #F3C54A; outline-offset: 2px; }
+  label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  #stage { padding: 20px; }
+  .shot #stage { padding: 24px 40px 48px; }
+  .shot h1, .shot .bar { display: none; }
+</style>
+</head>
+<body>
+<h1>Simulateur du producteur · test</h1>
+<div class="bar" id="screens"></div>
+<div class="bar">
+  <button id="pp" aria-pressed="false">Pause</button>
+  <label>Largeur <input id="w" type="range" min="220" max="380" value="300"> <output id="wo">300 px</output></label>
+</div>
+<div id="stage"></div>
+<script src="phone.js"></script>
+<script>
+  var qs = new URLSearchParams(location.search);
+  if (qs.has('shot')) document.body.classList.add('shot');
+  var stage = document.getElementById('stage');
+  if (qs.get('w')) stage.style.setProperty('--phone-w', qs.get('w') + 'px');
+  var ph = AgriPhone.mount(stage, { screen: qs.get('screen') || 'assistant', autoplay: !qs.has('static') });
+  var box = document.getElementById('screens');
+  AgriPhone.screens.forEach(function (n) {
+    var b = document.createElement('button');
+    b.textContent = n; b.setAttribute('aria-pressed', 'false');
+    b.onclick = function () { ph.show(n); mark(n); };
+    box.appendChild(b);
+  });
+  ['smart', 'basic'].forEach(function (m) {
+    var b = document.createElement('button');
+    b.textContent = 'mode ' + m; b.onclick = function () { ph.mode(m); };
+    box.appendChild(b);
+  });
+  function mark(n) { box.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.textContent === n)); }); }
+  mark(qs.get('screen') || 'assistant');
+  var pp = document.getElementById('pp'), paused = false;
+  pp.onclick = function () { paused = !paused; paused ? ph.pause() : ph.play(); pp.textContent = paused ? 'Lecture' : 'Pause'; pp.setAttribute('aria-pressed', String(paused)); };
+  var w = document.getElementById('w');
+  w.oninput = function () { stage.style.setProperty('--phone-w', w.value + 'px'); document.getElementById('wo').textContent = w.value + ' px'; };
+  window.phoneReady = Promise.all([document.fonts.ready].concat(['../assets/mais-pobe.jpg'].map(function (u) { var i = new Image(); i.src = u; return i.decode().catch(function () {}); })))
+    .then(function () { return new Promise(function (r) { setTimeout(r, 900); }); })
+    .then(function () { document.title = 'READY'; });
+</script>
+</body>
+</html>

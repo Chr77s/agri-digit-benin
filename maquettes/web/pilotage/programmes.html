@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programmes · Agri-Digit Bénin</title>
+<meta name="description" content="Créer un programme d'appui : critères d'éligibilité, filières, calendrier de candidature et de sélection (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.crit { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .vc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .vc-checks .check { border: 1px solid var(--line-input); border-radius: var(--r-pill); padding: 8px 14px 8px 10px; min-height: 44px; align-items: center; background: var(--surface); }
+  .vc-checks .check:has(:checked) { background: var(--ok-bg); border-color: var(--leaf); }
+  .prog-row .cell-sub { max-width: 52ch; }
+  .sticky-side { position: sticky; top: 84px; }
+  @media (max-width: 1100px) { .sticky-side { position: static; } }
+</style>
+</head>
+<body data-role="responsable_programme" data-page="pilotage/programmes">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/programmes.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un programme…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 1 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">1</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="programmes.html">Programmes</a></li><li><span aria-current="page">Nouveau programme</span></li></ol></nav>
+          <h1 class="page-title">Programmes d'appui</h1>
+          <p class="page-desc">Définissez qui peut candidater, sur quelles filières et selon quel calendrier. Les critères sont publics&nbsp;: chaque producteur voit pourquoi il est éligible ou non.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="../agent/candidatures.html"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg>Candidatures</a>
+          <a class="btn btn-primary" href="#f-prog"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Créer un programme</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:24px">
+        <section class="table-card" aria-labelledby="h-list">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-list" style="margin-right:auto">Mes programmes</h2>
+            <div class="chips" role="group" aria-label="Filtrer"><button type="button" class="chip" aria-pressed="true">Ouverts <span class="count">2</span></button><button type="button" class="chip" aria-pressed="false">Clos <span class="count">1</span></button><button type="button" class="chip" aria-pressed="false">Brouillons <span class="count">1</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Programmes, état, filières, candidatures</caption>
+              <thead><tr><th scope="col">Programme</th><th scope="col">État</th><th scope="col">Filières</th><th scope="col" class="num">Candidatures</th><th scope="col">Clôture</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Engrais subventionnés maïs Nord 2026</span><span class="cell-sub">2 sacs de NPK et 1 sac d'urée par hectare, jusqu'à 2&nbsp;ha</span></td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></td><td data-label="Filières">Maïs</td><td class="num" data-label="Candidatures">2&nbsp;418</td><td class="num" data-label="Clôture">31/10/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Sélection</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Semences certifiées de soja</span><span class="cell-sub">25&nbsp;kg de semences R1 par producteur, priorité aux femmes</span></td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></td><td data-label="Filières">Soja</td><td class="num" data-label="Candidatures">806</td><td class="num" data-label="Clôture">15/11/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Sélection</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Kits de stockage post-récolte</span><span class="cell-sub">Sacs hermétiques PICS pour maïs et niébé</span></td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>Clos</span></td><td data-label="Filières">Maïs, niébé</td><td class="num" data-label="Candidatures">688</td><td class="num" data-label="Clôture">30/06/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="../agent/selection.html">Résultats</a></td></tr>
+                <tr class="prog-row"><td class="td-primary" data-label="Programme"><span class="cell-main">Motopompes pour bas-fonds rizicoles</span><span class="cell-sub">Brouillon enregistré le 16/10/2026</span></td><td data-label="État"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon</span></td><td data-label="Filières">Riz</td><td class="num" data-label="Candidatures">—</td><td class="num" data-label="Clôture">non fixée</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#f-prog">Reprendre</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="split">
+          <form class="card stack" id="f-prog" style="--gap:22px" novalidate onsubmit="return false" aria-labelledby="h-new">
+            <div class="card-head" style="margin:0"><div><h2 class="section-title" id="h-new">Nouveau programme</h2><p class="card-sub">Champs marqués * obligatoires. Rien n'est publié avant «&nbsp;Publier&nbsp;».</p></div><span class="badge badge--draft">Brouillon</span></div>
+
+            <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Le formulaire contient 2 erreurs</span><span><a href="#pg-close">Fixez la date de clôture</a> · <a href="#pg-vc">Choisissez au moins une filière</a></span></div></div>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">1. Le programme</legend>
+              <div class="field"><label class="label" for="pg-name">Nom <span class="req" aria-hidden="true">*</span></label><input class="input" id="pg-name" value="Motopompes pour bas-fonds rizicoles"></div>
+              <div class="field"><label class="label" for="pg-desc">Description</label><textarea class="textarea" id="pg-desc">Mise à disposition d'une motopompe partagée pour 5 producteurs de riz de bas-fonds, avec formation à l'entretien par l'ATDA.</textarea><span class="hint">Lue aux producteurs par SMS vocal&nbsp;: phrases courtes, sans sigle.</span></div>
+              <fieldset class="fieldset"><legend class="label" id="pg-vc">Filières <span class="req" aria-hidden="true">*</span></legend>
+                <div class="vc-checks" aria-describedby="pg-vc-e">
+                  <label class="check"><input class="cb" type="checkbox" aria-invalid="true"> Riz</label><label class="check"><input class="cb" type="checkbox"> Maïs</label><label class="check"><input class="cb" type="checkbox"> Soja</label><label class="check"><input class="cb" type="checkbox"> Maraîchage</label><label class="check"><input class="cb" type="checkbox"> Manioc</label><label class="check"><input class="cb" type="checkbox"> Niébé</label>
+                </div>
+                <span class="error-msg" id="pg-vc-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez au moins une filière.</span>
+              </fieldset>
+            </fieldset>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">2. Critères d'éligibilité</legend>
+              <div class="crit">
+                <div class="field"><label class="label" for="pg-zone">Départements</label><select class="select" id="pg-zone"><option>Alibori, Borgou</option><option>Tout le Bénin</option><option>Ouémé, Plateau</option></select></div>
+                <div class="field"><label class="label" for="pg-surf">Surface maximale</label><div class="input-group"><input class="input input-num" id="pg-surf" inputmode="decimal" value="3"><span class="addon addon--end">ha</span></div></div>
+                <div class="field"><label class="label" for="pg-quota">Bénéficiaires prévus</label><input class="input input-num" id="pg-quota" inputmode="numeric" value="400"></div>
+              </div>
+              <label class="check"><input class="cb" type="checkbox" checked disabled> Fiche producteur validée par l'agent ATDA (toujours exigé)</label>
+              <label class="check"><input class="cb" type="checkbox" checked> Parcelle de riz déclarée pour la campagne en cours</label>
+              <label class="check"><input class="cb" type="checkbox" checked> Priorité aux femmes et aux moins de 35 ans à score égal</label>
+              <div class="field"><label class="label" for="pg-cond">Conditions affichées aux producteurs</label><textarea class="textarea" id="pg-cond">Être membre d'un groupement de 5 producteurs de bas-fonds. S'engager à suivre la formation d'entretien.</textarea></div>
+            </fieldset>
+
+            <fieldset class="fieldset stack" style="--gap:14px"><legend class="card-title">3. Calendrier</legend>
+              <div class="crit">
+                <div class="field"><label class="label" for="pg-open">Ouverture des candidatures</label><input class="input" id="pg-open" type="date" value="2026-11-02"></div>
+                <div class="field"><label class="label" for="pg-close">Clôture <span class="req" aria-hidden="true">*</span></label><input class="input" id="pg-close" type="date" aria-invalid="true" aria-describedby="pg-close-e"><span class="error-msg" id="pg-close-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Fixez la date de clôture, au moins 14 jours après l'ouverture.</span></div>
+                <div class="field"><label class="label" for="pg-sel">Sélection en comité</label><input class="input" id="pg-sel" type="date" value="2026-12-10"></div>
+              </div>
+              <p class="hint">Après la sélection, une période de contestation de 15 jours s'ouvre automatiquement. Elle ne peut pas être raccourcie.</p>
+            </fieldset>
+
+            <div class="cluster" style="justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" data-toast="Brouillon enregistré.">Enregistrer le brouillon</button>
+              <button type="submit" class="btn btn-primary">Publier le programme</button>
+            </div>
+          </form>
+
+          <aside class="stack sticky-side" style="--gap:16px" aria-label="Aperçu">
+            <section class="card" aria-labelledby="h-cal">
+              <div class="card-head"><h2 class="card-title" id="h-cal">Calendrier prévu</h2></div>
+              <ol class="timeline">
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/11/2026</div><div class="tl-title">Ouverture des candidatures</div><div class="tl-text">SMS aux producteurs éligibles.</div></li>
+                <li class="tl-alert"><span class="tl-dot"></span><div class="tl-time">À fixer</div><div class="tl-title">Clôture</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time num">10/12/2026</div><div class="tl-title">Sélection en comité</div><div class="tl-text">Classement par critères, validé par 2 personnes.</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time num">11 → 25/12/2026</div><div class="tl-title">Contestations ouvertes 15 jours</div></li>
+                <li><span class="tl-dot"></span><div class="tl-time">Janvier 2027</div><div class="tl-title">Remise des appuis, signée</div></li>
+              </ol>
+            </section>
+            <section class="card card--tint" aria-labelledby="h-elig">
+              <div class="card-head" style="margin-bottom:6px"><h2 class="card-title" id="h-elig">Producteurs éligibles</h2><span class="badge badge--sim">Estimation</span></div>
+              <p class="stat-value num">1&nbsp;136</p>
+              <p class="small muted">Riz déclaré, fiche validée, ≤ 3&nbsp;ha, Alibori et Borgou. Pour 400 places prévues.</p>
+            </section>
+          </aside>
+        </div>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun programme pour l'instant</h3><p>Créez le premier programme&nbsp;: nom, filières, critères et calendrier. Il reste en brouillon jusqu'à sa publication.</p><button type="button" class="btn btn-secondary">Créer un programme</button></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Le programme n'a pas été enregistré</h3><p>Le serveur a refusé la date de clôture (format attendu AAAA-MM-JJ). Vos saisies sont conservées.</p><code>ERR_VALIDATION · 400</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Programme publié</span><span>1&nbsp;136 producteurs éligibles seront prévenus par SMS (simulé) le 02/11/2026.</span></div></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

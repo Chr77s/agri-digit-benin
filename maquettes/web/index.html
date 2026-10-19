@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galerie des maquettes · Agri-Digit Bénin</title>
+<meta name="description" content="Toutes les pages maquettées de la plateforme Agri-Digit Bénin, par espace, avec leur état d'avancement.">
+<link rel="icon" href="../../frontend/public/icon.svg">
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js" defer></script>
+<style>
+  .g-top { background: var(--canopy); color: var(--on-dark); }
+  .g-top-in { max-width: 1240px; margin: 0 auto; padding: 28px var(--gutter) 32px; display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-end; justify-content: space-between; }
+  .g-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--on-dark); text-decoration: none; font: 700 1.125rem/1 var(--font-display); min-height: 44px; }
+  .g-brand svg { width: 34px; height: 34px; }
+  .g-top h1 { color: var(--on-dark); font: 700 2rem/1.1 var(--font-display); letter-spacing: -.02em; margin-top: 14px; }
+  .g-top p { color: var(--on-dark-2); max-width: 62ch; margin-top: 8px; }
+  .g-progress { min-width: 240px; display: flex; flex-direction: column; gap: 8px; }
+  .g-progress .progress { background: rgba(241,246,236,.14); height: 8px; }
+  .g-progress .progress span { background: var(--maize); }
+  .g-progress b { font-size: 1.5rem; color: var(--on-dark); }
+  .g-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .g-links .btn-ghost { color: var(--on-dark); border-color: rgba(241,246,236,.45); }
+  .g-links .btn-ghost:hover { background: rgba(241,246,236,.1); color: #fff; }
+  .g-main { max-width: 1240px; margin: 0 auto; padding: 24px var(--gutter) 64px; display: flex; flex-direction: column; gap: 24px; }
+  .g-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  .g-tools .search { flex: 1 1 260px; max-width: 380px; }
+  .g-sec { scroll-margin-top: 16px; }
+  .g-sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; padding-bottom: 8px; }
+  .g-sec-head p { color: var(--ink-2); font-size: var(--fs-sm); }
+  .g-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) auto; align-items: center; gap: 6px 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .g-row a.g-title { font-weight: 700; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; }
+  .g-row a.g-title:hover { color: var(--leaf); text-decoration: underline; }
+  .g-row .g-desc { display: block; font-size: var(--fs-sm); color: var(--ink-2); }
+  .g-row code { display: block; font-size: var(--fs-xs); color: var(--ink-2); }
+  .g-row[hidden] { display: none; }
+  .g-roles { display: flex; flex-wrap: wrap; gap: 4px; }
+  .g-roles .badge { font-weight: 600; }
+  @media (max-width: 760px) { .g-row { grid-template-columns: minmax(0, 1fr) auto; } .g-roles { grid-column: 1 / -1; grid-row: 2; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<div class="proto-band" role="note"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><strong>Prototype</strong> · maquettes, données de démonstration</span></div>
+
+<header class="g-top on-dark">
+  <div class="g-top-in">
+    <div>
+      <a class="g-brand" href="../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg>Agri-Digit Bénin</a>
+      <h1>Galerie des maquettes</h1>
+      <p>Toutes les pages de la plateforme web, rangées par espace. L'état « à faire » se met à jour tout seul dès que le fichier existe.</p>
+      <div class="g-links">
+        <a class="btn btn-ghost" href="../landing/index.html"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg>Landing publique</a>
+        <a class="btn btn-ghost" href="../mobile/index.html"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Application mobile</a>
+        <a class="btn btn-ghost" href="composants.html"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>Composants</a>
+        <a class="btn btn-ghost" href="_modele.html"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg>Page modèle</a>
+      </div>
+    </div>
+    <div class="g-progress" aria-live="polite">
+      <span class="small" style="color:var(--on-dark-2)">Avancement</span>
+      <span><b class="num" id="g-done">0</b> <span class="num" style="color:var(--on-dark-2)">sur <span id="g-total">0</span> pages</span></span>
+      <span class="progress" role="progressbar" aria-label="Pages maquettées" aria-valuemin="0" aria-valuemax="100" id="g-bar"><span style="--v:0%"></span></span>
+    </div>
+  </div>
+</header>
+
+<main class="g-main" id="contenu" tabindex="-1">
+  <div class="g-tools">
+    <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="gq">Filtrer les pages</label><input class="input" id="gq" type="search" placeholder="Filtrer : page, rôle, fichier"></div>
+    <div class="chips" role="group" aria-label="Filtrer par état">
+      <button class="chip" type="button" aria-pressed="false" data-filter="done">Faites</button>
+      <button class="chip" type="button" aria-pressed="false" data-filter="todo">À faire</button>
+    </div>
+  </div>
+  <div id="g-list" class="stack" style="--gap:28px"></div>
+</main>
+
+<script>
+(function () {
+  var P = 'Producteur', A = 'Agent ATDA', I = 'Agronome INRAB', R = 'Resp. programme', M = 'Admin MAEP', C = 'Auditeur CoPil', F = 'Agent financier', G = 'Gest. coopérative', T = 'Transformateur', D = 'Distributeur', L = 'MTDI', PUB = 'Public';
+  var SPACES = [
+    ['acces', 'Accès et pages publiques', 'Connexion, inscription, vérification, pages système.', [
+      ['connexion', 'Connexion', 'Numéro de téléphone puis code à 6 chiffres', [PUB]],
+      ['inscription', 'Inscription', 'Étapes : identité NPI, contact, langue, consentement séparé, mineur → tuteur', [PUB]],
+      ['verification-carte', 'Vérification d\'une carte producteur', 'Page publique ouverte par le QR code', [PUB]],
+      ['legal', 'Mentions, confidentialité, conditions', 'Loi n° 2017-20, droits du producteur', [PUB]],
+      ['404', 'Page introuvable', '', [PUB]],
+      ['hors-ligne', 'Hors ligne', 'File d\'attente et données gardées sur l\'appareil', [PUB]],
+      ['erreur', 'Erreur', 'Erreur serveur avec reprise', [PUB]]]],
+    ['producteur', 'Espace producteur', 'Le producteur d\'abord : petit écran, hors réseau, lecture facile.', [
+      ['accueil', 'Accueil', 'Saison en cours, alertes, prochaines actions', [P]],
+      ['parcelles', 'Mes parcelles', 'Liste, état de validation, surfaces', [P]],
+      ['parcelle-detail', 'Détail d\'une parcelle', 'Tracé GPS, campagne, historique', [P]],
+      ['campagnes', 'Mes campagnes', 'Semis, intrants, récolte', [P]],
+      ['assistant', 'Poser une question', 'Assistant IA, écrit et voix, sources citées', [P]],
+      ['diagnostic', 'Photo de plante', 'Diagnostic phytosanitaire par photo (simulé)', [P]],
+      ['meteo-prix', 'Météo et prix', 'Prévisions locales, prix des marchés', [P, A]],
+      ['marche', 'Marché', 'Vendre, mises en relation, paiement simulé', [P]],
+      ['appuis', 'Mes appuis', 'Appuis reçus et à venir', [P]],
+      ['cooperatives', 'Mes coopératives', '', [P]],
+      ['carte', 'Ma carte', 'Carte producteur avec QR', [P]],
+      ['satellite', 'Suivi satellite', 'Indice de végétation (simulé)', [P]],
+      ['contestations', 'Mes contestations', '', [P]],
+      ['messages', 'Mes messages', 'Alertes, SMS, notifications', [P]],
+      ['programmes', 'Programmes', 'Programmes ouverts, candidature', [P]],
+      ['consentements', 'Mes consentements', 'Accorder, retirer, voir qui a consulté', [P]],
+      ['profil', 'Mon profil', '', [P]]]],
+    ['agent', 'Espace agent ATDA', 'Valider, alerter, tracer les remises.', [
+      ['accueil', 'Accueil agent', 'Tâches du jour, secteur', [A]],
+      ['producteurs', 'Producteurs', 'Registre du secteur, validation', [A, M]],
+      ['producteur-detail', 'Fiche producteur', 'Identité, parcelles, appuis, journal d\'accès', [A, M]],
+      ['alertes', 'Alertes', 'Rédaction, double validation pour urgent', [A, M]],
+      ['boite-envoi', 'Boîte d\'envoi simulée', 'SMS et messages partis', [A, M]],
+      ['candidatures', 'Candidatures', '', [A, R]],
+      ['selection', 'Sélections', 'Critères transparents, liste publiée', [A, R, M]],
+      ['contestations', 'Contestations à instruire', '', [A, M]],
+      ['cooperatives', 'Coopératives', '', [A, M]],
+      ['cooperative-detail', 'Détail d\'une coopérative', '', [A, M]],
+      ['appuis', 'Appuis', 'Remise et confirmation', [A, M]],
+      ['recoltes-signalees', 'Récoltes signalées', '', [A, M]],
+      ['satellite', 'Suivi satellite', '', [A, R, M, L]]]],
+    ['filiere', 'Espace filière', 'Coopératives, transformateurs, distributeurs.', [
+      ['cooperative-accueil', 'Ma coopérative', 'Membres, offre groupée', [G]],
+      ['marche-acheteur', 'Marché (acheteur)', 'Offres disponibles, achats', [G, T, D, M]],
+      ['offres', 'Offres', 'Offres groupées et achats', [G, T, D]],
+      ['collecte', 'Collecte', 'Pesées, magasin, stocks', [G]]]],
+    ['pilotage', 'Pilotage et institutions', 'MAEP, MTDI, INRAB, programmes, finance.', [
+      ['tableau-de-bord', 'Tableau de bord', '', [A, R, M]],
+      ['suivi-evaluation', 'Indicateurs SEA', 'Producteurs, hectares, adoption, femmes et jeunes', [A, R, M, L]],
+      ['programmes', 'Programmes', 'Création et suivi', [R]],
+      ['previsions', 'Prévisions', 'Rendements, risques climatiques (SIMULÉ)', [R, M]],
+      ['comptes', 'Comptes', 'Utilisateurs et rôles', [M]],
+      ['exports', 'Exports', '', [M]],
+      ['journal', 'Journal d\'audit', 'Non modifiable', [C, M]],
+      ['langues', 'Traductions', 'Corpus et validation des langues nationales', [L, M]],
+      ['fiches', 'Fiches techniques', 'Éditeur des itinéraires techniques', [I]],
+      ['diagnostics-agronome', 'Diagnostics à revoir', 'File de revue', [I]],
+      ['credit', 'Crédit', 'Producteurs consentants, score indicatif', [F]],
+      ['interoperabilite', 'Interopérabilité', 'X-Road, SONAMA, FNDA', [M]]]]
+  ];
+  var list = document.getElementById('g-list'), rows = [];
+  var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  SPACES.forEach(function (sp) {
+    var sec = document.createElement('section');
+    sec.className = 'g-sec card'; sec.id = 'esp-' + sp[0];
+    sec.setAttribute('aria-labelledby', 'h-' + sp[0]);
+    var html = '<div class="g-sec-head"><h2 class="section-title" id="h-' + sp[0] + '">' + sp[1] + '</h2><p>' + sp[2] + ' <span class="num" data-count></span></p></div>';
+    sp[3].forEach(function (pg) {
+      var path = sp[0] + '/' + pg[0] + '.html';
+      html += '<div class="g-row" data-path="' + path + '" data-text="' + esc((pg[1] + ' ' + pg[2] + ' ' + pg[3].join(' ') + ' ' + path).toLowerCase()) + '">' +
+        '<div><a class="g-title" href="' + path + '">' + esc(pg[1]) + '</a>' + (pg[2] ? '<span class="g-desc">' + esc(pg[2]) + '</span>' : '') + '<code>' + path + '</code></div>' +
+        '<div class="g-roles">' + pg[3].map(function (r) { return '<span class="badge badge--neutral">' + r + '</span>'; }).join('') + '</div>' +
+        '<span class="g-status"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Vérification…</span></span></div>';
+    });
+    sec.innerHTML = html;
+    list.appendChild(sec);
+  });
+  rows = Array.prototype.slice.call(document.querySelectorAll('.g-row'));
+  document.getElementById('g-total').textContent = rows.length;
+  var done = 0;
+  var tally = function () {
+    document.getElementById('g-done').textContent = done;
+    var pct = Math.round(done / rows.length * 100);
+    var bar = document.getElementById('g-bar'); bar.setAttribute('aria-valuenow', pct); bar.firstElementChild.style.setProperty('--v', pct + '%');
+    document.querySelectorAll('.g-sec').forEach(function (s) {
+      var r = s.querySelectorAll('.g-row'), d = s.querySelectorAll('.g-row[data-done="1"]');
+      s.querySelector('[data-count]').textContent = '· ' + d.length + '/' + r.length;
+    });
+  };
+  rows.forEach(function (row) {
+    fetch(row.dataset.path, { method: 'HEAD', cache: 'no-store' }).then(function (r) { return r.ok; }).catch(function () { return false; }).then(function (ok) {
+      row.dataset.done = ok ? '1' : '0';
+      row.querySelector('.g-status').innerHTML = ok
+        ? '<span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Faite</span>'
+        : '<span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>À faire</span>';
+      if (ok) done++;
+      tally(); applyFilter();
+    });
+  });
+  var q = document.getElementById('gq'), mode = '';
+  function applyFilter() {
+    var t = q.value.trim().toLowerCase();
+    rows.forEach(function (r) {
+      var hit = (!t || r.dataset.text.indexOf(t) > -1) && (!mode || (mode === 'done') === (r.dataset.done === '1'));
+      r.hidden = !hit;
+    });
+    document.querySelectorAll('.g-sec').forEach(function (s) { s.hidden = !s.querySelector('.g-row:not([hidden])'); });
+  }
+  q.addEventListener('input', applyFilter);
+  document.querySelectorAll('[data-filter]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      setTimeout(function () { // kit.js bascule aria-pressed ; un seul filtre actif
+        document.querySelectorAll('[data-filter]').forEach(function (o) { if (o !== b) o.setAttribute('aria-pressed', 'false'); });
+        mode = b.getAttribute('aria-pressed') === 'true' ? b.dataset.filter : '';
+        applyFilter();
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

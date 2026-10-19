@@ -1,0 +1,55 @@
+<!--{"title":"Boîte d'envoi simulée","desc":"Messages SMS, vocaux et application simulés envoyés aux producteurs, avec statut et numéros masqués (maquette).","search":"Alerte, numéro masqué…"}-->
+<!--STYLE-->
+  .msg-cell { max-width: 46ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 640px) { .msg-cell { max-width: none; white-space: normal; text-align: left; } }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><a href="alertes.html">Alertes</a></li><li><span aria-current="page">Boîte d'envoi simulée</span></li></ol></nav>
+          <h1 class="page-title">Boîte d'envoi simulée</h1>
+          <p class="page-desc">Chaque message qu'aurait reçu un producteur, avec son statut de livraison.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">Simulation</span><span>Aucun SMS ni appel réel n'est envoyé. Les numéros sont masqués.</span></div></div>
+
+        <div class="grid" style="--min:180px">
+          <div class="stat"><span class="stat-label">Livrés, 7 derniers jours</span><span class="stat-value num">3 071</span><span class="stat-foot"><span class="badge badge--sim">Simulé</span></span></div>
+          <div class="stat"><span class="stat-label">Échoués</span><span class="stat-value num">79</span><span class="stat-foot">Numéro éteint ou hors réseau</span></div>
+          <div class="stat"><span class="stat-label">Segments facturés</span><span class="stat-value num">6 142</span><span class="stat-foot">≈ 2 segments par SMS</span></div>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-out">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="t-out" style="margin-right:auto">Messages simulés</h2>
+            <div class="chips" role="group" aria-label="Canal"><button class="chip" type="button" aria-pressed="true">SMS <span class="count">3 150</span></button><button class="chip" type="button" aria-pressed="false">Vocal <span class="count">1 104</span></button><button class="chip" type="button" aria-pressed="false">Application <span class="count">612</span></button></div>
+            <div class="field" style="min-width:180px"><label class="sr-only" for="o-st">Statut</label><select class="select" id="o-st"><option>Tous les statuts</option><option>Livré</option><option>Échoué</option><option>Lu</option></select></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Messages SMS simulés, du plus récent au plus ancien</caption>
+              <thead><tr><th scope="col">Date</th><th scope="col">Destinataire</th><th scope="col">Message</th><th scope="col" class="num">Segments</th><th scope="col">Statut</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">14/10/2026 10:02</span><span class="cell-sub">Semis du niébé : fenêtre favorable</span></td><td data-label="Destinataire" class="num">+229 01 97 •• •• 18</td><td data-label="Message" class="msg-cell" title="Pluies installées : semez le niébé cette semaine…">Pluies installées : semez le niébé cette semaine. Écartement 50 × 25 cm.</td><td data-label="Segments" class="num">2 (GSM-7)</td><td data-label="Statut"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Livré</span></td><td class="col-actions"></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">14/10/2026 10:02</span><span class="cell-sub">Semis du niébé : fenêtre favorable</span></td><td data-label="Destinataire" class="num">+229 01 66 •• •• 04</td><td data-label="Message" class="msg-cell">Pluies installées : semez le niébé cette semaine. Écartement 50 × 25 cm.</td><td data-label="Segments" class="num">2 (GSM-7)</td><td data-label="Statut"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Échoué</span></td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-toast="Nouvel essai programmé (simulation).">Réessayer</button></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">14/10/2026 10:01</span><span class="cell-sub">Semis du niébé : fenêtre favorable</span></td><td data-label="Destinataire" class="num">+229 01 95 •• •• 77</td><td data-label="Message" class="msg-cell">Pluies installées : semez le niébé cette semaine. Écartement 50 × 25 cm.</td><td data-label="Segments" class="num">2 (GSM-7)</td><td data-label="Statut"><span class="badge badge--neutral"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>Lu</span></td><td class="col-actions"></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">12/10/2026 18:40</span><span class="cell-sub">Validation de fiche</span></td><td data-label="Destinataire" class="num">+229 01 61 •• •• 90</td><td data-label="Message" class="msg-cell">Agri-Digit : votre fiche est validée. Votre carte de producteur est disponible.</td><td data-label="Segments" class="num">1 (GSM-7)</td><td data-label="Statut"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Livré</span></td><td class="col-actions"></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">12/10/2026 18:39</span><span class="cell-sub">Rejet de fiche</span></td><td data-label="Destinataire" class="num">+229 01 52 •• •• 33</td><td data-label="Message" class="msg-cell">Agri-Digit : inscription non validée. Motif : doublon avec une fiche existante.</td><td data-label="Segments" class="num">1 (GSM-7)</td><td data-label="Statut"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Livré</span></td><td class="col-actions"></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">11/10/2026 07:15</span><span class="cell-sub">Rappel de confirmation d'appui</span></td><td data-label="Destinataire" class="num">+229 01 97 •• •• 52</td><td data-label="Message" class="msg-cell">Avez-vous reçu 25 kg de semences de maïs ? Répondez OUI au 136.</td><td data-label="Segments" class="num">2 (UCS-2)</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En file</span></td><td class="col-actions"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–6 sur 3 150 messages</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><span aria-hidden="true">…</span><button class="page-btn" type="button">525</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Canal vide</span><div class="card empty" style="padding:20px"><h3>Aucun message sur ce canal</h3><p>Envoyez une alerte pour voir les messages ici.</p><a class="btn btn-secondary" href="alertes.html">Rédiger une alerte</a></div></div>
+            <div><span class="states-cap">Chargement</span><div class="card" aria-busy="true" aria-label="Chargement des messages"><span class="skel skel-line"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:90%"></span><span class="skel skel-line" style="width:60%"></span></div></div>
+            <div><span class="states-cap">Erreur</span><div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>Impossible de charger la boîte d'envoi</h3><p>Le service de messagerie simulé ne répond pas.</p><button type="button" class="btn btn-primary">Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>

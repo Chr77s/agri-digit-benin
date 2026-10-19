@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes parcelles · Agri-Digit Bénin</title>
+<meta name="description" content="Dessiner une parcelle sur la carte, la nommer, préciser le terrain et le statut foncier, et retrouver les parcelles enregistrées.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.draw-bar { position: absolute; top: 12px; left: 12px; right: 64px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.draw-bar .btn { background: var(--surface); box-shadow: var(--sh-card); }
+.draw-bar .btn[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); }
+.map-tip { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 2; padding: 8px 12px; border-radius: var(--r-md); background: var(--canopy); color: var(--on-dark); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; box-shadow: var(--sh-pop); }
+.area-out { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 12px 14px; border-radius: var(--r-md); background: var(--layer); }
+.area-out b { font-size: 1.5rem; }
+@media (max-width: 640px) { .map-tip { white-space: normal; width: calc(100% - 24px); text-align: center; top: 62px; bottom: auto; } .draw-bar .btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/parcelles">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une parcelle…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes parcelles</span></li></ol></nav>
+          <h1 class="page-title">Mes parcelles</h1>
+          <p class="page-desc">Dessinez votre champ sur la carte, donnez-lui un nom et enregistrez. La surface officielle est recalculée par le serveur.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes parcelles. Dessinez votre champ sur la carte, puis donnez-lui un nom et enregistrez." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter</button>
+          <a class="btn btn-secondary" href="#t-liste"><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir mes 4 parcelles</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <section aria-labelledby="t-carte">
+            <h2 class="sr-only" id="t-carte">Carte de dessin de la parcelle</h2>
+            <div class="map" role="region" aria-label="Carte de dessin de la parcelle. Fond simulé autour de Sompérékou.">
+              <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="400" height="250" fill="#DDE9CF"/><path d="M0 40 L140 20 L170 120 L0 150Z" fill="#CFE1BC"/><path d="M260 0 L400 0 L400 110 L300 130Z" fill="#D3E4C2"/><path d="M0 170 L120 160 L150 250 L0 250Z" fill="#C7DCB2"/><path d="M-10 200 C100 170 220 200 410 140" stroke="#F8FBF4" stroke-width="10" fill="none"/><path d="M-10 200 C100 170 220 200 410 140" stroke="#C9B79A" stroke-width="1" stroke-dasharray="6 6" fill="none"/><path d="M330 250 C320 200 350 170 340 120 C330 80 360 40 350 0" stroke="#9CC3D8" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <path d="M30 60 L110 48 L122 110 L42 124Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M300 150 L360 140 L372 196 L310 206Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M226 20 L272 14 L284 52 L236 60Z" fill="rgba(31,90,50,.22)" stroke="#1F5A32" stroke-width="2"/>
+                <path d="M320 60 L372 56 L378 104 L330 112Z" fill="rgba(180,83,45,.18)" stroke="#8A5A00" stroke-width="2" stroke-dasharray="5 4"/>
+                <path d="M160 92 L232 80 L252 150 L186 168" fill="rgba(111,168,58,.30)" stroke="#E2B132" stroke-width="2.5" stroke-dasharray="7 5" stroke-linejoin="round"/>
+                <g fill="#fff" stroke="#1F5A32" stroke-width="2"><circle cx="160" cy="92" r="5"/><circle cx="232" cy="80" r="5"/><circle cx="252" cy="150" r="5"/><circle cx="186" cy="168" r="6" fill="#F3C54A"/></g>
+                <g font-family="Atkinson Hyperlegible Next, sans-serif" font-size="9" font-weight="700" fill="#13261A"><text x="48" y="92">Sompérékou</text><text x="306" y="182">Route</text><text x="232" y="42">Jardin</text><text x="328" y="88">Kokey</text></g>
+              </svg>
+              <div class="draw-bar" role="toolbar" aria-label="Outils de dessin">
+                <button type="button" class="btn btn-secondary btn-sm" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Dessiner le contour</span></button>
+                <button type="button" class="btn btn-secondary btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Effacer le dernier point</span></button>
+                <button type="button" class="btn btn-secondary btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Terminer</span></button>
+              </div>
+              <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-in"/></svg></button><button class="btn btn-icon" type="button" aria-label="Dézoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-out"/></svg></button><button class="btn btn-icon" type="button" aria-label="Ma position"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg></button></div>
+              <p class="map-tip" role="status">Touchez le premier coin pour fermer la parcelle.</p>
+              <div class="map-legend"><ul class="legend"><li><span class="sw"></span>Enregistrée</li><li><span class="sw sw--3"></span>En cours de tracé</li><li><span class="sw sw--4"></span>Chevauchement</li></ul></div>
+            </div>
+            <p class="hint" style="margin-top:10px">Fond de carte simulé. Dans l'application, fond OpenStreetMap et position GPS du téléphone.</p>
+          </section>
+
+          <form class="card stack" style="--gap:14px" novalidate aria-labelledby="t-nouvelle" onsubmit="return false">
+            <h2 class="card-title" id="t-nouvelle">Nouvelle parcelle</h2>
+            <div class="area-out" aria-live="polite"><span class="muted">Surface estimée :</span><b class="num">1,24 ha</b><span class="hint" style="flex-basis:100%">Aperçu. La surface officielle est recalculée par le serveur.</span></div>
+            <div class="field"><label class="label" for="p-nom">Nom de la parcelle</label><input class="input" id="p-nom" value="Champ du marigot" autocomplete="off"></div>
+            <div class="field"><label class="label" for="p-terrain">Type de terrain</label>
+              <select class="select" id="p-terrain"><option value="">Choisir…</option><option selected>Pluvial (plateau)</option><option>Bas-fond</option><option>Irrigué</option></select></div>
+            <div class="field"><label class="label" for="p-foncier">Statut foncier</label>
+              <select class="select" id="p-foncier" aria-invalid="true" aria-describedby="p-foncier-e"><option value="" selected>Choisir…</option><option>Propriété</option><option>Location</option><option>Prêt</option><option>Droit coutumier</option><option>Autre</option></select>
+              <span class="error-msg" id="p-foncier-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez le statut foncier.</span></div>
+            <button type="submit" class="btn btn-primary btn-block" data-toast="Pas de réseau : la parcelle est gardée sur ce téléphone et sera envoyée automatiquement." data-toast-type="offline"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Enregistrer la parcelle</button>
+            <p class="hint">Hors réseau, la parcelle reste sur le téléphone et part au retour de la connexion.</p>
+          </form>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-liste">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="t-liste" style="margin-right:auto">Parcelles enregistrées</h2>
+            <div class="chips" role="group" aria-label="Filtrer">
+              <button type="button" class="chip" aria-pressed="true">Toutes <span class="count">4</span></button>
+              <button type="button" class="chip" aria-pressed="false">À vérifier <span class="count">1</span></button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Parcelles enregistrées, triables par nom et surface</caption>
+              <thead><tr>
+                <th scope="col" aria-sort="none"><button type="button" class="th-sort">Parcelle<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th scope="col">Culture en cours</th>
+                <th scope="col" class="num" aria-sort="none"><button type="button" class="th-sort">Surface (ha)<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th scope="col">Terrain</th>
+                <th scope="col">Statut foncier</th>
+                <th scope="col">État</th>
+                <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de Sompérékou</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Maïs · floraison</td><td class="num" data-label="Surface (ha)">1,82</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Droit coutumier</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Vérifiée</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Bas-fond Kokey</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Riz · croissance</td><td class="num" data-label="Surface (ha)">0,94</td><td data-label="Terrain">Bas-fond</td><td data-label="Statut foncier">Location</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Chevauchement à vérifier</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Champ de la route</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Coton · croissance</td><td class="num" data-label="Surface (ha)">1,20</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Propriété</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Vérifiée</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Parcelle"><span class="cell-main">Jardin de case</span><span class="cell-sub">Banikoara · tracé GPS</span></td><td data-label="Culture en cours">Soja · récolte</td><td class="num" data-label="Surface (ha)">0,68</td><td data-label="Terrain">Pluvial (plateau)</td><td data-label="Statut foncier">Prêt</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Vérifiée</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="parcelle-detail.html">Ouvrir</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">4 parcelles · 4,64 ha</span><span class="badge badge--demo">Démonstration</span></div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Enregistrée, chevauchement détecté</span>
+              <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span>Parcelle enregistrée : <b class="num">1,26 ha</b> (surface calculée par le serveur).</span><span class="al-title">Cette parcelle chevauche une autre parcelle de plus de 20 %. Un agent vérifiera.</span><span>Suite : ouvrez une campagne dans « Mes campagnes ».</span></div></div>
+            </div>
+            <div><span class="state-cap">Enregistrée sans problème</span>
+              <div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span>Parcelle enregistrée : <b class="num">1,26 ha</b>.</span><span>Suite : <a href="campagnes.html">ouvrez une campagne</a>.</span></div></div>
+            </div>
+            <div><span class="state-cap">Contour manquant</span>
+              <div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Dessinez le contour de la parcelle</span><span>Utilisez l'outil « Dessiner le contour » en haut de la carte.</span></div></div>
+            </div>
+            <div><span class="state-cap">Aucune parcelle</span>
+              <div class="card empty"><h3>Aucune parcelle enregistrée</h3><p>Dessinez votre premier champ sur la carte ci-dessus.</p></div>
+            </div>
+            <div><span class="state-cap">Chargement de la liste</span>
+              <div class="card" aria-busy="true" aria-label="Chargement des parcelles"><span class="skel skel-title"></span><span class="skel skel-line"></span><span class="skel skel-line" style="width:70%"></span><span class="skel skel-line" style="width:50%"></span></div>
+            </div>
+            <div><span class="state-cap">Carte indisponible hors ligne</span>
+              <div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Fond de carte non chargé</h3><p>Hors réseau, vous pouvez marcher le long du champ : les points GPS sont enregistrés et le tracé s'affichera plus tard.</p></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+---
+{"role":"distributeur","title":"Offres et achats","desc":"Espace distributeur : stocks par magasin, ruptures anticipées et prix des marchés (maquette).","search":"Rechercher un produit, un magasin…","notif":1,"home":"filiere/marche-acheteur"}
+---
+<!--@head-->
+  .cover { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .cover .progress { flex: 1; height: 8px; max-width: 120px; }
+  .cover--low .progress > span { background: var(--d4); }
+  .cover--mid .progress > span { background: var(--d3); }
+  .rupt { list-style: none; margin: 0; padding: 0; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="marche-acheteur.html">Marché</a></li><li><span aria-current="page">Offres et achats</span></li></ol></nav>
+          <h1 class="page-title">Stocks, ruptures et prix</h1>
+          <p class="page-desc">Agri Distrib · magasins de Bohicon et Abomey. Voyez ce qui manquera bientôt et achetez au bon moment auprès des coopératives.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-open-dialog="dlg-stock"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Mettre à jour un stock</button>
+          <a class="btn btn-primary" href="marche-acheteur.html"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>Chercher une offre</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Données de démonstration</span><span>Stocks saisis à la main ; ventes journalières et prix simulés.</span></div></div>
+
+        <div class="split">
+          <section class="card" aria-labelledby="h-rupt">
+            <div class="card-head"><div><h2 class="card-title" id="h-rupt">Ruptures anticipées</h2><p class="card-sub">Au rythme des ventes des 14 derniers jours</p></div><span class="badge badge--sim">Simulé</span></div>
+            <ul class="list rupt">
+              <li class="list-item"><span class="li-icon" style="background:var(--bad-bg);color:var(--bad-ink)"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg></span><span class="li-main"><span class="li-title">Maïs grain, Bohicon : 6 jours</span><span class="li-meta">18 t en stock · 3 t vendues par jour · rupture vers le 25/10</span></span><span class="li-end"><a class="btn btn-primary btn-sm" href="marche-acheteur.html">Acheter</a></span></li>
+              <li class="list-item"><span class="li-icon" style="background:var(--sun-bg);color:var(--sun-ink)"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span><span class="li-main"><span class="li-title">Gari, Abomey : 12 jours</span><span class="li-meta">4,8 t · 0,4 t par jour</span></span><span class="li-end"><a class="btn btn-secondary btn-sm" href="marche-acheteur.html">Acheter</a></span></li>
+              <li class="list-item"><span class="li-icon" style="background:var(--sun-bg);color:var(--sun-ink)"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span><span class="li-main"><span class="li-title">Soja, Bohicon : 15 jours</span><span class="li-meta">9 t · 0,6 t par jour</span></span><span class="li-end"><a class="btn btn-secondary btn-sm" href="marche-acheteur.html">Acheter</a></span></li>
+            </ul>
+          </section>
+
+          <figure class="card chart" aria-labelledby="h-px">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title" id="h-px">Prix du maïs grain</h2><p class="card-sub">FCFA le kg, 8 dernières semaines</p></div><span class="badge badge--demo">Démonstration</span></div>
+            <svg viewBox="0 0 360 200" role="img" aria-labelledby="px-t"><title id="px-t">Prix du maïs à Parakou : de 230 à 205 FCFA le kg en 8 semaines ; à Bohicon : de 250 à 228 FCFA le kg.</title>
+              <g class="grid"><line x1="36" x2="300" y1="20" y2="20"/><line x1="36" x2="300" y1="70" y2="70"/><line x1="36" x2="300" y1="120" y2="120"/><line x1="36" x2="300" y1="170" y2="170"/></g>
+              <g class="tick" text-anchor="end"><text x="30" y="24">260</text><text x="30" y="74">240</text><text x="30" y="124">220</text><text x="30" y="174">200</text></g>
+              <path class="line" d="M44 95 L80 100 L116 92 L152 108 L188 120 L224 130 L260 145 L296 157"/>
+              <path class="line" style="stroke:var(--d3)" d="M44 45 L80 50 L116 48 L152 62 L188 70 L224 80 L260 92 L296 100"/>
+              <circle cx="296" cy="157" r="4.5" fill="var(--d1)" stroke="#fff" stroke-width="2"><title>Parakou, cette semaine : 205</title></circle>
+              <circle cx="296" cy="100" r="4.5" fill="var(--d3)" stroke="#fff" stroke-width="2"><title>Bohicon, cette semaine : 228</title></circle>
+              <text class="val" x="304" y="161">205</text><text class="val" x="304" y="104">228</text>
+              <g class="tick" text-anchor="middle"><text x="44" y="192">S-7</text><text x="152" y="192">S-4</text><text x="296" y="192">cette sem.</text></g>
+            </svg>
+            <ul class="legend"><li><span class="sw"></span>Parakou</li><li><span class="sw sw--3"></span>Bohicon</li></ul>
+            <figcaption>Source : relevés de marché simulés, mis à jour le 18/10/2026. La baisse suit l'arrivée de la récolte du Nord.</figcaption>
+          </figure>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-stock">
+          <div class="table-toolbar">
+            <h2 class="card-title" id="h-stock" style="margin-right:auto">Stocks par magasin</h2>
+            <div class="chips" role="group" aria-label="Magasin"><button type="button" class="chip" aria-pressed="true">Tous</button><button type="button" class="chip" aria-pressed="false">Bohicon</button><button type="button" class="chip" aria-pressed="false">Abomey</button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Stocks : produit, magasin, quantité, couverture, prix d'achat et de vente</caption>
+              <thead><tr><th scope="col">Produit</th><th scope="col">Magasin</th><th scope="col" class="num">Stock</th><th scope="col">Couverture</th><th scope="col" class="num">Achat moyen</th><th scope="col" class="num">Vente</th><th scope="col">Mis à jour</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Produit"><span class="cell-main">Maïs grain</span></td><td data-label="Magasin">Bohicon</td><td class="num" data-label="Stock">18,0 t</td><td data-label="Couverture"><span class="cover cover--low"><span class="progress"><span style="--v:20%"></span></span><b class="num">6 j</b></span></td><td class="num" data-label="Achat moyen">212 FCFA/kg</td><td class="num" data-label="Vente">240 FCFA/kg</td><td class="num" data-label="Mis à jour">18/10 07:30</td></tr>
+                <tr><td class="td-primary" data-label="Produit"><span class="cell-main">Gari</span></td><td data-label="Magasin">Abomey</td><td class="num" data-label="Stock">4,8 t</td><td data-label="Couverture"><span class="cover cover--mid"><span class="progress"><span style="--v:40%"></span></span><b class="num">12 j</b></span></td><td class="num" data-label="Achat moyen">390 FCFA/kg</td><td class="num" data-label="Vente">450 FCFA/kg</td><td class="num" data-label="Mis à jour">17/10 18:10</td></tr>
+                <tr><td class="td-primary" data-label="Produit"><span class="cell-main">Soja</span></td><td data-label="Magasin">Bohicon</td><td class="num" data-label="Stock">9,0 t</td><td data-label="Couverture"><span class="cover cover--mid"><span class="progress"><span style="--v:50%"></span></span><b class="num">15 j</b></span></td><td class="num" data-label="Achat moyen">305 FCFA/kg</td><td class="num" data-label="Vente">340 FCFA/kg</td><td class="num" data-label="Mis à jour">18/10 07:30</td></tr>
+                <tr><td class="td-primary" data-label="Produit"><span class="cell-main">Riz paddy</span></td><td data-label="Magasin">Bohicon</td><td class="num" data-label="Stock">22,5 t</td><td data-label="Couverture"><span class="cover"><span class="progress"><span style="--v:100%"></span></span><b class="num">45 j</b></span></td><td class="num" data-label="Achat moyen">260 FCFA/kg</td><td class="num" data-label="Vente">295 FCFA/kg</td><td class="num" data-label="Mis à jour">15/10 12:00</td></tr>
+                <tr><td class="td-primary" data-label="Produit"><span class="cell-main">Niébé</span></td><td data-label="Magasin">Abomey</td><td class="num" data-label="Stock">0 t</td><td data-label="Couverture"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>En rupture</span></td><td class="num" data-label="Achat moyen">540 FCFA/kg</td><td class="num" data-label="Vente"><span class="na">—</span></td><td class="num" data-label="Mis à jour">16/10 09:20</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun stock déclaré","Saisissez vos stocks par magasin pour voir les ruptures anticipées.","Mettre à jour un stock"],"error":["Prix indisponibles","Les relevés de marché n'ont pas pu être chargés. Les derniers prix connus datent d'hier, 18 h.","ERR_PRICES · 504"]}-->
+<!--@after-->
+<dialog class="modal" id="dlg-stock" aria-labelledby="dlg-s-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-s-t">Mettre à jour un stock</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-s" method="dialog">
+    <div class="form-grid">
+      <div class="field"><label class="label" for="s-p">Produit</label><select class="select" id="s-p"><option>Maïs grain</option><option>Gari</option><option>Soja</option><option>Riz paddy</option><option>Niébé</option></select></div>
+      <div class="field"><label class="label" for="s-m">Magasin</label><select class="select" id="s-m"><option>Bohicon</option><option>Abomey</option></select></div>
+      <div class="field"><label class="label" for="s-q">Stock compté</label><div class="input-group"><input class="input input-num" id="s-q" inputmode="decimal" value="18,0"><span class="addon addon--end">t</span></div></div>
+      <div class="field"><label class="label" for="s-v">Prix de vente</label><div class="input-group"><input class="input input-num" id="s-v" inputmode="numeric" value="240"><span class="addon addon--end">FCFA/kg</span></div></div>
+    </div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-s" class="btn btn-primary" data-toast="Stock enregistré. Couverture recalculée.">Enregistrer</button></div>
+</dialog>

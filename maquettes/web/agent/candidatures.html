@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidatures · Agri-Digit Bénin</title>
+<meta name="description" content="Dossiers de candidature aux programmes d'appui, instruits et décidés avec motif (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.crit { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-sm); }
+  .crit li { display: flex; gap: 8px; align-items: flex-start; }
+  .crit .ok { color: var(--leaf); } .crit .ko { color: var(--laterite); }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/candidatures">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Producteur, programme…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Candidatures</span></li></ol></nav>
+          <h1 class="page-title">Candidatures</h1>
+          <p class="page-desc">Dossiers déposés par les producteurs du secteur. Vérifiez les conditions du programme, puis décidez avec un motif.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body">La vérification des conditions est une aide. La décision est la vôtre, toujours motivée&nbsp;; le producteur est notifié à chaque changement de statut.</div></div>
+
+        <section class="table-card" aria-labelledby="t-cand">
+          <div class="table-toolbar">
+            <h2 class="sr-only" id="t-cand">Dossiers de candidature</h2>
+            <div class="field" style="flex:1 1 260px;max-width:380px"><label class="sr-only" for="c-prog">Programme</label><select class="select" id="c-prog"><option>Programme intrants maïs 2026 · ouvert jusqu'au 31/10</option><option>Kits niébé pour les femmes · ouvert jusqu'au 15/11</option><option>Mécanisation Alibori · clos depuis le 30/09</option></select></div>
+            <div class="chips" role="group" aria-label="Filtrer par statut"><button class="chip" type="button" aria-pressed="true">Déposées <span class="count">18</span></button><button class="chip" type="button" aria-pressed="false">En instruction <span class="count">6</span></button><button class="chip" type="button" aria-pressed="false">Acceptées <span class="count">41</span></button><button class="chip" type="button" aria-pressed="false">Refusées <span class="count">7</span></button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Candidatures au programme intrants maïs 2026</caption>
+              <thead><tr><th scope="col">Producteur</th><th scope="col">Commune</th><th scope="col">Conditions</th><th scope="col">Statut</th><th scope="col">Déposée le</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Adjara Bio</span><span class="cell-sub num">BNK-000118 · maïs 2,4 ha</span></td><td data-label="Commune">Banikoara</td><td data-label="Conditions"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>3 sur 3</span></td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Déposée</span></td><td data-label="Déposée le" class="num">02/10/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-dossier">Instruire</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Chabi Gado</span><span class="cell-sub num">BNK-000207 · maïs 5,1 ha</span></td><td data-label="Commune">Banikoara</td><td data-label="Conditions"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>2 sur 3 · surface</span></td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Déposée</span></td><td data-label="Déposée le" class="num">03/10/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-dossier">Instruire</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Safiatou Imorou</span><span class="cell-sub num">BNK-000428 · maïs 0,6 ha</span></td><td data-label="Commune">Banikoara</td><td data-label="Conditions"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Fiche non validée</span></td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Déposée</span></td><td data-label="Déposée le" class="num">17/10/2026</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Valider la fiche d'abord</a></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Gounou Yarou</span><span class="cell-sub num">BNK-000311 · maïs 1,5 ha</span></td><td data-label="Commune">Banikoara</td><td data-label="Conditions"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>3 sur 3</span></td><td data-label="Statut"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>En instruction</span></td><td data-label="Déposée le" class="num">29/09/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-dossier">Instruire</button></td></tr>
+                <tr><td class="td-primary" data-label="Producteur"><span class="cell-main">Orou Sika</span><span class="cell-sub num">BNK-000097 · maïs 1,2 ha</span></td><td data-label="Commune">Banikoara</td><td data-label="Conditions"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>3 sur 3</span></td><td data-label="Statut"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Acceptée</span></td><td data-label="Déposée le" class="num">22/09/2026</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm">Voir</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–5 sur 72 dossiers</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button">3</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucun dossier</span><div class="card empty" style="padding:20px"><h3>Aucune candidature à instruire</h3><p>Les dossiers déposés par les producteurs du secteur apparaîtront ici.</p></div></div>
+            <div><span class="states-cap">Décision enregistrée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Décision enregistrée</span><span>Le producteur a été notifié.</span></div></div></div>
+            <div><span class="states-cap">Erreur</span><div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x-circle"/></svg></span><h3>Les dossiers n'ont pas pu être chargés</h3><p>Vérifiez la connexion puis réessayez.</p><button type="button" class="btn btn-primary">Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal modal--sheet" id="dlg-dossier" aria-labelledby="dlg-d-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-d-t">Dossier de Chabi Gado</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-dec" novalidate>
+    <dl class="dl"><dt>Programme</dt><dd>Programme intrants maïs 2026</dd><dt>Producteur</dt><dd class="num">BNK-000207 · Banikoara, Goumori</dd><dt>Déposée le</dt><dd class="num">03/10/2026 par USSD</dd></dl>
+    <div><span class="label">Conditions du programme</span>
+      <ul class="crit" style="margin-top:8px">
+        <li><svg class="ic ok" aria-hidden="true"><use href="#i-check-circle"/></svg>Fiche producteur validée</li>
+        <li><svg class="ic ok" aria-hidden="true"><use href="#i-check-circle"/></svg>Filière maïs déclarée pour la saison</li>
+        <li><svg class="ic ko" aria-hidden="true"><use href="#i-alert"/></svg>Surface inférieure à 5 ha&nbsp;: 5,1 ha déclarés</li>
+      </ul>
+    </div>
+    <div class="field"><label class="label" for="d-st">Décision</label><select class="select" id="d-st"><option>En instruction</option><option>Acceptée</option><option selected>Refusée</option></select></div>
+    <div class="field"><label class="label" for="d-mo">Motif (obligatoire)</label><textarea class="textarea" id="d-mo" aria-invalid="true" aria-describedby="d-mo-e">Non</textarea><span class="error-msg" id="d-mo-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le motif est obligatoire&nbsp;: expliquez la décision en une phrase.</span></div>
+    <p class="hint">Le producteur reçoit la décision et son motif. Il peut la contester.</p>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-dec" class="btn btn-primary" data-toast="Décision enregistrée. Le producteur a été notifié.">Enregistrer la décision</button></div>
+</dialog>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostics à revoir · Agri-Digit Bénin</title>
+<meta name="description" content="File de revue des diagnostics photo peu sûrs : pathologie proposée, confiance, relecture de l'agronome (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.dq { display: grid; gap: 20px; grid-template-columns: 220px minmax(0, 1fr) minmax(280px, 380px); align-items: start; padding: 20px; }
+  @media (max-width: 1180px) { .dq { grid-template-columns: 200px minmax(0, 1fr); } .dq > form { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .dq { grid-template-columns: 1fr; padding: 16px; } }
+  .photo { aspect-ratio: 1; border-radius: var(--r-md); border: 1px solid var(--line); background: linear-gradient(160deg, #CFE1BC, #8DB86A 55%, #4F7F35); position: relative; overflow: hidden; display: grid; place-items: end start; }
+  .photo svg.leaf { position: absolute; inset: 10% 8%; width: 84%; height: 80%; }
+  .photo span { position: relative; margin: 8px; padding: 2px 8px; border-radius: var(--r-pill); background: rgba(255,255,255,.92); font-size: var(--fs-xs); font-weight: 700; }
+  .conf { display: flex; align-items: center; gap: 10px; }
+  .conf .progress { flex: 1; height: 10px; max-width: 220px; }
+  .conf .progress > span { background: var(--d4); }
+  .dq .dq-h { font: 700 var(--fs-lg)/1.3 var(--font-ui); }
+  .dq form { border-left: 1px solid var(--line); padding-left: 20px; }
+  @media (max-width: 1180px) { .dq form { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 16px; } }
+</style>
+</head>
+<body data-role="agronome_inrab" data-page="pilotage/diagnostics-agronome">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/fiches.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un diagnostic…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 3 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="fiches.html">INRAB</a></li><li><span aria-current="page">Diagnostics à revoir</span></li></ol></nav>
+          <h1 class="page-title">Diagnostics à revoir</h1>
+          <p class="page-desc">Photos dont la confiance est faible&nbsp;: le producteur attend votre avis. Votre relecture fait foi et lui est envoyée par SMS.</p>
+        </div>
+        <div class="page-actions"><span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>3 en attente depuis plus de 48&nbsp;h</span></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Simulation</span><span>La pathologie proposée vient d'une simulation, pas d'un modèle réel. Votre relecture fait foi.</span></div></div>
+        <div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span>Relecture enregistrée. Le producteur est prévenu.</span></div></div>
+
+        <div class="cluster" style="justify-content:space-between">
+          <div class="chips" role="group" aria-label="Filtrer par filière"><button type="button" class="chip" aria-pressed="true">Toutes <span class="count">12</span></button><button type="button" class="chip" aria-pressed="false">Maïs <span class="count">5</span></button><button type="button" class="chip" aria-pressed="false">Manioc <span class="count">3</span></button><button type="button" class="chip" aria-pressed="false">Niébé <span class="count">2</span></button><button type="button" class="chip" aria-pressed="false">Tomate <span class="count">2</span></button></div>
+          <label class="cluster" style="--gap:8px"><span class="small muted">Trier par</span><select class="select" style="width:auto"><option>Plus ancien d'abord</option><option>Confiance la plus faible</option></select></label>
+        </div>
+
+        <ul class="stack" style="--gap:16px;list-style:none;margin:0;padding:0">
+          <li class="card" style="padding:0">
+            <div class="dq">
+              <div class="photo"><svg class="leaf" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 96C48 60 30 40 12 30c30-6 52 10 56 34 2-26 10-46 26-58-2 40-14 70-44 90z" fill="#6FA83A" stroke="#1F5A32" stroke-width="1.5"/><g fill="#F6F1E4"><ellipse cx="38" cy="50" rx="5" ry="3"/><ellipse cx="55" cy="60" rx="4" ry="2.5"/><ellipse cx="66" cy="44" rx="3" ry="2"/></g></svg><span>Photo du producteur</span></div>
+              <div class="stack" style="--gap:8px">
+                <div class="cluster" style="--gap:6px"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Transmis à un agronome</span><span class="badge badge--neutral">Maïs</span></div>
+                <h2 class="dq-h">Chenille légionnaire d'automne&nbsp;?</h2>
+                <div class="conf"><span class="progress" role="img" aria-label="Confiance 41 %"><span style="--v:41%"></span></span><b class="num">Confiance&nbsp;: 41&nbsp;%</b></div>
+                <p>Conseil provisoire envoyé&nbsp;: inspecter 20 plants, ramasser larves et pontes, attendre l'avis avant tout traitement.</p>
+                <p class="small muted">Gogounou (Alibori) · 15/10/2026 07:12 · 2 photos · le nom du producteur n'est pas affiché</p>
+              </div>
+              <form class="stack" style="--gap:12px" novalidate onsubmit="return false" aria-label="Relecture du diagnostic de Gogounou">
+                <h2 class="dq-h">Votre relecture</h2>
+                <div class="field"><label class="label" for="r1-p">Pathologie confirmée</label><select class="select" id="r1-p"><option selected>Chenille légionnaire d'automne</option><option>Virus de la striure du maïs</option><option>Jassides du cotonnier</option><option>Mosaïque africaine du manioc</option><option>Thrips des fleurs du niébé</option><option>Anthracnose de l'anacardier</option><option>Pyriculariose du riz</option><option>Mildiou de la tomate</option><option>Flétrissement bactérien de la tomate</option><option>Maladie de Newcastle (volaille)</option><option>Autre (voir commentaire)</option></select></div>
+                <div class="field"><label class="label" for="r1-c">Commentaire</label><textarea class="textarea" id="r1-c" rows="3">Dégâts typiques en fenêtres. Seuil dépassé&nbsp;: traiter au cornet.</textarea></div>
+                <button type="submit" class="btn btn-primary" data-toast="Relecture enregistrée. Le producteur est prévenu.">Enregistrer la relecture</button>
+              </form>
+            </div>
+          </li>
+          <li class="card" style="padding:0">
+            <div class="dq">
+              <div class="photo" style="background:linear-gradient(160deg,#DCE9C2,#A8C77A 55%,#6E9445)"><svg class="leaf" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8c22 10 34 30 34 50S70 92 50 92 16 78 16 58 28 18 50 8z" fill="#A8C77A" stroke="#4F7F35" stroke-width="1.5"/><path d="M50 12v78M50 40l-18-10M50 40l18-10M50 60l-22-8M50 60l22-8" stroke="#4F7F35" stroke-width="1.2" fill="none"/><g fill="#E9E07A" opacity=".9"><circle cx="34" cy="48" r="5"/><circle cx="64" cy="66" r="6"/><circle cx="60" cy="34" r="4"/></g></svg><span>Photo du producteur</span></div>
+              <div class="stack" style="--gap:8px">
+                <div class="cluster" style="--gap:6px"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Transmis à un agronome</span><span class="badge badge--neutral">Manioc</span></div>
+                <h2 class="dq-h">Mosaïque africaine du manioc&nbsp;?</h2>
+                <div class="conf"><span class="progress" role="img" aria-label="Confiance 33 %"><span style="--v:33%"></span></span><b class="num">Confiance&nbsp;: 33&nbsp;%</b></div>
+                <p>Taches jaunes en mosaïque, feuilles déformées. Peut aussi être une carence.</p>
+                <p class="small muted">Djidja (Zou) · 14/10/2026 17:45 · 1 photo</p>
+              </div>
+              <form class="stack" style="--gap:12px" novalidate onsubmit="return false" aria-label="Relecture du diagnostic de Djidja">
+                <h2 class="dq-h">Votre relecture</h2>
+                <div class="field"><label class="label" for="r2-p">Pathologie confirmée</label><select class="select" id="r2-p"><option>Mosaïque africaine du manioc</option><option selected>Autre (voir commentaire)</option></select></div>
+                <div class="field"><label class="label" for="r2-c">Commentaire</label><textarea class="textarea" id="r2-c" rows="3" aria-invalid="true" aria-describedby="r2-e">Ca</textarea><span class="error-msg" id="r2-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Avec «&nbsp;Autre&nbsp;», expliquez votre avis dans le commentaire (5 caractères minimum).</span></div>
+                <button type="submit" class="btn btn-primary">Enregistrer la relecture</button>
+              </form>
+            </div>
+          </li>
+        </ul>
+        <div class="pagination" style="border:0"><span class="num">2 sur 12 diagnostics</span><button type="button" class="btn btn-secondary">Afficher la suite</button></div>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun diagnostic à revoir</h3><p>Les photos dont la confiance est faible apparaîtront ici.</p></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Photo indisponible</h3><p>L'image n'a pas pu être chargée. Vous pouvez relire le diagnostic à partir de la description.</p><code>ERR_IMAGE · 404</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

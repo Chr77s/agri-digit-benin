@@ -1,0 +1,105 @@
+---
+{"role":"repr_mtdi","title":"Validation des langues","desc":"Validation des traductions en fon, bariba, yoruba et dendi par des locuteurs natifs du MTDI ; avancement et états (maquette).","search":"Rechercher une clé, un texte français…","notif":4}
+---
+<!--@head-->
+  .lang-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+  .lang h3 { font: 700 var(--fs-lg)/1.2 var(--font-ui); }
+  .gauge { position: relative; height: 14px; border-radius: 0 4px 4px 0; background: var(--rain-2); margin: 12px 0 6px; }
+  .gauge > span { display: block; height: 100%; width: var(--v); background: var(--d1); border-radius: 0 4px 4px 0; }
+  .gauge > i { position: absolute; left: 80%; top: -5px; bottom: -5px; width: 2px; background: var(--canopy); }
+  .gauge > b { position: absolute; left: 80%; top: -22px; transform: translateX(-50%); font-size: var(--fs-xs); color: var(--ink-2); font-weight: 700; }
+  .entry { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 16px 0; border-top: 1px solid var(--line); }
+  .entry:first-child { border-top: 0; }
+  .entry-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .key { font-family: ui-monospace, Consolas, monospace; font-size: .8125rem; color: var(--ink-2); overflow-wrap: anywhere; }
+  .txt { border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); padding: 10px 12px; }
+  .txt small { display: block; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 700; margin-bottom: 4px; }
+  .txt--masked { background: repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--layer) 8px 9px); color: var(--ink-2); font-style: italic; }
+  .entry-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  @media (max-width: 720px) { .entry { grid-template-columns: 1fr; } }
+  .score { display: flex; flex-wrap: wrap; gap: 8px; }
+  .score .choice-card { flex: 1 1 64px; justify-content: center; min-height: 48px; padding: 8px; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="langues.html">Corpus des langues</a></li><li><span aria-current="page">Validation</span></li></ol></nav>
+          <h1 class="page-title">Validation des langues</h1>
+          <p class="page-desc">Les textes de l'application sont traduits et notés par des locuteurs natifs du MTDI. Une proposition est validée par un autre représentant que son auteur.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:24px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">Aucune traduction n'est fournie par l'application</span><span>Le MTDI saisit et valide les textes. Dans cette maquette, les textes en langues nationales sont masqués : aucun n'est inventé.</span></div></div>
+        <div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span>Note enregistrée. Statut du texte : Validé.</span></div></div>
+
+        <section aria-labelledby="h-sum">
+          <h2 class="section-title" id="h-sum" style="margin-bottom:12px">Avancement par langue</h2>
+          <div class="lang-grid">
+            <article class="card lang"><div class="card-head" style="margin-bottom:4px"><h3>Fon</h3><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Pas encore ouverte</span></div>
+              <div class="gauge" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" aria-label="Textes validés en fon"><span style="--v:64%"></span><i></i><b>80 %</b></div>
+              <p class="num"><b>412 textes validés sur 642 (64 %)</b></p><p class="small muted num">Note moyenne : 4,2 / 5 · 38 propositions à noter</p></article>
+            <article class="card lang"><div class="card-head" style="margin-bottom:4px"><h3>Bariba</h3><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouverte aux producteurs</span></div>
+              <div class="gauge" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="83" aria-label="Textes validés en bariba"><span style="--v:83%"></span><i></i><b>80 %</b></div>
+              <p class="num"><b>533 textes validés sur 642 (83 %)</b></p><p class="small muted num">Note moyenne : 4,4 / 5 · 12 propositions à noter</p></article>
+            <article class="card lang"><div class="card-head" style="margin-bottom:4px"><h3>Yoruba</h3><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Pas encore ouverte</span></div>
+              <div class="gauge" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="21" aria-label="Textes validés en yoruba"><span style="--v:21%"></span><i></i><b>80 %</b></div>
+              <p class="num"><b>135 textes validés sur 642 (21 %)</b></p><p class="small muted num">Note moyenne : 3,9 / 5 · 54 propositions à noter</p></article>
+            <article class="card lang"><div class="card-head" style="margin-bottom:4px"><h3>Dendi</h3><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Pas encore ouverte</span></div>
+              <div class="gauge" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Textes validés en dendi"><span style="--v:0%"></span><i></i><b>80 %</b></div>
+              <p class="num"><b>0 texte validé sur 642 (0 %)</b></p><p class="small muted">Note moyenne : <span class="na">non disponible</span> · aucun locuteur affecté</p></article>
+          </div>
+          <p class="hint" style="margin-top:10px">Une langue s'ouvre aux producteurs à partir de 80 % de textes validés (trait sombre sur la barre).</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-entries">
+          <div class="card-head"><h2 class="section-title" id="h-entries">Textes à traduire et à valider</h2></div>
+          <div class="cluster" style="margin-bottom:8px;align-items:flex-end">
+            <div class="field" style="min-width:min(100%,200px)"><label class="label" for="tr-lang">Langue</label><select class="select" id="tr-lang"><option>Toutes</option><option selected>Fon</option><option>Bariba</option><option>Yoruba</option><option>Dendi</option></select></div>
+            <div class="chips" role="group" aria-label="Filtrer par statut"><button type="button" class="chip" aria-pressed="false">À traduire <span class="count">192</span></button><button type="button" class="chip" aria-pressed="true">Proposé <span class="count">38</span></button><button type="button" class="chip" aria-pressed="false">Validé <span class="count">412</span></button><button type="button" class="chip" aria-pressed="false">Rejeté <span class="count">6</span></button></div>
+          </div>
+          <div>
+            <article class="entry">
+              <div class="entry-head"><span class="badge badge--neutral">Fon</span><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Proposé</span><span class="key">alerts.rain.heavy.sms</span></div>
+              <div class="txt"><small>Texte français</small>Pluie forte attendue jeudi. Reportez l'épandage d'engrais.</div>
+              <div class="txt txt--masked"><small>Texte proposé en fon</small>Saisi par Pélagie Tossou le 16/10/2026 · non reproduit dans la maquette</div>
+              <div class="entry-foot"><span class="small muted num">Note moyenne : 3,0 / 5 (1 note)</span><span style="flex:1"></span><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-prop">Modifier la proposition</button><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-rev">Noter cette proposition</button></div>
+            </article>
+            <article class="entry">
+              <div class="entry-head"><span class="badge badge--neutral">Fon</span><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Proposé</span><span class="key">parcels.declare.button</span></div>
+              <div class="txt"><small>Texte français</small>Déclarer une parcelle</div>
+              <div class="txt txt--masked"><small>Texte proposé en fon</small>Saisi par Romuald Ahouandjinou le 15/10/2026 · non reproduit dans la maquette</div>
+              <div class="entry-foot"><span class="small muted">Note moyenne : <span class="na">non disponible</span> (0 note)</span><span style="flex:1"></span><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-prop">Modifier la proposition</button><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-rev">Noter cette proposition</button></div>
+            </article>
+            <article class="entry">
+              <div class="entry-head"><span class="badge badge--neutral">Fon</span><span class="badge badge--draft">À traduire</span><span class="key">credit.notice</span></div>
+              <div class="txt"><small>Texte français</small>Le score est une aide. La décision de crédit revient à une personne et se prend hors de la plateforme.</div>
+              <div class="txt"><small>Texte proposé en fon</small><span class="muted">Pas encore de proposition</span></div>
+              <div class="entry-foot"><span style="flex:1"></span><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-prop">Proposer un texte</button></div>
+            </article>
+          </div>
+          <div class="card-foot"><span class="small muted num">3 textes affichés sur 38</span><button type="button" class="btn btn-secondary">Charger la suite</button></div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun texte ne correspond à ces filtres","Changez de langue ou de statut. Les nouveaux textes de l'application arrivent ici automatiquement.",""],"error":["Vous ne pouvez pas noter votre propre proposition","Un autre représentant du MTDI doit le faire. Le serveur a refusé la note (403).","own_translation · 403"],"extra":"<p class=\"small muted\">Lecture seule pour les autres rôles : « Vous consultez les traductions en lecture seule. Seuls les représentants du MTDI peuvent proposer ou noter un texte. »</p>"}-->
+<!--@after-->
+<dialog class="modal" id="dlg-rev" aria-labelledby="dlg-rev-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-rev-t">Noter une proposition</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-rev" method="dialog" novalidate>
+    <dl class="dl"><dt>Clé du texte</dt><dd class="key">alerts.rain.heavy.sms</dd><dt>Texte français</dt><dd>Pluie forte attendue jeudi. Reportez l'épandage d'engrais.</dd><dt>Texte proposé</dt><dd class="muted" style="font-weight:400;font-style:italic">Texte en fon, non reproduit dans la maquette</dd></dl>
+    <fieldset class="fieldset"><legend class="label">Note</legend>
+      <div class="score"><label class="choice-card"><input class="radio" type="radio" name="sc"> 1</label><label class="choice-card"><input class="radio" type="radio" name="sc"> 2</label><label class="choice-card"><input class="radio" type="radio" name="sc"> 3</label><label class="choice-card"><input class="radio" type="radio" name="sc" checked> 4</label><label class="choice-card"><input class="radio" type="radio" name="sc"> 5</label></div>
+      <span class="hint">4 ou 5 : le texte est validé. 1 ou 2 : il est rejeté. 3 : il reste proposé.</span>
+    </fieldset>
+    <div class="field"><label class="label" for="rv-c">Commentaire <span class="opt">(facultatif)</span></label><textarea class="textarea" id="rv-c" maxlength="1000">Le ton convient pour un SMS ; vérifier le mot pour « épandage ».</textarea></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-rev" class="btn btn-primary" data-toast="Note enregistrée. Statut du texte : Validé.">Enregistrer la note</button></div>
+</dialog>
+<dialog class="modal" id="dlg-prop" aria-labelledby="dlg-prop-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-prop-t">Proposer un texte en fon</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-prop" method="dialog" novalidate>
+    <dl class="dl"><dt>Clé du texte</dt><dd class="key">credit.notice</dd><dt>Texte français</dt><dd>Le score est une aide. La décision de crédit revient à une personne et se prend hors de la plateforme.</dd></dl>
+    <div class="field"><label class="label" for="pr-t">Texte dans la langue</label><textarea class="textarea" id="pr-t" lang="fon" rows="4" maxlength="2000" aria-invalid="true" aria-describedby="pr-e pr-h"></textarea><span class="error-msg" id="pr-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez le texte à proposer.</span><span class="hint" id="pr-h">Une nouvelle proposition remet à zéro les notes déjà données.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-prop" class="btn btn-primary">Enregistrer la proposition</button></div>
+</dialog>

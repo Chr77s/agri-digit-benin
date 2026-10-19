@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes contestations · Agri-Digit Bénin</title>
+<meta name="description" content="Contester une décision (sélection, programme, adhésion, appui) et suivre la réponse motivée d'un agent.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.ct { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px 28px; }
+@media (max-width: 860px) { .ct { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/contestations">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une contestation…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes contestations</span></li></ol></nav>
+          <h1 class="page-title">Mes contestations</h1>
+          <p class="page-desc">Si une décision vous concerne et vous semble injuste, contestez-la. Une personne l'examine et vous répond toujours avec un motif (loi n° 2017-20, art. 401).</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary" data-open-dialog="dlg-ct"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg>Contester une décision</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="card" aria-labelledby="t-runs">
+          <div class="card-head"><div><h2 class="card-title" id="t-runs">Décisions que vous pouvez contester</h2><p class="card-sub">Ouvertes 15 jours après la décision</p></div></div>
+          <ul class="list">
+            <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg></span><span class="li-main"><span class="li-title">Sélection du 6 octobre 2026 : 420 fermes retenues pour un objectif de 500</span><span class="li-meta">Programme intrants coton 2027 · Département : Alibori · Motif de validation : critères surface &lt; 3 ha et coton déclaré. Votre ferme n'a pas été retenue.</span></span><span class="li-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-ct">Contester l'exclusion de ma ferme</button></span></li>
+          </ul>
+        </section>
+
+        <h2 class="section-title">Suivi de mes contestations</h2>
+
+        <article class="card ct" aria-labelledby="k1">
+          <div><div class="between"><h3 class="card-title" id="k1">Sélection du 6 octobre · ferme BNK-004218</h3><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted" style="margin-top:4px">Déposée le 9 octobre 2026</p>
+            <p style="margin-top:10px"><b>Votre motif :</b> « Je cultive 1,2 ha de coton cette saison sur le Champ de la route : il n’a pas été pris en compte. »</p></div>
+          <ol class="timeline">
+            <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">09/10/2026</div><div class="tl-title">Contestation déposée</div></li>
+            <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">En cours</div><div class="tl-title">Examen par un agent</div><div class="tl-text">Réponse attendue avant le 24 octobre.</div></li>
+            <li><span class="tl-dot"></span><div class="tl-time">À venir</div><div class="tl-title">Décision motivée, envoyée par message</div></li>
+          </ol>
+        </article>
+
+        <article class="card ct" aria-labelledby="k2">
+          <div><div class="between"><h3 class="card-title" id="k2">Programme semences soja 2026 · candidature refusée</h3><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Acceptée</span></div>
+            <p class="small muted" style="margin-top:4px">Déposée le 12 avril 2026 · décision du 20 avril 2026</p>
+            <p style="margin-top:10px"><b>Motif de la décision :</b> « Parcelle Jardin de case vérifiée sur place, surface conforme. Candidature réintégrée. » · Fatoumata Bio Sika, responsable de programme</p></div>
+          <ol class="timeline">
+            <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">12/04/2026</div><div class="tl-title">Contestation déposée</div></li>
+            <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">20/04/2026</div><div class="tl-title">Contestation acceptée</div><div class="tl-text">Vous avez reçu l'appui le 2 mai.</div></li>
+          </ol>
+        </article>
+
+        <article class="card ct" aria-labelledby="k3">
+          <div><div class="between"><h3 class="card-title" id="k3">Sélection du 3 février 2026 · ferme BNK-004218</h3><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Rejetée</span></div>
+            <p class="small muted" style="margin-top:4px">Déposée le 5 février 2026 · décision du 14 février 2026</p>
+            <p style="margin-top:10px"><b>Motif de la décision :</b> « Le programme visait les exploitations de plus de 5 ha. Votre exploitation compte 4,6 ha. » · Agent ATDA Banikoara</p>
+            <p class="hint" style="margin-top:8px">Vous pouvez saisir le délégué à la protection des données ou l'APDP si vous estimez la décision illégale.</p></div>
+          <ol class="timeline">
+            <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">05/02/2026</div><div class="tl-title">Contestation déposée</div></li>
+            <li class="tl-alert"><span class="tl-dot"></span><div class="tl-time num">14/02/2026</div><div class="tl-title">Contestation rejetée, motif fourni</div></li>
+          </ol>
+        </article>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Aucune contestation</span><div class="card empty"><h3>Vous n'avez déposé aucune contestation</h3><p>Vous pourrez contester ici dès qu'une sélection sera validée.</p></div></div>
+            <div><span class="state-cap">Aucune décision contestable</span><div class="card empty"><h3>Aucune sélection validée pour le moment</h3><p>Vous pourrez contester ici dès qu'une sélection sera validée.</p></div></div>
+            <div><span class="state-cap">Contestation déposée</span><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Contestation déposée. Un agent l'examinera et vous répondra avec un motif.</div></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-ct" aria-labelledby="dlg-ct-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-ct-t">Contester une décision</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-ct" method="dialog" novalidate>
+    <div class="field"><label class="label" for="ct-d">Décision contestée</label><select class="select" id="ct-d"><option>Sélection du 6 octobre 2026 · Alibori (420 retenues)</option><option>Adhésion refusée · Coopérative de Founougo</option></select></div>
+    <div class="field"><label class="label" for="ct-f">Identifiant de la ferme</label><input class="input input-num" id="ct-f" aria-invalid="true" aria-describedby="ct-fe ct-fh"><span class="error-msg" id="ct-fe"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez l'identifiant de la ferme.</span><span class="hint" id="ct-fh">Il figure dans le message de l'agent, par exemple BNK-004218. Sinon, demandez-le à votre agent ATDA.</span></div>
+    <div class="field"><label class="label" for="ct-r">Motif de la contestation</label><textarea class="textarea" id="ct-r" placeholder="Expliquez pourquoi la décision vous semble injuste"></textarea><span class="hint">Vous pouvez aussi dicter votre motif.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-ct" class="btn btn-primary" data-toast="Contestation déposée. Un agent l'examinera et vous répondra avec un motif.">Déposer la contestation</button></div>
+</dialog>
+</body>
+</html>

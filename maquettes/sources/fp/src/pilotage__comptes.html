@@ -1,0 +1,94 @@
+---
+{"role":"admin_maep","title":"Comptes et rôles","desc":"Comptes des agents et partenaires, rôles et périmètres géographiques ; chaque changement est journalisé (maquette).","search":"Rechercher un nom, un téléphone…","notif":2,"home":"pilotage/tableau-de-bord"}
+---
+<!--@head-->
+  .role-ref { columns: 2 260px; column-gap: 24px; }
+  .role-ref li { break-inside: avoid; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Gouvernance</a></li><li><span aria-current="page">Comptes</span></li></ol></nav>
+          <h1 class="page-title">Comptes et rôles</h1>
+          <p class="page-desc">Qui accède à quoi, et sur quel périmètre. Un compte n'est jamais supprimé : il est suspendu, pour garder la trace dans le journal d'audit.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="journal.html"><svg class="ic" aria-hidden="true"><use href="#i-scroll"/></svg>Journal des changements</a>
+          <button type="button" class="btn btn-primary" data-open-dialog="dlg-new"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Créer un compte</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Compte mis à jour. Action journalisée.</span><span>Koffi Dossou est réaffecté au secteur Kandi (Alibori), le 18/10/2026 à 08:31.</span></div></div>
+
+        <section class="table-card" aria-labelledby="h-acc">
+          <div class="table-toolbar">
+            <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="acc-q">Rechercher un compte</label><input class="input" id="acc-q" type="search" placeholder="Nom ou téléphone"></div>
+            <label class="sr-only" for="acc-role">Rôle</label>
+            <select class="select" id="acc-role" style="width:auto;min-width:200px"><option>Tous les rôles</option><option>Agent ATDA</option><option>Agronome INRAB</option><option>Responsable de programme</option><option>Administrateur MAEP</option><option>Auditeur CoPil</option><option>Agent financier</option><option>Gestionnaire de coopérative</option><option>Transformateur</option><option>Distributeur</option><option>Représentant MTDI (langues)</option></select>
+            <div class="chips" role="group" aria-label="Filtrer par état"><button type="button" class="chip" aria-pressed="true">Actifs <span class="count">212</span></button><button type="button" class="chip" aria-pressed="false">Suspendus <span class="count">9</span></button></div>
+            <h2 class="sr-only" id="h-acc">Comptes</h2>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Comptes : nom, téléphone, rôle, périmètre, état et actions</caption>
+              <thead><tr><th scope="col" aria-sort="ascending"><button type="button" class="th-sort">Nom<svg class="ic" aria-hidden="true"><use href="#i-sort-asc"/></svg></button></th><th scope="col">Téléphone</th><th scope="col">Rôle</th><th scope="col">Périmètre</th><th scope="col">État</th><th scope="col" class="col-actions">Actions</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Clarisse Agbo</span><span class="cell-sub">Vous</span></td><td class="num" data-label="Téléphone">01 97 21 44 08</td><td data-label="Rôle">Administrateur MAEP</td><td data-label="Périmètre">National</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><span class="small muted">Votre compte</span></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Koffi Dossou</span></td><td class="num" data-label="Téléphone">01 96 40 12 77</td><td data-label="Rôle">Agent ATDA</td><td data-label="Périmètre">Alibori, Kandi</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-assign">Réaffecter</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-susp">Suspendre</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Dr Mariam Yessoufou</span></td><td class="num" data-label="Téléphone">01 95 08 63 21</td><td data-label="Rôle">Agronome INRAB</td><td data-label="Périmètre">National</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-assign">Réaffecter</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-susp">Suspendre</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Issa Orou</span></td><td class="num" data-label="Téléphone">01 67 33 90 15</td><td data-label="Rôle">Gestionnaire de coopérative</td><td data-label="Périmètre">Alibori, Kandi</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-assign">Réaffecter</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-susp">Suspendre</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Nafissatou Adam</span></td><td class="num" data-label="Téléphone">01 61 77 02 49</td><td data-label="Rôle">Agent financier</td><td data-label="Périmètre">National</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-assign">Réaffecter</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-susp">Suspendre</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Pélagie Tossou</span></td><td class="num" data-label="Téléphone">01 90 14 58 36</td><td data-label="Rôle">Représentant MTDI (langues)</td><td data-label="Périmètre">National</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Actif</span></td><td class="col-actions"><div class="cluster" style="--gap:6px;justify-content:flex-end"><button type="button" class="btn btn-secondary btn-sm" data-open-dialog="dlg-assign">Réaffecter</button><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-susp">Suspendre</button></div></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><span class="cell-main">Sylvain Kpadonou</span><span class="cell-sub">Suspendu le 02/10/2026 · départ de l'ATDA</span></td><td class="num" data-label="Téléphone">01 66 25 81 03</td><td data-label="Rôle">Agent ATDA</td><td data-label="Périmètre">Zou, Djidja</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Suspendu</span></td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm" data-toast="Compte réactivé. Action journalisée.">Réactiver</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–7 sur 221 comptes</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><span aria-hidden="true">…</span><button class="page-btn" type="button">32</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-roles">
+          <div class="card-head"><h2 class="card-title" id="h-roles">Ce que chaque rôle peut faire</h2></div>
+          <ul class="list role-ref">
+            <li class="list-item"><span class="li-main"><span class="li-title">Agent ATDA</span><span class="li-meta">Valide les fiches et trace les remises de son seul département.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Agronome INRAB</span><span class="li-meta">Rédige les fiches techniques, revoit les diagnostics peu sûrs.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Responsable de programme</span><span class="li-meta">Crée les programmes et tranche les candidatures.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Auditeur CoPil</span><span class="li-meta">Lit le journal d'audit, sans rien pouvoir modifier.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Agent financier</span><span class="li-meta">Voit le score des seuls producteurs qui ont consenti.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Gestionnaire de coopérative</span><span class="li-meta">Gère les membres et l'offre groupée ; pas d'accès au registre.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Transformateur, distributeur</span><span class="li-meta">Marché : offres, mises en relation, paiement simulé.</span></span></li>
+            <li class="list-item"><span class="li-main"><span class="li-title">Représentant MTDI</span><span class="li-meta">Propose et note les traductions en langues nationales.</span></span></li>
+          </ul>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucun compte pour ce filtre","Changez de rôle ou d'état, ou créez le compte de l'agent.","Créer un compte"],"error":["Mise à jour refusée","Vous ne pouvez pas suspendre votre propre compte. Demandez à un autre administrateur MAEP.","ERR_FORBIDDEN · 403"]}-->
+<!--@after-->
+<dialog class="modal" id="dlg-new" aria-labelledby="dlg-new-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-new-t">Créer un compte</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-new" method="dialog" novalidate>
+    <div class="field"><label class="label" for="n-name">Nom complet</label><input class="input" id="n-name" value="Rodrigue Hounsa" autocomplete="off"></div>
+    <div class="field"><label class="label" for="n-tel">Téléphone</label><div class="input-group"><span class="addon">+229</span><input class="input input-num" id="n-tel" inputmode="numeric" maxlength="10" value="0197" aria-invalid="true" aria-describedby="n-tel-e"></div><span class="error-msg" id="n-tel-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez un téléphone de 10 chiffres commençant par 01.</span></div>
+    <div class="field"><label class="label" for="n-role">Rôle</label><select class="select" id="n-role"><option>Agent ATDA</option><option>Agronome INRAB</option><option>Responsable de programme</option><option>Administrateur MAEP</option><option>Auditeur CoPil</option><option>Agent financier</option><option>Gestionnaire de coopérative</option><option>Transformateur</option><option>Distributeur</option><option>Représentant MTDI (langues)</option></select></div>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="n-dep">Département <span class="opt">(vide = national)</span></label><select class="select" id="n-dep"><option value="">National</option><option selected>Borgou</option><option>Alibori</option></select></div>
+      <div class="field"><label class="label" for="n-com">Commune <span class="opt">(facultatif)</span></label><select class="select" id="n-com"><option>Tout le département</option><option>Parakou</option><option>Nikki</option><option>Tchaourou</option></select></div>
+    </div>
+    <div class="field"><label class="label" for="n-pw">Mot de passe initial</label><input class="input" id="n-pw" type="password" autocomplete="new-password"><span class="hint">12 caractères minimum, avec chiffres et symboles. À changer à la première connexion.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-new" class="btn btn-primary">Créer le compte</button></div>
+</dialog>
+<dialog class="modal modal--sheet" id="dlg-assign" aria-labelledby="dlg-as-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-as-t">Réaffecter Koffi Dossou</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-as" method="dialog">
+    <div class="field"><label class="label" for="a-role">Rôle</label><select class="select" id="a-role"><option selected>Agent ATDA</option><option>Agronome INRAB</option><option>Responsable de programme</option></select></div>
+    <div class="field"><label class="label" for="a-dep">Département <span class="opt">(vide = national)</span></label><select class="select" id="a-dep"><option selected>Alibori</option><option>Borgou</option><option value="">National</option></select></div>
+    <div class="field"><label class="label" for="a-com">Commune <span class="opt">(facultatif)</span></label><select class="select" id="a-com"><option>Tout le département</option><option selected>Kandi</option><option>Banikoara</option><option>Gogounou</option></select></div>
+    <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span>Il perdra l'accès aux fiches de Banikoara dès l'enregistrement. Le changement est inscrit au journal d'audit.</span></div></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-as" class="btn btn-primary" data-toast="Compte mis à jour. Action journalisée.">Enregistrer l'affectation</button></div>
+</dialog>
+<dialog class="modal" id="dlg-susp" aria-labelledby="dlg-su-t" aria-describedby="dlg-su-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-su-t">Suspendre ce compte ?</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body"><p id="dlg-su-d" class="muted">La personne ne pourra plus se connecter. Ses actions passées restent au journal. Vous pourrez réactiver le compte à tout moment.</p></div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="button" class="btn btn-danger" data-close-dialog="ok" data-toast="Compte suspendu. Action journalisée.">Suspendre</button></div>
+</dialog>

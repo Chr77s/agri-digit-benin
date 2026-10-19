@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiches techniques · Agri-Digit Bénin</title>
+<meta name="description" content="Éditeur de fiches d'itinéraires techniques INRAB/ATDA : brouillon, relecture, publication, sources et versions (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.ed { display: grid; gap: 20px; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 1100px) { .ed { grid-template-columns: 1fr; } }
+  .doc-list { list-style: none; margin: 0; padding: 0; }
+  .doc { display: block; padding: 12px; border-radius: var(--r-md); color: var(--ink); text-decoration: none; border: 1px solid transparent; }
+  .doc:hover { background: var(--surface-2); text-decoration: none; }
+  .doc[aria-current="true"] { background: var(--ok-bg); border-color: var(--leaf); }
+  .doc b { display: block; line-height: 1.3; }
+  .doc .cluster { margin-top: 6px; --gap: 6px; }
+  .src-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+  .body-ed { min-height: 280px; line-height: 1.6; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border: 1px solid var(--line-input); border-bottom: 0; border-radius: var(--r-md) var(--r-md) 0 0; background: var(--layer); }
+  .toolbar + .textarea { border-top-left-radius: 0; border-top-right-radius: 0; }
+</style>
+</head>
+<body data-role="agronome_inrab" data-page="pilotage/fiches">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/fiches.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une fiche…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 3 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="fiches.html">Fiches techniques</a></li><li><span aria-current="page">Maïs · lutte contre la chenille légionnaire</span></li></ol></nav>
+          <h1 class="page-title">Fiches techniques</h1>
+          <p class="page-desc">Seules les fiches publiées alimentent l'assistant. Circuit&nbsp;: brouillon, relecture par un second agronome, publication.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Rédiger une fiche</button></div>
+      </div>
+
+      <div class="ed">
+        <aside class="card" aria-labelledby="h-docs" style="padding:14px">
+          <h2 class="card-title" id="h-docs" style="padding:4px 6px 10px">Fiches <span class="muted num" style="font-weight:600">· 46</span></h2>
+          <div class="stack" style="--gap:10px;padding:0 4px 10px">
+            <div class="field"><label class="label" for="d-vc">Filière</label><select class="select" id="d-vc"><option>Toutes</option><option selected>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option><option>Manioc</option><option>Niébé</option><option>Anacarde</option><option>Maraîchage</option></select></div>
+            <div class="chips" role="group" aria-label="Filtrer par statut"><button type="button" class="chip" aria-pressed="true">Tous</button><button type="button" class="chip" aria-pressed="false">Brouillon</button><button type="button" class="chip" aria-pressed="false">Relu</button><button type="button" class="chip" aria-pressed="false">Publié</button></div>
+          </div>
+          <ul class="doc-list">
+            <li><a class="doc" href="#" aria-current="true"><b>Lutte contre la chenille légionnaire d'automne</b><span class="cluster"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Relu</span><span class="badge badge--neutral">v3</span></span></a></li>
+            <li><a class="doc" href="#"><b>Itinéraire technique du maïs en zone soudanienne</b><span class="cluster"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Publié</span><span class="badge badge--neutral">v5</span></span></a></li>
+            <li><a class="doc" href="#"><b>Fertilisation NPK et urée du maïs</b><span class="cluster"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Publié</span><span class="badge badge--neutral">v2</span><span class="badge badge--demo">Bariba · non validé</span></span></a></li>
+            <li><a class="doc" href="#"><b>Stockage du maïs en sacs hermétiques</b><span class="cluster"><span class="badge badge--draft"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Brouillon</span><span class="badge badge--neutral">v1</span></span></a></li>
+            <li><a class="doc" href="#"><b>Virus de la striure du maïs&nbsp;: reconnaître et limiter</b><span class="cluster"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Publié</span><span class="badge badge--neutral">v1</span></span></a></li>
+          </ul>
+        </aside>
+
+        <div class="stack" style="--gap:16px">
+          <ol class="steps" aria-label="Circuit de publication">
+            <li class="step is-done"><span class="st-label">Brouillon</span></li>
+            <li class="step is-done" aria-current="step"><span class="st-label">Relu par Dr K. Ahoyo</span></li>
+            <li class="step"><span class="st-label">Publié</span></li>
+          </ol>
+
+          <form class="card stack" style="--gap:18px" novalidate onsubmit="return false" aria-labelledby="h-ed">
+            <div class="card-head" style="margin:0"><div><h2 class="section-title" id="h-ed">Modifier la fiche</h2><p class="card-sub">Version 3 · relue le 17/10/2026 par Dr Kossi Ahoyo · toute modification crée la version 4 et la renvoie en relecture</p></div></div>
+            <div class="form-grid">
+              <div class="field"><label class="label" for="e-vc">Filière</label><select class="select" id="e-vc"><option selected>Maïs</option><option>Sorgho</option></select></div>
+              <div class="field"><label class="label" for="e-lang">Langue</label><select class="select" id="e-lang"><option>Français</option><option>Fon (non validé)</option><option>Bariba (non validé)</option></select></div>
+              <div class="field span-all"><label class="label" for="e-title">Titre</label><input class="input" id="e-title" value="Lutte contre la chenille légionnaire d'automne"></div>
+            </div>
+            <div class="field">
+              <label class="label" for="e-body">Texte de la fiche</label>
+              <div class="toolbar" role="toolbar" aria-label="Mise en forme" aria-controls="e-body"><button type="button" class="btn btn-ghost btn-sm">Titre</button><button type="button" class="btn btn-ghost btn-sm">Liste</button><button type="button" class="btn btn-ghost btn-sm">Dose</button><button type="button" class="btn btn-ghost btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>Photo</button></div>
+              <textarea class="textarea body-ed" id="e-body" aria-describedby="e-body-h">Reconnaître
+Jeunes larves vertes dans le cornet&nbsp;; feuilles trouées en «&nbsp;fenêtres&nbsp;»&nbsp;; sciure humide au fond du cornet.
+
+Surveiller
+Dès la levée, inspecter 20 plants par parcelle chaque semaine. Seuil d'intervention&nbsp;: 10&nbsp;% de plants atteints avant 6 feuilles, 20&nbsp;% ensuite.
+
+Agir
+1. Ramasser à la main les pontes et larves sur les petites parcelles.
+2. Traiter au cornet avec un produit homologué au Bénin, à la dose de l'étiquette, tôt le matin.
+3. Ne pas traiter pendant la floraison si des abeilles sont présentes.</textarea>
+              <span class="hint" id="e-body-h">20 caractères minimum. Phrases courtes&nbsp;: le texte est aussi lu à voix haute par l'assistant.</span>
+            </div>
+            <fieldset class="fieldset stack" style="--gap:10px"><legend class="label">Sources <span class="req" aria-hidden="true">*</span></legend>
+              <div class="src-row"><input class="input" aria-label="Source 1" value="INRAB, Fiche technique maïs, 2024, p. 12–15"><button type="button" class="btn btn-icon" aria-label="Retirer la source 1"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></div>
+              <div class="src-row"><input class="input" aria-label="Source 2" value="FAO, Gestion intégrée de la chenille légionnaire, guide de terrain, 2018"><button type="button" class="btn btn-icon" aria-label="Retirer la source 2"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></div>
+              <button type="button" class="btn btn-ghost btn-sm" style="align-self:flex-start"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ajouter une source</button>
+            </fieldset>
+            <div class="card-foot">
+              <button type="button" class="btn btn-ghost" data-open-dialog="dlg-ver"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Versions (3)</button>
+              <div class="cluster" style="--gap:8px"><button type="button" class="btn btn-secondary" data-toast="Version 4 enregistrée en brouillon.">Enregistrer (nouvelle version)</button><button type="button" class="btn btn-primary" data-toast="Fiche publiée. L'assistant l'utilise dès maintenant.">Publier</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucune fiche pour ce filtre</h3><p>Rédigez une fiche ou changez de filière.</p><button type="button" class="btn btn-secondary">Rédiger une fiche</button></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Fiche incomplète</h3><p>Filière, titre, source et texte (20 caractères minimum) sont obligatoires.</p><code>ERR_VALIDATION · 400</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div><div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Brouillon</span><span>Bouton «&nbsp;Marquer comme relue&nbsp;» visible pour un autre agronome que l'auteur&nbsp;; «&nbsp;Publier&nbsp;» n'apparaît qu'après relecture.</span></div></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal modal--sheet" id="dlg-ver" aria-labelledby="dlg-v-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-v-t">Versions&nbsp;: chenille légionnaire</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <ol class="timeline">
+      <li class="tl-now"><span class="tl-dot"></span><div class="tl-time num">17/10/2026 14:20</div><div class="tl-title">v3 · relue</div><div class="tl-text">Seuils d'intervention précisés. Relue par Dr Kossi Ahoyo.</div></li>
+      <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/09/2026 09:05</div><div class="tl-title">v2 · publiée</div><div class="tl-text">Ajout de la source FAO.</div></li>
+      <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">11/07/2026 16:40</div><div class="tl-title">v1 · publiée</div><div class="tl-text">Création par Dr Mariam Yessoufou.</div></li>
+    </ol>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-secondary" data-close-dialog>Fermer</button></div>
+</dialog>
+</body>
+</html>

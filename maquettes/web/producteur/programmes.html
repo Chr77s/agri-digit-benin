@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programmes · Agri-Digit Bénin</title>
+<meta name="description" content="Programmes d'appui ouverts, conditions, candidature, suivi de l'instruction et décision motivée.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.prog { display: flex; flex-direction: column; gap: 12px; }
+.prog .conds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.prog .conds li { display: flex; gap: 8px; align-items: flex-start; }
+.prog .conds .ok { color: var(--leaf); } .prog .conds .ko { color: var(--bad-ink); }
+.prog .card-foot { margin-top: auto; }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/programmes">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un programme…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Programmes</span></li></ol></nav>
+          <h1 class="page-title">Programmes d'appui</h1>
+          <p class="page-desc">Touchez « Candidater » pour demander un appui. Chaque décision est prise par une personne et vous est expliquée.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Programmes. Touchez Candidater pour demander un appui. Un programme clos n'accepte plus de demande." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="chips" role="group" aria-label="Filtrer"><button type="button" class="chip" aria-pressed="true">Ouverts <span class="count">2</span></button><button type="button" class="chip" aria-pressed="false">Mes candidatures <span class="count">3</span></button><button type="button" class="chip" aria-pressed="false">Clos <span class="count">1</span></button></div>
+
+        <div class="grid" style="--min:320px">
+          <article class="card prog" aria-labelledby="p1">
+            <div class="between"><h2 class="card-title" id="p1">Kits de semences soja améliorées</h2><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></div>
+            <p class="small muted">MAEP · ATDA pôle 1 · Ouvert jusqu'au 15 novembre 2026</p>
+            <p>Semences certifiées et inoculum pour 0,5 ha, remis au magasin de la commune.</p>
+            <p class="label">Conditions</p>
+            <ul class="conds">
+              <li><span class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>Fiche producteur validée</li>
+              <li><span class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>Commune de l'Alibori ou du Borgou</li>
+              <li><span class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>Au moins une parcelle de soja déclarée</li>
+            </ul>
+            <p class="small">Filières : soja</p>
+            <div class="card-foot"><span class="small muted">Vous remplissez les conditions</span><button type="button" class="btn btn-primary" data-open-dialog="dlg-cand">Candidater</button></div>
+          </article>
+
+          <article class="card prog" aria-labelledby="p2">
+            <div class="between"><h2 class="card-title" id="p2">Intrants coton 2027</h2><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Ouvert</span></div>
+            <p class="small muted">Interprofession coton · Ouvert jusqu'au 30 novembre 2026</p>
+            <p>Engrais et protection phytosanitaire à crédit, remboursés sur la vente du coton graine.</p>
+            <p class="label">Votre candidature</p>
+            <ol class="timeline">
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">02/10/2026</div><div class="tl-title">Déposée</div></li>
+              <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Depuis le 5 oct.</div><div class="tl-title">En instruction</div><div class="tl-text">Vérification de la surface de coton par l'agent.</div></li>
+            </ol>
+            <div class="card-foot"><span><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En instruction</span></span></div>
+          </article>
+
+          <article class="card prog" aria-labelledby="p3">
+            <div class="between"><h2 class="card-title" id="p3">Motopompes pour bas-fonds</h2><span class="badge badge--neutral">Clos</span></div>
+            <p class="small muted">PADA · Clos depuis le 30 septembre 2026</p>
+            <p>Une motopompe pour 5 producteurs de riz en bas-fond aménagé.</p>
+            <p class="label">Votre candidature</p>
+            <div class="alert alert--danger"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Refusée le 8 octobre</span><span>Motif : le bas-fond Kokey n'est pas encore aménagé (condition du programme).</span></div></div>
+            <div class="card-foot"><span class="small muted">Vous pouvez contester sous 15 jours</span><a class="btn btn-secondary btn-sm" href="contestations.html">Contester</a></div>
+          </article>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Candidature déposée</span><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Candidature déposée. Vous serez prévenu à chaque changement de statut.</div></div></div>
+            <div><span class="state-cap">Échec</span><div class="alert alert--danger"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body">Candidature impossible. Réessayez.</div></div></div>
+            <div><span class="state-cap">Conditions non remplies</span><div class="card prog"><ul class="conds"><li><span class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>Fiche producteur validée</li><li><span class="ko"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></span>Bas-fond aménagé</li></ul><button type="button" class="btn btn-primary" disabled>Candidater</button><p class="hint">Une condition n'est pas remplie. Rapprochez-vous de votre agent.</p></div></div>
+            <div><span class="state-cap">Aucun programme</span><div class="card empty"><h3>Aucun programme publié</h3><p>Les programmes ouverts apparaîtront ici. Vous serez prévenu par SMS.</p></div></div>
+            <div><span class="state-cap">Acceptée</span><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Candidature acceptée</span><span>Motif : conditions remplies, retrait au magasin de Banikoara à partir du 20 novembre.</span></div></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-cand" aria-labelledby="dlg-c-t" aria-describedby="dlg-c-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-c-t">Candidater : semences soja</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-cand" method="dialog">
+    <p id="dlg-c-d" class="muted">Votre fiche (nom, commune, parcelles de soja) sera transmise au responsable du programme. Aucune décision n'est prise automatiquement.</p>
+    <div class="field"><label class="label" for="cd-p">Parcelle concernée</label><select class="select" id="cd-p"><option>Jardin de case (soja, 0,68 ha)</option></select></div>
+    <label class="check"><input class="cb" type="checkbox" checked> Je confirme que les informations de ma fiche sont exactes.</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-cand" class="btn btn-primary" data-toast="Candidature déposée. Vous serez prévenu à chaque changement de statut.">Déposer ma candidature</button></div>
+</dialog>
+</body>
+</html>

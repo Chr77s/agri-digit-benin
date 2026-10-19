@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agri-Digit Bénin · Démonstration</title>
+<link rel="icon" href="../frontend/public/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="landing/fonts.css">
+<link rel="stylesheet" href="hub.css">
+</head>
+<body class="pres">
+<!-- mode présentation : la maquette dans un cadre, une barre pour passer d'une étape à l'autre -->
+<nav class="pres-bar" aria-label="Démonstration">
+  <a class="pres-home" href="index.html" title="Retour aux maquettes"><img src="../frontend/public/icon.svg" width="28" height="28" alt="Maquettes"></a>
+  <button type="button" class="pres-btn" id="prev" aria-label="Étape précédente">←</button>
+  <p class="pres-title"><span id="count"></span> <b id="title"></b> <small id="note"></small></p>
+  <button type="button" class="pres-btn" id="next" aria-label="Étape suivante">→</button>
+  <a class="pres-btn pres-open" id="open" target="_blank" rel="noopener">Ouvrir seul</a>
+</nav>
+<iframe id="frame" title="Maquette"></iframe>
+<script src="demo-etapes.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let i = 0;
+  const show = (n) => {
+    i = Math.max(0, Math.min(DEMO.length - 1, n));
+    const s = DEMO[i];
+    $('frame').src = s.url; $('open').href = s.url;
+    $('count').textContent = `${i + 1}/${DEMO.length} · ${s.part}`;
+    $('title').textContent = s.title; $('note').textContent = s.note;
+    $('prev').disabled = i === 0; $('next').disabled = i === DEMO.length - 1;
+    history.replaceState(null, '', '#' + (i + 1));
+  };
+  $('prev').onclick = () => show(i - 1);
+  $('next').onclick = () => show(i + 1);
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') show(i + 1);
+    if (e.key === 'ArrowLeft') show(i - 1);
+    if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+  // les flèches marchent aussi quand le focus est dans la maquette
+  $('frame').addEventListener('load', () => { try { $('frame').contentWindow.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' && e.altKey) show(i + 1); if (e.key === 'ArrowLeft' && e.altKey) show(i - 1); }); } catch (e) {} });
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

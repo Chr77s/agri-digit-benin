@@ -1,0 +1,74 @@
+<!--{"title":"Contestations à instruire","desc":"Contestations des sélections validées : instruire et décider avec un motif (maquette).","search":"Ferme, producteur…"}-->
+<!--STYLE-->
+  .contest { display: flex; flex-direction: column; gap: 8px; }
+  .contest blockquote { margin: 0; padding: 10px 14px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+  .filters-row { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); max-width: 760px; }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Contestations à instruire</span></li></ol></nav>
+          <h1 class="page-title">Contestations à instruire</h1>
+          <p class="page-desc">Producteurs non retenus qui demandent un réexamen. Réponse attendue sous 15 jours.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><div class="al-body">Examinez chaque contestation et décidez : la décision est prise par une personne et toujours motivée. Le producteur est prévenu par message.</div></div>
+
+        <div class="filters-row">
+          <div class="field"><label class="label" for="c-run">Sélection</label><select class="select" id="c-run"><option>02/10/2026, Alibori (1 500 retenues)</option><option>18/06/2026, Alibori (800 retenues)</option></select></div>
+          <div class="field"><label class="label" for="c-show">Afficher</label><select class="select" id="c-show"><option>À instruire (3)</option><option>Toutes les contestations (7)</option></select></div>
+        </div>
+
+        <div class="grid" style="--min:340px">
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-02871</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 06/10/2026 par SMS · rang 1 612, score 0,701 · réponse due dans 3 jours</p>
+            <blockquote>« Ma parcelle fait 2 ha, pas 0,8 ha. Le satellite n'a pas vu la partie derrière le bas-fond. »</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-03390</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 12/10/2026 via l'application · rang 1 544, score 0,712 · réponse due dans 9 jours</p>
+            <blockquote>« La route goudronnée passe à 300 m de mon champ depuis 2025. La distance utilisée est ancienne. »</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-KAN-01118</h2><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de décision</span></div>
+            <p class="small muted">Déposée le 14/10/2026 par un agent pour le producteur · réponse due dans 11 jours</p>
+            <blockquote>« Je cultive du maïs et du sorgho en association ; le maïs n'a pas été détecté. »</blockquote>
+            <div class="cluster"><button type="button" class="btn btn-primary btn-sm" data-open-dialog="dlg-decide">Décider</button><a class="btn btn-ghost btn-sm" href="producteur-detail.html">Voir la fiche</a></div>
+          </article>
+          <article class="card contest">
+            <div class="cluster"><h2 class="card-title">Ferme F-BNK-00967</h2><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Acceptée</span></div>
+            <p class="small muted">Déposée le 04/10/2026 · décision du 09/10/2026 par Koffi Dossou</p>
+            <blockquote>« Mon champ a été mesuré au GPS par l'agent en septembre : 1,9 ha. »</blockquote>
+            <p class="small"><b>Motif de la décision :</b> mesure GPS de l'agent confirmée ; ferme ajoutée aux bénéficiaires.</p>
+          </article>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Rien à instruire</span><div class="card empty" style="padding:20px"><h3>Aucune contestation à instruire pour cette sélection</h3><p>Les nouvelles demandes arriveront ici et dans votre file de travail.</p></div></div>
+            <div><span class="states-cap">Aucune sélection validée</span><div class="card empty" style="padding:20px"><h3>Aucune sélection validée : il n'y a rien à instruire</h3></div></div>
+            <div><span class="states-cap">Décision enregistrée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Décision enregistrée. Le producteur est prévenu par message.</div></div></div>
+          </div>
+        </details>
+      </div>
+<!--DIALOGS-->
+<dialog class="modal" id="dlg-decide" aria-labelledby="dlg-de-t" aria-describedby="dlg-de-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-de-t">Décision sur la ferme F-BNK-02871</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-decide" novalidate>
+    <p id="dlg-de-d" class="muted">« Ma parcelle fait 2 ha, pas 0,8 ha. Le satellite n'a pas vu la partie derrière le bas-fond. »</p>
+    <dl class="dl"><dt>Surface retenue</dt><dd class="num">0,8 ha (détection satellite simulée)</dd><dt>Surface déclarée</dt><dd class="num">2,0 ha</dd><dt>Dernier retenu</dt><dd class="num">rang 1 500, score 0,744</dd></dl>
+    <fieldset class="fieldset" aria-describedby="de-st-e"><legend class="label">Décision</legend>
+      <label class="check"><input class="radio" type="radio" name="dec" aria-invalid="true"> Accepter la contestation</label>
+      <label class="check"><input class="radio" type="radio" name="dec" aria-invalid="true"> Rejeter la contestation</label>
+      <span class="error-msg" id="de-st-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez d'accepter ou de rejeter la contestation.</span>
+    </fieldset>
+    <div class="field"><label class="label" for="de-mo">Motif de la décision (obligatoire)</label><textarea class="textarea" id="de-mo" rows="4"></textarea><span class="hint">Exemple : mesure GPS faite sur place le 15/10, 1,9 ha.</span></div>
+    <label class="check"><input class="cb" type="checkbox"> Programmer une mesure GPS sur place avant de décider</label>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-decide" class="btn btn-primary" data-toast="Décision enregistrée. Le producteur est prévenu par message.">Enregistrer la décision</button></div>
+</dialog>

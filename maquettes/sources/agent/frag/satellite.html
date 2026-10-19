@@ -1,0 +1,73 @@
+<!--{"title":"Suivi satellite","desc":"Vigueur de la végétation et humidité du sol par commune du secteur, anomalies à vérifier (maquette, données simulées).","search":"Commune…"}-->
+<!--STYLE-->
+  .comm text { font: 700 12px var(--font-ui); fill: var(--canopy); }
+  .comm path { stroke: #fff; stroke-width: 2; }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Suivi satellite</span></li></ol></nav>
+          <h1 class="page-title">Suivi satellite</h1>
+          <p class="page-desc">Votre vue est limitée au département Alibori. Dernière acquisition : 15/10/2026.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-satellite"/></svg><div class="al-body"><span class="al-title">Données de démonstration, non officielles</span><span>Indices simulés à la manière de Sentinel-2 (NDVI) et SMAP (humidité). Aucune image réelle n'est utilisée.</span></div></div>
+        <p class="muted" style="max-width:72ch">Le NDVI mesure la vigueur de la végétation vue du ciel : proche de 0, il y a peu de plantes vertes ; proche de 1, la végétation est dense. L'humidité du sol est donnée en pourcentage. Les mentions écrites sont des repères de lecture, pas des seuils agronomiques officiels.</p>
+
+        <div class="split">
+          <section class="card" aria-labelledby="h-map">
+            <div class="card-head"><h2 class="card-title" id="h-map">NDVI par commune</h2><span class="badge badge--sim">Fond simulé</span></div>
+            <div class="map" style="aspect-ratio:4/3" role="img" aria-label="Carte schématique de l'Alibori : Banikoara et Kandi en végétation moyenne, Ségbana, Gogounou et Malanville vigoureuses, Karimama faible">
+              <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <rect width="400" height="300" fill="#EEF4E6"/>
+                <g class="comm">
+                  <path d="M40 20 L190 10 L200 90 L120 120 L30 100 Z" fill="#E8B9A2"/><text x="100" y="65">Karimama</text>
+                  <path d="M190 10 L360 30 L350 110 L200 90 Z" fill="#A6CC7E"/><text x="250" y="65">Malanville</text>
+                  <path d="M30 100 L120 120 L130 230 L40 250 Z" fill="#E9D58E"/><text x="45" y="180">Banikoara</text>
+                  <path d="M120 120 L200 90 L260 150 L230 220 L130 230 Z" fill="#E9D58E"/><text x="160" y="170">Kandi</text>
+                  <path d="M200 90 L350 110 L370 200 L260 150 Z" fill="#A6CC7E"/><text x="285" y="145">Ségbana</text>
+                  <path d="M130 230 L230 220 L260 150 L370 200 L330 290 L150 290 Z" fill="#A6CC7E"/><text x="235" y="255">Gogounou</text>
+                </g>
+                <circle cx="78" cy="205" r="9" fill="none" stroke="#B4532D" stroke-width="3"/>
+              </svg>
+              <div class="map-legend"><ul class="legend"><li><span class="sw" style="background:#E8B9A2"></span>Faible (&lt; 0,4)</li><li><span class="sw" style="background:#E9D58E"></span>Moyenne</li><li><span class="sw" style="background:#A6CC7E"></span>Vigoureuse (≥ 0,6)</li><li><span class="sw" style="background:none;border:2.5px solid #B4532D;border-radius:50%"></span>Anomalie</li></ul></div>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="h-ano">
+            <div class="card-head"><h2 class="card-title" id="h-ano">Anomalies à vérifier</h2><span class="badge badge--sim">Simulé</span></div>
+            <ul class="list">
+              <li class="list-item" style="align-items:flex-start"><span class="li-icon" style="color:var(--laterite)"><svg class="ic" aria-hidden="true"><use href="#i-trend"/></svg></span><span class="li-main"><span class="li-title">Banikoara, Kokey : NDVI en baisse</span><span class="li-meta">−0,18 en 10 jours sur 140 ha de maïs. Stress hydrique ou chenille légionnaire possible.</span><span class="cluster" style="margin-top:8px"><a class="btn btn-secondary btn-sm" href="alertes.html">Préparer une alerte</a><button type="button" class="btn btn-ghost btn-sm" data-toast="Visite ajoutée à votre tournée de lundi.">Planifier une visite</button></span></span></li>
+              <li class="list-item" style="align-items:flex-start"><span class="li-icon" style="color:var(--laterite)"><svg class="ic" aria-hidden="true"><use href="#i-drop"/></svg></span><span class="li-main"><span class="li-title">Karimama : sol sec</span><span class="li-meta">Humidité 14 %, la plus basse du département.</span></span></li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-sat">
+          <div class="table-toolbar"><h2 class="card-title" id="t-sat" style="margin-right:auto">Communes de l'Alibori</h2><button type="button" class="btn btn-secondary btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</button></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">NDVI et humidité du sol par commune</caption>
+              <thead><tr><th scope="col">Commune</th><th scope="col">NDVI (vigueur de la végétation)</th><th scope="col">Humidité du sol</th><th scope="col">Date d'acquisition</th><th scope="col">Capteur</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Banikoara</span><span class="cell-sub">1 anomalie</span></td><td data-label="NDVI"><span class="meter meter--mid"><span class="meter-track" aria-hidden="true"><span style="--v:52%"></span></span><b class="num">0,52 : végétation moyenne</b></span></td><td data-label="Humidité"><span class="meter meter--mid"><span class="meter-track" aria-hidden="true"><span style="--v:24%"></span></span><b class="num">24,0 % : sol moyennement humide</b></span></td><td data-label="Acquisition" class="num">15/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Gogounou</span></td><td data-label="NDVI"><span class="meter"><span class="meter-track" aria-hidden="true"><span style="--v:66%"></span></span><b class="num">0,66 : végétation vigoureuse</b></span></td><td data-label="Humidité"><span class="meter"><span class="meter-track" aria-hidden="true"><span style="--v:31%"></span></span><b class="num">31,2 % : sol humide</b></span></td><td data-label="Acquisition" class="num">15/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Kandi</span></td><td data-label="NDVI"><span class="meter meter--mid"><span class="meter-track" aria-hidden="true"><span style="--v:57%"></span></span><b class="num">0,57 : végétation moyenne</b></span></td><td data-label="Humidité"><span class="meter meter--mid"><span class="meter-track" aria-hidden="true"><span style="--v:26%"></span></span><b class="num">26,4 % : sol moyennement humide</b></span></td><td data-label="Acquisition" class="num">15/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Karimama</span><span class="cell-sub">1 anomalie</span></td><td data-label="NDVI"><span class="meter meter--low"><span class="meter-track" aria-hidden="true"><span style="--v:34%"></span></span><b class="num">0,34 : végétation faible</b></span></td><td data-label="Humidité"><span class="meter meter--low"><span class="meter-track" aria-hidden="true"><span style="--v:14%"></span></span><b class="num">14,0 % : sol sec</b></span></td><td data-label="Acquisition" class="num">12/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Malanville</span></td><td data-label="NDVI"><span class="meter"><span class="meter-track" aria-hidden="true"><span style="--v:63%"></span></span><b class="num">0,63 : végétation vigoureuse</b></span></td><td data-label="Humidité"><span class="meter"><span class="meter-track" aria-hidden="true"><span style="--v:38%"></span></span><b class="num">38,5 % : sol humide</b></span></td><td data-label="Acquisition" class="num">15/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+                <tr><td class="td-primary" data-label="Commune"><span class="cell-main">Ségbana</span></td><td data-label="NDVI"><span class="meter"><span class="meter-track" aria-hidden="true"><span style="--v:68%"></span></span><b class="num">0,68 : végétation vigoureuse</b></span></td><td data-label="Humidité"><span class="muted">Non disponible</span></td><td data-label="Acquisition" class="num">15/10/2026</td><td data-label="Capteur">Sentinel-2 (simulé)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucune donnée</span><div class="card empty" style="padding:20px"><h3>Aucune donnée satellite pour ce département</h3><p>Les images de la semaine sont en cours de traitement.</p></div></div>
+            <div><span class="states-cap">Chargement</span><div class="card" aria-busy="true" aria-label="Chargement des indices"><span class="skel skel-block"></span></div></div>
+            <div><span class="states-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Indices du 15/10 gardés sur l'appareil.</span></div></div>
+          </div>
+        </details>
+      </div>

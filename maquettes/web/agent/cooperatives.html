@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coopératives · Agri-Digit Bénin</title>
+<meta name="description" content="Liste des coopératives du secteur, filtres et création (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local à l'espace agent (absent du kit) : panneau « États », jauge */
+  .states { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; font-weight: 700; color: var(--ink-2); list-style: none; border-radius: var(--r-lg); }
+  .states > summary::-webkit-details-marker { display: none; }
+  .states > summary .ic { transition: transform var(--t) var(--ease); }
+  .states[open] > summary .ic { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .states-cap { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+  .meter { display: inline-flex; align-items: center; gap: 10px; }
+  .meter-track { width: 88px; height: 10px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
+  .meter-track > span { display: block; height: 100%; width: var(--v); background: var(--leaf); border-radius: inherit; }
+  .meter--low .meter-track > span { background: var(--laterite); }
+  .meter--mid .meter-track > span { background: var(--d3); }
+  .table td.td-primary .num { text-align: left; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+</style>
+</head>
+<body data-role="agent_atda" data-page="agent/cooperatives">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Nom de coopérative, commune…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 saisies en attente">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="accueil.html" aria-label="File de travail, 14 éléments">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">14</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">KD</span>
+          <span class="pb-name"><span data-kit-user>Koffi Dossou</span><small data-kit-role>Agent ATDA</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Koffi Dossou</b><span class="muted" data-kit-role>Agent ATDA</span></div>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil et mon secteur</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg>Mes accès journalisés</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Coopératives</span></li></ol></nav>
+          <h1 class="page-title">Coopératives</h1>
+          <p class="page-desc">Groupements de producteurs du département&nbsp;: membres, adhésions et offres groupées.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary" data-open-dialog="dlg-coop"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Créer une coopérative</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="table-card" aria-labelledby="t-coop">
+          <div class="table-toolbar">
+            <h2 class="sr-only" id="t-coop">Liste des coopératives</h2>
+            <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="co-q">Nom de la coopérative</label><input class="input" id="co-q" type="search" placeholder="Nom de la coopérative"></div>
+            <div class="field" style="min-width:200px"><label class="sr-only" for="co-dep">Département</label><select class="select" id="co-dep"><option>Alibori</option><option>Tous les départements</option><option>Borgou</option><option>Atacora</option></select></div>
+            <div class="chips" role="group" aria-label="Filière"><button class="chip" type="button" aria-pressed="false">Maïs</button><button class="chip" type="button" aria-pressed="false">Coton</button><button class="chip" type="button" aria-pressed="false">Soja</button></div>
+          </div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Coopératives de l'Alibori</caption>
+              <thead><tr><th scope="col" aria-sort="ascending"><button class="th-sort" type="button">Nom<svg class="ic" aria-hidden="true"><use href="#i-sort-asc"/></svg></button></th><th scope="col">Siège</th><th scope="col">Filières</th><th scope="col" class="num" aria-sort="none"><button class="th-sort" type="button">Membres actifs<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th><th scope="col">Offres groupées</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Nom"><a class="cell-main" href="cooperative-detail.html">Coopérative des producteurs de maïs de Sompérékou</a><span class="cell-sub num">N° RCS-AL-2019-0041</span></td><td data-label="Siège">Banikoara (Alibori)</td><td data-label="Filières">Maïs, soja</td><td class="num" data-label="Membres actifs">64</td><td data-label="Offres groupées"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg>1 en cours</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="cooperative-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><a class="cell-main" href="cooperative-detail.html">Groupement des femmes Gnon Kpè de Founougo</a><span class="cell-sub">Sans numéro d'enregistrement</span></td><td data-label="Siège">Banikoara (Alibori)</td><td data-label="Filières">Soja, niébé</td><td class="num" data-label="Membres actifs">38</td><td data-label="Offres groupées"><span class="badge badge--neutral">Aucune</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="cooperative-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><a class="cell-main" href="cooperative-detail.html">Coopérative cotonnière de Goumori</a><span class="cell-sub num">N° RCS-AL-2016-0012</span></td><td data-label="Siège">Banikoara (Alibori)</td><td data-label="Filières">Coton, maïs</td><td class="num" data-label="Membres actifs">121</td><td data-label="Offres groupées"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg>2 en cours</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="cooperative-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><a class="cell-main" href="cooperative-detail.html">Coop. Kandi Maïs</a><span class="cell-sub num">N° RCS-AL-2021-0087</span></td><td data-label="Siège">Kandi (Alibori)</td><td data-label="Filières">Maïs</td><td class="num" data-label="Membres actifs">87</td><td data-label="Offres groupées"><span class="badge badge--neutral">Aucune</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="cooperative-detail.html">Ouvrir</a></td></tr>
+                <tr><td class="td-primary" data-label="Nom"><a class="cell-main" href="cooperative-detail.html">Union des riziculteurs de Malanville</a><span class="cell-sub num">N° RCS-AL-2018-0029</span></td><td data-label="Siège">Malanville (Alibori)</td><td data-label="Filières">Riz</td><td class="num" data-label="Membres actifs">152</td><td data-label="Offres groupées"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg>1 en cours</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="cooperative-detail.html">Ouvrir</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–5 sur 7 coopératives</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucun résultat</span><div class="card empty" style="padding:20px"><h3>Aucune coopérative pour ce filtre</h3><p>Créez la première coopérative avec le bouton «&nbsp;Créer une coopérative&nbsp;».</p><button type="button" class="btn btn-primary" data-open-dialog="dlg-coop">Créer une coopérative</button></div></div>
+            <div><span class="states-cap">Chargement</span><div class="card" aria-busy="true" aria-label="Chargement des coopératives"><span class="skel skel-line"></span><span class="skel skel-line" style="width:75%"></span><span class="skel skel-line" style="width:88%"></span></div></div>
+            <div><span class="states-cap">Créée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Coopérative enregistrée. Ajoutez maintenant ses membres.</div></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+<dialog class="modal" id="dlg-coop" aria-labelledby="dlg-co-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-co-t">Créer une coopérative</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-coop" novalidate>
+    <div class="field"><label class="label" for="cc-nom">Nom</label><input class="input" id="cc-nom" value="Co" aria-invalid="true" aria-describedby="cc-nom-e"><span class="error-msg" id="cc-nom-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Saisissez le nom complet de la coopérative (3 caractères minimum).</span></div>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="cc-dep">Département</label><select class="select" id="cc-dep"><option>Alibori</option></select></div>
+      <div class="field"><label class="label" for="cc-com">Commune du siège</label><select class="select" id="cc-com"><option>Choisir…</option><option>Banikoara</option><option>Gogounou</option><option>Kandi</option><option>Karimama</option><option>Malanville</option><option>Ségbana</option></select></div>
+    </div>
+    <fieldset class="fieldset"><legend class="label">Filières (au moins une)</legend>
+      <div class="chips"><button class="chip" type="button" aria-pressed="true">Maïs</button><button class="chip" type="button" aria-pressed="false">Coton</button><button class="chip" type="button" aria-pressed="false">Soja</button><button class="chip" type="button" aria-pressed="false">Sorgho</button><button class="chip" type="button" aria-pressed="false">Niébé</button><button class="chip" type="button" aria-pressed="false">Riz</button></div>
+    </fieldset>
+    <div class="field"><label class="label" for="cc-rcs">Numéro d'enregistrement <span class="opt">(facultatif)</span></label><input class="input" id="cc-rcs" placeholder="Ex. RCS-AL-2026-0001"></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-coop" class="btn btn-primary" data-toast="Coopérative enregistrée.">Enregistrer la coopérative</button></div>
+</dialog>
+</body>
+</html>

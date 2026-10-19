@@ -1,0 +1,163 @@
+---
+title: Accueil
+desc: Accueil du producteur : météo du jour, alertes, stade des parcelles, tâches de la semaine et appuis à confirmer.
+search: Rechercher une parcelle, un message…
+---
+<!--@head-->
+.wx-now { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.wx-now .wx-ic { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--sun-bg); color: var(--sun-ink); flex: none; }
+.wx-now .wx-ic .ic { width: 34px; height: 34px; }
+.wx-temp { font: 700 2.5rem/1 var(--font-display); letter-spacing: -.02em; }
+.wx-days { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.wx-days li { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); text-align: center; }
+.wx-days li.is-rain { background: #EEF5FA; border-color: #C7DCE8; }
+.wx-days b { font-size: var(--fs-md); }
+.wx-days .ic { color: var(--leaf); }
+.wx-days .is-rain .ic { color: #2E6A8E; }
+.task { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.task:first-child { border-top: 0; padding-top: 0; }
+.task label { flex: 1; min-width: 0; cursor: pointer; }
+.task .cb { margin-top: 2px; }
+.task .t-title { display: block; font-weight: 700; }
+.task .t-meta { display: block; font-size: var(--fs-sm); color: var(--ink-2); }
+.task input:checked + label .t-title { text-decoration: line-through; color: var(--ink-2); }
+.shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.shortcut { display: flex; flex-direction: column; gap: 10px; min-height: 104px; padding: 14px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; line-height: 1.25; transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease); }
+.shortcut:hover { border-color: #B9C8AF; background: var(--surface-2); }
+.shortcut .sc-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--layer); color: var(--leaf); }
+.shortcut small { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--ink-2); }
+.parcel-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 8px 20px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.parcel-row:first-of-type { border-top: 0; padding-top: 0; }
+.parcel-row a { font-weight: 700; color: var(--ink); }
+@media (max-width: 560px) { .parcel-row { grid-template-columns: 1fr; } .wx-days { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Bonjour Awa</h1>
+          <p class="page-desc">Mardi 18 octobre 2026 · Banikoara, Alibori. Voici ce qui compte aujourd'hui pour vos champs.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture à voix haute de la page (simulée)." data-toast-type="demo">{{I:megaphone}}Écouter la page</button>
+          <a class="btn btn-primary" href="assistant.html">{{I:chat}}Poser une question</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn" role="status">
+          {{I:alert}}
+          <div class="al-body">
+            <span class="al-title">Chenille légionnaire signalée à Sompérékou et Kokey</span>
+            <span>Votre agent ATDA, Moussa Yarou, a vu des dégâts sur le maïs cette semaine. Regardez le cœur des plants du Champ de Sompérékou avant samedi.</span>
+            <div class="al-actions">
+              <a class="btn btn-secondary btn-sm" href="diagnostic.html">{{I:camera}}Envoyer une photo</a>
+              <a class="btn btn-ghost btn-sm" href="messages.html">Lire l'alerte complète</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-meteo">
+              <div class="card-head">
+                <div><h2 class="card-title" id="t-meteo">Météo à Banikoara</h2><p class="card-sub">Mise à jour à 6 h 00</p></div>
+                <span class="badge badge--sim">Prévision simulée</span>
+              </div>
+              <div class="wx-now">
+                <span class="wx-ic">{{I:cloud-sun}}</span>
+                <div>
+                  <p class="wx-temp num">31 °C</p>
+                  <p class="muted">Ciel voilé, vent faible. Pluie : <span class="num">10 %</span>.</p>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="meteo-prix.html" style="margin-left:auto">Prévisions sur 7 jours{{I:chevron-right}}</a>
+              </div>
+              <ul class="wx-days" aria-label="Prochains jours">
+                <li><span>Mer.</span>{{I:sun}}<b class="num">33°</b><span class="num muted">0 mm</span></li>
+                <li class="is-rain"><span>Jeu.</span>{{I:drop}}<b class="num">27°</b><span class="num">62 mm</span></li>
+                <li class="is-rain"><span>Ven.</span>{{I:drop}}<b class="num">28°</b><span class="num">18 mm</span></li>
+                <li><span>Sam.</span>{{I:cloud-sun}}<b class="num">30°</b><span class="num muted">2 mm</span></li>
+              </ul>
+              <div class="alert alert--info" style="margin-top:14px">
+                {{I:drop}}
+                <div class="al-body"><span class="al-title">Pluie forte jeudi</span><span>Reportez l'apport d'urée sur le maïs à samedi : la pluie le lessiverait.</span></div>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="t-stade">
+              <div class="card-head">
+                <div><h2 class="card-title" id="t-stade">Où en sont mes parcelles</h2><p class="card-sub">Saison 2026-pluie-1 · 4 campagnes ouvertes</p></div>
+                <a class="btn btn-ghost btn-sm" href="campagnes.html">Mes campagnes{{I:chevron-right}}</a>
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Champ de Sompérékou</a><p class="small muted">Maïs · <span class="num">1,82 ha</span></p></div>
+                {{STAGE:3}}
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Champ de la route</a><p class="small muted">Coton · <span class="num">1,20 ha</span></p></div>
+                {{STAGE:2}}
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Bas-fond Kokey</a><p class="small muted">Riz · <span class="num">0,94 ha</span> · {{B:wait|Chevauchement à vérifier}}</p></div>
+                {{STAGE:2}}
+              </div>
+              <div class="parcel-row">
+                <div><a href="parcelle-detail.html">Jardin de case</a><p class="small muted">Soja · <span class="num">0,68 ha</span></p></div>
+                {{STAGE:4}}
+              </div>
+            </section>
+          </div>
+
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-taches">
+              <div class="card-head"><h2 class="card-title" id="t-taches">À faire cette semaine</h2><span class="small muted num">1 sur 4 fait</span></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk1"><label for="tk1"><span class="t-title">Inspecter le maïs (chenille)</span><span class="t-meta">Champ de Sompérékou · avant samedi</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk2"><label for="tk2"><span class="t-title">Apport d'urée, 1 sac</span><span class="t-meta">Champ de Sompérékou · samedi, après la pluie</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk3" checked><label for="tk3"><span class="t-title">Sarclage du coton</span><span class="t-meta">Champ de la route · fait le 15 oct.</span></label></div>
+              <div class="task"><input class="cb" type="checkbox" id="tk4"><label for="tk4"><span class="t-title">Déclarer la récolte de soja</span><span class="t-meta">Jardin de case · stade Récolte atteint</span></label></div>
+              <p class="hint" style="margin-top:8px">Tâches proposées d'après le calendrier cultural INRAB (démonstration).</p>
+            </section>
+
+            <section class="card" aria-labelledby="t-appuis">
+              <div class="card-head"><h2 class="card-title" id="t-appuis">Appui à confirmer</h2>{{B:wait|1 en attente}}</div>
+              <ul class="list">
+                <li class="list-item"><span class="li-icon">{{I:gift}}</span><span class="li-main"><span class="li-title">Engrais NPK 15-15-15, 2 sacs</span><span class="li-meta">Remis le 14 oct. par Moussa Yarou · à rembourser</span></span></li>
+              </ul>
+              <div class="cluster" style="margin-top:12px">
+                <button type="button" class="btn btn-primary" data-toast="Merci. Votre confirmation est enregistrée." data-toast-title="Réception confirmée">{{I:check}}J'ai bien reçu</button>
+                <a class="btn btn-ghost" href="appuis.html">Voir mes appuis</a>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="t-raccourcis">
+              <h2 class="card-title" id="t-raccourcis" style="margin-bottom:14px">Accès rapides</h2>
+              <div class="shortcuts">
+                <a class="shortcut" href="diagnostic.html"><span class="sc-ic">{{I:leaf-scan}}</span><span>Photo de plante<small>Une feuille malade ?</small></span></a>
+                <a class="shortcut" href="marche.html"><span class="sc-ic">{{I:market}}</span><span>Vendre<small>Publier une offre</small></span></a>
+                <a class="shortcut" href="meteo-prix.html"><span class="sc-ic">{{I:coins}}</span><span>Prix du marché<small>Maïs à Parakou</small></span></a>
+                <a class="shortcut" href="carte.html"><span class="sc-ic">{{I:id-card}}</span><span>Ma carte<small>Code producteur</small></span></a>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Hors ligne</span>
+              <div class="banner banner--offline" style="border-radius:var(--r-md)">{{I:wifi-off}}<span>Hors ligne. Météo et alertes datent d'hier, 18 h. 2 saisies attendent le réseau.</span></div>
+            </div>
+            <div><span class="state-cap">Nouveau compte, rien encore</span>
+              <div class="card empty">
+                <h3>Commencez par déclarer un champ</h3>
+                <p>Dessinez votre parcelle sur la carte : la météo, les conseils et les tâches s'adapteront à votre culture.</p>
+                <a class="btn btn-primary" href="parcelles.html">{{I:plus}}Déclarer une parcelle</a>
+              </div>
+            </div>
+            <div><span class="state-cap">Chargement</span>
+              <div class="card" aria-busy="true" aria-label="Chargement de l'accueil"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:12px"></span></div>
+            </div>
+            <div><span class="state-cap">Erreur météo</span>
+              <div class="card state-error" role="alert"><span class="se-icon">{{I:cloud-sun:lg}}</span><h3>Météo indisponible</h3><p>Le service météo ne répond pas. Réessayez dans quelques minutes.</p><button type="button" class="btn btn-secondary">{{I:sync}}Réessayer</button></div>
+            </div>
+          </div>
+        </details>
+      </div>

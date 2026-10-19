@@ -1,0 +1,75 @@
+---
+{"role":"auditeur_copil","title":"Journal d'audit","desc":"Journal d'audit non modifiable : qui, quoi, quand, sur quelle donnée ; filtres et détail (maquette).","search":"Rechercher dans le journal…","notif":0}
+---
+<!--@head-->
+  .filters { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); align-items: end; }
+  .code { font-family: ui-monospace, Consolas, monospace; font-size: .8125rem; background: var(--layer); border-radius: var(--r-sm); padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+  .act { font-family: ui-monospace, Consolas, monospace; font-size: .8125rem; overflow-wrap: anywhere; }
+  .chain { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--ink-2); }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="journal.html">Gouvernance</a></li><li><span aria-current="page">Journal d'audit</span></li></ol></nav>
+          <h1 class="page-title">Journal d'audit</h1>
+          <p class="page-desc">Lecture seule. Le journal n'est pas modifiable : qui, quoi, quand, sur quelle donnée. Chaque entrée est chaînée à la précédente ; toute retouche casserait la chaîne.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" data-toast="Export du journal inscrit lui-même au journal (simulation)."><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter la sélection</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><div class="al-body"><span class="al-title">Chaîne intègre</span><span>148 902 entrées vérifiées le 18/10/2026 à 06:00. Aucune rupture d'empreinte.</span></div></div>
+
+        <form class="card card--flat filters" role="search" aria-label="Filtrer le journal" onsubmit="return false">
+          <div class="field"><label class="label" for="j-act">Action</label><input class="input" id="j-act" value="export" placeholder="Ex. producer.view"></div>
+          <div class="field"><label class="label" for="j-actor">Acteur (téléphone)</label><input class="input input-num" id="j-actor" inputmode="numeric" placeholder="01 97 …"></div>
+          <div class="field"><label class="label" for="j-obj">Objet</label><select class="select" id="j-obj"><option>Tous</option><option>Producteur</option><option>Export</option><option>Compte</option><option>Score de crédit</option><option>Paiement</option><option>Partenaire</option></select></div>
+          <div class="field"><label class="label" for="j-from">Du</label><input class="input" id="j-from" type="date" value="2026-10-01"></div>
+          <div class="field"><label class="label" for="j-to">Au</label><input class="input" id="j-to" type="date" value="2026-10-18"></div>
+          <button type="button" class="btn btn-ghost">Effacer les filtres</button>
+        </form>
+
+        <section class="table-card" aria-labelledby="h-j">
+          <div class="table-toolbar"><h2 class="card-title" id="h-j" style="margin-right:auto">Entrées <span class="muted num" style="font-weight:600">· 6 sur 312</span></h2><span class="chain"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Aucune modification possible</span></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Journal d'audit filtré : date, acteur, rôle, action, objet, détails</caption>
+              <thead><tr><th scope="col" aria-sort="descending"><button type="button" class="th-sort">Date<svg class="ic" aria-hidden="true"><use href="#i-sort-desc"/></svg></button></th><th scope="col">Acteur</th><th scope="col">Rôle</th><th scope="col">Action</th><th scope="col">Objet</th><th scope="col">Détails</th><th scope="col" class="col-actions"><span class="sr-only">Détail</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">18/10/2026 08:12:41</span></td><td class="num" data-label="Acteur">01 97 21 44 08</td><td data-label="Rôle">Administrateur MAEP</td><td data-label="Action"><span class="act">export.create</span></td><td data-label="Objet">Export farms_aggregates</td><td data-label="Détails">Motif : « Préparation du comité de pilotage du 22 octobre » · 77 lignes</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">17/10/2026 15:03:09</span></td><td class="num" data-label="Acteur">01 61 77 02 49</td><td data-label="Rôle">Agent financier</td><td data-label="Action"><span class="act">credit.score.view</span></td><td data-label="Objet">Producteur ALI-BNK-00412</td><td data-label="Détails">Score consulté, consentement actif depuis le 03/09/2026</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">15/10/2026 16:47:22</span></td><td class="num" data-label="Acteur">01 97 21 44 08</td><td data-label="Rôle">Administrateur MAEP</td><td data-label="Action"><span class="act">export.create</span></td><td data-label="Objet">Export supports</td><td data-label="Détails">Motif : « Rapprochement avec les bons de livraison… » · 4 208 lignes</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">14/10/2026 09:30:55</span></td><td class="num" data-label="Acteur">—</td><td data-label="Rôle">Partenaire (clé d'API)</td><td data-label="Action"><span class="act">interop.aggregates</span></td><td data-label="Objet">Partenaire FNDA</td><td data-label="Détails">112 lignes agrégées, aucune donnée personnelle</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">12/10/2026 11:18:02</span></td><td class="num" data-label="Acteur">01 97 21 44 08</td><td data-label="Rôle">Administrateur MAEP</td><td data-label="Action"><span class="act">user.update</span></td><td data-label="Objet">Compte Sylvain Kpadonou</td><td data-label="Détails">is_active : vrai → faux</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+                <tr><td class="td-primary num" data-label="Date"><span class="cell-main">10/10/2026 07:44:17</span></td><td class="num" data-label="Acteur">01 96 40 12 77</td><td data-label="Rôle">Agent ATDA</td><td data-label="Action"><span class="act">producer.view</span></td><td data-label="Objet">Producteur ALI-BNK-00187</td><td data-label="Détails">Consultation de la fiche (secteur Banikoara)</td><td class="col-actions"><button type="button" class="btn btn-ghost btn-sm" data-open-dialog="dlg-entry">Détail</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">1–6 sur 312 entrées</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><span aria-hidden="true">…</span><button class="page-btn" type="button">52</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+      </div>
+
+      <!--STATES {"empty":["Aucune entrée pour ces filtres","Élargissez la période ou effacez le filtre d'action. Le journal lui-même n'est jamais vide.","Effacer les filtres"],"error":["Journal momentanément illisible","La lecture a échoué. Aucune entrée n'est perdue : l'écriture et la lecture sont séparées.","ERR_AUDIT_READ · 503"],"extra":"<div class=\"alert alert--danger\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-x-circle\"/></svg><div class=\"al-body\"><span class=\"al-title\">Rupture de chaîne détectée</span><span>Entrée n° 148 211 : l'empreinte ne correspond pas. Le comité de pilotage et le DPO sont prévenus.</span></div></div>"}-->
+<!--@after-->
+<dialog class="modal modal--sheet" id="dlg-entry" aria-labelledby="dlg-e-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-e-t">Entrée n° 148 902</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body">
+    <span class="badge badge--neutral" style="align-self:flex-start"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Lecture seule</span>
+    <dl class="dl">
+      <dt>Date</dt><dd class="num">18/10/2026 08:12:41 (heure du serveur)</dd>
+      <dt>Acteur</dt><dd>Clarisse Agbo · 01 97 21 44 08</dd>
+      <dt>Rôle</dt><dd>Administrateur MAEP</dd>
+      <dt>Action</dt><dd><span class="act">export.create</span></dd>
+      <dt>Objet</dt><dd>Export · farms_aggregates</dd>
+    </dl>
+    <div><p class="label" style="margin-bottom:6px">Détails</p><pre class="code">{
+  "dataset": "farms_aggregates",
+  "reason": "Préparation du comité de pilotage du 22 octobre",
+  "rows": 77,
+  "scope": "national"
+}</pre></div>
+    <div><p class="label" style="margin-bottom:6px">Empreinte</p><p class="code">précédente 9f2c…a81e<br>cette entrée 41b7…0c3d</p></div>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-secondary" data-close-dialog>Fermer</button></div>
+</dialog>

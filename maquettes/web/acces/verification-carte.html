@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérification d'une carte · Agri-Digit Bénin</title>
+<meta name="description" content="Page publique ouverte par le QR code d'une carte de producteur : statut et nom seulement (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  /* Panneau « États » repliable, pour la revue */
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  .vf { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: 28px var(--gutter) 56px; display: flex; flex-direction: column; gap: 22px; }
+  .vf-code { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--r-pill); background: var(--layer); font-weight: 700; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+  .result { padding: 0; overflow: hidden; }
+  .res-top { display: flex; align-items: center; gap: 14px; padding: 18px 22px; }
+  .res-top .res-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; flex: none; }
+  .res-top h2 { font: 700 var(--fs-xl)/1.2 var(--font-ui); }
+  .res-top p { color: var(--ink-2); font-size: var(--fs-sm); }
+  .res--ok .res-top { background: #F1F8EA; border-bottom: 1px solid #BFDDA8; }
+  .res--ok .res-icon { background: var(--leaf); color: #fff; }
+  .res--wait .res-top { background: var(--wait-bg); border-bottom: 1px solid #B9C8AF; }
+  .res--wait .res-icon { background: var(--surface); color: var(--wait-ink); border: 1.5px solid #B9C8AF; }
+  .res--bad .res-top { background: var(--bad-bg); border-bottom: 1px solid #E3B29C; }
+  .res--bad .res-icon { background: var(--laterite); color: #fff; }
+  .res--bad .res-top h2 { color: var(--bad-ink); }
+  .res-body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 16px; }
+  .res-name { font: 700 clamp(1.5rem, 1.2rem + 1.2vw, 2rem)/1.15 var(--font-display); letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .res-privacy { display: flex; gap: 10px; align-items: flex-start; font-size: var(--fs-sm); color: var(--ink-2); }
+  .res-privacy .ic { width: 18px; height: 18px; color: var(--leaf); margin-top: 1px; }
+  .result .badge { white-space: normal; }
+  .check-row { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .check-row .input { flex: 1 1 200px; width: auto; text-transform: uppercase; letter-spacing: .14em; font-weight: 700; }
+  .steps-help { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); }
+</style>
+</head>
+<body data-page="acces/verification-carte">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+
+  <main class="vf" id="contenu" tabindex="-1">
+    <div>
+      <h1 class="page-title">Vérification d'une carte de producteur</h1>
+      <p class="page-desc">Vous avez scanné le QR code d'une carte Agri-Digit. Cette page confirme si la carte est authentique et en cours de validité.</p>
+    </div>
+
+    <p>Code à vérifier : <span class="vf-code" id="vf-code">K7M2Q9XA</span></p>
+
+    <div id="result" aria-live="polite">
+      <section class="card result res--ok" aria-labelledby="r-ok">
+        <div class="res-top">
+          <span class="res-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-check"/></svg></span>
+          <div><h2 id="r-ok">Carte valide</h2><p>Délivrée par le MAEP après validation de l'agent ATDA.</p></div>
+        </div>
+        <div class="res-body">
+          <p class="res-name">Awa SABI</p>
+          <dl class="dl">
+            <dt>Statut de la fiche</dt><dd><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validé</span></dd>
+            <dt>Vérifiée le</dt><dd class="num">18/10/2026 à 14:32</dd>
+          </dl>
+          <p class="res-privacy"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Pour protéger le producteur, cette page n'affiche que son nom et le statut de sa carte : ni NPI, ni téléphone, ni parcelles (minimisation, loi n° 2017-20, art. 424).</span></p>
+        </div>
+      </section>
+    </div>
+
+    <section class="card stack" aria-labelledby="h-autre" style="--gap:14px">
+      <h2 class="card-title" id="h-autre">Vérifier un autre code</h2>
+      <form class="field" id="f-verif" novalidate>
+        <label class="label" for="code">Code de vérification</label>
+        <div class="check-row">
+          <input class="input" id="code" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ex. K7M2Q9XA" aria-describedby="code-h code-e">
+          <button class="btn btn-primary" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>Vérifier</button>
+        </div>
+        <span class="hint" id="code-h">8 caractères imprimés sous le QR code. Pas de 0, O, 1 ni I, pour éviter les confusions.</span>
+        <span class="error-msg" id="code-e" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le code contient 8 lettres ou chiffres. Recopiez-le depuis la carte.</span>
+      </form>
+      <p class="small muted">Codes de démonstration : K7M2Q9XA (valide), H3RT8WPZ (en attente), Z9XB4MNC (non valide). Tout autre code est inconnu.</p>
+    </section>
+
+    <section aria-labelledby="h-conseil" class="stack" style="--gap:10px">
+      <h2 class="card-title" id="h-conseil">En cas de doute</h2>
+      <ol class="steps-help">
+        <li>Comparez le nom affiché avec la pièce d'identité de la personne.</li>
+        <li>Si la carte est non valide ou inconnue, ne l'acceptez pas comme preuve.</li>
+        <li>Signalez-le à l'agent ATDA de la commune : il peut vérifier la fiche complète.</li>
+      </ol>
+    </section>
+
+    <details class="review" id="etats">
+      <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de l'écran (revue)<svg class="ic chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+      <div class="review-body">
+        <section class="card result res--wait" data-res="H3RT8WPZ" aria-labelledby="r-wait">
+          <div class="res-top">
+            <span class="res-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-clock"/></svg></span>
+            <div><h2 id="r-wait">Carte pas encore délivrée</h2><p>La fiche attend la validation de l'agent ATDA.</p></div>
+          </div>
+          <div class="res-body">
+            <p class="res-name">Bawa OROU</p>
+            <dl class="dl"><dt>Statut de la fiche</dt><dd><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente de validation</span></dd></dl>
+          </div>
+        </section>
+        <section class="card result res--bad" data-res="Z9XB4MNC" aria-labelledby="r-bad">
+          <div class="res-top">
+            <span class="res-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-x"/></svg></span>
+            <div><h2 id="r-bad">Carte non valide</h2><p>Carte expirée ou retirée par l'agent ATDA.</p></div>
+          </div>
+          <div class="res-body">
+            <p class="res-name">Chabi GADO</p>
+            <dl class="dl"><dt>Statut de la fiche</dt><dd><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Rejeté</span></dd></dl>
+            <p class="res-privacy"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span>N'acceptez pas cette carte comme preuve. Le producteur peut contester auprès de son agent.</span></p>
+          </div>
+        </section>
+        <section class="card empty" data-res="inconnu" aria-labelledby="r-unk">
+          <span class="se-icon" style="display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--layer);color:var(--ink-2)"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-search"/></svg></span>
+          <h3 id="r-unk">Code inconnu</h3>
+          <p>Aucune carte ne correspond à ce code. Vérifiez les caractères ou demandez au producteur de montrer sa carte.</p>
+        </section>
+        <div class="card state-error" role="alert">
+          <span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span>
+          <h3>Vérification impossible pour l'instant</h3>
+          <p>Le serveur ne répond pas. Vérifiez la connexion puis réessayez.</p>
+          <code>ERR_RESEAU · 504</code>
+          <button class="btn btn-primary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button>
+        </div>
+        <div class="card" aria-busy="true" aria-label="Vérification en cours">
+          <span class="skel skel-title"></span>
+          <span class="skel skel-line" style="width:60%"></span>
+          <span class="skel skel-line" style="width:40%"></span>
+          <span class="skel skel-block" style="margin-top:12px;height:56px"></span>
+        </div>
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+          <div class="al-body"><span class="al-title">Trop de vérifications depuis cet appareil</span><span>Patientez une minute avant de vérifier un autre code.</span></div>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<script>
+  // Démonstration : un code saisi affiche le résultat correspondant (valide, en attente, non valide, inconnu)
+  (function () {
+    var res = document.getElementById('result'), ok = res.innerHTML;
+    document.getElementById('f-verif').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var i = document.getElementById('code'), err = document.getElementById('code-e'), v = i.value.trim().toUpperCase();
+      var bad = !/^[A-HJ-NP-Z2-9]{8}$/.test(v);
+      err.hidden = !bad; if (bad) { i.setAttribute('aria-invalid', 'true'); i.focus(); return; }
+      i.removeAttribute('aria-invalid');
+      document.getElementById('vf-code').textContent = v;
+      var tpl = v === 'K7M2Q9XA' ? null : document.querySelector('[data-res="' + v + '"]') || document.querySelector('[data-res="inconnu"]');
+      res.innerHTML = tpl ? tpl.outerHTML.replace(/ id="r-[a-z]+"/, '').replace(/aria-labelledby="r-[a-z]+"/, '') : ok;
+      res.scrollIntoView({ block: 'nearest' });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+// Parcours de démonstration : l'ordre conseillé pour présenter Agri-Digit Bénin en une quinzaine de minutes.
+window.DEMO = [
+  { part: 'Vitrine', title: 'La page d’accueil', url: 'landing/index.html', note: 'Faites défiler : le maïs pousse, le téléphone joue l’assistant, le diagnostic, la météo, le marché, la parcelle, puis l’USSD.' },
+  { part: 'Accès', title: 'Connexion par code SMS', url: 'web/acces/connexion.html', note: 'Producteur : numéro et code SMS. Agent ou partenaire : code SMS et mot de passe.' },
+  { part: 'Accès', title: 'Inscription d’un producteur', url: 'web/acces/inscription.html', note: 'NPI vérifié, commune, langue, consentement séparé et lisible, tuteur pour un mineur.' },
+  { part: 'Producteur', title: 'Accueil du producteur', url: 'web/producteur/accueil.html', note: 'Météo, alerte, stade des parcelles, tâches, appuis à confirmer.' },
+  { part: 'Producteur', title: 'Assistant agricole', url: 'web/producteur/assistant.html', note: 'Réponses sourcées INRAB et ATDA, voix, renvoi à l’agent pour tout dosage.' },
+  { part: 'Producteur', title: 'Diagnostic par photo', url: 'web/producteur/diagnostic.html', note: 'Maladie probable, niveau de risque, recommandations, revue par un agronome.' },
+  { part: 'Producteur', title: 'Météo et prix', url: 'web/producteur/meteo-prix.html', note: 'Prévisions, alertes climatiques et prix par marché.' },
+  { part: 'Producteur', title: 'Marché et paiement', url: 'web/producteur/marche.html', note: 'Offre, acheteurs intéressés, paiement Mobile Money en un clic (simulé).' },
+  { part: 'Mobile', title: 'L’application mobile', url: 'mobile/index.html', note: '81 écrans, 16 parcours : du premier lancement au mode agent terrain.' },
+  { part: 'Mobile', title: 'Même sans smartphone : USSD', url: 'mobile/ecrans/ussd-menu.html', note: 'Menu USSD et SMS d’alerte sur un téléphone à clavier.' },
+  { part: 'Agent ATDA', title: 'File de travail de l’agent', url: 'web/agent/accueil.html', note: 'Fiches à valider, alertes, appuis à remettre, récoltes signalées.' },
+  { part: 'Agent ATDA', title: 'Alerte avec double validation', url: 'web/agent/alertes.html', note: 'Segments SMS calculés ; une alerte urgente exige un second agent.' },
+  { part: 'Agent ATDA', title: 'Fiche d’un producteur', url: 'web/agent/producteur-detail.html', note: 'Identité, parcelles, appuis, consentements ; décision toujours motivée.' },
+  { part: 'Filière', title: 'Transformateur : trouver la récolte', url: 'web/filiere/marche-acheteur.html', note: 'Offres par filière et par zone, prévisions de récolte, mise en relation.' },
+  { part: 'Pilotage', title: 'Tableau de bord Bénin Vert', url: 'web/pilotage/tableau-de-bord.html', note: 'Indicateurs par département et filière, sources et dates ; « non disponible » plutôt qu’un faux zéro.' },
+  { part: 'Pilotage', title: 'Suivi-évaluation (SEA)', url: 'web/pilotage/suivi-evaluation.html', note: 'Les indicateurs du TDR, dont la participation des femmes et des jeunes.' },
+  { part: 'Pilotage', title: 'Prévisions et risques', url: 'web/pilotage/previsions.html', note: 'Rendements, sécheresse, inondation, ravageurs : simulé et étiqueté.' },
+  { part: 'Pilotage', title: 'Crédit : score indicatif', url: 'web/pilotage/credit.html', note: 'Seulement les producteurs consentants ; le score n’est jamais une décision.' },
+  { part: 'Pilotage', title: 'Journal d’audit', url: 'web/pilotage/journal.html', note: 'Chaque accès et chaque export tracés, non modifiables.' },
+];

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo de plante · Agri-Digit Bénin</title>
+<meta name="description" content="Diagnostic phytosanitaire par photo : envoi, résultat simulé, niveau de risque, recommandations, revue par un agronome et historique.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.photo { position: relative; border-radius: var(--r-lg); overflow: hidden; background: #2F4A2A; aspect-ratio: 4 / 3; }
+.photo svg { width: 100%; height: 100%; display: block; }
+.photo .map-tag { top: 10px; left: 10px; }
+.risk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+.risk span { height: 8px; border-radius: var(--r-pill); background: var(--rain-2); }
+.risk span.on { background: var(--laterite); }
+.conf { display: flex; align-items: center; gap: 10px; }
+.conf .progress { flex: 1; }
+.reco { counter-reset: r; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.reco li { counter-increment: r; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+.reco li::before { content: counter(r); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--layer); color: var(--leaf); font-weight: 700; font-size: var(--fs-sm); }
+.result-grid { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 760px) { .result-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/diagnostic">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un diagnostic…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Photo de plante</span></li></ol></nav>
+          <h1 class="page-title">Photo de plante</h1>
+          <p class="page-desc">Photographiez seulement la plante ou l'animal malade, sans personne sur l'image. Un agronome relit les cas douteux.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Photo de plante. Prenez en photo la plante malade, choisissez la filière, puis touchez Envoyer la photo." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><div class="al-body"><span class="al-title">Diagnostic simulé</span><span>Aucun modèle réel n'analyse la photo. Ne traitez pas votre culture ou vos animaux sur cette seule indication.</span></div></div>
+
+        <div class="split">
+          <section class="card" aria-labelledby="t-res">
+            <div class="card-head"><div><h2 class="card-title" id="t-res">Résultat du diagnostic</h2><p class="card-sub num">Envoyée aujourd'hui à 09:31 · Maïs · Champ de Sompérékou</p></div><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Transmis à un agronome</span></div>
+            <div class="result-grid">
+              <div class="photo" role="img" aria-label="Photo envoyée : feuille de maïs trouée avec déjections dans le cornet (illustration)">
+                <svg viewBox="0 0 300 225" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                  <rect width="300" height="225" fill="#3B5A33"/><path d="M0 225 L0 170 C60 150 90 190 150 160 C210 130 250 170 300 150 L300 225Z" fill="#2C4527"/>
+                  <path d="M150 225 C140 160 120 100 60 30 C130 70 165 130 172 225Z" fill="#6FA83A"/>
+                  <path d="M160 225 C175 150 210 90 270 40 C230 100 200 150 186 225Z" fill="#82BC4A"/>
+                  <path d="M150 225 C142 165 124 108 66 38" stroke="#4E8A2B" stroke-width="2" fill="none"/>
+                  <g fill="#3B5A33"><ellipse cx="110" cy="110" rx="7" ry="4"/><ellipse cx="128" cy="140" rx="9" ry="5"/><ellipse cx="98" cy="84" rx="5" ry="3"/><ellipse cx="214" cy="110" rx="6" ry="4"/><ellipse cx="200" cy="140" rx="8" ry="4"/></g>
+                  <g fill="#C9B79A"><circle cx="166" cy="186" r="2"/><circle cx="170" cy="192" r="2.4"/><circle cx="162" cy="196" r="1.8"/><circle cx="174" cy="200" r="2"/></g>
+                </svg>
+                <span class="map-tag badge badge--sim">Illustration</span>
+              </div>
+              <div class="stack" style="--gap:14px">
+                <div><p class="small muted">Problème probable</p><p class="card-title" style="font-size:1.25rem">Chenille légionnaire d'automne</p></div>
+                <div><p class="small muted">Confiance</p><div class="conf"><span class="progress" role="progressbar" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100" aria-label="Confiance 58 %"><span style="--v:58%"></span></span><b class="num">58 %</b></div></div>
+                <div><p class="small muted">Niveau de risque pour la parcelle</p><p><b>Élevé</b> · se propage en quelques jours</p><div class="risk" aria-hidden="true"><span class="on"></span><span class="on"></span><span class="on"></span></div></div>
+                <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><div class="al-body">La confiance est faible : un agronome va vérifier la photo. Vous recevrez un message.</div></div>
+              </div>
+            </div>
+            <h3 class="card-title" style="margin:20px 0 12px">En attendant l'agronome</h3>
+            <ol class="reco">
+              <li><span>Comptez les plants touchés sur 20 plants pris au hasard.</span></li>
+              <li><span>Écrasez les masses d'œufs sous les feuilles et ramassez les chenilles visibles.</span></li>
+              <li><span>Prévenez votre agent ATDA si plus de 2 plants sur 10 sont touchés. Il choisira le produit et la dose.</span></li>
+            </ol>
+            <div class="card-foot"><span class="small muted">Recommandations tirées de la fiche INRAB « Chenille légionnaire », version 2024.2</span><a class="btn btn-secondary btn-sm" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Poser une question</a></div>
+          </section>
+
+          <div class="stack" style="--gap:20px">
+            <form class="card stack" style="--gap:14px" novalidate aria-labelledby="t-env" onsubmit="return false">
+              <h2 class="card-title" id="t-env">Nouvelle photo</h2>
+              <div class="field"><span class="label" id="ph">Photo (JPEG ou PNG, 5 Mo au maximum)</span>
+                <label class="dropzone" aria-labelledby="ph"><span class="dz-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-camera"/></svg></span><strong>Prendre ou choisir une photo</strong><span class="small">Feuille entière, en plein jour, sans personne.</span><input type="file" accept="image/jpeg,image/png" capture="environment"></label></div>
+              <div class="field"><label class="label" for="d-vc">Filière</label><select class="select" id="d-vc"><option value="">Choisir…</option><option selected>Maïs</option><option>Coton</option><option>Manioc</option><option>Niébé</option><option>Riz</option><option>Anacarde</option><option>Tomate (maraîchage)</option><option>Volaille</option></select></div>
+              <div class="field"><label class="label" for="d-parc">Parcelle <span class="opt">(facultatif)</span></label><select class="select" id="d-parc"><option>Champ de Sompérékou</option><option>Bas-fond Kokey</option><option>Champ de la route</option><option>Jardin de case</option></select></div>
+              <button type="submit" class="btn btn-primary btn-block"><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg>Envoyer la photo</button>
+            </form>
+
+            <section class="card" aria-labelledby="t-rev">
+              <h2 class="card-title" id="t-rev" style="margin-bottom:14px">Suivi de la revue</h2>
+              <ol class="timeline">
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">09:31</div><div class="tl-title">Photo reçue</div></li>
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">09:31</div><div class="tl-title">Diagnostic automatique (simulé)</div><div class="tl-text">Confiance 58 %, sous le seuil de 70 %.</div></li>
+                <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">En cours</div><div class="tl-title">Relecture par un agronome INRAB</div><div class="tl-text">Réponse en général sous 48 h.</div></li>
+              </ol>
+            </section>
+          </div>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-hist">
+          <div class="table-toolbar"><h2 class="card-title" id="t-hist">Mes diagnostics précédents</h2></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <thead><tr><th scope="col">Date</th><th scope="col">Filière</th><th scope="col">Résultat</th><th scope="col" class="num">Confiance</th><th scope="col">Statut</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">18/10/2026 · 09:31</span><span class="cell-sub">Champ de Sompérékou</span></td><td data-label="Filière">Maïs</td><td data-label="Résultat">Chenille légionnaire d'automne</td><td class="num" data-label="Confiance">58 %</td><td data-label="Statut"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Transmis à un agronome</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#t-res">Voir</a></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">02/09/2026 · 16:05</span><span class="cell-sub">Jardin de case</span></td><td data-label="Filière">Niébé</td><td data-label="Résultat">Thrips des fleurs du niébé<br><span class="small muted">Confirmé par Dr Afiavi Hounkpè : « Traitez tôt le matin, voir l'agent. »</span></td><td class="num" data-label="Confiance">64 %</td><td data-label="Statut"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Revu par un agronome</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Voir</a></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">11/07/2026 · 08:20</span><span class="cell-sub">Champ de la route</span></td><td data-label="Filière">Coton</td><td data-label="Résultat">Jassides du cotonnier</td><td class="num" data-label="Confiance">83 %</td><td data-label="Statut"><span class="badge badge--neutral">Diagnostic automatique</span></td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Voir</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Envoi en cours</span><ul class="file-list"><li class="file-item"><span class="thumb"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span><span class="fi-main"><span class="fi-name">IMG_2041.jpg</span><span class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Envoi de IMG_2041.jpg"><span style="--v:64%"></span></span></span><span class="small muted num">64 %</span></li></ul></div>
+            <div><span class="state-cap">Fichier refusé</span><div class="field"><span class="label">Photo</span><span class="error-msg"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Photo trop lourde : 5 Mo au maximum.</span><span class="error-msg"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Format non accepté : envoyez une photo JPEG ou PNG.</span></div></div>
+            <div><span class="state-cap">Confiance suffisante</span><div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Jassides du cotonnier · 83 %</span><span>Diagnostic automatique. Vérifiez quand même avec votre agent avant tout traitement.</span></div></div></div>
+            <div><span class="state-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Photo gardée sur le téléphone. Elle sera analysée au retour du réseau.</span></div></div>
+            <div><span class="state-cap">Aucun diagnostic</span><div class="card empty"><h3>Aucun diagnostic précédent</h3><p>Envoyez une première photo avec le formulaire.</p></div></div>
+            <div><span class="state-cap">Photo indisponible</span><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-image"/></svg></span><h3>Photo indisponible</h3><p>La photo n'a pas pu être chargée.</p><button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

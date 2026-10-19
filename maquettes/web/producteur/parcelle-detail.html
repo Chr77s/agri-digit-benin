@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Champ de Sompérékou · Agri-Digit Bénin</title>
+<meta name="description" content="Détail d'une parcelle : contour sur la carte, surface, statut foncier, campagnes et suivi satellite.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.coords { font-size: var(--fs-sm); }
+.coords td, .coords th { padding: 6px 8px; border-top: 1px solid var(--line); text-align: left; }
+.coords th { color: var(--ink-2); font-weight: 600; }
+.ndvi-mini { display: flex; align-items: flex-end; gap: 6px; height: 72px; }
+.ndvi-mini span { flex: 1; border-radius: 4px 4px 0 0; background: var(--d2); min-width: 0; }
+.ndvi-mini span:last-child { background: var(--d1); }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/parcelles">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une parcelle…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><a href="parcelles.html">Mes parcelles</a></li><li><span aria-current="page">Champ de Sompérékou</span></li></ol></nav>
+          <h1 class="page-title">Champ de Sompérékou</h1>
+          <p class="page-desc">Maïs en floraison · Sompérékou, Banikoara · déclarée le 4 mai 2026.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier le contour</button>
+          <a class="btn btn-primary" href="campagnes.html"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Ouvrir une campagne</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="split">
+          <section class="card" aria-labelledby="t-contour" style="padding:14px">
+            <div class="card-head" style="padding:4px 6px 0"><h2 class="card-title" id="t-contour">Contour de la parcelle</h2><span class="badge badge--sim">Fond simulé</span></div>
+            <div class="map" role="img" aria-label="Parcelle de 1,82 ha au nord de la piste de Sompérékou, contour de 5 points relevés au GPS">
+              <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="400" height="250" fill="#DDE9CF"/><path d="M0 40 L140 20 L170 120 L0 150Z" fill="#CFE1BC"/><path d="M260 0 L400 0 L400 110 L300 130Z" fill="#D3E4C2"/><path d="M0 170 L120 160 L150 250 L0 250Z" fill="#C7DCB2"/><path d="M-10 200 C100 170 220 200 410 140" stroke="#F8FBF4" stroke-width="10" fill="none"/><path d="M-10 200 C100 170 220 200 410 140" stroke="#C9B79A" stroke-width="1" stroke-dasharray="6 6" fill="none"/><path d="M330 250 C320 200 350 170 340 120 C330 80 360 40 350 0" stroke="#9CC3D8" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <path d="M150 50 L262 38 L292 128 L232 166 L168 150 Z" fill="rgba(111,168,58,.35)" stroke="#1F5A32" stroke-width="2.5" stroke-linejoin="round"/>
+                <g fill="#fff" stroke="#1F5A32" stroke-width="2"><circle cx="150" cy="50" r="4.5"/><circle cx="262" cy="38" r="4.5"/><circle cx="292" cy="128" r="4.5"/><circle cx="232" cy="166" r="4.5"/><circle cx="168" cy="150" r="4.5"/></g>
+                <g font-family="Atkinson Hyperlegible Next, sans-serif" font-size="10" font-weight="700" fill="#13261A"><text x="140" y="44">A</text><text x="266" y="32">B</text><text x="298" y="128">C</text><text x="234" y="182">D</text><text x="152" y="160">E</text></g>
+              </svg>
+              <div class="map-controls"><button class="btn btn-icon" type="button" aria-label="Zoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-in"/></svg></button><button class="btn btn-icon" type="button" aria-label="Dézoomer"><svg class="ic" aria-hidden="true"><use href="#i-zoom-out"/></svg></button></div>
+              <div class="map-legend"><ul class="legend"><li><span class="sw sw--2"></span>Parcelle · <span class="num">1,82 ha</span></li><li><span class="sw" style="background:#9CC3D8"></span>Marigot</li></ul></div>
+            </div>
+            <details style="margin-top:10px">
+              <summary class="small" style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700">Voir les 5 points GPS</summary>
+              <table class="coords num"><thead><tr><th scope="col">Point</th><th scope="col">Latitude</th><th scope="col">Longitude</th></tr></thead>
+                <tbody><tr><td>A</td><td>11,30214</td><td>2,43611</td></tr><tr><td>B</td><td>11,30232</td><td>2,43772</td></tr><tr><td>C</td><td>11,30101</td><td>2,43815</td></tr><tr><td>D</td><td>11,30046</td><td>2,43728</td></tr><tr><td>E</td><td>11,30069</td><td>2,43637</td></tr></tbody></table>
+              <p class="hint">Coordonnées de démonstration.</p>
+            </details>
+          </section>
+
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="t-fiche">
+              <div class="card-head"><h2 class="card-title" id="t-fiche">Fiche de la parcelle</h2><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Vérifiée par l'agent</span></div>
+              <dl class="dl">
+                <dt>Surface</dt><dd class="num">1,82 ha <span class="small muted" style="font-weight:400">calculée par le serveur</span></dd>
+                <dt>Type de terrain</dt><dd>Pluvial (plateau)</dd>
+                <dt>Commune</dt><dd>Banikoara (Alibori)</dd>
+                <dt>Village</dt><dd>Sompérékou</dd>
+                <dt>Chevauchement</dt><dd>Aucun</dd>
+                <dt>Vérifiée le</dt><dd class="num">12 mai 2026 · Moussa Yarou, ATDA</dd>
+              </dl>
+            </section>
+            <section class="card" aria-labelledby="t-foncier">
+              <div class="card-head"><h2 class="card-title" id="t-foncier">Statut foncier</h2><button type="button" class="btn btn-ghost btn-sm"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Modifier</button></div>
+              <p><b>Droit coutumier</b></p>
+              <p class="small muted">Terre de famille attribuée par le chef de village. Aucun titre n'est demandé pour être suivi sur la plateforme ; un document foncier peut être joint s'il existe.</p>
+              <ul class="file-list" style="margin-top:12px">
+                <li class="file-item"><span class="thumb"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><span class="fi-main"><span class="fi-name">attestation-chef-village.pdf</span><span class="small muted">180 Ko · facultatif</span></span><button class="btn btn-icon btn-sm" type="button" aria-label="Retirer attestation-chef-village.pdf"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+        <div class="grid" style="--min:340px">
+          <section class="card" aria-labelledby="t-camp">
+            <div class="card-head"><h2 class="card-title" id="t-camp">Campagnes sur cette parcelle</h2><a class="btn btn-ghost btn-sm" href="campagnes.html">Gérer<svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></a></div>
+            <ol class="timeline">
+              <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">Saison 2026-pluie-1 · en cours</div><div class="tl-title">Maïs · floraison</div><div style="margin-top:8px"><ol class="stagebar" aria-label="Stade 3 sur 4 : Floraison"><li class="is-done"><span>Semis</span></li><li class="is-done"><span>Croissance</span></li><li class="is-now" aria-current="step"><span>Floraison</span></li><li><span>Récolte</span></li></ol></div></li>
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time">Saison 2025-pluie-1</div><div class="tl-title">Maïs · récolte déclarée</div><div class="tl-text num">3 420 kg récoltés · estimation 3 300 kg · écart +3,6 %</div></li>
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time">Saison 2024-pluie-1</div><div class="tl-title">Soja · récolte déclarée</div><div class="tl-text num">1 150 kg récoltés</div></li>
+            </ol>
+          </section>
+          <section class="card" aria-labelledby="t-sat">
+            <div class="card-head"><h2 class="card-title" id="t-sat">Vigueur vue du satellite</h2><span class="badge badge--sim">Simulé</span></div>
+            <p><b class="num">0,68</b> · végétation vigoureuse <span class="small muted">(NDVI du 14 oct.)</span></p>
+            <div class="ndvi-mini" role="img" aria-label="NDVI sur 6 passages : 0,21, 0,34, 0,48, 0,59, 0,64, 0,68"><span style="height:31%"></span><span style="height:50%"></span><span style="height:70%"></span><span style="height:87%"></span><span style="height:94%"></span><span style="height:100%"></span></div>
+            <p class="small muted" style="margin-top:8px">Juin → octobre. Humidité du sol : <span class="num">34 %</span>, sol moyennement humide.</p>
+            <div class="card-foot"><span class="small muted">Capteur Sentinel-2 (simulé)</span><a class="btn btn-secondary btn-sm" href="satellite.html">Suivi détaillé</a></div>
+          </section>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Chevauchement signalé</span><div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><div class="al-body"><span class="al-title">Chevauchement à vérifier</span><span>Cette parcelle recouvre de plus de 20 % une parcelle voisine. L'agent ATDA passera vérifier le contour.</span></div></div></div>
+            <div><span class="state-cap">Pas encore de campagne</span><div class="card empty"><h3>Aucune campagne sur ce champ</h3><p>Ouvrez une campagne pour suivre le semis, la floraison et la récolte.</p><a class="btn btn-primary" href="campagnes.html">Ouvrir une campagne</a></div></div>
+            <div><span class="state-cap">Parcelle introuvable</span><div class="card state-error" role="alert"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-map-pin"/></svg></span><h3>Parcelle introuvable</h3><p>Elle a peut-être été supprimée ou n'est pas encore synchronisée.</p><a class="btn btn-secondary" href="parcelles.html">Retour à mes parcelles</a></div></div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

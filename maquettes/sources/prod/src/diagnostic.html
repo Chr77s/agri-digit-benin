@@ -1,0 +1,112 @@
+---
+title: Photo de plante
+desc: Diagnostic phytosanitaire par photo : envoi, résultat simulé, niveau de risque, recommandations, revue par un agronome et historique.
+search: Rechercher un diagnostic…
+---
+<!--@head-->
+.photo { position: relative; border-radius: var(--r-lg); overflow: hidden; background: #2F4A2A; aspect-ratio: 4 / 3; }
+.photo svg { width: 100%; height: 100%; display: block; }
+.photo .map-tag { top: 10px; left: 10px; }
+.risk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+.risk span { height: 8px; border-radius: var(--r-pill); background: var(--rain-2); }
+.risk span.on { background: var(--laterite); }
+.conf { display: flex; align-items: center; gap: 10px; }
+.conf .progress { flex: 1; }
+.reco { counter-reset: r; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.reco li { counter-increment: r; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+.reco li::before { content: counter(r); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--layer); color: var(--leaf); font-weight: 700; font-size: var(--fs-sm); }
+.result-grid { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 760px) { .result-grid { grid-template-columns: 1fr; } }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Photo de plante</span></li></ol></nav>
+          <h1 class="page-title">Photo de plante</h1>
+          <p class="page-desc">Photographiez seulement la plante ou l'animal malade, sans personne sur l'image. Un agronome relit les cas douteux.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Photo de plante. Prenez en photo la plante malade, choisissez la filière, puis touchez Envoyer la photo." data-toast-type="demo">{{I:megaphone}}Écouter</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--demo">{{I:info}}<div class="al-body"><span class="al-title">Diagnostic simulé</span><span>Aucun modèle réel n'analyse la photo. Ne traitez pas votre culture ou vos animaux sur cette seule indication.</span></div></div>
+
+        <div class="split">
+          <section class="card" aria-labelledby="t-res">
+            <div class="card-head"><div><h2 class="card-title" id="t-res">Résultat du diagnostic</h2><p class="card-sub num">Envoyée aujourd'hui à 09:31 · Maïs · Champ de Sompérékou</p></div>{{B:wait|Transmis à un agronome}}</div>
+            <div class="result-grid">
+              <div class="photo" role="img" aria-label="Photo envoyée : feuille de maïs trouée avec déjections dans le cornet (illustration)">
+                <svg viewBox="0 0 300 225" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                  <rect width="300" height="225" fill="#3B5A33"/><path d="M0 225 L0 170 C60 150 90 190 150 160 C210 130 250 170 300 150 L300 225Z" fill="#2C4527"/>
+                  <path d="M150 225 C140 160 120 100 60 30 C130 70 165 130 172 225Z" fill="#6FA83A"/>
+                  <path d="M160 225 C175 150 210 90 270 40 C230 100 200 150 186 225Z" fill="#82BC4A"/>
+                  <path d="M150 225 C142 165 124 108 66 38" stroke="#4E8A2B" stroke-width="2" fill="none"/>
+                  <g fill="#3B5A33"><ellipse cx="110" cy="110" rx="7" ry="4"/><ellipse cx="128" cy="140" rx="9" ry="5"/><ellipse cx="98" cy="84" rx="5" ry="3"/><ellipse cx="214" cy="110" rx="6" ry="4"/><ellipse cx="200" cy="140" rx="8" ry="4"/></g>
+                  <g fill="#C9B79A"><circle cx="166" cy="186" r="2"/><circle cx="170" cy="192" r="2.4"/><circle cx="162" cy="196" r="1.8"/><circle cx="174" cy="200" r="2"/></g>
+                </svg>
+                <span class="map-tag badge badge--sim">Illustration</span>
+              </div>
+              <div class="stack" style="--gap:14px">
+                <div><p class="small muted">Problème probable</p><p class="card-title" style="font-size:1.25rem">Chenille légionnaire d'automne</p></div>
+                <div><p class="small muted">Confiance</p><div class="conf"><span class="progress" role="progressbar" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100" aria-label="Confiance 58 %"><span style="--v:58%"></span></span><b class="num">58 %</b></div></div>
+                <div><p class="small muted">Niveau de risque pour la parcelle</p><p><b>Élevé</b> · se propage en quelques jours</p><div class="risk" aria-hidden="true"><span class="on"></span><span class="on"></span><span class="on"></span></div></div>
+                <div class="alert alert--info">{{I:user}}<div class="al-body">La confiance est faible : un agronome va vérifier la photo. Vous recevrez un message.</div></div>
+              </div>
+            </div>
+            <h3 class="card-title" style="margin:20px 0 12px">En attendant l'agronome</h3>
+            <ol class="reco">
+              <li><span>Comptez les plants touchés sur 20 plants pris au hasard.</span></li>
+              <li><span>Écrasez les masses d'œufs sous les feuilles et ramassez les chenilles visibles.</span></li>
+              <li><span>Prévenez votre agent ATDA si plus de 2 plants sur 10 sont touchés. Il choisira le produit et la dose.</span></li>
+            </ol>
+            <div class="card-foot"><span class="small muted">Recommandations tirées de la fiche INRAB « Chenille légionnaire », version 2024.2</span><a class="btn btn-secondary btn-sm" href="assistant.html">{{I:chat}}Poser une question</a></div>
+          </section>
+
+          <div class="stack" style="--gap:20px">
+            <form class="card stack" style="--gap:14px" novalidate aria-labelledby="t-env" onsubmit="return false">
+              <h2 class="card-title" id="t-env">Nouvelle photo</h2>
+              <div class="field"><span class="label" id="ph">Photo (JPEG ou PNG, 5 Mo au maximum)</span>
+                <label class="dropzone" aria-labelledby="ph"><span class="dz-icon">{{I:camera:lg}}</span><strong>Prendre ou choisir une photo</strong><span class="small">Feuille entière, en plein jour, sans personne.</span><input type="file" accept="image/jpeg,image/png" capture="environment"></label></div>
+              <div class="field"><label class="label" for="d-vc">Filière</label><select class="select" id="d-vc"><option value="">Choisir…</option><option selected>Maïs</option><option>Coton</option><option>Manioc</option><option>Niébé</option><option>Riz</option><option>Anacarde</option><option>Tomate (maraîchage)</option><option>Volaille</option></select></div>
+              <div class="field"><label class="label" for="d-parc">Parcelle <span class="opt">(facultatif)</span></label><select class="select" id="d-parc"><option>Champ de Sompérékou</option><option>Bas-fond Kokey</option><option>Champ de la route</option><option>Jardin de case</option></select></div>
+              <button type="submit" class="btn btn-primary btn-block">{{I:upload}}Envoyer la photo</button>
+            </form>
+
+            <section class="card" aria-labelledby="t-rev">
+              <h2 class="card-title" id="t-rev" style="margin-bottom:14px">Suivi de la revue</h2>
+              <ol class="timeline">
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">09:31</div><div class="tl-title">Photo reçue</div></li>
+                <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">09:31</div><div class="tl-title">Diagnostic automatique (simulé)</div><div class="tl-text">Confiance 58 %, sous le seuil de 70 %.</div></li>
+                <li class="tl-now"><span class="tl-dot"></span><div class="tl-time">En cours</div><div class="tl-title">Relecture par un agronome INRAB</div><div class="tl-text">Réponse en général sous 48 h.</div></li>
+              </ol>
+            </section>
+          </div>
+        </div>
+
+        <section class="table-card" aria-labelledby="t-hist">
+          <div class="table-toolbar"><h2 class="card-title" id="t-hist">Mes diagnostics précédents</h2></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <thead><tr><th scope="col">Date</th><th scope="col">Filière</th><th scope="col">Résultat</th><th scope="col" class="num">Confiance</th><th scope="col">Statut</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">18/10/2026 · 09:31</span><span class="cell-sub">Champ de Sompérékou</span></td><td data-label="Filière">Maïs</td><td data-label="Résultat">Chenille légionnaire d'automne</td><td class="num" data-label="Confiance">58 %</td><td data-label="Statut">{{B:wait|Transmis à un agronome}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#t-res">Voir</a></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">02/09/2026 · 16:05</span><span class="cell-sub">Jardin de case</span></td><td data-label="Filière">Niébé</td><td data-label="Résultat">Thrips des fleurs du niébé<br><span class="small muted">Confirmé par Dr Afiavi Hounkpè : « Traitez tôt le matin, voir l'agent. »</span></td><td class="num" data-label="Confiance">64 %</td><td data-label="Statut">{{B:ok|Revu par un agronome}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Voir</a></td></tr>
+                <tr><td class="td-primary" data-label="Date"><span class="cell-main num">11/07/2026 · 08:20</span><span class="cell-sub">Champ de la route</span></td><td data-label="Filière">Coton</td><td data-label="Résultat">Jassides du cotonnier</td><td class="num" data-label="Confiance">83 %</td><td data-label="Statut">{{B:neutral|Diagnostic automatique}}</td><td class="col-actions"><a class="btn btn-ghost btn-sm" href="#">Voir</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <details class="states">
+          <summary>{{I:layers}}États de la page (revue){{I:chevron-down}}</summary>
+          <div class="states-body">
+            <div><span class="state-cap">Envoi en cours</span><ul class="file-list"><li class="file-item"><span class="thumb">{{I:image}}</span><span class="fi-main"><span class="fi-name">IMG_2041.jpg</span><span class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Envoi de IMG_2041.jpg"><span style="--v:64%"></span></span></span><span class="small muted num">64 %</span></li></ul></div>
+            <div><span class="state-cap">Fichier refusé</span><div class="field"><span class="label">Photo</span><span class="error-msg">{{I:alert}}Photo trop lourde : 5 Mo au maximum.</span><span class="error-msg">{{I:alert}}Format non accepté : envoyez une photo JPEG ou PNG.</span></div></div>
+            <div><span class="state-cap">Confiance suffisante</span><div class="alert alert--ok">{{I:check-circle}}<div class="al-body"><span class="al-title">Jassides du cotonnier · 83 %</span><span>Diagnostic automatique. Vérifiez quand même avec votre agent avant tout traitement.</span></div></div></div>
+            <div><span class="state-cap">Hors ligne</span><div class="banner banner--offline" style="border-radius:var(--r-md)">{{I:wifi-off}}<span>Photo gardée sur le téléphone. Elle sera analysée au retour du réseau.</span></div></div>
+            <div><span class="state-cap">Aucun diagnostic</span><div class="card empty"><h3>Aucun diagnostic précédent</h3><p>Envoyez une première photo avec le formulaire.</p></div></div>
+            <div><span class="state-cap">Photo indisponible</span><div class="card state-error"><span class="se-icon">{{I:image:lg}}</span><h3>Photo indisponible</h3><p>La photo n'a pas pu être chargée.</p><button type="button" class="btn btn-secondary">{{I:sync}}Réessayer</button></div></div>
+          </div>
+        </details>
+      </div>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes campagnes · Agri-Digit Bénin</title>
+<meta name="description" content="Ouvrir une campagne par parcelle et culture, faire avancer le stade, suivre les tâches et déclarer la récolte.">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+/* Styles locaux de l'espace producteur (absents du kit) */
+.listen-btn .ic { color: var(--leaf); }
+/* Rail des 4 stades d'une campagne */
+.stagebar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stagebar li { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; min-width: 0; }
+.stagebar li::before { content: ""; height: 6px; border-radius: var(--r-pill); background: var(--rain-2); }
+.stagebar li.is-done::before { background: var(--leaf); }
+.stagebar li.is-now::before { background: var(--maize); box-shadow: 0 0 0 2px rgba(111,168,58,.25); }
+.stagebar li.is-now { color: var(--ink); font-weight: 700; }
+.stagebar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panneau « États de la page » (revue de maquette) */
+.states { border: 1px dashed #A9BBA0; border-radius: var(--r-lg); background: var(--surface-2); margin-top: 8px; }
+.states > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; font-weight: 700; color: var(--ink-2); border-radius: var(--r-lg); }
+.states > summary::-webkit-details-marker { display: none; }
+.states > summary .ic:last-child { margin-left: auto; transition: transform var(--t) var(--ease); }
+.states[open] > summary .ic:last-child { transform: rotate(180deg); }
+.states-body { padding: 4px 16px 18px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.states-body > * { min-width: 0; }
+.state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+.states .banner { padding: 12px 16px; }
+
+.camp { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px 28px; }
+.camp + .camp { margin-top: 0; }
+.camp-tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.camp-tasks li { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.camp-tasks label { cursor: pointer; }
+.camp-tasks .cb:checked + label { text-decoration: line-through; color: var(--ink-2); }
+.camp-actions { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.camp-actions .field { width: 200px; }
+.result-box { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.result-box div { padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+.result-box b { display: block; font-size: 1.25rem; }
+@media (max-width: 820px) { .camp { grid-template-columns: 1fr; } .result-box { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-role="producteur" data-page="producteur/campagnes">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="tb-brand" href="accueil.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher une campagne…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button type="button" class="sync" data-sync data-state="pending" aria-label="État de synchronisation : 2 en attente">
+        <span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span class="sync-label">2 en attente</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="messages.html" aria-label="Messages, 3 non lus"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">3</span></a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="profil.html" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="consentements.html"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="assistant.html"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Mes campagnes</span></li></ol></nav>
+          <h1 class="page-title">Mes campagnes</h1>
+          <p class="page-desc">Une campagne, c'est une culture sur une parcelle pour une saison. Changez le stade quand la culture avance, puis déclarez la récolte.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-ghost listen-btn" data-toast="Lecture : Mes campagnes. Choisissez une parcelle et une culture pour ouvrir une campagne." data-toast-type="demo"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"/></svg>Écouter</button>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <form class="card" novalidate aria-labelledby="t-ouvrir" onsubmit="return false">
+          <h2 class="card-title" id="t-ouvrir" style="margin-bottom:14px">Ouvrir une campagne</h2>
+          <div class="form-grid">
+            <div class="field"><label class="label" for="c-parc">Parcelle</label><select class="select" id="c-parc"><option value="">Choisir…</option><option selected>Champ du marigot (1,26 ha)</option><option>Champ de Sompérékou</option><option>Bas-fond Kokey</option><option>Champ de la route</option><option>Jardin de case</option></select></div>
+            <div class="field"><label class="label" for="c-cult">Culture principale</label><select class="select" id="c-cult" aria-invalid="true" aria-describedby="c-cult-e"><option value="" selected>Choisir…</option><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option><option>Niébé</option><option>Manioc</option><option>Maraîchage</option><option>Anacarde</option></select><span class="error-msg" id="c-cult-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez la culture principale.</span></div>
+            <div class="field"><label class="label" for="c-sais">Saison</label><select class="select" id="c-sais"><option>2026-pluie-1</option><option selected>2026-pluie-2</option><option>2027-pluie-1</option></select></div>
+            <div class="field"><label class="label" for="c-stade">Stade</label><select class="select" id="c-stade"><option>Semis</option><option>Croissance</option><option>Floraison</option><option>Récolte</option></select></div>
+          </div>
+          <div class="cluster" style="margin-top:16px"><button type="submit" class="btn btn-primary" data-toast="Campagne ouverte. Mettez à jour le stade au fil de la saison."><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ouvrir la campagne</button><span class="hint">Pas de parcelle dans la liste ? <a href="parcelles.html">Dessinez-la d'abord.</a></span></div>
+        </form>
+
+        <div class="between"><h2 class="section-title">Campagnes en cours</h2><div class="chips" role="group" aria-label="Filtrer par saison"><button type="button" class="chip" aria-pressed="true">2026-pluie-1 <span class="count">4</span></button><button type="button" class="chip" aria-pressed="false">2025 <span class="count">3</span></button></div></div>
+
+        <article class="card camp" aria-labelledby="k1">
+          <div class="stack" style="--gap:12px">
+            <div><h3 class="card-title" id="k1">Maïs, Champ de Sompérékou</h3><p class="card-sub">Saison 2026-pluie-1 · semé le 12 mai · <span class="num">1,82 ha</span></p></div>
+            <ol class="stagebar" aria-label="Stade 3 sur 4 : Floraison"><li class="is-done"><span>Semis</span></li><li class="is-done"><span>Croissance</span></li><li class="is-now" aria-current="step"><span>Floraison</span></li><li><span>Récolte</span></li></ol>
+            <div class="camp-actions">
+              <div class="field"><label class="label" for="s1">Stade actuel</label><select class="select" id="s1"><option>Semis</option><option>Croissance</option><option selected>Floraison</option><option>Récolte</option></select></div>
+              <button type="button" class="btn btn-secondary" data-open-dialog="dlg-recolte"><svg class="ic" aria-hidden="true"><use href="#i-wheat"/></svg>Déclarer une récolte</button>
+            </div>
+          </div>
+          <div><p class="label" style="margin-bottom:6px">Tâches de la campagne</p>
+            <ul class="camp-tasks">
+              <li><input class="cb" type="checkbox" id="a1" checked><label for="a1">Semis, écartement 80 × 40 cm</label></li>
+              <li><input class="cb" type="checkbox" id="a2" checked><label for="a2">NPK au 15<sup>e</sup> jour, 2 sacs</label></li>
+              <li><input class="cb" type="checkbox" id="a3"><label for="a3">Urée à la montaison, 1 sac</label></li>
+              <li><input class="cb" type="checkbox" id="a4"><label for="a4">Surveiller la chenille légionnaire</label></li>
+            </ul>
+            <p class="hint">D'après la fiche INRAB maïs (démonstration).</p></div>
+        </article>
+
+        <article class="card camp" aria-labelledby="k2">
+          <div class="stack" style="--gap:12px">
+            <div><h3 class="card-title" id="k2">Soja, Jardin de case</h3><p class="card-sub">Saison 2026-pluie-1 · <span class="num">0,68 ha</span></p></div>
+            <ol class="stagebar" aria-label="Stade 4 sur 4 : Récolte"><li class="is-done"><span>Semis</span></li><li class="is-done"><span>Croissance</span></li><li class="is-done"><span>Floraison</span></li><li class="is-now" aria-current="step"><span>Récolte</span></li></ol>
+            <div class="alert alert--info"><svg class="ic" aria-hidden="true"><use href="#i-wheat"/></svg><div class="al-body">Stade Récolte atteint : déclarez la quantité récoltée pour suivre votre revenu.</div></div>
+            <div class="camp-actions">
+              <div class="field"><label class="label" for="s2">Stade actuel</label><select class="select" id="s2"><option>Semis</option><option>Croissance</option><option>Floraison</option><option selected>Récolte</option></select></div>
+              <button type="button" class="btn btn-primary" data-open-dialog="dlg-recolte"><svg class="ic" aria-hidden="true"><use href="#i-wheat"/></svg>Déclarer une récolte</button>
+            </div>
+          </div>
+          <div><p class="label" style="margin-bottom:6px">Tâches de la campagne</p>
+            <ul class="camp-tasks">
+              <li><input class="cb" type="checkbox" id="b1" checked><label for="b1">Inoculation des semences</label></li>
+              <li><input class="cb" type="checkbox" id="b2" checked><label for="b2">Désherbage</label></li>
+              <li><input class="cb" type="checkbox" id="b3"><label for="b3">Séchage et battage</label></li>
+            </ul></div>
+        </article>
+
+        <article class="card camp" aria-labelledby="k3">
+          <div class="stack" style="--gap:12px">
+            <div><h3 class="card-title" id="k3">Coton, Champ de la route</h3><p class="card-sub">Saison 2026-pluie-1 · <span class="num">1,20 ha</span> · <span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Stade en attente d'envoi</span></p></div>
+            <ol class="stagebar" aria-label="Stade 2 sur 4 : Croissance"><li class="is-done"><span>Semis</span></li><li class="is-now" aria-current="step"><span>Croissance</span></li><li><span>Floraison</span></li><li><span>Récolte</span></li></ol>
+            <div class="camp-actions">
+              <div class="field"><label class="label" for="s3">Stade actuel</label><select class="select" id="s3"><option>Semis</option><option selected>Croissance</option><option>Floraison</option><option>Récolte</option></select></div>
+              <button type="button" class="btn btn-secondary" data-open-dialog="dlg-recolte"><svg class="ic" aria-hidden="true"><use href="#i-wheat"/></svg>Déclarer une récolte</button>
+            </div>
+          </div>
+          <div><p class="label" style="margin-bottom:6px">Tâches de la campagne</p>
+            <ul class="camp-tasks">
+              <li><input class="cb" type="checkbox" id="d1" checked><label for="d1">Sarclage</label></li>
+              <li><input class="cb" type="checkbox" id="d2"><label for="d2">Traitement selon l'agent (dosage par l'ATDA)</label></li>
+            </ul></div>
+        </article>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+          <div class="states-body">
+            <div><span class="state-cap">Changement de stade hors ligne</span><div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><div class="al-body">Pas de réseau : le changement de stade sera envoyé au retour de la connexion.</div></div></div>
+            <div><span class="state-cap">Aucune campagne</span><div class="card empty"><h3>Aucune campagne ouverte</h3><p>Utilisez le formulaire ci-dessus pour ouvrir votre première campagne.</p></div></div>
+            <div><span class="state-cap">Conflit de version</span><div class="alert alert--danger" role="alert"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg><div class="al-body"><span class="al-title">Le stade a été changé ailleurs</span><span>Votre agent a mis « Floraison » entre-temps. Rechargez pour voir la dernière version.</span></div></div></div>
+            <div><span class="state-cap">Récolte enregistrée, écart fort</span>
+              <div class="card stack" style="--gap:10px">
+                <div class="alert alert--ok"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Récolte enregistrée : <b class="num">520 kg</b>.</div></div>
+                <div class="result-box"><div><span class="small muted">Estimation</span><b class="num">810 kg</b></div><div><span class="small muted">Écart</span><b class="num">−35,8 %</b></div><div><span class="small muted">Vendu</span><b class="num">300 kg</b></div></div>
+                <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg><div class="al-body">Cette récolte s'écarte fortement de l'estimation : un agent ATDA va la vérifier.</div></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+<dialog class="modal" id="dlg-recolte" aria-labelledby="dlg-r-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-r-t">Déclarer une récolte · Soja, Jardin de case</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" id="f-recolte" method="dialog" novalidate>
+    <div class="field"><label class="label" for="r-date">Date de récolte</label><input class="input" id="r-date" type="date" value="2026-10-16"></div>
+    <div class="field"><label class="label" for="r-q">Quantité récoltée (kg)</label><input class="input input-num" id="r-q" inputmode="decimal" value="520"></div>
+    <div class="form-grid">
+      <div class="field"><label class="label" for="r-st">Quantité stockée (kg)</label><input class="input input-num" id="r-st" inputmode="decimal" value="300"></div>
+      <div class="field"><label class="label" for="r-so">Quantité vendue (kg)</label><input class="input input-num" id="r-so" inputmode="decimal" value="300" aria-invalid="true" aria-describedby="r-so-e r-so-h"><span class="error-msg" id="r-so-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Stocké + vendu (600 kg) dépasse la quantité récoltée (520 kg).</span></div>
+    </div>
+    <span class="hint" id="r-so-h">Stocké + vendu ne peut pas dépasser la quantité récoltée.</span>
+    <div class="field"><label class="label" for="r-px">Prix de vente <span class="opt">(facultatif)</span></label><div class="input-group"><input class="input input-num" id="r-px" inputmode="numeric" value="320"><span class="addon addon--end">FCFA/kg</span></div></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-recolte" class="btn btn-primary" data-toast="Récolte enregistrée : 520 kg. Estimation : 810 kg.">Enregistrer la récolte</button></div>
+</dialog>
+</body>
+</html>

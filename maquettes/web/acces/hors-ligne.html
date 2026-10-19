@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hors ligne · Agri-Digit Bénin</title>
+<meta name="description" content="Écran hors ligne : ce qui marche sans réseau, ce qui attend, et la file des saisies à envoyer (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Coque publique (visiteur non connecté), propre au groupe acces/ : pas de barre latérale de rôle */
+  .pub { min-height: calc(100vh - var(--band-h)); display: flex; flex-direction: column; }
+  .pub-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 8px; min-height: var(--topbar-h); padding: 0 var(--gutter); background: rgba(243,247,238,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .pub-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto; color: var(--ink); text-decoration: none; font: 700 1.0625rem/1 var(--font-display); white-space: nowrap; }
+  .pub-brand:hover { color: var(--ink); }
+  .pub-brand svg { width: 32px; height: 32px; }
+  .pub-head .select { width: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .pub-head .select { max-width: 132px; } .pub-brand .bj { display: none; } }
+  @media (max-width: 560px) { .pub-back { width: 44px; padding: 0; } .pub-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 380px) { .pub-brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  /* Panneau « États » repliable, pour la revue */
+  .review { border: 1.5px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .review > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .review > summary::-webkit-details-marker { display: none; }
+  .review > summary .chev { margin-left: auto; transition: transform var(--t) var(--ease); }
+  .review[open] > summary .chev { transform: rotate(180deg); }
+  .review-body { display: grid; gap: 16px; padding: 4px 16px 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .review .banner { flex-wrap: nowrap; align-items: flex-start; padding: 12px 16px; }
+  .review-cap { display: block; margin-bottom: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+  .off { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px var(--gutter) 56px; display: flex; flex-direction: column; gap: 22px; }
+  .can { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .can li { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; }
+  .can .ic { margin-top: 1px; }
+  .can--ok .ic { color: var(--leaf); }
+  .can--wait .ic { color: var(--ink-2); }
+  .queue-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 14px 16px; border-top: 1px solid var(--line); }
+  .queue-foot .hint { max-width: 52ch; }
+  .td-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+  .pub-head .sync { flex: none; }
+  @media (max-width: 560px) { .pub-brand > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+  @media (max-width: 560px) { .pub-head .sync .sync-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+</style>
+</head>
+<body data-page="acces/hors-ligne">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="pub">
+  <header class="pub-head">
+    <a class="pub-brand" href="../../landing/index.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit<span class="bj"> Bénin</span></span></a>
+    <button type="button" class="sync" data-sync data-state="offline" aria-label="Hors ligne, 4 saisies en attente"><span class="sync-dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span class="sync-label">Hors ligne · 4 en attente</span></button>
+    <label class="sr-only" for="lang">Langue</label>
+    <select class="select" id="lang" data-lang>
+      <option value="fr">Français</option>
+      <option value="fon">Fɔngbè (à valider)</option>
+      <option value="bba">Baatɔnum (à valider)</option>
+      <option value="yo">Yorùbá (à valider)</option>
+      <option value="dje">Dendi (à valider)</option>
+    </select>
+    <a class="btn btn-ghost pub-back" href="../../landing/index.html" aria-label="Retour à l'accueil"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span>Accueil</span></a>
+  </header>
+
+  <div class="banner banner--offline" role="status">
+    <svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>
+    <span>Hors ligne : vos saisies sont gardées et seront envoyées au retour du réseau.</span>
+  </div>
+
+  <main class="off" id="contenu" tabindex="-1">
+    <div class="page-head" style="margin:0">
+      <div>
+        <h1 class="page-title">Pas de réseau pour l'instant</h1>
+        <p class="page-desc">Vous pouvez continuer à travailler. Ce qui a besoin d'Internet attend le retour de la connexion, puis part tout seul.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary" type="button" id="probe" data-toast="Toujours pas de réseau. Nouvel essai automatique dans 30 secondes." data-toast-type="offline" data-toast-title="Hors ligne"><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg>Tester la connexion</button>
+      </div>
+    </div>
+
+    <div class="grid" style="--min:300px">
+      <section class="card" aria-labelledby="h-ok">
+        <div class="card-head"><h2 class="card-title" id="h-ok">Ce qui marche sans réseau</h2></div>
+        <ul class="can can--ok">
+          <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Consulter vos parcelles, campagnes et appuis déjà chargés</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Déclarer une parcelle ou une campagne, changer le stade d'une culture</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Corriger une fiche producteur (agents ATDA)</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Relire les fiches techniques et les messages déjà ouverts</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><span>Montrer votre carte de producteur</span></li>
+        </ul>
+      </section>
+      <section class="card" aria-labelledby="h-wait">
+        <div class="card-head"><h2 class="card-title" id="h-wait">Ce qui attend le réseau</h2></div>
+        <ul class="can can--wait">
+          <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Se connecter ou s'inscrire (code SMS, vérification ANIP)</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Poser une question à l'assistant, envoyer une photo de plante</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Météo et prix du jour : les derniers connus datent du 18/10 à 08:47</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Marché, candidatures aux programmes, contestations</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="table-card" aria-labelledby="h-queue">
+      <div class="table-toolbar">
+        <h2 class="card-title" id="h-queue" style="margin-right:auto">File d'envoi · <span class="num">4</span> saisies</h2>
+        <span class="badge badge--offline"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>Hors ligne</span>
+      </div>
+      <div class="table-scroll">
+        <table class="table table--cards">
+          <caption class="sr-only">Saisies gardées sur cet appareil, dans l'ordre d'envoi</caption>
+          <thead><tr>
+            <th scope="col">Saisie</th>
+            <th scope="col">Faite le</th>
+            <th scope="col">État</th>
+            <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="td-primary" data-label="Saisie"><span class="cell-main">Parcelle « Champ de la route »</span><span class="cell-sub">Coton · 1,2 ha · Banikoara</span></td><td class="num" data-label="Faite le">18/10 · 09:12</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></td><td class="col-actions"><div class="td-actions"><button class="btn btn-ghost btn-sm" type="button" data-open-dialog="dlg-del">Supprimer</button></div></td></tr>
+            <tr><td class="td-primary" data-label="Saisie"><span class="cell-main">Campagne Maïs 2026</span><span class="cell-sub">Champ de Sompérékou · semis du 12/05</span></td><td class="num" data-label="Faite le">18/10 · 09:20</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></td><td class="col-actions"><div class="td-actions"><button class="btn btn-ghost btn-sm" type="button" data-open-dialog="dlg-del">Supprimer</button></div></td></tr>
+            <tr><td class="td-primary" data-label="Saisie"><span class="cell-main">Campagne : stade « Floraison »</span><span class="cell-sub">Maïs 2026 · Champ de Sompérékou</span></td><td class="num" data-label="Faite le">18/10 · 10:02</td><td data-label="État"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>En attente</span></td><td class="col-actions"><div class="td-actions"><button class="btn btn-ghost btn-sm" type="button" data-open-dialog="dlg-del">Supprimer</button></div></td></tr>
+            <tr><td class="td-primary" data-label="Saisie"><span class="cell-main">Fiche producteur corrigée</span><span class="cell-sub">Bawa Orou · Kokey</span></td><td class="num" data-label="Faite le">17/10 · 16:45</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Refusée : téléphone déjà utilisé</span></td><td class="col-actions"><div class="td-actions"><a class="btn btn-secondary btn-sm" href="#">Corriger</a><button class="btn btn-ghost btn-sm" type="button" data-open-dialog="dlg-del">Supprimer</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="queue-foot">
+        <span class="hint">L'envoi part tout seul dès que le réseau revient. Dernier envoi réussi : 18/10/2026 à 08:47.</span>
+        <button class="btn btn-primary" type="button" disabled aria-describedby="send-h">Envoyer maintenant</button>
+        <span class="sr-only" id="send-h">Disponible au retour du réseau.</span>
+      </div>
+    </section>
+
+    <details class="review" id="etats">
+      <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de l'écran (revue)<svg class="ic chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+      <div class="review-body">
+        <div class="card empty">
+          <span class="se-icon" style="display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--ok-bg);color:var(--leaf)"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+          <h3>Rien en attente</h3>
+          <p>Toutes vos saisies sont parties. Celles faites hors ligne s'ajouteront ici.</p>
+        </div>
+        <div class="card stack" style="--gap:12px">
+          <span class="review-cap" style="margin:0">Retour du réseau</span>
+          <div class="banner" style="background:var(--ok-bg);color:var(--ok-ink);border-radius:var(--r-md)"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg><span>Connexion rétablie. Envoi de 3 saisies…</span></div>
+          <div class="progress" role="progressbar" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100" aria-label="Envoi de la file"><span style="--v:66%"></span></div>
+          <button class="btn btn-primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Envoi en cours…</button>
+        </div>
+        <div class="alert alert--warn">
+          <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div class="al-body"><span class="al-title">Conflit de saisie sur « Champ de la route »</span><span>La parcelle a été modifiée ailleurs pendant que vous étiez hors ligne. Choisissez la bonne version.</span><div class="al-actions"><a class="btn btn-secondary btn-sm" href="#">Comparer les versions</a></div></div>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <footer class="app-foot">
+    <span>Agri-Digit Bénin · MAEP · prototype</span>
+    <nav aria-label="Informations légales"><a href="legal.html">Mentions légales</a><a href="legal.html#confidentialite">Confidentialité</a><a href="legal.html#conditions">Conditions</a></nav>
+  </footer>
+</div>
+
+<dialog class="modal" id="dlg-del" aria-labelledby="dlg-del-t" aria-describedby="dlg-del-d">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-del-t">Supprimer cette saisie ?</h2><button class="btn btn-icon" type="button" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="modal-body"><p id="dlg-del-d" class="muted">Elle n'a pas encore été envoyée : une fois supprimée, il faudra la refaire.</p></div>
+  <div class="modal-foot"><button class="btn btn-ghost" type="button" data-close-dialog>Garder</button><button class="btn btn-danger" type="button" data-close-dialog="ok" data-toast="Saisie supprimée de cet appareil.">Supprimer cette saisie</button></div>
+</dialog>
+
+</body>
+</html>

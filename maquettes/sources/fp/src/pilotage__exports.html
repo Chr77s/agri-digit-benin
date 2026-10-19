@@ -1,0 +1,72 @@
+---
+{"role":"admin_maep","title":"Exports","desc":"Exports CSV avec motif obligatoire, inscrits au journal d'audit (maquette).","search":"Rechercher un export…","notif":2,"home":"pilotage/tableau-de-bord"}
+---
+<!--@head-->
+  .ds { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+  .ds .choice-card { height: 100%; }
+  .counter { font-size: var(--fs-xs); color: var(--ink-2); font-variant-numeric: tabular-nums; margin-left: auto; }
+<!--@main-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Pilotage</a></li><li><span aria-current="page">Exports</span></li></ol></nav>
+          <h1 class="page-title">Exports CSV</h1>
+          <p class="page-desc">Chaque export dit pourquoi il est fait. Le motif, le jeu de données et votre nom sont inscrits au journal d'audit, lisible par le comité de pilotage.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <form class="card stack" style="--gap:20px" novalidate onsubmit="return false" aria-labelledby="h-exp">
+          <h2 class="section-title" id="h-exp">Nouvel export</h2>
+          <fieldset class="fieldset"><legend class="label">Jeu de données</legend>
+            <div class="ds">
+              <label class="choice-card"><input class="radio" type="radio" name="ds" checked><span><b>Producteurs</b> <span class="badge badge--urgent"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Données personnelles</span><br><span class="small muted">Nom, NPI, téléphone, commune · 24 316 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Parcelles</b><br><span class="small muted">Surface, culture, commune · 38 902 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Agrégats des fermes POC</b><br><span class="small muted">Par commune, sans donnée personnelle · 77 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Coopératives et adhésions</b><br><span class="small muted">412 coopératives · 9 810 adhésions</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Récoltes déclarées</b><br><span class="small muted">Quantités par campagne · 11 204 lignes</span></span></label>
+              <label class="choice-card"><input class="radio" type="radio" name="ds"><span><b>Appuis remis</b><br><span class="small muted">Remises signées · 15 630 lignes</span></span></label>
+            </div>
+          </fieldset>
+          <div class="form-grid">
+            <div class="field"><label class="label" for="ex-dep">Périmètre</label><select class="select" id="ex-dep"><option>Tout le Bénin</option><option>Alibori</option><option>Borgou</option></select></div>
+            <div class="field"><label class="label" for="ex-camp">Campagne</label><select class="select" id="ex-camp"><option>2026</option><option>2025</option><option>Toutes</option></select></div>
+          </div>
+          <div class="field">
+            <div class="cluster" style="--gap:8px"><label class="label" for="ex-motif">Motif de l'export <span class="req" aria-hidden="true">*</span></label><span class="counter" id="ex-count" aria-live="polite">6 / 10 caractères minimum</span></div>
+            <textarea class="textarea" id="ex-motif" aria-invalid="true" aria-describedby="ex-motif-e ex-motif-h" placeholder="Ex. Liste des producteurs de Kandi pour la distribution d'engrais du 4 novembre">Revue </textarea>
+            <span class="error-msg" id="ex-motif-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Le motif est obligatoire (10 caractères minimum). Il est enregistré dans le journal d'audit.</span>
+            <span class="hint" id="ex-motif-h">Soyez précis : un auditeur doit comprendre la raison sans vous appeler.</span>
+          </div>
+          <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><div class="al-body"><span class="al-title">Fichier contenant des données personnelles</span><span>Loi n° 2017-20 : conservez-le sur un poste du MAEP, ne le transmettez pas hors du Bénin, supprimez-le après usage.</span></div></div>
+          <div class="cluster" style="justify-content:flex-end"><button type="submit" class="btn btn-primary"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter en CSV</button></div>
+        </form>
+
+        <section class="card" aria-labelledby="h-rule">
+          <div class="card-head"><h2 class="card-title" id="h-rule">Ce qui est enregistré</h2></div>
+          <dl class="dl">
+            <dt>Qui</dt><dd>Clarisse Agbo, Administrateur MAEP</dd>
+            <dt>Quoi</dt><dd>Producteurs, Tout le Bénin, 2026</dd>
+            <dt>Pourquoi</dt><dd>Votre motif, tel quel</dd>
+            <dt>Quand</dt><dd>Heure du serveur, à la seconde</dd>
+          </dl>
+          <p class="small muted" style="margin-top:14px">L'inscription au journal est faite avant la création du fichier : si elle échoue, aucun fichier n'est produit.</p>
+        </section>
+      </div>
+
+      <section class="table-card" aria-labelledby="h-hist" style="margin-top:24px">
+        <div class="table-toolbar"><h2 class="card-title" id="h-hist" style="margin-right:auto">Mes derniers exports</h2><a class="btn btn-ghost btn-sm" href="journal.html">Voir au journal</a></div>
+        <div class="table-scroll">
+          <table class="table table--cards">
+            <caption class="sr-only">Exports réalisés : date, jeu de données, motif, lignes, état</caption>
+            <thead><tr><th scope="col">Date</th><th scope="col">Jeu de données</th><th scope="col">Motif</th><th scope="col" class="num">Lignes</th><th scope="col">État</th></tr></thead>
+            <tbody>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">18/10/2026 08:12</span></td><td data-label="Jeu de données">Agrégats des fermes POC</td><td data-label="Motif">Préparation du comité de pilotage du 22 octobre</td><td class="num" data-label="Lignes">77</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">15/10/2026 16:47</span></td><td data-label="Jeu de données">Appuis remis</td><td data-label="Motif">Rapprochement avec les bons de livraison du fournisseur d'engrais, Borgou</td><td class="num" data-label="Lignes">4 208</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">15/10/2026 16:44</span></td><td data-label="Jeu de données">Appuis remis</td><td data-label="Motif">Rapprochement avec les bons de livraison du fournisseur d'engrais, Borgou</td><td class="num" data-label="Lignes">—</td><td data-label="État"><span class="badge badge--bad"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg>Échec réseau</span></td></tr>
+              <tr><td class="td-primary num" data-label="Date"><span class="cell-main">02/10/2026 10:05</span></td><td data-label="Jeu de données">Producteurs <span class="badge badge--urgent">Personnel</span></td><td data-label="Motif">Liste des bénéficiaires du programme engrais maïs Nord pour la commission de sélection</td><td class="num" data-label="Lignes">2 418</td><td data-label="État"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Téléchargé</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!--STATES {"empty":["Aucun export pour l'instant","Vos exports apparaîtront ici avec leur motif. Ils sont aussi visibles par l'auditeur du comité de pilotage.",""],"error":["L'export a échoué","Le fichier n'a pas été produit ; le motif reste inscrit au journal avec l'état « échec ». Réessayez.","ERR_EXPORT · 502"],"extra":"<div class=\"alert alert--ok\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-check-circle\"/></svg><div class=\"al-body\"><span class=\"al-title\">Fichier téléchargé</span><span>producers-2026-10-18.csv · le motif est enregistré dans le journal d'audit.</span></div></div><button class=\"btn btn-primary\" type=\"button\" aria-busy=\"true\"><span class=\"spinner\" aria-hidden=\"true\"></span>Préparation du fichier…</button>"}-->

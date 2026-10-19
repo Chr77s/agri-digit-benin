@@ -1,0 +1,91 @@
+<!--{"title":"Coopérative de Sompérékou","desc":"Détail d'une coopérative : membres, historique des adhésions, offres groupées (maquette).","search":"Membre, code…"}-->
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><a href="cooperatives.html">Coopératives</a></li><li><span aria-current="page">Sompérékou</span></li></ol></nav>
+          <h1 class="page-title">Coopérative des producteurs de maïs de Sompérékou</h1>
+          <p class="page-desc">Gestionnaire : Issa Orou · suivie par l'agent ATDA du secteur Banikoara.</p>
+        </div>
+        <div class="page-actions"><button type="button" class="btn btn-primary" data-open-dialog="dlg-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ajouter un membre</button></div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <section class="card" aria-label="Identité de la coopérative">
+          <dl class="dl" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px 24px">
+            <div><dt>Siège</dt><dd>Banikoara, Alibori</dd></div>
+            <div><dt>Filières</dt><dd>Maïs, soja</dd></div>
+            <div><dt>Membres actifs</dt><dd class="num">64, dont 23 femmes</dd></div>
+            <div><dt>Numéro d'enregistrement</dt><dd class="num">RCS-AL-2019-0041</dd></div>
+          </dl>
+        </section>
+
+        <section class="card" aria-label="Membres et offres">
+          <div class="tabs" role="tablist" aria-label="Coopérative">
+            <button class="tab" role="tab" id="tc1" aria-controls="pc1" aria-selected="true">Membres actifs <span class="count">64</span></button>
+            <button class="tab" role="tab" id="tc2" aria-controls="pc2" aria-selected="false">Historique des adhésions <span class="count">9</span></button>
+            <button class="tab" role="tab" id="tc3" aria-controls="pc3" aria-selected="false">Offres groupées <span class="count">3</span></button>
+          </div>
+          <div class="tab-panel" role="tabpanel" id="pc1" aria-labelledby="tc1">
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <caption class="sr-only">Membres actifs</caption>
+                <thead><tr><th scope="col">Membre</th><th scope="col">Rôle dans la coopérative</th><th scope="col">Adhésion</th><th scope="col">Fin</th><th scope="col" class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+                <tbody>
+                  <tr><td class="td-primary" data-label="Membre"><span class="cell-main">Issa Orou</span><span class="cell-sub num">BNK-000031</span></td><td data-label="Rôle">Président ou présidente</td><td data-label="Adhésion" class="num">14/03/2019</td><td data-label="Fin"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="td-primary" data-label="Membre"><span class="cell-main">Adjara Bio</span><span class="cell-sub num">BNK-000118</span></td><td data-label="Rôle">Trésorier ou trésorière</td><td data-label="Adhésion" class="num">02/05/2021</td><td data-label="Fin"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="td-primary" data-label="Membre"><span class="cell-main">Safiatou Imorou</span><span class="cell-sub num">BNK-000428</span></td><td data-label="Rôle">Membre</td><td data-label="Adhésion" class="num">17/10/2026</td><td data-label="Fin"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                  <tr><td class="td-primary" data-label="Membre"><span class="cell-main">Séidou Kora</span><span class="cell-sub num">BNK-000140</span></td><td data-label="Rôle">Secrétaire</td><td data-label="Adhésion" class="num">10/01/2022</td><td data-label="Fin"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Active</span></td><td class="col-actions"><button type="button" class="btn btn-danger-ghost btn-sm" data-open-dialog="dlg-end">Mettre fin</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-panel" role="tabpanel" id="pc2" aria-labelledby="tc2" hidden>
+            <ol class="timeline">
+              <li class="tl-done"><span class="tl-dot"></span><div class="tl-time num">17/10/2026 · Issa Orou</div><div class="tl-title">Adhésion : Safiatou Imorou</div></li>
+              <li class="tl-alert"><span class="tl-dot"></span><div class="tl-time num">30/09/2026 · Koffi Dossou</div><div class="tl-title">Fin d'adhésion : Alassane Baparapé</div><div class="tl-text">Motif : départ pour la coopérative de Gogounou.</div></li>
+            </ol>
+          </div>
+          <div class="tab-panel" role="tabpanel" id="pc3" aria-labelledby="tc3" hidden>
+            <ul class="list">
+              <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span><span class="li-main"><span class="li-title">Maïs grain · 42 t · 18 membres</span><span class="li-meta num">Prix demandé 210 FCFA/kg · 2 propositions d'acheteurs</span></span><span class="li-end"><span class="badge badge--ok">Publiée</span></span></li>
+              <li class="list-item"><span class="li-icon"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span><span class="li-main"><span class="li-title">Soja · 8 t · 6 membres</span><span class="li-meta num">Vendue à 320 FCFA/kg le 02/10/2026</span></span><span class="li-end"><span class="badge badge--neutral">Close</span></span></li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="split">
+          <section class="card" aria-labelledby="h-off">
+            <div class="card-head"><div><h2 class="card-title" id="h-off">Offre groupée en cours</h2><p class="card-sub">Maïs grain, campagne 2026</p></div><span class="badge badge--demo">Démonstration</span></div>
+            <dl class="dl"><dt>Volume</dt><dd class="num">42 t, apportées par 18 membres</dd><dt>Prix demandé</dt><dd class="num">210 FCFA/kg</dd><dt>Stockage</dt><dd>Magasin de Sompérékou</dd><dt>Propositions</dt><dd>Sika Transfo (Parakou), 205 FCFA/kg · Agri Distrib (Bohicon), 212 FCFA/kg</dd></dl>
+          </section>
+          <section class="card card--tint" aria-labelledby="h-reg">
+            <h2 class="card-title" id="h-reg" style="margin-bottom:8px">Règle des adhésions</h2>
+            <p class="small muted">Une fin d'adhésion n'efface rien : elle reste dans l'historique avec son motif et son auteur. Seuls des producteurs validés peuvent être ajoutés.</p>
+          </section>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucun membre actif</span><div class="card empty" style="padding:20px"><h3>Aucun membre actif</h3><p>Ajoutez un producteur validé avec le bouton « Ajouter un membre ».</p></div></div>
+            <div><span class="states-cap">Historique vide</span><div class="card empty" style="padding:20px"><h3>Aucune adhésion terminée</h3></div></div>
+            <div><span class="states-cap">Fin d'adhésion</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body">Adhésion terminée. Elle reste visible dans l'historique.</div></div></div>
+          </div>
+        </details>
+      </div>
+<!--DIALOGS-->
+<dialog class="modal" id="dlg-add" aria-labelledby="dlg-add-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-add-t">Ajouter un membre</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-add" novalidate>
+    <div class="field"><label class="label" for="ad-p">Producteur validé</label><select class="select" id="ad-p" aria-invalid="true" aria-describedby="ad-p-e"><option>Choisir…</option><option>BNK-000097 Orou Sika</option><option>BNK-000311 Gounou Yarou</option><option>BNK-000207 Chabi Gado</option></select><span class="error-msg" id="ad-p-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Choisissez un producteur validé.</span></div>
+    <div class="field"><label class="label" for="ad-r">Rôle dans la coopérative</label><select class="select" id="ad-r"><option>Membre</option><option>Président ou présidente</option><option>Trésorier ou trésorière</option><option>Secrétaire</option></select></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-add" class="btn btn-primary" data-toast="Membre ajouté.">Ajouter à la coopérative</button></div>
+</dialog>
+<dialog class="modal" id="dlg-end" aria-labelledby="dlg-end-t">
+  <div class="modal-head"><h2 class="modal-title" id="dlg-end-t">Mettre fin à l'adhésion de Safiatou Imorou</h2><button type="button" class="btn btn-icon" data-close-dialog aria-label="Fermer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="modal-body" method="dialog" id="f-end" novalidate>
+    <div class="field"><label class="label" for="en-m">Motif de fin d'adhésion</label><textarea class="textarea" id="en-m"></textarea><span class="hint">5 caractères minimum. Il reste visible dans l'historique.</span></div>
+  </form>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close-dialog>Annuler</button><button type="submit" form="f-end" class="btn btn-danger" data-toast="Adhésion terminée. Elle reste visible dans l'historique.">Confirmer la fin d'adhésion</button></div>
+</dialog>

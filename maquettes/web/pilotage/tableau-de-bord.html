@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord · Agri-Digit Bénin</title>
+<meta name="description" content="Indicateurs de pilotage par département et filière, avec leur source et leur date de mise à jour (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.map--benin { aspect-ratio: 3 / 4; max-height: 680px; background: var(--surface-2); }
+  .map--benin > svg { padding: 12px 8px 64px; }
+  .map--benin .dep circle { fill: var(--surface); stroke: var(--canopy); stroke-width: .45; }
+  .map--benin .dep text { font: 700 3px var(--font-ui); fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: .7px; }
+  .map--benin .dep--sel circle { fill: var(--sun); stroke-width: .6; }
+  @media (max-width: 640px) { .map--benin > svg { padding-bottom: 96px; } }
+  .ramp { display: flex; gap: 2px; margin-top: 4px; }
+  .ramp i { width: 22px; height: 10px; border-radius: 2px; }
+  .hero-ind { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 32px; }
+  .hero-ind .big { font: 700 3.25rem/1 var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .ind-row-na td { background: var(--surface-2); }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+  .filters .field { min-width: min(100%, 220px); }
+</style>
+</head>
+<body data-role="admin_maep" data-page="pilotage/tableau-de-bord">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/tableau-de-bord.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un indicateur, une commune…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, 2 non lus">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" aria-hidden="true">2</span>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="tableau-de-bord.html">Pilotage</a></li><li><span aria-current="page">Tableau de bord</span></li></ol></nav>
+          <h1 class="page-title">Tableau de bord national</h1>
+          <p class="page-desc">Les indicateurs du registre et du suivi satellite, par département et par filière. Chaque chiffre porte sa source et sa date&nbsp;; sans source, il est marqué «&nbsp;non disponible&nbsp;», jamais zéro.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="suivi-evaluation.html"><svg class="ic" aria-hidden="true"><use href="#i-chart-bar"/></svg>Indicateurs SEA</a>
+          <a class="btn btn-primary" href="exports.html"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter (motif requis)</a>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <form class="card card--flat filters" role="search" aria-label="Filtrer les indicateurs" onsubmit="return false">
+          <div class="field"><label class="label" for="f-dep">Département</label>
+            <select class="select" id="f-dep"><option value="">Tout le Bénin</option><option>Alibori</option><option>Atacora</option><option>Atlantique</option><option>Borgou</option><option>Collines</option><option>Couffo</option><option>Donga</option><option>Littoral</option><option>Mono</option><option>Ouémé</option><option>Plateau</option><option>Zou</option></select></div>
+          <div class="field"><label class="label" for="f-vc">Filière</label>
+            <select class="select" id="f-vc"><option value="">Toutes</option><option>Maïs</option><option>Coton</option><option>Soja</option><option>Riz</option><option>Manioc</option><option>Niébé</option><option>Anacarde</option><option>Ananas</option><option>Maraîchage</option></select></div>
+          <div class="field"><label class="label" for="f-camp">Campagne</label>
+            <select class="select" id="f-camp"><option>2026 (en cours)</option><option>2025</option></select></div>
+          <p class="small muted" style="margin-left:auto" aria-live="polite"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-history"/></svg> Données lues le 18/10/2026 à 08:40 · périmètre&nbsp;: national</p>
+        </form>
+
+        <div class="alert alert--demo">
+          <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+          <div class="al-body"><span class="al-title">Données de démonstration</span><span>Registre fictif du prototype et fermes POC détectées par satellite (non officielles). Aucun chiffre de cette page n'est une statistique du MAEP.</span></div>
+        </div>
+
+        <section class="card" aria-labelledby="h-hero">
+          <div class="card-head"><h2 class="card-title" id="h-hero">Producteurs validés</h2><span class="badge badge--demo">Démonstration</span></div>
+          <div class="hero-ind">
+            <p class="big num">18&nbsp;402</p>
+            <dl class="dl" style="flex:1 1 320px">
+              <dt>Inscrits</dt><dd class="num">24&nbsp;316 · dont 5&nbsp;914 en attente de l'agent ATDA</dd>
+              <dt>Productrices</dt><dd class="num">7&nbsp;118 (29&nbsp;% des inscrits)</dd>
+            </dl>
+          </div>
+          <p class="src" style="margin-top:12px">Source&nbsp;: registre Agri-Digit, mise à jour 18/10/2026 07:55</p>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-ind">
+          <div class="table-toolbar"><h2 class="card-title" id="h-ind" style="margin-right:auto">Autres indicateurs</h2><button type="button" class="btn btn-ghost btn-sm" data-toast="Tableau copié au format CSV (simulation). Utilisez « Exporter » pour un fichier journalisé."><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg>Copier</button></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Indicateurs de pilotage, avec valeur, source et date de mise à jour</caption>
+              <thead><tr><th scope="col">Indicateur</th><th scope="col" class="num">Valeur</th><th scope="col">Source</th><th scope="col">Mise à jour</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Indicateur"><span class="cell-main">Surface des parcelles enregistrées</span></td><td class="num" data-label="Valeur">41&nbsp;260,4&nbsp;ha</td><td data-label="Source">Registre Agri-Digit</td><td class="num" data-label="Mise à jour">18/10/2026 07:55</td></tr>
+                <tr><td class="td-primary" data-label="Indicateur"><span class="cell-main">Fermes détectées (satellite)</span></td><td class="num" data-label="Valeur">200&nbsp;873 fermes</td><td data-label="Source">POC Agri-Digit, imagerie simulée</td><td class="num" data-label="Mise à jour">02/09/2026 11:20</td></tr>
+                <tr><td class="td-primary" data-label="Indicateur"><span class="cell-main">Surface de maïs détectée</span></td><td class="num" data-label="Valeur">312&nbsp;480,6&nbsp;ha</td><td data-label="Source">POC Agri-Digit, imagerie simulée</td><td class="num" data-label="Mise à jour">02/09/2026 11:20</td></tr>
+                <tr><td class="td-primary" data-label="Indicateur"><span class="cell-main">Alertes envoyées</span></td><td class="num" data-label="Valeur">46 alertes</td><td data-label="Source">Registre Agri-Digit</td><td class="num" data-label="Mise à jour">17/10/2026 18:02</td></tr>
+                <tr><td class="td-primary" data-label="Indicateur"><span class="cell-main">Candidatures aux programmes</span></td><td class="num" data-label="Valeur">3&nbsp;912 candidatures</td><td data-label="Source">Registre Agri-Digit</td><td class="num" data-label="Mise à jour">18/10/2026 07:41</td></tr>
+                <tr class="ind-row-na"><td class="td-primary" data-label="Indicateur"><span class="cell-main">Rendement moyen du maïs</span><span class="cell-sub">Aucune pesée de récolte n'est encore reliée</span></td><td class="num" data-label="Valeur"><span class="na">non disponible</span></td><td data-label="Source"><span class="na">aucune source</span></td><td data-label="Mise à jour"><span class="na">—</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="grid" style="--min:380px;align-items:start">
+          <section class="card" aria-labelledby="h-dep">
+            <div class="card-head"><div><h2 class="card-title" id="h-dep">Fermes détectées par département</h2><p class="card-sub">Nombre de fermes du POC, campagne 2026</p></div><span class="badge badge--demo">Démonstration</span></div>
+            <ul class="hbars" aria-describedby="src-dep">
+              <li class="hbar" title="Alibori : 58 310 fermes"><span class="hbar-label">Alibori</span><span class="hbar-track"><span class="hbar-fill" style="--v:100%"></span></span><span class="hbar-val">58&nbsp;310</span></li>
+              <li class="hbar" title="Borgou : 47 199 fermes"><span class="hbar-label">Borgou</span><span class="hbar-track"><span class="hbar-fill" style="--v:80.9%"></span></span><span class="hbar-val">47&nbsp;199</span></li>
+              <li class="hbar" title="Atacora : 32 313 fermes"><span class="hbar-label">Atacora</span><span class="hbar-track"><span class="hbar-fill" style="--v:55.4%"></span></span><span class="hbar-val">32&nbsp;313</span></li>
+              <li class="hbar" title="Collines : 25 104 fermes"><span class="hbar-label">Collines</span><span class="hbar-track"><span class="hbar-fill" style="--v:43.1%"></span></span><span class="hbar-val">25&nbsp;104</span></li>
+              <li class="hbar" title="Donga : 22 372 fermes"><span class="hbar-label">Donga</span><span class="hbar-track"><span class="hbar-fill" style="--v:38.4%"></span></span><span class="hbar-val">22&nbsp;372</span></li>
+              <li class="hbar" title="Plateau : 4 484 fermes"><span class="hbar-label">Plateau</span><span class="hbar-track"><span class="hbar-fill" style="--v:7.7%"></span></span><span class="hbar-val">4&nbsp;484</span></li>
+              <li class="hbar" title="Zou : 3 171 fermes"><span class="hbar-label">Zou</span><span class="hbar-track"><span class="hbar-fill" style="--v:5.4%"></span></span><span class="hbar-val">3&nbsp;171</span></li>
+              <li class="hbar" title="Ouémé : 2 627 fermes"><span class="hbar-label">Ouémé</span><span class="hbar-track"><span class="hbar-fill" style="--v:4.5%"></span></span><span class="hbar-val">2&nbsp;627</span></li>
+              <li class="hbar" title="Couffo : 2 445 fermes"><span class="hbar-label">Couffo</span><span class="hbar-track"><span class="hbar-fill" style="--v:4.2%"></span></span><span class="hbar-val">2&nbsp;445</span></li>
+              <li class="hbar" title="Atlantique : 2 289 fermes"><span class="hbar-label">Atlantique</span><span class="hbar-track"><span class="hbar-fill" style="--v:3.9%"></span></span><span class="hbar-val">2&nbsp;289</span></li>
+              <li class="hbar" title="Littoral : 280 fermes"><span class="hbar-label">Littoral</span><span class="hbar-track"><span class="hbar-fill" style="--v:.5%"></span></span><span class="hbar-val">280</span></li>
+              <li class="hbar" title="Mono : 279 fermes"><span class="hbar-label">Mono</span><span class="hbar-track"><span class="hbar-fill" style="--v:.5%"></span></span><span class="hbar-val">279</span></li>
+            </ul>
+            <p class="src" id="src-dep" style="margin-top:12px">Source&nbsp;: POC Agri-Digit (données de démonstration, non officielles), mise à jour 02/09/2026 · total 200&nbsp;873 fermes</p>
+          </section>
+
+          <section class="card" aria-labelledby="h-map">
+            <div class="card-head"><div><h2 class="card-title" id="h-map">Carte de densité</h2><p class="card-sub">Fermes par maille d'environ 11 km</p></div><span class="badge badge--sim">Imagerie simulée</span></div>
+            <div class="map map--benin">
+              <svg viewBox="0 0 66 128" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="map-t"><title id="map-t">Densité des fermes détectées au Bénin, du sud (faible) au nord (forte)&nbsp;; l'Alibori en compte 58&nbsp;310, le Borgou 47&nbsp;199</title><path fill="#DCE9D0" d="M36 122h2v2h-2zM42 114h2v2h-2zM20 112h2v2h-2zM20 110h2v2h-2zM22 110h2v2h-2zM22 108h2v2h-2zM26 106h2v2h-2zM26 104h2v2h-2zM26 74h2v2h-2zM30 70h2v2h-2zM28 70h2v2h-2zM44 68h2v2h-2zM14 58h2v2h-2zM12 56h2v2h-2zM14 56h2v2h-2zM12 54h2v2h-2zM14 54h2v2h-2zM16 32h2v2h-2zM12 20h2v2h-2zM34 2h2v2h-2zM40 0h2v2h-2z"/><path fill="#B5D29A" d="M26 122h2v2h-2zM28 122h2v2h-2zM30 122h2v2h-2zM38 122h2v2h-2zM20 120h2v2h-2zM24 120h2v2h-2zM34 120h2v2h-2zM20 118h2v2h-2zM22 118h2v2h-2zM40 118h2v2h-2zM24 118h2v2h-2zM18 116h2v2h-2zM20 116h2v2h-2zM24 116h2v2h-2zM40 116h2v2h-2zM28 114h2v2h-2zM22 112h2v2h-2zM24 112h2v2h-2zM26 112h2v2h-2zM28 112h2v2h-2zM18 110h2v2h-2zM24 110h2v2h-2zM18 108h2v2h-2zM20 108h2v2h-2zM28 104h2v2h-2zM18 102h2v2h-2zM28 102h2v2h-2zM42 100h2v2h-2zM26 96h2v2h-2zM28 96h2v2h-2zM30 96h2v2h-2zM32 96h2v2h-2zM26 94h2v2h-2zM30 94h2v2h-2zM40 92h2v2h-2zM24 88h2v2h-2zM28 88h2v2h-2zM28 76h2v2h-2zM30 72h2v2h-2zM14 60h2v2h-2zM32 60h2v2h-2zM16 58h2v2h-2zM32 58h2v2h-2zM46 52h2v2h-2zM12 50h2v2h-2zM58 50h2v2h-2zM60 44h2v2h-2zM4 44h2v2h-2zM10 42h2v2h-2zM14 42h2v2h-2zM20 42h2v2h-2zM62 40h2v2h-2zM0 38h2v2h-2zM62 32h2v2h-2zM10 30h2v2h-2zM6 26h2v2h-2zM10 22h2v2h-2zM54 22h2v2h-2zM16 22h2v2h-2zM32 14h2v2h-2zM38 14h2v2h-2zM58 14h2v2h-2zM34 12h2v2h-2zM36 2h2v2h-2z"/><path fill="#7FB04F" d="M22 122h2v2h-2zM22 120h2v2h-2zM32 120h2v2h-2zM40 120h2v2h-2zM26 118h2v2h-2zM38 118h2v2h-2zM26 116h2v2h-2zM18 114h2v2h-2zM20 114h2v2h-2zM22 114h2v2h-2zM24 114h2v2h-2zM26 114h2v2h-2zM26 110h2v2h-2zM24 108h2v2h-2zM26 108h2v2h-2zM28 108h2v2h-2zM18 106h2v2h-2zM20 106h2v2h-2zM36 102h2v2h-2zM28 100h2v2h-2zM38 100h2v2h-2zM40 100h2v2h-2zM24 98h2v2h-2zM42 98h2v2h-2zM34 96h2v2h-2zM24 94h2v2h-2zM28 94h2v2h-2zM32 94h2v2h-2zM18 92h2v2h-2zM20 92h2v2h-2zM26 92h2v2h-2zM30 92h2v2h-2zM32 92h2v2h-2zM24 90h2v2h-2zM26 90h2v2h-2zM28 90h2v2h-2zM30 90h2v2h-2zM26 88h2v2h-2zM30 88h2v2h-2zM40 88h2v2h-2zM18 86h2v2h-2zM40 82h2v2h-2zM24 76h2v2h-2zM28 74h2v2h-2zM38 74h2v2h-2zM40 74h2v2h-2zM26 72h2v2h-2zM28 72h2v2h-2zM22 72h2v2h-2zM28 68h2v2h-2zM30 68h2v2h-2zM42 68h2v2h-2zM48 66h2v2h-2zM16 66h2v2h-2zM14 62h2v2h-2zM30 60h2v2h-2zM30 58h2v2h-2zM16 56h2v2h-2zM30 56h2v2h-2zM32 56h2v2h-2zM52 56h2v2h-2zM16 54h2v2h-2zM20 54h2v2h-2zM52 54h2v2h-2zM12 52h2v2h-2zM54 52h2v2h-2zM44 50h2v2h-2zM10 46h2v2h-2zM16 46h2v2h-2zM8 46h2v2h-2zM0 40h2v2h-2zM10 40h2v2h-2zM18 40h2v2h-2zM60 40h2v2h-2zM18 38h2v2h-2zM46 38h2v2h-2zM54 38h2v2h-2zM18 36h2v2h-2zM54 36h2v2h-2zM16 34h2v2h-2zM2 32h2v2h-2zM20 32h2v2h-2zM12 30h2v2h-2zM18 30h2v2h-2zM4 28h2v2h-2zM10 28h2v2h-2zM12 28h2v2h-2zM16 28h2v2h-2zM18 28h2v2h-2zM20 28h2v2h-2zM10 26h2v2h-2zM12 26h2v2h-2zM16 26h2v2h-2zM18 26h2v2h-2zM50 26h2v2h-2zM8 24h2v2h-2zM14 24h2v2h-2zM12 24h2v2h-2zM14 22h2v2h-2zM18 22h2v2h-2zM22 22h2v2h-2zM14 20h2v2h-2zM16 20h2v2h-2zM18 20h2v2h-2zM20 20h2v2h-2zM22 20h2v2h-2zM28 18h2v2h-2zM40 16h2v2h-2zM58 16h2v2h-2zM34 14h2v2h-2zM46 14h2v2h-2zM34 10h2v2h-2zM36 10h2v2h-2zM38 10h2v2h-2zM52 10h2v2h-2zM34 8h2v2h-2zM36 8h2v2h-2zM40 8h2v2h-2zM34 6h2v2h-2zM36 6h2v2h-2zM38 6h2v2h-2zM42 6h2v2h-2zM34 4h2v2h-2zM36 4h2v2h-2zM40 4h2v2h-2zM38 2h2v2h-2zM40 2h2v2h-2zM42 0h2v2h-2z"/><path fill="#3F7F3C" d="M26 120h2v2h-2zM30 120h2v2h-2zM36 120h2v2h-2zM38 120h2v2h-2zM28 118h2v2h-2zM36 118h2v2h-2zM22 116h2v2h-2zM28 116h2v2h-2zM34 116h2v2h-2zM36 116h2v2h-2zM38 116h2v2h-2zM32 114h2v2h-2zM34 114h2v2h-2zM36 114h2v2h-2zM34 112h2v2h-2zM36 112h2v2h-2zM28 110h2v2h-2zM32 110h2v2h-2zM34 110h2v2h-2zM36 110h2v2h-2zM38 110h2v2h-2zM40 110h2v2h-2zM34 108h2v2h-2zM36 108h2v2h-2zM22 106h2v2h-2zM24 106h2v2h-2zM28 106h2v2h-2zM34 106h2v2h-2zM36 106h2v2h-2zM38 106h2v2h-2zM40 106h2v2h-2zM18 104h2v2h-2zM20 104h2v2h-2zM30 104h2v2h-2zM32 104h2v2h-2zM36 104h2v2h-2zM38 104h2v2h-2zM40 104h2v2h-2zM20 102h2v2h-2zM24 102h2v2h-2zM26 102h2v2h-2zM30 102h2v2h-2zM34 102h2v2h-2zM18 100h2v2h-2zM22 100h2v2h-2zM24 100h2v2h-2zM26 100h2v2h-2zM30 100h2v2h-2zM32 100h2v2h-2zM36 100h2v2h-2zM18 98h2v2h-2zM20 98h2v2h-2zM22 98h2v2h-2zM26 98h2v2h-2zM28 98h2v2h-2zM30 98h2v2h-2zM32 98h2v2h-2zM38 98h2v2h-2zM40 98h2v2h-2zM18 96h2v2h-2zM20 96h2v2h-2zM22 96h2v2h-2zM24 96h2v2h-2zM40 96h2v2h-2zM18 94h2v2h-2zM22 94h2v2h-2zM34 94h2v2h-2zM22 92h2v2h-2zM24 92h2v2h-2zM38 92h2v2h-2zM18 90h2v2h-2zM32 90h2v2h-2zM34 90h2v2h-2zM40 90h2v2h-2zM18 88h2v2h-2zM20 88h2v2h-2zM32 88h2v2h-2zM36 88h2v2h-2zM24 86h2v2h-2zM26 86h2v2h-2zM28 86h2v2h-2zM30 86h2v2h-2zM40 86h2v2h-2zM28 84h2v2h-2zM30 84h2v2h-2zM40 84h2v2h-2zM22 82h2v2h-2zM28 82h2v2h-2zM30 82h2v2h-2zM22 80h2v2h-2zM24 80h2v2h-2zM30 80h2v2h-2zM32 80h2v2h-2zM34 80h2v2h-2zM40 80h2v2h-2zM24 78h2v2h-2zM28 78h2v2h-2zM38 78h2v2h-2zM40 78h2v2h-2zM30 76h2v2h-2zM38 76h2v2h-2zM40 76h2v2h-2zM20 74h2v2h-2zM26 70h2v2h-2zM32 70h2v2h-2zM38 70h2v2h-2zM32 68h2v2h-2zM36 68h2v2h-2zM38 68h2v2h-2zM30 66h2v2h-2zM34 66h2v2h-2zM36 66h2v2h-2zM16 64h2v2h-2zM32 64h2v2h-2zM36 64h2v2h-2zM30 62h2v2h-2zM32 62h2v2h-2zM36 62h2v2h-2zM38 62h2v2h-2zM16 60h2v2h-2zM22 60h2v2h-2zM26 60h2v2h-2zM28 60h2v2h-2zM18 58h2v2h-2zM24 58h2v2h-2zM28 58h2v2h-2zM34 58h2v2h-2zM50 58h2v2h-2zM18 56h2v2h-2zM24 56h2v2h-2zM28 56h2v2h-2zM34 56h2v2h-2zM36 56h2v2h-2zM18 54h2v2h-2zM22 54h2v2h-2zM24 54h2v2h-2zM26 54h2v2h-2zM30 54h2v2h-2zM32 54h2v2h-2zM50 54h2v2h-2zM14 52h2v2h-2zM16 52h2v2h-2zM44 52h2v2h-2zM14 50h2v2h-2zM16 50h2v2h-2zM46 50h2v2h-2zM12 48h2v2h-2zM14 48h2v2h-2zM16 48h2v2h-2zM52 48h2v2h-2zM58 48h2v2h-2zM12 46h2v2h-2zM28 46h2v2h-2zM46 46h2v2h-2zM52 46h2v2h-2zM58 46h2v2h-2zM6 44h2v2h-2zM12 44h2v2h-2zM14 44h2v2h-2zM16 44h2v2h-2zM26 44h2v2h-2zM28 44h2v2h-2zM46 44h2v2h-2zM48 44h2v2h-2zM54 44h2v2h-2zM56 44h2v2h-2zM10 44h2v2h-2zM2 42h2v2h-2zM8 42h2v2h-2zM12 42h2v2h-2zM16 42h2v2h-2zM18 42h2v2h-2zM28 42h2v2h-2zM34 42h2v2h-2zM52 42h2v2h-2zM54 42h2v2h-2zM58 42h2v2h-2zM8 40h2v2h-2zM12 40h2v2h-2zM14 40h2v2h-2zM16 40h2v2h-2zM20 40h2v2h-2zM34 40h2v2h-2zM10 38h2v2h-2zM12 38h2v2h-2zM14 38h2v2h-2zM16 38h2v2h-2zM20 38h2v2h-2zM48 38h2v2h-2zM52 38h2v2h-2zM56 38h2v2h-2zM62 38h2v2h-2zM12 36h2v2h-2zM14 36h2v2h-2zM16 36h2v2h-2zM20 36h2v2h-2zM22 36h2v2h-2zM46 36h2v2h-2zM48 36h2v2h-2zM50 36h2v2h-2zM56 36h2v2h-2zM14 34h2v2h-2zM18 34h2v2h-2zM20 34h2v2h-2zM22 34h2v2h-2zM52 34h2v2h-2zM62 34h2v2h-2zM10 32h2v2h-2zM12 32h2v2h-2zM18 32h2v2h-2zM52 32h2v2h-2zM54 32h2v2h-2zM56 32h2v2h-2zM58 32h2v2h-2zM60 32h2v2h-2zM4 30h2v2h-2zM14 30h2v2h-2zM16 30h2v2h-2zM20 30h2v2h-2zM38 30h2v2h-2zM60 30h2v2h-2zM6 28h2v2h-2zM8 28h2v2h-2zM14 28h2v2h-2zM22 28h2v2h-2zM46 28h2v2h-2zM50 28h2v2h-2zM60 28h2v2h-2zM8 26h2v2h-2zM14 26h2v2h-2zM20 26h2v2h-2zM22 26h2v2h-2zM26 26h2v2h-2zM38 26h2v2h-2zM40 26h2v2h-2zM48 26h2v2h-2zM52 26h2v2h-2zM60 26h2v2h-2zM10 24h2v2h-2zM16 24h2v2h-2zM18 24h2v2h-2zM20 24h2v2h-2zM22 24h2v2h-2zM24 24h2v2h-2zM26 24h2v2h-2zM50 24h2v2h-2zM58 24h2v2h-2zM12 22h2v2h-2zM20 22h2v2h-2zM24 22h2v2h-2zM26 22h2v2h-2zM32 22h2v2h-2zM34 22h2v2h-2zM52 22h2v2h-2zM56 22h2v2h-2zM24 20h2v2h-2zM26 20h2v2h-2zM28 20h2v2h-2zM30 20h2v2h-2zM32 20h2v2h-2zM44 20h2v2h-2zM50 20h2v2h-2zM52 20h2v2h-2zM54 20h2v2h-2zM56 20h2v2h-2zM30 18h2v2h-2zM40 18h2v2h-2zM42 18h2v2h-2zM46 18h2v2h-2zM50 18h2v2h-2zM52 18h2v2h-2zM56 18h2v2h-2zM30 16h2v2h-2zM32 16h2v2h-2zM42 16h2v2h-2zM44 16h2v2h-2zM46 16h2v2h-2zM36 14h2v2h-2zM40 14h2v2h-2zM42 14h2v2h-2zM44 14h2v2h-2zM36 12h2v2h-2zM38 12h2v2h-2zM40 12h2v2h-2zM42 12h2v2h-2zM44 12h2v2h-2zM46 12h2v2h-2zM54 12h2v2h-2zM56 12h2v2h-2zM40 10h2v2h-2zM42 10h2v2h-2zM44 10h2v2h-2zM46 10h2v2h-2zM38 8h2v2h-2zM42 8h2v2h-2zM44 8h2v2h-2zM46 8h2v2h-2zM40 6h2v2h-2zM44 6h2v2h-2zM38 4h2v2h-2zM42 4h2v2h-2zM46 4h2v2h-2zM44 2h2v2h-2z"/><path fill="#1F5A32" d="M28 120h2v2h-2zM30 118h2v2h-2zM32 118h2v2h-2zM34 118h2v2h-2zM30 116h2v2h-2zM32 116h2v2h-2zM30 114h2v2h-2zM38 114h2v2h-2zM40 114h2v2h-2zM30 112h2v2h-2zM32 112h2v2h-2zM38 112h2v2h-2zM40 112h2v2h-2zM30 110h2v2h-2zM30 108h2v2h-2zM32 108h2v2h-2zM38 108h2v2h-2zM40 108h2v2h-2zM30 106h2v2h-2zM32 106h2v2h-2zM22 104h2v2h-2zM24 104h2v2h-2zM34 104h2v2h-2zM22 102h2v2h-2zM32 102h2v2h-2zM38 102h2v2h-2zM40 102h2v2h-2zM20 100h2v2h-2zM34 100h2v2h-2zM34 98h2v2h-2zM36 98h2v2h-2zM36 96h2v2h-2zM38 96h2v2h-2zM20 94h2v2h-2zM36 94h2v2h-2zM38 94h2v2h-2zM40 94h2v2h-2zM34 92h2v2h-2zM36 92h2v2h-2zM20 90h2v2h-2zM22 90h2v2h-2zM36 90h2v2h-2zM38 90h2v2h-2zM22 88h2v2h-2zM34 88h2v2h-2zM38 88h2v2h-2zM20 86h2v2h-2zM22 86h2v2h-2zM32 86h2v2h-2zM34 86h2v2h-2zM36 86h2v2h-2zM38 86h2v2h-2zM18 84h2v2h-2zM20 84h2v2h-2zM22 84h2v2h-2zM24 84h2v2h-2zM26 84h2v2h-2zM32 84h2v2h-2zM34 84h2v2h-2zM36 84h2v2h-2zM38 84h2v2h-2zM18 82h2v2h-2zM20 82h2v2h-2zM24 82h2v2h-2zM26 82h2v2h-2zM32 82h2v2h-2zM34 82h2v2h-2zM36 82h2v2h-2zM38 82h2v2h-2zM18 80h2v2h-2zM20 80h2v2h-2zM26 80h2v2h-2zM28 80h2v2h-2zM36 80h2v2h-2zM38 80h2v2h-2zM18 78h2v2h-2zM20 78h2v2h-2zM22 78h2v2h-2zM26 78h2v2h-2zM30 78h2v2h-2zM32 78h2v2h-2zM34 78h2v2h-2zM36 78h2v2h-2zM18 76h2v2h-2zM20 76h2v2h-2zM22 76h2v2h-2zM32 76h2v2h-2zM34 76h2v2h-2zM36 76h2v2h-2zM18 74h2v2h-2zM30 74h2v2h-2zM32 74h2v2h-2zM34 74h2v2h-2zM36 74h2v2h-2zM18 72h2v2h-2zM20 72h2v2h-2zM32 72h2v2h-2zM34 72h2v2h-2zM36 72h2v2h-2zM38 72h2v2h-2zM40 72h2v2h-2zM18 70h2v2h-2zM20 70h2v2h-2zM22 70h2v2h-2zM24 70h2v2h-2zM34 70h2v2h-2zM36 70h2v2h-2zM40 70h2v2h-2zM18 68h2v2h-2zM20 68h2v2h-2zM22 68h2v2h-2zM24 68h2v2h-2zM26 68h2v2h-2zM34 68h2v2h-2zM40 68h2v2h-2zM18 66h2v2h-2zM20 66h2v2h-2zM22 66h2v2h-2zM24 66h2v2h-2zM26 66h2v2h-2zM28 66h2v2h-2zM32 66h2v2h-2zM38 66h2v2h-2zM40 66h2v2h-2zM42 66h2v2h-2zM44 66h2v2h-2zM46 66h2v2h-2zM18 64h2v2h-2zM20 64h2v2h-2zM22 64h2v2h-2zM24 64h2v2h-2zM26 64h2v2h-2zM28 64h2v2h-2zM30 64h2v2h-2zM34 64h2v2h-2zM38 64h2v2h-2zM40 64h2v2h-2zM42 64h2v2h-2zM44 64h2v2h-2zM46 64h2v2h-2zM48 64h2v2h-2zM16 62h2v2h-2zM18 62h2v2h-2zM20 62h2v2h-2zM22 62h2v2h-2zM24 62h2v2h-2zM26 62h2v2h-2zM28 62h2v2h-2zM34 62h2v2h-2zM40 62h2v2h-2zM42 62h2v2h-2zM44 62h2v2h-2zM46 62h2v2h-2zM48 62h2v2h-2zM18 60h2v2h-2zM20 60h2v2h-2zM24 60h2v2h-2zM34 60h2v2h-2zM36 60h2v2h-2zM38 60h2v2h-2zM40 60h2v2h-2zM42 60h2v2h-2zM44 60h2v2h-2zM46 60h2v2h-2zM48 60h2v2h-2zM20 58h2v2h-2zM22 58h2v2h-2zM26 58h2v2h-2zM36 58h2v2h-2zM38 58h2v2h-2zM40 58h2v2h-2zM42 58h2v2h-2zM44 58h2v2h-2zM46 58h2v2h-2zM48 58h2v2h-2zM20 56h2v2h-2zM22 56h2v2h-2zM26 56h2v2h-2zM38 56h2v2h-2zM40 56h2v2h-2zM42 56h2v2h-2zM44 56h2v2h-2zM46 56h2v2h-2zM48 56h2v2h-2zM50 56h2v2h-2zM28 54h2v2h-2zM34 54h2v2h-2zM36 54h2v2h-2zM38 54h2v2h-2zM40 54h2v2h-2zM42 54h2v2h-2zM44 54h2v2h-2zM46 54h2v2h-2zM48 54h2v2h-2zM18 52h2v2h-2zM20 52h2v2h-2zM22 52h2v2h-2zM24 52h2v2h-2zM26 52h2v2h-2zM28 52h2v2h-2zM30 52h2v2h-2zM32 52h2v2h-2zM34 52h2v2h-2zM36 52h2v2h-2zM38 52h2v2h-2zM40 52h2v2h-2zM42 52h2v2h-2zM48 52h2v2h-2zM50 52h2v2h-2zM52 52h2v2h-2zM18 50h2v2h-2zM20 50h2v2h-2zM22 50h2v2h-2zM24 50h2v2h-2zM26 50h2v2h-2zM28 50h2v2h-2zM30 50h2v2h-2zM32 50h2v2h-2zM34 50h2v2h-2zM36 50h2v2h-2zM38 50h2v2h-2zM40 50h2v2h-2zM42 50h2v2h-2zM48 50h2v2h-2zM50 50h2v2h-2zM52 50h2v2h-2zM54 50h2v2h-2zM56 50h2v2h-2zM18 48h2v2h-2zM20 48h2v2h-2zM22 48h2v2h-2zM24 48h2v2h-2zM26 48h2v2h-2zM28 48h2v2h-2zM30 48h2v2h-2zM32 48h2v2h-2zM34 48h2v2h-2zM36 48h2v2h-2zM38 48h2v2h-2zM40 48h2v2h-2zM42 48h2v2h-2zM44 48h2v2h-2zM46 48h2v2h-2zM48 48h2v2h-2zM50 48h2v2h-2zM54 48h2v2h-2zM56 48h2v2h-2zM14 46h2v2h-2zM18 46h2v2h-2zM20 46h2v2h-2zM22 46h2v2h-2zM24 46h2v2h-2zM26 46h2v2h-2zM30 46h2v2h-2zM32 46h2v2h-2zM34 46h2v2h-2zM36 46h2v2h-2zM38 46h2v2h-2zM40 46h2v2h-2zM42 46h2v2h-2zM44 46h2v2h-2zM48 46h2v2h-2zM50 46h2v2h-2zM54 46h2v2h-2zM56 46h2v2h-2zM8 44h2v2h-2zM18 44h2v2h-2zM20 44h2v2h-2zM22 44h2v2h-2zM24 44h2v2h-2zM30 44h2v2h-2zM32 44h2v2h-2zM34 44h2v2h-2zM36 44h2v2h-2zM38 44h2v2h-2zM40 44h2v2h-2zM42 44h2v2h-2zM44 44h2v2h-2zM50 44h2v2h-2zM52 44h2v2h-2zM58 44h2v2h-2zM4 42h2v2h-2zM6 42h2v2h-2zM22 42h2v2h-2zM24 42h2v2h-2zM26 42h2v2h-2zM30 42h2v2h-2zM32 42h2v2h-2zM36 42h2v2h-2zM38 42h2v2h-2zM40 42h2v2h-2zM42 42h2v2h-2zM44 42h2v2h-2zM46 42h2v2h-2zM48 42h2v2h-2zM50 42h2v2h-2zM56 42h2v2h-2zM2 40h2v2h-2zM4 40h2v2h-2zM6 40h2v2h-2zM22 40h2v2h-2zM24 40h2v2h-2zM26 40h2v2h-2zM28 40h2v2h-2zM30 40h2v2h-2zM32 40h2v2h-2zM36 40h2v2h-2zM38 40h2v2h-2zM40 40h2v2h-2zM42 40h2v2h-2zM44 40h2v2h-2zM46 40h2v2h-2zM48 40h2v2h-2zM50 40h2v2h-2zM52 40h2v2h-2zM54 40h2v2h-2zM56 40h2v2h-2zM58 40h2v2h-2zM2 38h2v2h-2zM4 38h2v2h-2zM6 38h2v2h-2zM8 38h2v2h-2zM22 38h2v2h-2zM24 38h2v2h-2zM26 38h2v2h-2zM28 38h2v2h-2zM30 38h2v2h-2zM32 38h2v2h-2zM34 38h2v2h-2zM36 38h2v2h-2zM38 38h2v2h-2zM40 38h2v2h-2zM42 38h2v2h-2zM44 38h2v2h-2zM50 38h2v2h-2zM58 38h2v2h-2zM60 38h2v2h-2zM2 36h2v2h-2zM4 36h2v2h-2zM6 36h2v2h-2zM8 36h2v2h-2zM10 36h2v2h-2zM24 36h2v2h-2zM26 36h2v2h-2zM28 36h2v2h-2zM30 36h2v2h-2zM32 36h2v2h-2zM34 36h2v2h-2zM36 36h2v2h-2zM38 36h2v2h-2zM40 36h2v2h-2zM42 36h2v2h-2zM44 36h2v2h-2zM52 36h2v2h-2zM58 36h2v2h-2zM60 36h2v2h-2zM62 36h2v2h-2zM2 34h2v2h-2zM4 34h2v2h-2zM6 34h2v2h-2zM8 34h2v2h-2zM10 34h2v2h-2zM12 34h2v2h-2zM24 34h2v2h-2zM26 34h2v2h-2zM28 34h2v2h-2zM30 34h2v2h-2zM32 34h2v2h-2zM34 34h2v2h-2zM36 34h2v2h-2zM38 34h2v2h-2zM40 34h2v2h-2zM42 34h2v2h-2zM44 34h2v2h-2zM46 34h2v2h-2zM48 34h2v2h-2zM50 34h2v2h-2zM54 34h2v2h-2zM56 34h2v2h-2zM58 34h2v2h-2zM60 34h2v2h-2zM4 32h2v2h-2zM6 32h2v2h-2zM8 32h2v2h-2zM14 32h2v2h-2zM22 32h2v2h-2zM24 32h2v2h-2zM26 32h2v2h-2zM28 32h2v2h-2zM30 32h2v2h-2zM32 32h2v2h-2zM34 32h2v2h-2zM36 32h2v2h-2zM38 32h2v2h-2zM40 32h2v2h-2zM42 32h2v2h-2zM44 32h2v2h-2zM46 32h2v2h-2zM48 32h2v2h-2zM50 32h2v2h-2zM6 30h2v2h-2zM8 30h2v2h-2zM22 30h2v2h-2zM24 30h2v2h-2zM26 30h2v2h-2zM28 30h2v2h-2zM30 30h2v2h-2zM32 30h2v2h-2zM34 30h2v2h-2zM36 30h2v2h-2zM40 30h2v2h-2zM42 30h2v2h-2zM44 30h2v2h-2zM46 30h2v2h-2zM48 30h2v2h-2zM50 30h2v2h-2zM52 30h2v2h-2zM54 30h2v2h-2zM56 30h2v2h-2zM58 30h2v2h-2zM24 28h2v2h-2zM26 28h2v2h-2zM28 28h2v2h-2zM30 28h2v2h-2zM32 28h2v2h-2zM34 28h2v2h-2zM36 28h2v2h-2zM38 28h2v2h-2zM40 28h2v2h-2zM42 28h2v2h-2zM44 28h2v2h-2zM48 28h2v2h-2zM52 28h2v2h-2zM54 28h2v2h-2zM56 28h2v2h-2zM58 28h2v2h-2zM24 26h2v2h-2zM28 26h2v2h-2zM30 26h2v2h-2zM32 26h2v2h-2zM34 26h2v2h-2zM36 26h2v2h-2zM42 26h2v2h-2zM44 26h2v2h-2zM46 26h2v2h-2zM54 26h2v2h-2zM56 26h2v2h-2zM58 26h2v2h-2zM28 24h2v2h-2zM30 24h2v2h-2zM32 24h2v2h-2zM34 24h2v2h-2zM36 24h2v2h-2zM38 24h2v2h-2zM40 24h2v2h-2zM42 24h2v2h-2zM44 24h2v2h-2zM46 24h2v2h-2zM48 24h2v2h-2zM52 24h2v2h-2zM54 24h2v2h-2zM56 24h2v2h-2zM28 22h2v2h-2zM30 22h2v2h-2zM36 22h2v2h-2zM38 22h2v2h-2zM40 22h2v2h-2zM42 22h2v2h-2zM44 22h2v2h-2zM46 22h2v2h-2zM48 22h2v2h-2zM50 22h2v2h-2zM34 20h2v2h-2zM36 20h2v2h-2zM38 20h2v2h-2zM40 20h2v2h-2zM42 20h2v2h-2zM46 20h2v2h-2zM48 20h2v2h-2zM32 18h2v2h-2zM34 18h2v2h-2zM36 18h2v2h-2zM38 18h2v2h-2zM44 18h2v2h-2zM48 18h2v2h-2zM54 18h2v2h-2zM34 16h2v2h-2zM36 16h2v2h-2zM38 16h2v2h-2zM48 16h2v2h-2zM50 16h2v2h-2zM52 16h2v2h-2zM54 16h2v2h-2zM56 16h2v2h-2zM48 14h2v2h-2zM50 14h2v2h-2zM52 14h2v2h-2zM54 14h2v2h-2zM56 14h2v2h-2zM48 12h2v2h-2zM50 12h2v2h-2zM52 12h2v2h-2zM48 10h2v2h-2zM50 10h2v2h-2zM48 8h2v2h-2zM50 8h2v2h-2zM46 6h2v2h-2zM48 6h2v2h-2zM44 4h2v2h-2zM42 2h2v2h-2z"/><g class="dep dep--sel"><title>Alibori&nbsp;: 58&nbsp;310 fermes détectées</title><circle cx="41.0" cy="23.0" r="1.6"/><text x="43.2" y="24">Alibori</text></g><g class="dep"><title>Atacora&nbsp;: 32&nbsp;313 fermes détectées</title><circle cx="17.0" cy="38.0" r="1.1"/><text x="19.2" y="39">Atacora</text></g><g class="dep"><title>Borgou&nbsp;: 47&nbsp;199 fermes détectées</title><circle cx="41.0" cy="58.0" r="1.1"/><text x="43.2" y="59">Borgou</text></g><g class="dep"><title>Collines&nbsp;: 25&nbsp;104 fermes détectées</title><circle cx="31.0" cy="88.0" r="1.1"/><text x="33.2" y="89">Collines</text></g><g class="dep"><title>Couffo&nbsp;: 2&nbsp;445 fermes détectées</title><circle cx="21.0" cy="110.0" r="1.1"/><text x="23.2" y="111">Couffo</text></g><g class="dep"><title>Donga&nbsp;: 22&nbsp;372 fermes détectées</title><circle cx="21.0" cy="60.0" r="1.1"/><text x="23.2" y="61">Donga</text></g><g class="dep"><title>Ouémé&nbsp;: 2&nbsp;627 fermes détectées</title><circle cx="37.0" cy="118.0" r="1.1"/><text x="39.2" y="119">Ouémé</text></g><g class="dep"><title>Plateau&nbsp;: 4&nbsp;484 fermes détectées</title><circle cx="38.0" cy="106.0" r="1.1"/><text x="40.2" y="107">Plateau</text></g><g class="dep"><title>Zou&nbsp;: 3&nbsp;171 fermes détectées</title><circle cx="30.0" cy="106.0" r="1.1"/><text x="32.2" y="107">Zou</text></g></svg>
+              <div class="map-legend">
+                <span class="small"><b>Fermes par maille</b></span>
+                <div class="ramp" aria-hidden="true"><i style="background:#DCE9D0"></i><i style="background:#B5D29A"></i><i style="background:#7FB04F"></i><i style="background:#3F7F3C"></i><i style="background:#1F5A32"></i></div>
+                <span class="small num">faible → forte (jusqu'à 639)</span>
+              </div>
+            </div>
+            <p class="src" style="margin-top:10px">Point jaune&nbsp;: département sélectionné pour le détail (Alibori). Survolez un département pour son total.</p>
+          </section>
+        </div>
+
+        <section class="table-card" aria-labelledby="h-vc">
+          <div class="table-toolbar"><h2 class="card-title" id="h-vc" style="margin-right:auto">Par filière</h2><span class="badge badge--demo">Démonstration</span></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Producteurs validés, surface et campagnes par filière</caption>
+              <thead><tr>
+                <th scope="col" aria-sort="none"><button type="button" class="th-sort">Filière<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th scope="col" class="num" aria-sort="descending"><button type="button" class="th-sort">Producteurs validés<svg class="ic" aria-hidden="true"><use href="#i-sort-desc"/></svg></button></th>
+                <th scope="col" class="num" aria-sort="none"><button type="button" class="th-sort">Surface (ha)<svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th scope="col" class="num">Rendement (t/ha)</th>
+                <th scope="col">Source</th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Maïs</span></td><td class="num" data-label="Producteurs validés">9&nbsp;840</td><td class="num" data-label="Surface (ha)">21&nbsp;904,2</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Coton</span></td><td class="num" data-label="Producteurs validés">4&nbsp;120</td><td class="num" data-label="Surface (ha)">10&nbsp;318,5</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Soja</span></td><td class="num" data-label="Producteurs validés">2&nbsp;310</td><td class="num" data-label="Surface (ha)">4&nbsp;712,0</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Riz</span></td><td class="num" data-label="Producteurs validés">1&nbsp;060</td><td class="num" data-label="Surface (ha)">1&nbsp;980,7</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Manioc</span></td><td class="num" data-label="Producteurs validés">640</td><td class="num" data-label="Surface (ha)">1&nbsp;412,3</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+                <tr><td class="td-primary" data-label="Filière"><span class="cell-main">Niébé</span></td><td class="num" data-label="Producteurs validés">432</td><td class="num" data-label="Surface (ha)">932,7</td><td class="num" data-label="Rendement (t/ha)"><span class="na">non disponible</span></td><td data-label="Source">Registre, 18/10/2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Anacarde, ananas, maraîchage et filières animales&nbsp;: aucune campagne déclarée sur ce périmètre.</span></div>
+        </section>
+
+        <section class="table-card" aria-labelledby="h-farms">
+          <div class="table-toolbar"><h2 class="card-title" id="h-farms" style="margin-right:auto">Fermes du POC par département</h2><a class="btn btn-ghost btn-sm" href="exports.html"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Exporter</a></div>
+          <div class="table-scroll">
+            <table class="table table--cards">
+              <caption class="sr-only">Agrégats des fermes POC par département</caption>
+              <thead><tr><th scope="col">Département</th><th scope="col" class="num">Fermes détectées</th><th scope="col" class="num">Maïs (ha)</th><th scope="col">Source</th><th scope="col">Date</th></tr></thead>
+              <tbody>
+                <tr><td class="td-primary" data-label="Département"><span class="cell-main">Alibori</span><span class="cell-sub">6 communes, dont Banikoara</span></td><td class="num" data-label="Fermes détectées">58&nbsp;310</td><td class="num" data-label="Maïs (ha)">96&nbsp;412,8</td><td data-label="Source">POC Agri-Digit</td><td class="num" data-label="Date">02/09/2026</td></tr>
+                <tr><td class="td-primary" data-label="Département"><span class="cell-main">Borgou</span><span class="cell-sub">8 communes</span></td><td class="num" data-label="Fermes détectées">47&nbsp;199</td><td class="num" data-label="Maïs (ha)">78&nbsp;230,1</td><td data-label="Source">POC Agri-Digit</td><td class="num" data-label="Date">02/09/2026</td></tr>
+                <tr><td class="td-primary" data-label="Département"><span class="cell-main">Atacora</span><span class="cell-sub">9 communes</span></td><td class="num" data-label="Fermes détectées">32&nbsp;313</td><td class="num" data-label="Maïs (ha)">48&nbsp;904,5</td><td data-label="Source">POC Agri-Digit</td><td class="num" data-label="Date">02/09/2026</td></tr>
+                <tr><td class="td-primary" data-label="Département"><span class="cell-main">Littoral</span><span class="cell-sub">Cotonou</span></td><td class="num" data-label="Fermes détectées">280</td><td class="num" data-label="Maïs (ha)"><span class="na">non disponible</span></td><td data-label="Source">POC Agri-Digit</td><td class="num" data-label="Date">02/09/2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="num">4 sur 12 départements</span><nav class="pages" aria-label="Pagination"><button class="page-btn" type="button" disabled aria-label="Page précédente"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button class="page-btn" type="button" aria-current="page">1</button><button class="page-btn" type="button">2</button><button class="page-btn" type="button">3</button><button class="page-btn" type="button" aria-label="Page suivante"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg></button></nav></div>
+        </section>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun indicateur pour ce périmètre</h3><p>Le département choisi n'a encore ni producteur validé ni ferme détectée. Élargissez à «&nbsp;Tout le Bénin&nbsp;».</p><button type="button" class="btn btn-secondary">Revenir à tout le Bénin</button></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Impossible de charger les indicateurs</h3><p>Le serveur de pilotage ne répond pas. Les chiffres affichés restent ceux du 18/10/2026 à 08:40.</p><code>ERR_DASHBOARD · 503</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Indicateurs du 18/10/2026 à 08:40&nbsp;; ils seront rafraîchis au retour du réseau.</span></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!--{"title":"Sélections","desc":"Proposition de sélection des bénéficiaires, validation motivée par un second agent, jamais automatique (maquette).","search":"Ferme, commune…"}-->
+<!--STYLE-->
+  .runs { display: grid; gap: 10px; }
+  .runs .choice-card { align-items: center; }
+  .runs .rl { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .weights { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+  .weights .w { padding: 12px 14px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+  .weights .w b { display: block; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+<!--MAIN-->
+      <div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="accueil.html">Accueil</a></li><li><span aria-current="page">Sélections</span></li></ol></nav>
+          <h1 class="page-title">Sélection des bénéficiaires</h1>
+          <p class="page-desc">Le calcul classe les fermes selon des critères fixés à l'avance. Il ne choisit personne : une personne valide et motive.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><div class="al-body"><span>Le calcul produit une <b>proposition</b>. Un agent qui ne l'a pas lancée la valide et motive la décision ; un producteur exclu peut contester (loi n° 2017-20, art. 401).</span></div></div>
+
+        <section aria-labelledby="h-runs" class="stack" style="--gap:12px">
+          <div class="section-head"><h2 class="section-title" id="h-runs">Propositions</h2><span class="small muted">Lancées par le responsable de programme (Rachidi Bello)</span></div>
+          <div class="runs" role="radiogroup" aria-label="Choisir une proposition">
+            <label class="choice-card"><input class="radio" type="radio" name="run" checked><span class="rl"><span class="badge badge--wait"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Proposition</span><b class="num">17/10/2026 15:20 · Alibori · cible 2 000, retenus 2 000</b><span class="small muted num">Poids : confiance 0,5, route 0,3, surface 0,2</span></span></label>
+            <label class="choice-card"><input class="radio" type="radio" name="run"><span class="rl"><span class="badge badge--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Validée</span><b class="num">02/10/2026 09:05 · Alibori · cible 1 500, retenus 1 500</b><span class="small muted">Validée par Koffi Dossou : « Critères conformes à l'arrêté du programme. »</span></span></label>
+          </div>
+        </section>
+
+        <div class="split">
+          <div class="stack" style="--gap:20px">
+            <section class="card" aria-labelledby="h-crit">
+              <div class="card-head"><h2 class="card-title" id="h-crit">Critères fixés avant le calcul</h2><span class="badge badge--sim">Score de démonstration</span></div>
+              <div class="weights">
+                <div class="w"><span class="small muted">Confiance de détection du maïs</span><b>0,50</b></div>
+                <div class="w"><span class="small muted">Proximité de la route</span><b>0,30</b></div>
+                <div class="w"><span class="small muted">Taille de la parcelle</span><b>0,20</b></div>
+              </div>
+              <p class="small muted" style="margin-top:12px">Somme des poids : <b class="num">1,00</b> · 8 412 fermes évaluées dans l'Alibori. Critères conservés avec le résultat.</p>
+            </section>
+
+            <section class="table-card" aria-labelledby="t-cand">
+              <div class="table-toolbar">
+                <h2 class="card-title" id="t-cand" style="margin-right:auto">Candidats</h2>
+                <div class="chips" role="group" aria-label="Afficher"><button class="chip" type="button" aria-pressed="true">Retenus <span class="count">2 000</span></button><button class="chip" type="button" aria-pressed="false">Non retenus <span class="count">6 412</span></button></div>
+              </div>
+              <div class="table-scroll">
+                <table class="table table--cards">
+                  <caption class="sr-only">Candidats retenus, par rang</caption>
+                  <thead><tr><th scope="col" class="num">Rang</th><th scope="col">Ferme</th><th scope="col">Commune</th><th scope="col" class="num">Score</th><th scope="col" class="num">Confiance</th><th scope="col" class="num">Route (m)</th><th scope="col" class="num">Surface (ha)</th></tr></thead>
+                  <tbody>
+                    <tr><td class="num" data-label="Rang">1</td><td class="td-primary" data-label="Ferme"><span class="cell-main num">F-BNK-01244</span></td><td data-label="Commune">Banikoara</td><td class="num" data-label="Score">0,962</td><td class="num" data-label="Confiance">0,98</td><td class="num" data-label="Route (m)">120</td><td class="num" data-label="Surface (ha)">2,40</td></tr>
+                    <tr><td class="num" data-label="Rang">2</td><td class="td-primary" data-label="Ferme"><span class="cell-main num">F-KAN-00873</span></td><td data-label="Commune">Kandi</td><td class="num" data-label="Score">0,955</td><td class="num" data-label="Confiance">0,97</td><td class="num" data-label="Route (m)">90</td><td class="num" data-label="Surface (ha)">1,85</td></tr>
+                    <tr><td class="num" data-label="Rang">3</td><td class="td-primary" data-label="Ferme"><span class="cell-main num">F-BNK-02011</span></td><td data-label="Commune">Banikoara</td><td class="num" data-label="Score">0,949</td><td class="num" data-label="Confiance">0,96</td><td class="num" data-label="Route (m)">210</td><td class="num" data-label="Surface (ha)">2,95</td></tr>
+                    <tr><td class="num" data-label="Rang">4</td><td class="td-primary" data-label="Ferme"><span class="cell-main num">F-GOG-00412</span></td><td data-label="Commune">Gogounou</td><td class="num" data-label="Score">0,941</td><td class="num" data-label="Confiance">0,95</td><td class="num" data-label="Route (m)">340</td><td class="num" data-label="Surface (ha)">3,10</td></tr>
+                    <tr><td class="num" data-label="Rang">5</td><td class="td-primary" data-label="Ferme"><span class="cell-main num">F-MAL-01507</span></td><td data-label="Commune">Malanville</td><td class="num" data-label="Score">0,937</td><td class="num" data-label="Confiance">0,96</td><td class="num" data-label="Route (m)">480</td><td class="num" data-label="Surface (ha)">1,20</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination"><span>Affichage des 100 premiers candidats par rang sur 8 412 fermes évaluées. L'export complet passe par l'administrateur.</span></div>
+            </section>
+          </div>
+
+          <aside class="stack" aria-label="Validation">
+            <form class="card stack" style="--gap:14px" novalidate onsubmit="return false" aria-labelledby="h-val">
+              <h2 class="card-title" id="h-val">Valider cette proposition</h2>
+              <p class="small muted">Vous n'avez pas lancé ce calcul : vous pouvez le valider. La validation publie la liste et ouvre 15 jours de contestation.</p>
+              <div class="field"><label class="label" for="v-mo">Motif de la validation</label><textarea class="textarea" id="v-mo" rows="4" aria-invalid="true" aria-describedby="v-mo-e"></textarea><span class="error-msg" id="v-mo-e"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Motivez la validation en une phrase.</span></div>
+              <label class="check"><input class="cb" type="checkbox"> J'ai contrôlé un échantillon de fermes retenues et non retenues.</label>
+              <button type="submit" class="btn btn-primary btn-block" data-toast="Sélection validée. Les producteurs sont prévenus (SMS simulé).">Valider la sélection</button>
+              <p class="hint">Vous pouvez aussi refuser la proposition : le responsable de programme relance un calcul.</p>
+            </form>
+            <section class="card" aria-labelledby="h-cont">
+              <div class="card-head"><h2 class="card-title" id="h-cont">Contestations</h2><a class="small" href="contestations.html">Instruire</a></div>
+              <p class="small muted">Ouvertes après validation. Proposition du 02/10 : 3 à instruire, 4 décidées.</p>
+            </section>
+          </aside>
+        </div>
+
+        <details class="states">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg>États de la page (revue de maquette)</summary>
+          <div class="states-body">
+            <div><span class="states-cap">Aucune sélection</span><div class="card empty" style="padding:20px"><h3>Aucune sélection</h3><p>Le responsable de programme n'a encore lancé aucune sélection.</p></div></div>
+            <div><span class="states-cap">Proposition lancée par vous-même</span><div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><div class="al-body"><span class="al-title">Validation impossible</span><span>Vous avez lancé ce calcul. Un autre agent ou un administrateur doit le valider.</span></div></div></div>
+            <div><span class="states-cap">Validée</span><div class="alert alert--ok" role="status"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="al-body"><span class="al-title">Sélection validée</span><span>« Critères conformes à l'arrêté du programme. »</span></div></div></div>
+          </div>
+        </details>
+      </div>

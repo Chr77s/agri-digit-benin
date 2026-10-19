@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crédit · Agri-Digit Bénin</title>
+<meta name="description" content="Producteurs ayant consenti au partage, score indicatif expliqué facteur par facteur ; jamais une décision automatique (maquette).">
+<link rel="icon" href="../../../frontend/public/icon.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="../kit.js" defer></script>
+<style>
+  /* Local au groupe filière/pilotage (absent du kit) : panneau « États », vue tableau d'un graphique, barres horizontales, valeur non disponible */
+  .states, .tview { border: 1px dashed var(--line-input); border-radius: var(--r-lg); background: var(--surface-2); }
+  .states { margin-top: 32px; }
+  .states > summary, .tview > summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; font-weight: 700; cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+  .tview > summary { min-height: 44px; font-size: var(--fs-sm); color: var(--leaf); }
+  .states > summary::-webkit-details-marker, .tview > summary::-webkit-details-marker { display: none; }
+  .states > summary:hover, .tview > summary:hover { background: var(--layer); }
+  .states-chev { margin-left: auto; transition: transform .2s; }
+  .states[open] .states-chev, .tview[open] .states-chev { transform: rotate(180deg); }
+  .states-body { padding: 4px 16px 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .tview .table-scroll { padding: 6px 8px 8px; }
+  .state-cap { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(84px, 9.5rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .hbar-label { overflow-wrap: anywhere; color: var(--ink); }
+  .hbar-track { height: 18px; border-left: 1px solid var(--line-input); }
+  .hbar-fill { display: block; height: 100%; width: var(--v, 0%); min-width: 2px; background: var(--d1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+  .hbar-fill--2 { background: var(--d2); } .hbar-fill--3 { background: var(--d3); } .hbar-fill--4 { background: var(--d4); } .hbar-fill--5 { background: var(--d5); }
+  .hbar:hover .hbar-fill { filter: brightness(1.18); }
+  .hbar-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 5ch; }
+  .na { font-style: italic; color: var(--ink-2); font-weight: 600; }
+  .src { font-size: var(--fs-xs); color: var(--ink-2); }
+  @media (max-width: 420px) { .hbar { grid-template-columns: minmax(0, 1fr) auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } }
+  .table .progress { display: block; width: 100%; max-width: 140px; min-width: 80px; }
+
+.score-big { display: flex; align-items: baseline; gap: 6px; }
+  .score-big b { font: 700 3.25rem/1 var(--font-ui); font-variant-numeric: tabular-nums; }
+  .fx { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .fx li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .fx .fx-track { grid-column: 1 / -1; height: 14px; width: var(--w); background: var(--rain-2); border-radius: 0 4px 4px 0; }
+  .fx .fx-track > span { display: block; height: 100%; width: var(--v); background: var(--d1); border-radius: 0 4px 4px 0; }
+  .fx .fx-why { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fx .pts { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .never { border: 2px solid var(--laterite); border-radius: var(--r-lg); padding: 14px 16px; background: var(--sim-bg); color: var(--sim-ink); font-weight: 700; display: flex; gap: 10px; align-items: flex-start; }
+  tr[aria-selected="true"] td { background: var(--ok-bg); }
+</style>
+</head>
+<body data-role="agent_financier" data-page="pilotage/credit">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="proto-band" role="note">
+  <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+  <span><strong>Prototype</strong> · données de démonstration, aucune donnée officielle</span>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" data-kit-sidebar></aside>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon tb-menu" data-open-nav aria-expanded="false" aria-controls="sidebar" aria-label="Ouvrir le menu">
+        <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+      <a class="tb-brand" href="../pilotage/credit.html"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Agri-Digit</span></a>
+      <form class="tb-search search" role="search" onsubmit="return false">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="q">Rechercher</label>
+        <input class="input" id="q" type="search" placeholder="Rechercher un code producteur…" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <span class="tb-spacer"></span>
+      <button type="button" class="btn btn-icon tb-search-toggle" data-search-toggle aria-label="Rechercher">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button type="button" class="sync" data-sync data-state="online" aria-label="État de synchronisation : Synchronisé">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>
+        <span class="sync-label">Synchronisé</span>
+      </button>
+      <label class="sr-only" for="lang">Langue</label>
+      <select class="select tb-lang" id="lang" data-lang>
+        <option value="fr">Français</option>
+        <option value="fon">Fɔngbè (à valider)</option>
+        <option value="bba">Baatɔnum (à valider)</option>
+        <option value="yo">Yorùbá (à valider)</option>
+        <option value="dje">Dendi (à valider)</option>
+      </select>
+      <a class="btn btn-icon tb-notif" href="#" aria-label="Messages, aucun non lu">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>
+      </a>
+      <div class="profile">
+        <button type="button" class="profile-btn" data-menu-trigger aria-expanded="false" aria-controls="menu-profil" aria-haspopup="true">
+          <span class="avatar" data-kit-initials aria-hidden="true">AS</span>
+          <span class="pb-name"><span data-kit-user>Awa Sabi</span><small data-kit-role>Producteur</small></span>
+          <svg class="ic ic--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          <span class="sr-only">Menu du compte</span>
+        </button>
+        <div class="menu" id="menu-profil" role="menu" aria-label="Compte">
+          <div class="menu-head"><b data-kit-user>Awa Sabi</b><span class="muted" data-kit-role>Producteur</span></div>
+          <a class="menu-item" role="menuitem" href="#" data-kit-profile><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Mon profil</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg>Mes données et consentements</a>
+          <a class="menu-item" role="menuitem" href="#"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>Aide</a>
+          <hr class="menu-sep">
+          <a class="menu-item menu-item--danger" role="menuitem" href="../acces/connexion.html"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Se déconnecter</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="contenu" tabindex="-1">
+<div class="page-head">
+        <div>
+          <nav class="crumbs" aria-label="Fil d'Ariane"><ol><li><a href="credit.html">Crédit</a></li><li><span aria-current="page">Producteurs ayant consenti</span></li></ol></nav>
+          <h1 class="page-title">Score de crédit indicatif</h1>
+          <p class="page-desc">Vous ne voyez que les producteurs qui ont accepté le partage, et seulement tant que leur accord tient. Le score explique&nbsp;; il ne décide pas.</p>
+        </div>
+      </div>
+
+      <div class="stack" style="--gap:20px">
+        <div class="alert alert--warn"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><div class="al-body"><span class="al-title">Le score est une aide</span><span>La décision de crédit revient à une personne et se prend hors de la plateforme. Chaque consultation est enregistrée dans le journal d'audit.</span></div></div>
+
+        <div class="split">
+          <section class="table-card" aria-labelledby="h-cons">
+            <div class="table-toolbar"><h2 class="card-title" id="h-cons" style="margin-right:auto">Producteurs ayant consenti au partage <span class="muted num" style="font-weight:600">· 418</span></h2>
+              <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="cr-q">Rechercher</label><input class="input" id="cr-q" type="search" placeholder="Code ou commune"></div></div>
+            <div class="table-scroll">
+              <table class="table table--cards">
+                <caption class="sr-only">Producteurs ayant consenti&nbsp;: code, nom, commune, consentement</caption>
+                <thead><tr><th scope="col">Code</th><th scope="col">Nom</th><th scope="col">Commune</th><th scope="col">Accord depuis</th><th scope="col" class="col-actions"><span class="sr-only">Score</span></th></tr></thead>
+                <tbody>
+                  <tr aria-selected="true"><td class="td-primary num" data-label="Code"><span class="cell-main">ALI-BNK-00412</span></td><td data-label="Nom">Awa Sabi</td><td data-label="Commune">Banikoara</td><td class="num" data-label="Accord depuis">03/09/2026</td><td class="col-actions"><button type="button" class="btn btn-primary btn-sm" aria-pressed="true">Score affiché</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">ALI-KAN-01187</span></td><td data-label="Nom">Bio Gounou</td><td data-label="Commune">Kandi</td><td class="num" data-label="Accord depuis">21/08/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">BOR-NIK-00342</span></td><td data-label="Nom">Mariama Saka</td><td data-label="Commune">Nikki</td><td class="num" data-label="Accord depuis">11/10/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                  <tr><td class="td-primary num" data-label="Code"><span class="cell-main">ZOU-DJI-00078</span></td><td data-label="Nom">Codjo Hounkpatin</td><td data-label="Commune">Djidja</td><td class="num" data-label="Accord depuis">30/07/2026</td><td class="col-actions"><button type="button" class="btn btn-secondary btn-sm">Consulter le score</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span>Un producteur qui retire son accord disparaît de cette liste immédiatement.</span></div>
+          </section>
+
+          <section class="card stack" style="--gap:16px" aria-labelledby="h-score" aria-live="polite">
+            <div class="card-head" style="margin:0"><div><h2 class="card-title" id="h-score">Score d'Awa Sabi (ALI-BNK-00412)</h2><p class="card-sub">Calculé le 18/10/2026 à 09:02 · campagnes 2022 à 2026</p></div><span class="badge badge--sim">Calcul simulé</span></div>
+            <p class="score-big"><b>64</b><span class="muted">/ 100</span></p>
+            <ul class="fx" aria-label="Facteurs du score">
+              <li><span>Régularité des campagnes</span><span class="pts">20 / 25</span><span class="fx-track" style="--w:100%"><span style="--v:80%"></span></span><span class="fx-why">4 campagnes déclarées sur les 5 dernières années.</span></li>
+              <li><span>Surface cultivée</span><span class="pts">14 / 25</span><span class="fx-track" style="--w:100%"><span style="--v:56%"></span></span><span class="fx-why">4,6&nbsp;ha déclarés, 3 parcelles validées par l'agent.</span></li>
+              <li><span>Rendement par rapport à la commune</span><span class="pts">11 / 20</span><span class="fx-track" style="--w:80%"><span style="--v:55%"></span></span><span class="fx-why">2,1&nbsp;t/ha de maïs contre 1,9&nbsp;t/ha en moyenne à Banikoara.</span></li>
+              <li><span>Membre d'une coopérative</span><span class="pts">10 / 15</span><span class="fx-track" style="--w:60%"><span style="--v:66.7%"></span></span><span class="fx-why">Membre de la Coop. Kandi Maïs depuis 2023.</span></li>
+              <li><span>Appuis reçus et confirmés</span><span class="pts">9 / 15</span><span class="fx-track" style="--w:60%"><span style="--v:60%"></span></span><span class="fx-why">3 appuis confirmés&nbsp;; aucun historique de remboursement disponible.</span></li>
+            </ul>
+            <details class="tview"><summary><svg class="ic" aria-hidden="true"><use href="#i-list-check"/></svg>Voir le calcul en tableau<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+              <div class="table-scroll"><table class="table"><caption class="sr-only">Facteurs du score&nbsp;: poids, valeur, contribution</caption><thead><tr><th scope="col">Facteur</th><th scope="col" class="num">Poids</th><th scope="col">Valeur</th><th scope="col" class="num">Contribution</th></tr></thead><tbody>
+                <tr><th scope="row">Régularité</th><td class="num">0,25</td><td class="num">0,80</td><td class="num">20,0</td></tr><tr><th scope="row">Surface</th><td class="num">0,25</td><td class="num">0,56</td><td class="num">14,0</td></tr><tr><th scope="row">Rendement relatif</th><td class="num">0,20</td><td class="num">0,55</td><td class="num">11,0</td></tr><tr><th scope="row">Coopérative</th><td class="num">0,15</td><td>oui, depuis 3 ans</td><td class="num">10,0</td></tr><tr><th scope="row">Appuis confirmés</th><td class="num">0,15</td><td class="num">0,60</td><td class="num">9,0</td></tr>
+              </tbody></table></div>
+            </details>
+            <p class="never"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><span>Ce score n'est pas une décision. Il ne peut ni accorder ni refuser un crédit. Le producteur peut demander l'explication de ce calcul.</span></p>
+            <p class="small muted"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-scroll"/></svg> Consultation inscrite au journal d'audit le 18/10/2026 à 09:02.</p>
+          </section>
+        </div>
+      </div>
+
+      <details class="states">
+  <summary><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>États de la page (revue)<svg class="ic ic--sm states-chev" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+  <div class="states-body">
+    <div><p class="state-cap">Chargement</p><div class="card" aria-busy="true" aria-label="Chargement en cours"><span class="skel skel-title"></span><span class="skel skel-line" style="width:80%"></span><span class="skel skel-line" style="width:55%"></span><span class="skel skel-block" style="margin-top:14px"></span></div></div>
+    <div><p class="state-cap">Vide</p><div class="card empty"><svg class="empty-art" viewBox="0 0 148 104" aria-hidden="true" fill="none" stroke-linecap="round"><path d="M6 92c30-14 106-14 136 0M14 80c26-11 94-11 120 0M24 69c22-8 78-8 100 0" stroke="#A9BBA0" stroke-width="1.5"/><path d="M74 66V36" stroke="#1F5A32" stroke-width="2.5"/><path d="M74 44c0-10-7-17-19-17 0 10 7 17 19 17zM74 52c0-9 6-14 17-14 0 9-6 14-17 14z" fill="#6FA83A" stroke="#1F5A32" stroke-width="2"/><circle cx="112" cy="20" r="7" fill="#F3C54A"/></svg><h3>Aucun producteur n'a donné son consentement</h3><p>Le producteur l'accorde dans «&nbsp;Mes consentements&nbsp;». Vous ne pouvez pas le demander à sa place.</p></div></div>
+    <div><p class="state-cap">Erreur</p><div class="card state-error"><span class="se-icon"><svg class="ic ic--lg" aria-hidden="true"><use href="#i-wifi-off"/></svg></span><h3>Accord retiré</h3><p>Ce producteur a retiré son accord à 08:55. Son score n'est plus consultable.</p><code>consent_withdrawn · 403</code><div class="cluster" style="justify-content:center"><button class="btn btn-primary" type="button">Réessayer</button></div></div></div>
+    <div><p class="state-cap">Hors ligne</p><div class="stack" style="--gap:10px"><div class="banner banner--offline" style="border-radius:var(--r-md);padding:12px 16px"><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>Hors ligne. Vous consultez les dernières données reçues&nbsp;; les actions partiront au retour du réseau.</span></div></div></div>
+  </div>
+</details>
+    </main>
+
+    <footer class="app-foot">
+      <span>Agri-Digit Bénin · MAEP · prototype</span>
+      <nav aria-label="Informations légales"><a href="../acces/legal.html">Mentions légales</a><a href="../acces/legal.html#confidentialite">Confidentialité</a><a href="../acces/legal.html#conditions">Conditions</a></nav>
+    </footer>
+  </div>
+</div>
+
+
+</body>
+</html>
