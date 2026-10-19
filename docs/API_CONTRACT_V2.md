@@ -112,3 +112,8 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `POST /programs/estimate {value_chains, departments, max_area_ha, require_campaign}` -> `{count}` de fiches validées qui remplissent ces critères.
 - Le producteur ne voit que les programmes publiés. `POST /programs/{id}/apply` refuse `not_published`, `not_open_yet`, `not_eligible` (critères non remplis).
 
+## Téléphone simple : USSD et SMS (simulés)
+
+- `POST /ussd/gateway {sessionId, phoneNumber, text}` -> `text/plain` « CON … » (l'écran attend une réponse) ou « END … » (fin). `text` est le chemin saisi depuis le début (« 4*1*1 »), comme les passerelles USSD courantes : aucun état côté serveur. Menus : 1 Météo, 2 Prix (6 filières), 3 Conseil (question libre, réponse de l'assistant), 4 Mes appuis (1 Je confirme, 2 Il en manque, 3 Rien reçu), 5 Langue. Textes sans accents, 182 caractères au plus. Conseil, appuis et langue : producteur validé seulement.
+- `POST /sms/inbound {sender, text}` -> `{to, reply}` ; la réponse part aussi par le canal SMS simulé (boîte d'envoi). Commandes : `METEO`, `PRIX <FILIERE>` ; toute autre commande reçoit l'aide.
+- Accès : ouvert en `DEMO_MODE` (simulateur de la boîte d'envoi), sinon réservé à la passerelle de l'opérateur qui présente `X-Gateway-Key: USSD_GATEWAY_KEY` ; sinon 404. 120 appels par minute et par adresse.

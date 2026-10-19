@@ -55,3 +55,5 @@ NPI pour l'inscription : `1000000002` (Awa SABI, née le 1990-07-01). Autres cas
 | P1 | paiement FakePay, diagnostic | `backend/integrations/` |
 
 Le test de bout en bout `backend/tests/e2e_backend.py` rejoue ce scénario par l'API.
+
+18. **Téléphone simple (USSD et SMS).** Agent ATDA : « Boîte d'envoi », carte « Téléphone simple ». Numéro `0197000001`, « Appeler *000# » : 2 puis 1 affiche les prix du maïs (démonstration) ; 4 liste les appuis en attente, 1 puis 1 confirme la réception (l'agent est notifié), 2 ou 3 signale un manque. Côté SMS : envoyer `PRIX MAIS` ou `METEO` ; la réponse arrive dans le fil et dans la boîte d'envoi.

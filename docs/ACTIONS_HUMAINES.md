@@ -14,6 +14,8 @@ Ces points ne bloquent pas le prototype : chacun est remplacé par une simulatio
 | 8 | Confirmation de la liste officielle des filières prioritaires (le MAEP parle de 13 filières) et de la source des données du POC (`DONNEES.md`). | MAEP | 10 filières, données POC marquées non officielles |
 | 9 | Choix de l'hébergement final avec le CoPil et le CoTech (contrainte art. 391 sur les transferts hors du Bénin). | CoPil, CoTech | exécution locale, `docker-compose.yml` fourni |
 | 10 | Contrat de sous-traitance entre le MAEP (responsable du traitement) et le prestataire. | MAEP, prestataire | non couvert par le code |
+| 11 | Obtenir un code court USSD et une passerelle USSD et SMS entrants auprès d'un opérateur (MTN, Moov), avec la clé de passerelle (`USSD_GATEWAY_KEY`). | MAEP, opérateur | passerelles simulées, ouvertes en `DEMO_MODE` ; code d'exemple `*000#` |
+| 12 | Raccorder une source de météo (Météo-Bénin) et de prix de marché (SIM) pour remplacer les valeurs de démonstration. | MAEP | `integrations/market_data.py` et `features/weather/demo.ts` |
 
 ## Avertissement : licence des modèles Meta MMS
 

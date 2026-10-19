@@ -7,6 +7,7 @@ import { useDepartments, usePlaceName, useValueChains, useVcName } from '../../s
 import { useAuth } from '../auth/AuthContext';
 import { useAlertActions, useAlerts, useOutbox } from './api';
 import '../producers/agent.css';
+import { PhoneSimulator } from '../ussd/PhoneSimulator';
 
 // Alphabet GSM 03.38 (base + extension). Un seul caractère hors alphabet fait passer tout le SMS en UCS-2.
 const GSM = /^[@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà^{}\\[~\]|€]*$/;
@@ -254,6 +255,7 @@ export function OutboxPage() {
             );
           }}
         </QueryState>
+        <PhoneSimulator />
       </div>
     </>
   );

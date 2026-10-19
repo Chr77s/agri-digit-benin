@@ -43,6 +43,10 @@ Nom différent : 400 `name_mismatch`. Date de naissance différente : 400 `birth
 - Statuts simulés : `livre`, `echoue`, `lu`.
 - Code de connexion (6 chiffres) : visible dans la boîte d'envoi et sur la page de connexion si `DEMO_MODE=true` (`GET /api/v1/demo/otp-inbox`).
 
+## USSD, SMS entrants, météo et prix
+
+Passerelles `POST /ussd/gateway` et `POST /sms/inbound` : aucune connexion à un opérateur ; le simulateur de la boîte d'envoi joue le rôle du téléphone. Le code `*000#` est un exemple. Météo et prix : valeurs de démonstration calculées de la même façon côté serveur (`integrations/market_data.py`) et dans l'application (`features/weather/demo.ts`), toujours étiquetées « simulation » ou « démonstration ».
+
 ## Diagnostic
 
 Réponse choisie parmi 10 pathologies de démonstration, confiance fixe. Sous le seuil (0,6), la photo est transmise à un agronome. Image enregistrée sans métadonnées de position ; aucun visage conservé.
