@@ -56,7 +56,7 @@ class AnthropicBackend(LLMBackend):
     name = "anthropic"
 
     def answer(self, question, passages, context):
-        r = httpx.post("https://api.anthropic.com/v1/messages", timeout=30,
+        r = httpx.post(f"{settings.ANTHROPIC_BASE_URL.rstrip('/')}/v1/messages", timeout=30,
                        headers={"x-api-key": settings.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01"},
                        json={"model": settings.ANTHROPIC_MODEL, "max_tokens": 400,
                              "messages": [{"role": "user", "content": _prompt(question, passages, context)}]})

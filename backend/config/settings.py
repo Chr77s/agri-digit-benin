@@ -126,6 +126,7 @@ LLM_BACKEND = env("LLM_BACKEND", default="auto")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")
 OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+ANTHROPIC_BASE_URL = env("ANTHROPIC_BASE_URL", default="https://api.anthropic.com")  # serveur Claude du réseau local
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
 ASSISTANT_MIN_SCORE = env.float("ASSISTANT_MIN_SCORE", default=1.0)
 AUDIT_RETENTION_DAYS = env.int("AUDIT_RETENTION_DAYS", default=1825)
