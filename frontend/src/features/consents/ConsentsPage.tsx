@@ -6,6 +6,7 @@ import { api, rows } from '../../shared/api/client';
 import type { Consent, Paginated } from '../../shared/api/types';
 import { Alert, Badge, Button, Card, EmptyState, Icon, Modal, PageHeader, QueryState, fmtDate, toast } from '../../shared/ui';
 import { ListenGhost } from '../producers/producerKit';
+import { useAuth } from '../auth/AuthContext';
 
 const useConsents = () =>
   useQuery({ queryKey: ['consents'], queryFn: async () => rows(await api<Paginated<Consent> | Consent[]>('/consents/mine')) });
@@ -27,10 +28,13 @@ export function ConsentsPage() {
   const w = useWithdraw();
   const grant = useGrantCredit();
   const [confirm, setConfirm] = useState<Consent | null>(null);
+  const { signOut } = useAuth();
 
   const doWithdraw = () => {
     if (!confirm) return;
-    w.mutate(confirm.id, { onSuccess: () => { setConfirm(null); toast({ text: t('consents.withdrawn') }); } });
+    // « Données personnelles » retiré : le serveur ferme le compte, la session s'arrête ici
+    const closes = purposeOf(confirm) === 'donnees_personnelles';
+    w.mutate(confirm.id, { onSuccess: () => { setConfirm(null); toast({ text: t(closes ? 'consents.closed' : 'consents.withdrawn') }); if (closes) void signOut(); } });
   };
 
   return (

@@ -150,7 +150,9 @@
   "status": {
     "en_attente": "En attente de validation",
     "valide": "Validé",
-    "rejete": "Rejeté"
+    "rejete": "Rejeté",
+    "ferme": "Compte fermé",
+    "efface": "Compte effacé"
   },
   "login": {
     "title": "Connexion",
@@ -539,6 +541,7 @@
     "listen": "Mes consentements. Vous pouvez retirer votre accord à tout moment en touchant le bouton Retirer.",
     "intro": "Vous pouvez retirer chaque consentement à tout moment, en un clic (loi n° 2017-20, art. 389 et 390).",
     "withdrawn": "Consentement retiré. Le retrait est enregistré avec sa date.",
+    "closed": "Consentement retiré : votre compte est fermé. Vos données sont conservées le temps légal, puis effacées.",
     "empty": "Aucun consentement enregistré.",
     "purpose": {
       "donnees_personnelles": "Données personnelles (inscription et services agricoles)",

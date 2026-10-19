@@ -19,7 +19,7 @@ export interface ApiErrorBody {
 export interface ValueChain { code: string; name: string; reserve?: boolean }
 export interface Department { code: string; name: string; communes: { code: string; name: string }[] }
 
-export type ProducerStatus = 'en_attente' | 'valide' | 'rejete';
+export type ProducerStatus = 'en_attente' | 'valide' | 'rejete' | 'ferme' | 'efface';
 export interface Producer {
   id: string; code: string; npi: string; first_name: string; last_name: string; sex: 'F' | 'M';
   birth_date: string; department: string; commune: string; phone: string; language: Lang;

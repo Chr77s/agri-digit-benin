@@ -90,6 +90,9 @@ def refresh(request):
         token = RefreshToken(request.COOKIES.get("refresh", ""))
     except TokenError:
         raise ApiError("Session expirée, reconnectez-vous.", "not_authenticated", 401)
+    # compte fermé ou suspendu : le cookie encore valide ne rouvre pas l'accès
+    if not User.objects.filter(id=token.get("user_id"), is_active=True).exists():
+        raise ApiError("Session expirée, reconnectez-vous.", "not_authenticated", 401)
     return Response({"access": str(token.access_token)})
 
 

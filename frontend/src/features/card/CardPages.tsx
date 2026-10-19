@@ -99,6 +99,8 @@ const RESULT: Record<ProducerStatus, { cls: string; icon: 'check' | 'clock' | 'x
   valide: { cls: 'res--ok', icon: 'check', key: 'ok' },
   en_attente: { cls: 'res--wait', icon: 'clock', key: 'wait' },
   rejete: { cls: 'res--bad', icon: 'x', key: 'bad' },
+  ferme: { cls: 'res--bad', icon: 'x', key: 'closed' },
+  efface: { cls: 'res--bad', icon: 'x', key: 'closed' },
 };
 const asList = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
 const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/; // alphabet des cartes : sans 0, O, 1 ni I

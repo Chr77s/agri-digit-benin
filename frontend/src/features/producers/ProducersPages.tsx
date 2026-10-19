@@ -12,7 +12,7 @@ import { useProducer, useProducerActions, useProducers, useProducerVersions } fr
 import { daysSince, LATE_DAYS } from './AgentHome';
 import './agent.css';
 
-const tone = (s: ProducerStatus) => (s === 'valide' ? 'ok' : s === 'rejete' ? 'bad' : 'wait');
+const tone = (s: ProducerStatus) => (s === 'valide' ? 'ok' : s === 'rejete' ? 'bad' : s === 'en_attente' ? 'wait' : 'neutral');
 
 export function StatusBadge({ s }: { s: ProducerStatus }) {
   const { t } = useTranslation();

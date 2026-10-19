@@ -126,6 +126,8 @@ ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
 ASSISTANT_MIN_SCORE = env.float("ASSISTANT_MIN_SCORE", default=1.0)
 AUDIT_RETENTION_DAYS = env.int("AUDIT_RETENTION_DAYS", default=1825)
+# compte fermé (consentement « données personnelles » retiré) : délai avant effacement, à fixer avec le DPO
+PRODUCER_RETENTION_DAYS = env.int("PRODUCER_RETENTION_DAYS", default=365)
 # UC-24 : clés des partenaires d'interopérabilité (vide = partenaire désactivé)
 INTEROP_KEYS = {p: env(f"INTEROP_KEY_{p.upper()}", default="") for p in ("xroad", "sonama", "fnda")}
 VERIFY_THROTTLE_RATE = env("VERIFY_THROTTLE_RATE", default="30/min")

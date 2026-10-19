@@ -1,6 +1,6 @@
 import secrets
 import unicodedata
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import transaction
 from django.utils import timezone
@@ -156,7 +156,44 @@ def withdraw_consent(actor, consent):
         consent.withdrawn_at = timezone.now()
         consent.save(update_fields=["withdrawn_at"])
         record(actor, "consent.withdraw", consent, type=consent.type)
+        if consent.type == "donnees_personnelles":
+            close_account(actor, consent.producer)
     return consent
+
+
+def close_account(actor, p):
+    """Retrait du consentement « données personnelles » : accès fermé, offres retirées ; effacement après le délai."""
+    from apps.market.models import Offer
+
+    p.status = "ferme"
+    p.save(update_fields=["status"])
+    if p.user:
+        p.user.is_active = False
+        p.user.save(update_fields=["is_active"])
+        Offer.objects.filter(owner=p.user, status="ouverte").update(status="retiree")
+    record(actor, "producer.close", p)
+
+
+def erase_closed(days, now=None):
+    """Efface l'identité des comptes fermés depuis plus de `days` jours ; parcelles et campagnes restent, anonymes."""
+    limit = (now or timezone.now()) - timedelta(days=days)
+    ids = Consent.objects.filter(type="donnees_personnelles", withdrawn_at__lt=limit,
+                                 producer__status="ferme").values_list("producer_id", flat=True)
+    n = 0
+    for p in Producer.objects.filter(id__in=ids).select_related("user"):
+        with transaction.atomic():
+            tag = p.id.hex[:9].upper()  # unique et sans lien avec la personne
+            p.npi, p.phone, p.first_name, p.last_name = f"X{tag}", f"X{tag}", "Compte", "effacé"
+            p.sex, p.birth_date, p.guardian_name, p.guardian_npi = "", date(1900, 1, 1), "", ""
+            p.verification_code, p.status = None, "efface"
+            p.save()
+            p.versions.all().delete()  # les versions copient l'identité
+            if p.user:
+                p.user.phone, p.user.full_name = f"X{tag}", "Compte effacé"
+                p.user.save(update_fields=["phone", "full_name"])
+            record(None, "producer.erase", p)
+            n += 1
+    return n
 
 
 CARD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # sans 0/O ni 1/I, lisible à voix haute
