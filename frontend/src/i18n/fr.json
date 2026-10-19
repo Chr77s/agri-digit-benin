@@ -16,7 +16,33 @@
     "rejected": "Refusée : {{error}}",
     "discard": "Supprimer cette saisie",
     "sendNow": "Envoyer maintenant",
-    "errorScreen": "Cet écran n’a pas pu s’afficher. Vérifiez la connexion puis réessayez."
+    "errorScreen": "Cet écran n’a pas pu s’afficher. Vérifiez la connexion puis réessayez.",
+    "protoBand": "Prototype",
+    "protoText": "données de démonstration, aucune donnée officielle",
+    "footerShort": "Agri-Digit Bénin · MAEP · prototype",
+    "spaceHome": "Agri-Digit Bénin, accueil de l'espace",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "collapse": "Replier le menu",
+    "expand": "Déplier le menu",
+    "account": "Menu du compte",
+    "search": "Rechercher une page",
+    "searchPlaceholder": "Rechercher une page…",
+    "searchNone": "Aucune page ne correspond à « {{q}} ».",
+    "messages": "Mes messages",
+    "messagesUnread": "Mes messages, {{count}} non lu(s)",
+    "darkMode": "Mode sombre",
+    "syncOnline": "Synchronisé",
+    "syncPending": "{{count}} en attente",
+    "syncOffline": "Hors ligne",
+    "syncOfflinePending": "Hors ligne · {{count}} en attente",
+    "syncState": "État de synchronisation : {{state}}",
+    "syncDone": "Tout est synchronisé.",
+    "syncSent": "File d'attente envoyée.",
+    "backOnline": "Connexion rétablie.",
+    "wentOffline": "Vous êtes hors ligne. Vos saisies sont gardées sur cet appareil et partiront au retour du réseau.",
+    "syncing": "Envoi en cours…",
+    "comingSoon": "Page en cours de construction."
   },
   "lang": {
     "toValidate": "à valider",
@@ -58,7 +84,26 @@
     "payments": "Paiements",
     "satellite": "Suivi satellite",
     "sea": "Indicateurs SEA",
-    "conflicts": "Conflits de saisie"
+    "conflicts": "Conflits de saisie",
+    "weatherPrices": "Météo et prix",
+    "forecasts": "Prévisions",
+    "interop": "Interopérabilité",
+    "collection": "Collecte",
+    "offers": "Offres et stocks"
+  },
+  "navGroup": {
+    "farm": "Mon exploitation",
+    "advice": "Conseil",
+    "sell": "Vendre et recevoir",
+    "rights": "Mes droits",
+    "field": "Terrain",
+    "programs": "Programmes",
+    "chains": "Filières",
+    "followUp": "Suivi",
+    "steering": "Pilotage",
+    "registry": "Registre et terrain",
+    "communication": "Communication",
+    "governance": "Gouvernance"
   },
   "home": {
     "hello": "Bonjour {{name}}",
@@ -717,7 +762,7 @@
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "intro": "Mentions légales. Le ministère de l'Agriculture, de l'Élevage et de la Pêche est responsable du traitement de vos données. Vous pouvez demander l'accès, la correction ou la suppression de vos données.",
+      "intro": "Politique de confidentialité. Le ministère de l'Agriculture, de l'Élevage et de la Pêche est responsable du traitement de vos données. Vous pouvez demander l'accès, la correction ou la suppression de vos données.",
       "sections": [
         {
           "h": "Responsable du traitement",
@@ -880,6 +925,20 @@
     "prev": "Précédent",
     "next": "Suivant",
     "page": "Page {{page}} sur {{pages}}"
+  },
+  "ui": {
+    "step": "Étape {{n}} sur {{total}}",
+    "stepDone": "terminée",
+    "otpDigit": "Chiffre {{n}} sur {{total}}",
+    "selected": "{{count}} sélectionnée(s)",
+    "selectAll": "Tout sélectionner",
+    "selectRow": "Sélectionner la ligne",
+    "phonePrefix": "Indicatif du Bénin",
+    "closeToast": "Fermer la notification",
+    "actions": "Actions",
+    "optional": "facultatif",
+    "crumbs": "Fil d'Ariane",
+    "tabsLabel": "Onglets"
   },
   "translations": {
     "title": "Validation des langues",

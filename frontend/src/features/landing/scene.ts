@@ -275,7 +275,7 @@ export class ReliefRenderer {
     const overview = (1 - smooth(0.2, 0.4, p)) * (W < 860 ? smooth(0.09, 0.13, p) : 1);
     ctx.textBaseline = 'middle';
     if (overview > 0.02) {
-      ctx.font = `600 ${small ? 12 : 14}px "Source Sans 3", system-ui, sans-serif`;
+      ctx.font = `600 ${small ? 12 : 14}px "Atkinson Hyperlegible Next", system-ui, sans-serif`;
       ctx.globalAlpha = overview;
       for (const d of world.deps) {
         if (d.farms < 20000 && d.name !== 'Littoral') continue;

@@ -1,50 +1,97 @@
 import * as RD from '@radix-ui/react-dialog';
-import { useEffect, useState, type ReactNode } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import * as DM from '@radix-ui/react-dropdown-menu';
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LEGAL_DOCS } from '../features/legal/LegalPage';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOut, Menu, WifiOff, X } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
-import { Button, ThemeToggle } from '../shared/ui';
-import type { Role } from '../shared/api/types';
+import { useNotifications } from '../features/alerts/api';
+import { Avatar, Button, Icon, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
+import { useTheme } from '../shared/theme/useTheme';
+import type { Role, User } from '../shared/api/types';
 import i18n from '../i18n';
 
-export const NAV: Record<Role, { to: string; key: string }[]> = {
+/** Entrée de navigation ; `group` = clé navGroup.* de la rubrique (rubriques reprises de maquettes/web/kit.js). */
+export interface NavItem { to: string; key: string; icon: IconName; group?: string }
+const g = (group: string | undefined, items: [string, string, IconName][]): NavItem[] => items.map(([to, key, icon]) => ({ to, key, icon, group }));
+
+// La 1re entrée de chaque rôle est sa page d'arrivée (App.tsx).
+export const NAV: Record<Role, NavItem[]> = {
   producteur: [
-    { to: '/', key: 'home' }, { to: '/parcelles', key: 'parcels' }, { to: '/campagnes', key: 'campaigns' }, { to: '/assistant', key: 'assistant' },
-    { to: '/diagnostic', key: 'diagnosis' }, { to: '/marche', key: 'market' }, { to: '/appuis', key: 'mySupports' }, { to: '/mes-cooperatives', key: 'myCoops' },
-    { to: '/ma-carte', key: 'card' }, { to: '/satellite', key: 'satellite' }, { to: '/contestations', key: 'contests' },
-    { to: '/messages', key: 'notifications' }, { to: '/programmes', key: 'programs' }, { to: '/consentements', key: 'consents' },
+    ...g('farm', [['/', 'home', 'home'], ['/parcelles', 'parcels', 'parcel'], ['/campagnes', 'campaigns', 'calendar']]),
+    ...g('advice', [['/assistant', 'assistant', 'chat'], ['/diagnostic', 'diagnosis', 'leaf-scan'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('sell', [['/marche', 'market', 'market'], ['/appuis', 'mySupports', 'gift'], ['/programmes', 'programs', 'clipboard'], ['/mes-cooperatives', 'myCoops', 'users']]),
+    ...g('rights', [['/ma-carte', 'card', 'id-card'], ['/messages', 'notifications', 'mail'], ['/contestations', 'contests', 'scale'], ['/consentements', 'consents', 'shield-check']]),
   ],
   agent_atda: [
-    { to: '/producteurs', key: 'producers' }, { to: '/alertes', key: 'alerts' }, { to: '/boite-envoi', key: 'outbox' },
-    { to: '/candidatures', key: 'applications' }, { to: '/selection', key: 'selection' }, { to: '/contestations', key: 'contestsReview' },
-    { to: '/cooperatives', key: 'cooperatives' }, { to: '/appuis', key: 'supports' }, { to: '/recoltes-signalees', key: 'flaggedHarvests' },
-    { to: '/satellite', key: 'satellite' }, { to: '/tableau-de-bord', key: 'dashboard' }, { to: '/suivi-evaluation', key: 'sea' },
+    ...g('field', [['/', 'home', 'home'], ['/producteurs', 'producers', 'users'], ['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/meteo-prix', 'weatherPrices', 'cloud-sun']]),
+    ...g('programs', [['/candidatures', 'applications', 'file-text'], ['/selection', 'selection', 'list-check'], ['/appuis', 'supports', 'gift'], ['/contestations', 'contestsReview', 'scale']]),
+    ...g('chains', [['/cooperatives', 'cooperatives', 'building'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar']]),
   ],
-  agronome_inrab: [{ to: '/fiches', key: 'knowledge' }, { to: '/diagnostic', key: 'diagnosisQueue' }],
+  agronome_inrab: g(undefined, [['/fiches', 'knowledge', 'book'], ['/diagnostic', 'diagnosisQueue', 'microscope']]),
   responsable_programme: [
-    { to: '/programmes', key: 'programs' }, { to: '/selection', key: 'selection' }, { to: '/candidatures', key: 'applications' },
-    { to: '/tableau-de-bord', key: 'dashboard' }, { to: '/suivi-evaluation', key: 'sea' }, { to: '/satellite', key: 'satellite' },
+    ...g(undefined, [['/programmes', 'programs', 'clipboard'], ['/selection', 'selection', 'list-check'], ['/candidatures', 'applications', 'file-text']]),
+    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/satellite', 'satellite', 'satellite']]),
   ],
   admin_maep: [
-    { to: '/tableau-de-bord', key: 'dashboard' }, { to: '/suivi-evaluation', key: 'sea' }, { to: '/comptes', key: 'admin' }, { to: '/exports', key: 'exports' },
-    { to: '/producteurs', key: 'producers' }, { to: '/cooperatives', key: 'cooperatives' }, { to: '/appuis', key: 'supports' },
-    { to: '/recoltes-signalees', key: 'flaggedHarvests' }, { to: '/marche', key: 'market' }, { to: '/langues', key: 'translations' },
-    { to: '/satellite', key: 'satellite' }, { to: '/alertes', key: 'alerts' }, { to: '/boite-envoi', key: 'outbox' },
-    { to: '/selection', key: 'selection' }, { to: '/contestations', key: 'contestsReview' }, { to: '/journal', key: 'audit' },
+    ...g('steering', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/exports', 'exports', 'download'], ['/interoperabilite', 'interop', 'network']]),
+    ...g('registry', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/appuis', 'supports', 'gift'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/marche', 'market', 'market'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('communication', [['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/langues', 'translations', 'languages']]),
+    ...g('governance', [['/selection', 'selection', 'list-check'], ['/contestations', 'contestsReview', 'scale'], ['/comptes', 'admin', 'user-cog'], ['/journal', 'audit', 'scroll']]),
   ],
-  auditeur_copil: [{ to: '/journal', key: 'audit' }],
-  agent_financier: [{ to: '/credit', key: 'credit' }],
-  gestionnaire_cooperative: [{ to: '/cooperatives', key: 'myCoop' }, { to: '/marche', key: 'market' }],
-  transformateur: [{ to: '/marche', key: 'market' }],
-  distributeur: [{ to: '/marche', key: 'market' }],
-  repr_mtdi: [{ to: '/langues', key: 'translations' }, { to: '/suivi-evaluation', key: 'sea' }, { to: '/satellite', key: 'satellite' }],
+  auditeur_copil: g(undefined, [['/journal', 'audit', 'scroll']]),
+  agent_financier: g(undefined, [['/credit', 'credit', 'coins']]),
+  gestionnaire_cooperative: g(undefined, [['/cooperatives', 'myCoop', 'building'], ['/marche', 'market', 'market'], ['/collecte', 'collection', 'truck']]),
+  transformateur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'tag'], ['/collecte', 'collection', 'truck']]),
+  distributeur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'warehouse'], ['/collecte', 'collection', 'truck']]),
+  repr_mtdi: g(undefined, [['/langues', 'translations', 'languages'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/satellite', 'satellite', 'satellite']]),
 };
+
+const LANGS: [string, string][] = [['fr', 'Français'], ['fon', 'Fɔngbè'], ['bba', 'Baatɔnum'], ['yo', 'Yorùbá'], ['dnd', 'Dendi']];
+const SIDEBAR_KEY = 'adb-sidebar';
+const readCollapsed = () => { try { return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'; } catch { return false; } };
+const writeCollapsed = (on: boolean) => { try { localStorage.setItem(SIDEBAR_KEY, on ? 'collapsed' : 'open'); } catch { /* stockage indisponible : le choix ne sera pas gardé */ } };
+const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+function LangSelect({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
+  const id = useId();
+  return (
+    <>
+      <label htmlFor={id} className="sr-only">{t('app.language')}</label>
+      <select id={id} className={`select ${className}`} value={i18n.language} onChange={(e) => void i18n.changeLanguage(e.target.value)}>
+        {LANGS.map(([v, l]) => <option key={v} value={v}>{v === 'fr' ? l : `${l} (${t('lang.toValidate')})`}</option>)}
+      </select>
+    </>
+  );
+}
+
+function ProtoBand() {
+  const { t } = useTranslation();
+  return (
+    <div className="proto-band" role="note">
+      <Icon name="info" />
+      <span><strong>{t('app.protoBand')}</strong> · {t('app.protoText')}</span>
+    </div>
+  );
+}
+
+function Footer() {
+  const { t } = useTranslation();
+  return (
+    <footer className="app-foot">
+      <span>{t('app.footerShort')}</span>
+      <nav aria-label={t('legal.nav')}>
+        {LEGAL_DOCS.map(({ doc, to }) => <Link key={doc} to={to}>{t(`legal.${doc}.title`)}</Link>)}
+      </nav>
+    </footer>
+  );
+}
 
 function OfflineBar() {
   const { t } = useTranslation();
@@ -53,39 +100,231 @@ function OfflineBar() {
   useEffect(() => { if (online) void syncQueue(qc); }, [online, qc]);
   if (online && pending.length === 0) return null;
   return (
-    <div role="status" aria-live="polite" className="border-b border-warn bg-warn-bg px-4 py-2 text-warn">
-      {!online && <p className="flex items-center gap-2 font-semibold"><WifiOff aria-hidden size={18} /> {t('app.offline')}</p>}
+    <div role="status" aria-live="polite" className={`banner ${online ? 'banner--warn' : 'banner--offline'}`}>
+      {!online && <p className="flex items-center gap-2"><Icon name="wifi-off" /> {t('app.offline')}</p>}
       {pending.length > 0 && (
-        <details>
+        <details className="w-full">
           <summary className="min-h-touch cursor-pointer py-2">{t('app.pending', { count: pending.length })}</summary>
           <ul className="flex flex-col gap-1 pb-2">
             {pending.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-2">
                 <span>{p.label}</span>
-                {p.error && <span className="text-error">{t('app.rejected', { error: p.error })}</span>}
-                {p.error && <Button variant="ghost" onClick={() => discard(p.id!)}>{t('app.discard')}</Button>}
+                {p.error && <span>{t('app.rejected', { error: p.error })}</span>}
+                {p.error && <Button variant="ghost" size="sm" className="!text-current" onClick={() => discard(p.id!)}>{t('app.discard')}</Button>}
               </li>
             ))}
           </ul>
-          {online && <Button variant="secondary" onClick={() => syncQueue(qc)}>{t('app.sendNow')}</Button>}
+          {online && <Button variant="secondary" size="sm" onClick={() => syncQueue(qc)}>{t('app.sendNow')}</Button>}
         </details>
       )}
     </div>
   );
 }
 
-export function Layout({ children }: { children?: ReactNode }) {
+/** État de la file d'attente hors ligne dans l'en-tête ; un clic envoie ce qui attend. */
+function SyncButton() {
   const { t } = useTranslation();
-  const { user, signOut } = useAuth();
+  const { online, pending } = useOfflineStatus();
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const n = pending.length;
+  const state = !online ? 'offline' : busy ? 'syncing' : n ? 'pending' : 'online';
+  const text = {
+    online: t('app.syncOnline'), pending: t('app.syncPending', { count: n }), syncing: t('app.syncing'),
+    offline: n ? t('app.syncOfflinePending', { count: n }) : t('app.syncOffline'),
+  }[state];
+  const onClick = async () => {
+    if (state === 'offline') return toast({ type: 'offline', title: t('app.syncOffline'), text: t('app.wentOffline') });
+    if (state !== 'pending') return state === 'online' && toast(t('app.syncDone'));
+    setBusy(true);
+    try { await syncQueue(qc); toast(t('app.syncSent')); } finally { setBusy(false); }
+  };
+  return (
+    <button type="button" className="sync" data-state={state} aria-label={t('app.syncState', { state: text })} onClick={() => void onClick()}>
+      <span className="sync-dot" aria-hidden />
+      <Icon name={state === 'offline' ? 'wifi-off' : 'sync'} />
+      <span className="sync-label">{text}</span>
+    </button>
+  );
+}
+
+/** Recherche de page : propose les entrées du menu du rôle et ouvre la première qui correspond. « / » y place le curseur. */
+function SearchBox({ nav, inputRef, onDone }: { nav: NavItem[]; inputRef: React.RefObject<HTMLInputElement>; onDone: () => void }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [q, setQ] = useState('');
+  const id = useId();
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const f = fold(q.trim());
+    if (!f) return;
+    const hit = nav.find((n) => fold(t(`nav.${n.key}`)).includes(f));
+    if (!hit) return toast({ type: 'info', text: t('app.searchNone', { q: q.trim() }) });
+    navigate(hit.to); setQ(''); onDone();
+  };
+  return (
+    <form className="tb-search search" role="search" onSubmit={submit}>
+      <Icon name="search" />
+      <label className="sr-only" htmlFor={id}>{t('app.search')}</label>
+      <input ref={inputRef} className="input" id={id} type="search" list={`${id}-l`} placeholder={t('app.searchPlaceholder')} autoComplete="off"
+        value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Escape' && onDone()} />
+      <datalist id={`${id}-l`}>{nav.map((n) => <option key={n.to + n.key} value={t(`nav.${n.key}`)} />)}</datalist>
+      <kbd aria-hidden>/</kbd>
+    </form>
+  );
+}
+
+function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { user: User; nav: NavItem[]; collapsed?: boolean; onToggle?: () => void; onNavigate?: () => void; inDrawer?: boolean }) {
+  const { t } = useTranslation();
+  const gid = useId();
+  // Rubriques consécutives : une liste par rubrique, titrée si la rubrique a un nom.
+  const groups = nav.reduce<{ key?: string; items: NavItem[] }[]>((acc, n) => {
+    const last = acc[acc.length - 1];
+    if (last && last.key === n.group) last.items.push(n); else acc.push({ key: n.group, items: [n] });
+    return acc;
+  }, []);
+  return (
+    <>
+      <div className="sb-head">
+        <Link className="sb-brand" to={nav[0]?.to ?? '/'} aria-label={t('app.spaceHome')} onClick={onNavigate}>
+          <svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span>
+        </Link>
+        {inDrawer && (
+          <RD.Close asChild>
+            <button type="button" className="btn btn-icon sb-close" aria-label={t('app.closeMenu')}><Icon name="x" /></button>
+          </RD.Close>
+        )}
+      </div>
+      <div className="sb-role"><b>{t(`roles.${user.role}`)}</b>{user.full_name}</div>
+      <nav className="sb-nav" aria-label={t('app.mainNav')}>
+        {groups.map((grp, i) => (
+          <div key={i}>
+            {grp.key && <p className="sb-group" id={`${gid}-${i}`}>{t(`navGroup.${grp.key}`)}</p>}
+            <ul aria-labelledby={grp.key ? `${gid}-${i}` : undefined}>
+              {grp.items.map((n) => {
+                const label = t(`nav.${n.key}`);
+                return (
+                  <li key={n.to + n.key}>
+                    <NavLink end to={n.to} className="sb-link" title={collapsed ? label : undefined} onClick={onNavigate}>
+                      <Icon name={n.icon} /><span className="sb-label">{label}</span>
+                    </NavLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      <div className="sb-foot">
+        {inDrawer ? (
+          <div className="flex flex-col gap-2 px-2 pb-1">
+            <span className="sb-group !m-0">{t('app.language')}</span>
+            <LangSelect />
+          </div>
+        ) : (
+          <button type="button" className="sb-link sb-collapse w-full cursor-pointer border-0 bg-transparent" aria-expanded={!collapsed} aria-controls="sidebar"
+            title={collapsed ? t('app.expand') : undefined} onClick={onToggle}>
+            <Icon name="sidebar" /><span className="sb-label">{collapsed ? t('app.expand') : t('app.collapse')}</span>
+          </button>
+        )}
+      </div>
+    </>
+  );
+}
+
+function ProfileMenu({ user }: { user: User }) {
+  const { t } = useTranslation();
+  const { signOut } = useAuth();
+  const { theme, toggle } = useTheme();
+  const role = t(`roles.${user.role}`);
+  return (
+    <DM.Root modal={false}>
+      <DM.Trigger asChild>
+        <button type="button" className="profile-btn">
+          <Avatar name={user.full_name} />
+          <span className="pb-name">{user.full_name}<small>{role}</small></span>
+          <Icon name="chevron-down" size="sm" />
+          <span className="sr-only">{t('app.account')}</span>
+        </button>
+      </DM.Trigger>
+      <DM.Portal>
+        <DM.Content align="end" sideOffset={6} className="menu is-open !static z-[1600]">
+          <div className="menu-head"><b>{user.full_name}</b><span className="muted">{role}</span></div>
+          {user.role === 'producteur' && (
+            <>
+              <DM.Item asChild><Link className="menu-item" to="/profil"><Icon name="user" />{t('profile.title')}</Link></DM.Item>
+              <DM.Item asChild><Link className="menu-item" to="/consentements"><Icon name="shield-check" />{t('nav.consents')}</Link></DM.Item>
+            </>
+          )}
+          <DM.CheckboxItem className="menu-item" checked={theme === 'dark'} onCheckedChange={toggle} onSelect={(e) => e.preventDefault()}>
+            <Icon name={theme === 'dark' ? 'moon' : 'sun'} />{t('app.darkMode')}
+          </DM.CheckboxItem>
+          <DM.Separator className="menu-sep" />
+          <DM.Item className="menu-item menu-item--danger" onSelect={() => void signOut()}><Icon name="logout" />{t('app.logout')}</DM.Item>
+        </DM.Content>
+      </DM.Portal>
+    </DM.Root>
+  );
+}
+
+function NotifLink() {
+  const { t } = useTranslation();
+  const q = useNotifications();
+  const unread = (q.data ?? []).filter((n) => !(n.read_at || n.is_read)).length;
+  return (
+    <Link className="btn btn-icon tb-notif" to="/messages" aria-label={unread ? t('app.messagesUnread', { count: unread }) : t('app.messages')}>
+      <Icon name="bell" />{unread > 0 && <span className="dot" aria-hidden>{unread > 9 ? '9+' : unread}</span>}
+    </Link>
+  );
+}
+
+function Main({ children }: { children?: ReactNode }) {
   const location = useLocation();
-  const nav = user ? NAV[user.role] ?? [] : [];
-  // Sous lg, navigation et compte passent dans un tiroir modal (Radix : focus piégé, Échap, voile, défilement bloqué, retour du focus).
+  // isolate : les couches Leaflet (z-index 400+) restent sous l'en-tête collant.
+  return <main id="main" tabIndex={-1} className="page isolate"><ErrorBoundary key={location.pathname}>{children ?? <Outlet />}</ErrorBoundary></main>;
+}
+
+function SkipLink() {
+  const { t } = useTranslation();
+  return <a href="#main" className="skip-link">{t('app.skip')}</a>;
+}
+
+/** Coque publique (connexion, inscription, légal, vérification) : pas de barre latérale. */
+function PublicShell({ children }: { children?: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SkipLink />
+      <ProtoBand />
+      <header className="topbar">
+        <Link to="/" className="tb-brand !inline-flex"><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span></Link>
+        <span className="tb-spacer" />
+        <LangSelect className="w-auto" />
+        <ThemeToggle />
+      </header>
+      <OfflineBar />
+      <ConflictsPanel />
+      <Main>{children}</Main>
+      <Footer />
+      <Toaster />
+    </div>
+  );
+}
+
+function AppShell({ user, children }: { user: User; children?: ReactNode }) {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const nav = NAV[user.role] ?? [];
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [searching, setSearching] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  // Sous 1024 px, la navigation passe dans un tiroir modal (Radix : focus piégé, Échap, voile, défilement bloqué, retour du focus).
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [location.pathname]);
   useEffect(() => {
     const mq = window.matchMedia?.('(min-width: 1024px)');
-    const onChange = () => mq.matches && setOpen(false);
     if (!mq) return;
+    const onChange = () => mq.matches && setOpen(false);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
@@ -96,90 +335,63 @@ export function Layout({ children }: { children?: ReactNode }) {
     root.setAttribute('aria-hidden', 'true');
     return () => root.removeAttribute('aria-hidden');
   }, [open]);
-  const drawer = !!user || nav.length > 0;
-  const account = user && (
+  // « / » place le curseur dans la recherche, hors des champs de saisie.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement as HTMLElement | null;
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || el?.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(el?.tagName ?? '')) return;
+      e.preventDefault(); setSearching(true); requestAnimationFrame(() => searchRef.current?.focus());
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+  const toggleCollapsed = () => setCollapsed((c) => { writeCollapsed(!c); return !c; });
+  return (
     <>
-      <span className="text-sm text-muted">{user.full_name}</span>
-      <label className="flex items-center gap-2 text-sm">
-        {t('app.language')}
-        <select className="min-h-touch rounded border border-border bg-surface px-2" value={i18n.language} onChange={(e) => void i18n.changeLanguage(e.target.value)}>
-          <option value="fr">Français</option>
-          <option value="fon">Fon ({t('lang.toValidate')})</option>
-          <option value="bba">Bariba ({t('lang.toValidate')})</option>
-        </select>
-      </label>
-      <Button variant="ghost" onClick={() => void signOut()}><LogOut aria-hidden size={18} /> {t('app.logout')}</Button>
+      <SkipLink />
+      <ProtoBand />
+      <div className={`shell${collapsed ? ' is-collapsed' : ''}`}>
+        <aside className="sidebar" id="sidebar" aria-label={t(`roles.${user.role}`)}>
+          <SideNav user={user} nav={nav} collapsed={collapsed} onToggle={toggleCollapsed} />
+        </aside>
+        <div className="main">
+          <header className={`topbar${searching ? ' is-searching' : ''}`}>
+            <RD.Root open={open} onOpenChange={setOpen}>
+              <RD.Trigger asChild>
+                <button type="button" className="btn btn-icon tb-menu" aria-label={t('app.openMenu')}><Icon name="menu" /></button>
+              </RD.Trigger>
+              <RD.Portal>
+                <RD.Overlay className="scrim z-[1500]" />
+                <RD.Content aria-describedby={undefined} aria-modal="true" className="sidebar drawer-panel z-[1501]">
+                  <RD.Title className="sr-only">{t('app.menu')}</RD.Title>
+                  <SideNav user={user} nav={nav} inDrawer onNavigate={() => setOpen(false)} />
+                </RD.Content>
+              </RD.Portal>
+            </RD.Root>
+            <Link className="tb-brand" to={nav[0]?.to ?? '/'}><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>Agri-Digit</span></Link>
+            <SearchBox nav={nav} inputRef={searchRef} onDone={() => setSearching(false)} />
+            <span className="tb-spacer" />
+            <button type="button" className="btn btn-icon tb-search-toggle" aria-label={t('app.search')} aria-expanded={searching}
+              onClick={() => { setSearching((s) => !s); requestAnimationFrame(() => searchRef.current?.focus()); }}>
+              <Icon name="search" />
+            </button>
+            <SyncButton />
+            <LangSelect className="tb-lang" />
+            <NotifLink />
+            <ProfileMenu user={user} />
+          </header>
+          <OfflineBar />
+          <ConflictsPanel />
+          <Main>{children}</Main>
+          <Footer />
+        </div>
+      </div>
+      <Toaster />
     </>
   );
-  const navList = (inDrawer: boolean) => nav.length > 0 && (
-    <nav aria-label={t('app.mainNav')} className={inDrawer ? '' : 'mx-auto hidden max-w-6xl px-4 lg:block'}>
-      <ul className={inDrawer ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}>
-        {nav.map((n) => (
-          <li key={n.to}>
-            <NavLink end to={n.to} onClick={inDrawer ? () => setOpen(false) : undefined}
-              className={({ isActive }) => `flex min-h-touch items-center px-3 font-semibold ${inDrawer ? 'border-l-4' : 'whitespace-nowrap border-b-4'} ${isActive ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-text'}`}>
-              {t(`nav.${n.key}`)}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-  return (
-    <div className="flex min-h-screen flex-col bg-bg text-text">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[2000] focus:bg-surface focus:p-2">{t('app.skip')}</a>
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
-          <Link to="/" className="flex min-h-touch min-w-0 items-center gap-2 text-lg font-semibold text-brand sm:text-xl">
-            <img src="/icon.svg" alt="" width={32} height={32} /> <span className="truncate">{t('app.name')}</span>
-          </Link>
-          <div className="flex shrink-0 items-center gap-3">
-            <div className={drawer ? 'hidden lg:block' : ''}><ThemeToggle /></div>
-            {account && <div className="hidden flex-wrap items-center gap-3 lg:flex">{account}</div>}
-            {drawer && (
-              <RD.Root open={open} onOpenChange={setOpen}>
-                <RD.Trigger asChild>
-                  <button type="button" aria-label={t('app.menu')}
-                    className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border text-text hover:bg-bg lg:hidden">
-                    <Menu aria-hidden size={22} />
-                  </button>
-                </RD.Trigger>
-                <RD.Portal>
-                  <RD.Overlay className="drawer-overlay fixed inset-0 z-[1500] bg-text/40 lg:hidden" />
-                  <RD.Content aria-describedby={undefined} aria-modal="true"
-                    className="drawer-panel fixed inset-y-0 right-0 z-[1501] flex w-[min(20rem,85vw)] flex-col gap-4 overflow-y-auto border-l border-border bg-surface p-4 text-text shadow lg:hidden">
-                    <div className="flex items-center justify-between gap-2">
-                      <RD.Title className="text-xl font-semibold">{t('app.menu')}</RD.Title>
-                      <RD.Close asChild>
-                        <button type="button" aria-label={t('common.close')} className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border hover:bg-bg">
-                          <X aria-hidden size={22} />
-                        </button>
-                      </RD.Close>
-                    </div>
-                    {navList(true)}
-                    <div className="flex flex-col items-start gap-3 border-t border-border pt-4">
-                      <ThemeToggle />
-                      {account}
-                    </div>
-                  </RD.Content>
-                </RD.Portal>
-              </RD.Root>
-            )}
-          </div>
-        </div>
-        {navList(false)}
-      </header>
-      <OfflineBar />
-      <ConflictsPanel />
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6"><ErrorBoundary key={location.pathname}>{children ?? <Outlet />}</ErrorBoundary></main>
-      <footer className="border-t border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm text-muted">
-          <p>{t('app.footer')}</p>
-          <nav aria-label={t('legal.nav')} className="flex flex-wrap gap-x-4">
-            {LEGAL_DOCS.map(({ doc, to }) => <Link key={doc} to={to} className="inline-flex min-h-touch items-center font-semibold text-brand underline">{t(`legal.${doc}.title`)}</Link>)}
-          </nav>
-        </div>
-      </footer>
-    </div>
-  );
+}
+
+export function Layout({ children }: { children?: ReactNode }) {
+  const { user } = useAuth();
+  return user ? <AppShell user={user}>{children}</AppShell> : <PublicShell>{children}</PublicShell>;
 }

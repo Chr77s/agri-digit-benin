@@ -6,9 +6,20 @@ import bba from './bba.json';
 import yo from './yo.json';
 import dnd from './dnd.json';
 
+// Textes de la refonte, un fichier par groupe de pages (i18n/fr/*.json), fusionnés dans fr.json :
+// chaque groupe écrit dans son propre fichier, sans toucher à celui des autres.
+type Dict = Record<string, unknown>;
+const isDict = (v: unknown): v is Dict => typeof v === 'object' && v !== null && !Array.isArray(v);
+const merge = (into: Dict, from: Dict): Dict => {
+  for (const [k, v] of Object.entries(from)) { const cur = into[k]; into[k] = isDict(v) && isDict(cur) ? merge({ ...cur }, v) : v; }
+  return into;
+};
+const frParts = import.meta.glob<Dict>('./fr/*.json', { eager: true, import: 'default' });
+const frAll = Object.values(frParts).reduce((acc, part) => merge(acc, part), merge({}, fr as unknown as Dict));
+
 // fon et bba : textes non validés par des locuteurs natifs (voir docs/LANGUES_A_VALIDER.md). Repli sur fr.
 void i18n.use(initReactI18next).init({
-  resources: { fr: { translation: fr }, fon: { translation: fon }, bba: { translation: bba }, yo: { translation: yo }, dnd: { translation: dnd } },
+  resources: { fr: { translation: frAll }, fon: { translation: fon }, bba: { translation: bba }, yo: { translation: yo }, dnd: { translation: dnd } },
   lng: 'fr',
   fallbackLng: 'fr',
   returnEmptyString: false,

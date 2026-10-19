@@ -1,10 +1,16 @@
 import * as RD from '@radix-ui/react-dialog';
-import { forwardRef, useId, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
-import { AlertTriangle, ArrowDown, ArrowUp, Download, Inbox, Moon, RotateCcw, Sun, Volume2 } from 'lucide-react';
+import { forwardRef, useId, useMemo, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import { Link } from 'react-router-dom';
+import { Volume2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '../api/client';
 import i18n from '../../i18n';
 import { useTheme } from '../theme/useTheme';
+import { Icon, type IconName } from './Icon';
+
+// Composants du kit « Bénin Vert » : les classes viennent de ./kit.css (copie de maquettes/web/kit.css). Voir aussi ./kit.tsx.
+export { Icon, spriteHref, type IconName } from './Icon';
+export * from './kit';
 
 const KEY_RE = /^[a-z][A-Za-z]*(\.[A-Za-z0-9_]+)+$/;
 /** Messages portés par une clé de traduction (schémas zod, erreurs choisies en code) : traduits à l'affichage. Un texte venu du serveur passe tel quel. */
@@ -13,25 +19,28 @@ export function useMsg() {
   return (m?: string) => (m && KEY_RE.test(m) ? t(m) : m);
 }
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
-const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-brand-ink border-brand hover:bg-brand-hover',
-  secondary: 'bg-surface text-brand border-brand hover:bg-success-bg',
-  danger: 'bg-surface text-error border-error hover:bg-error-bg',
-  ghost: 'bg-transparent text-text border-transparent hover:bg-surface underline-offset-2',
+/* ---------- Boutons ---------- */
+// danger = contour latérite (action destructive secondaire, comme avant) ; dangerSolid = plein latérite.
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerSolid';
+const variants: Record<ButtonVariant, string> = {
+  primary: 'btn-primary', secondary: 'btn-secondary', ghost: 'btn-ghost', danger: 'btn-danger-ghost', dangerSolid: 'btn-danger',
 };
+export interface ButtonLook { variant?: ButtonVariant; size?: 'sm'; block?: boolean; iconOnly?: boolean }
+/** Classes d'un bouton, pour styler un <Link> ou un <a> comme un bouton. */
+export function buttonCls({ variant = 'primary', size, block, iconOnly }: ButtonLook = {}) {
+  const v = iconOnly ? (variant === 'secondary' ? 'btn-icon btn-secondary' : 'btn-icon') : variants[variant];
+  return `btn ${v}${size ? ' btn-sm' : ''}${block ? ' btn-block' : ''}`;
+}
 
-export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; busy?: boolean }>(
-  function Button({ variant = 'primary', busy, className = '', children, disabled, type = 'button', ...rest }, ref) {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & ButtonLook & { busy?: boolean; icon?: IconName };
+/** Bouton du kit. `icon` : icône de tête ; `iconOnly` exige un aria-label ; `busy` affiche une roue et bloque le bouton. */
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button({ variant, size, block, iconOnly, busy, icon, className = '', children, disabled, type = 'button', ...rest }, ref) {
     return (
-      <button
-        ref={ref}
-        type={type}
-        disabled={disabled || busy}
-        aria-busy={busy || undefined}
-        className={`inline-flex items-center justify-center gap-2 min-h-touch px-5 rounded-full border font-semibold text-base disabled:opacity-60 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
-        {...rest}
-      >
+      <button ref={ref} type={type} disabled={disabled || busy} aria-busy={busy || undefined}
+        className={`${buttonCls({ variant, size, block, iconOnly })} ${className}`} {...rest}>
+        {busy && <span className="spinner" aria-hidden />}
+        {icon && <Icon name={icon} />}
         {children}
       </button>
     );
@@ -40,36 +49,53 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
 
 /** Bascule clair/sombre : un seul libellé, l'état est porté par aria-pressed. */
 export function ThemeToggle() {
+  const { t } = useTranslation();
   const { theme, toggle } = useTheme();
   return (
-    <button type="button" onClick={toggle} aria-pressed={theme === 'dark'} aria-label="Mode sombre"
-      className="inline-grid min-h-touch min-w-touch place-items-center rounded-full border border-border bg-transparent text-text hover:bg-bg">
-      {theme === 'dark' ? <Moon aria-hidden size={20} /> : <Sun aria-hidden size={20} />}
+    <button type="button" onClick={toggle} aria-pressed={theme === 'dark'} aria-label={t('app.darkMode')} className="btn btn-icon">
+      <Icon name={theme === 'dark' ? 'moon' : 'sun'} />
     </button>
   );
 }
 
-export function Field({ label, error, hint, children, id }: { label: string; error?: string; hint?: string; children: (p: { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }) => ReactNode; id?: string }) {
+/* ---------- Champs ---------- */
+type FieldChild = { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string };
+/** Libellé, aide et erreur autour d'un contrôle ; le contrôle reçoit id et attributs ARIA par la fonction enfant. */
+export function Field({ label, error, hint, optional, required, children, id }: { label: ReactNode; error?: string; hint?: ReactNode; optional?: boolean; required?: boolean; children: (p: FieldChild) => ReactNode; id?: string }) {
   const gen = useId();
   const msg = useMsg();
+  const { t } = useTranslation();
   const fid = id ?? gen;
   const desc = [hint && `${fid}-hint`, error && `${fid}-err`].filter(Boolean).join(' ') || undefined;
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={fid} className="font-semibold">{label}</label>
-      {hint && <p id={`${fid}-hint`} className="text-sm text-muted">{hint}</p>}
+    <div className="field">
+      <label htmlFor={fid} className="label">
+        {label}
+        {optional && <span className="opt"> ({t('ui.optional')})</span>}
+        {required && <span className="req" aria-hidden> *</span>}
+      </label>
+      {hint && <p id={`${fid}-hint`} className="hint">{hint}</p>}
       {children({ id: fid, 'aria-invalid': error ? true : undefined, 'aria-describedby': desc })}
-      {error && <p id={`${fid}-err`} className="text-sm text-error" role="alert">{msg(error)}</p>}
+      {error && <p id={`${fid}-err`} className="error-msg" role="alert"><Icon name="alert" />{msg(error)}</p>}
     </div>
   );
 }
 
-export const inputCls = 'min-h-touch w-full rounded border border-muted bg-surface px-3 text-base text-text aria-[invalid=true]:border-error';
+/** Classe des champs texte (input, textarea, select multiple). */
+export const inputCls = 'input';
+
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className = '', ...rest }, ref) {
+  return <input ref={ref} className={`input ${className}`} {...rest} />;
+});
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea({ className = '', ...rest }, ref) {
+  return <textarea ref={ref} className={`textarea ${className}`} {...rest} />;
+});
 
 type Opt = { value: string; label: string };
-export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { options: Opt[]; placeholder?: string; groups?: { label: string; options: Opt[] }[] }>(function Select({ options, placeholder, groups, ...rest }, ref) {
+export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { options: Opt[]; placeholder?: string; groups?: { label: string; options: Opt[] }[] }>(function Select({ options, placeholder, groups, className = '', ...rest }, ref) {
   return (
-    <select ref={ref} className={inputCls} {...rest}>
+    <select ref={ref} className={`select ${className}`} {...rest}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       {groups?.filter((g) => g.options.length).map((g) => (
@@ -79,45 +105,66 @@ export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<H
   );
 });
 
-const tones = {
-  neutral: 'bg-bg text-text border-border',
-  success: 'bg-success-bg text-success border-success',
-  warn: 'bg-warn-bg text-warn border-warn',
-  error: 'bg-error-bg text-error border-error',
-};
-export function Badge({ tone = 'neutral', children }: { tone?: keyof typeof tones; children: ReactNode }) {
-  return <span className={`inline-block rounded border px-2 text-sm font-semibold ${tones[tone]}`}>{children}</span>;
+/* ---------- Étiquettes d'état : toujours icône ou texte, jamais la couleur seule ---------- */
+const BADGES = {
+  ok: ['badge--ok', 'check'], wait: ['badge--wait', 'clock'], bad: ['badge--bad', 'x-circle'], draft: ['badge--draft'],
+  urgent: ['badge--urgent', 'alert'], demo: ['badge--demo'], sim: ['badge--sim'], offline: ['badge--offline', 'wifi-off'], neutral: ['badge--neutral'],
+  // anciens tons, gardés pour les pages pas encore refaites
+  success: ['badge--ok', 'check'], warn: ['badge--bad', 'alert'], error: ['badge--bad', 'x-circle'],
+} as const satisfies Record<string, readonly [string, IconName?]>;
+export type BadgeTone = keyof typeof BADGES;
+export function Badge({ tone = 'neutral', icon, children }: { tone?: BadgeTone; icon?: IconName | false; children: ReactNode }) {
+  const [cls, def] = BADGES[tone] as readonly [string, IconName?];
+  const ic = icon === false ? undefined : icon ?? def;
+  return <span className={`badge ${cls}`}>{ic && <Icon name={ic} />}{children}</span>;
 }
 
-export function Notice({ tone = 'neutral', children, live }: { tone?: keyof typeof tones; children: ReactNode; live?: boolean }) {
-  return <div role={live ? 'status' : undefined} aria-live={live ? 'polite' : undefined} className={`rounded border p-3 ${tones[tone]}`}>{children}</div>;
+/* ---------- Encarts ---------- */
+const ALERTS = { info: 'info', ok: 'check-circle', warn: 'alert', danger: 'x-circle', demo: 'info' } as const satisfies Record<string, IconName>;
+export type AlertTone = keyof typeof ALERTS;
+export function Alert({ tone = 'info', title, children, actions, live, icon }: { tone?: AlertTone; title?: ReactNode; children?: ReactNode; actions?: ReactNode; live?: boolean; icon?: IconName }) {
+  return (
+    <div className={`alert alert--${tone}`} role={live ? 'status' : undefined} aria-live={live ? 'polite' : undefined}>
+      <Icon name={icon ?? ALERTS[tone]} />
+      <div className="al-body">
+        {title && <span className="al-title">{title}</span>}
+        {children && <div>{children}</div>}
+        {actions && <div className="al-actions">{actions}</div>}
+      </div>
+    </div>
+  );
+}
+
+const NOTICE: Record<'neutral' | 'success' | 'warn' | 'error', AlertTone> = { neutral: 'info', success: 'ok', warn: 'warn', error: 'danger' };
+/** Ancienne API, gardée pour les pages : préférer Alert. */
+export function Notice({ tone = 'neutral', children, live }: { tone?: keyof typeof NOTICE | AlertTone; children: ReactNode; live?: boolean }) {
+  const t = tone in NOTICE ? NOTICE[tone as keyof typeof NOTICE] : (tone as AlertTone);
+  return <Alert tone={t} live={live}>{children}</Alert>;
 }
 
 export function SimulationBanner({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
-  return (
-    <div className="rounded border border-warn bg-warn-bg p-3 text-warn" role="status" aria-live="polite">
-      <p className="font-semibold">{t('common.simulation')}</p>
-      {children}
-    </div>
-  );
+  return <Alert tone="warn" live title={t('common.simulation')}>{children}</Alert>;
 }
 
+/* ---------- États : chargement, vide, erreur ---------- */
 export function Skeleton({ lines = 3 }: { lines?: number }) {
   const { t } = useTranslation();
   return (
-    <div aria-busy="true" aria-label={t('common.loading')} className="flex flex-col gap-2">
-      {Array.from({ length: lines }).map((_, i) => <div key={i} className="h-6 rounded bg-border" style={{ width: `${90 - i * 12}%` }} />)}
+    <div aria-busy="true" aria-label={t('common.loading')}>
+      <span className="skel skel-title" />
+      {Array.from({ length: lines }).map((_, i) => <span key={i} className="skel skel-line" style={{ width: `${90 - i * 12}%` }} />)}
     </div>
   );
 }
 
-export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
+export function EmptyState({ title, children, action, icon = 'sprout' }: { title: string; children?: ReactNode; action?: ReactNode; icon?: IconName }) {
   return (
-    <div className="flex flex-col items-start gap-2 rounded border border-border bg-surface p-4">
-      <Inbox aria-hidden className="text-muted" />
-      <p className="font-semibold">{title}</p>
-      {children && <div className="text-muted">{children}</div>}
+    <div className="empty">
+      <span className="empty-icon"><Icon name={icon} size="lg" /></span>
+      <p className="text-lg font-bold">{title}</p>
+      {children && <div className="muted">{children}</div>}
+      {action}
     </div>
   );
 }
@@ -126,9 +173,10 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
   const { t } = useTranslation();
   const msg = error instanceof Error ? error.message : t('common.errorGeneric');
   return (
-    <div role="alert" className="flex flex-col items-start gap-2 rounded border border-error bg-error-bg p-4 text-error">
-      <p className="flex items-center gap-2 font-semibold"><AlertTriangle aria-hidden size={20} /> {msg}</p>
-      {onRetry && <Button variant="danger" onClick={onRetry}><RotateCcw aria-hidden size={18} /> {t('common.retry')}</Button>}
+    <div role="alert" className="state-error">
+      <span className="se-icon"><Icon name="alert" size="lg" /></span>
+      <p className="text-lg font-bold">{msg}</p>
+      {onRetry && <Button variant="secondary" icon="sync" onClick={onRetry}>{t('common.retry')}</Button>}
     </div>
   );
 }
@@ -160,11 +208,21 @@ export function ListenButton({ text, label }: { text: string; label?: string }) 
   return <Button variant="secondary" onClick={() => speak(text)}><Volume2 aria-hidden size={20} /> {label ?? t('common.listen')}</Button>;
 }
 
-export function PageHeader({ title, listen, actions }: { title: string; listen?: string; actions?: ReactNode }) {
+/** En-tête de page : fil d'Ariane facultatif, titre en grotesque, description, actions à droite. */
+export function PageHeader({ title, desc, crumbs, listen, actions }: { title: string; desc?: ReactNode; crumbs?: { label: string; to?: string }[]; listen?: string; actions?: ReactNode }) {
+  const { t } = useTranslation();
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-      <h1 className="text-2xl font-semibold">{title}</h1>
-      <div className="flex flex-wrap gap-2">{actions}{listen && <ListenButton text={listen} />}</div>
+    <div className="page-head">
+      <div>
+        {crumbs && crumbs.length > 0 && (
+          <nav className="crumbs" aria-label={t('ui.crumbs')}>
+            <ol>{crumbs.map((c, i) => <li key={i}>{c.to ? <Link to={c.to}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}</li>)}</ol>
+          </nav>
+        )}
+        <h1 className="page-title">{title}</h1>
+        {desc && <p className="page-desc">{desc}</p>}
+      </div>
+      {(actions || listen) && <div className="page-actions">{actions}{listen && <ListenButton text={listen} />}</div>}
     </div>
   );
 }
@@ -186,13 +244,27 @@ function toCsv(cols: Column<never>[], data: unknown[]) {
   return [cols.map((c) => esc(c.label)).join(';'), ...data.map((r) => cols.map((c) => esc(c.csv ? c.csv(r as never) : (r as Record<string, unknown>)[c.key])).join(';'))].join('\n');
 }
 
-export interface Column<T> { key: string; label: string; render?: (r: T) => ReactNode; csv?: (r: T) => unknown; sortable?: boolean }
+/** num : chiffres alignés à droite ; primary : titre de la fiche sous 640 px (par défaut la 1re colonne) ; actions : colonne de boutons. */
+export interface Column<T> { key: string; label: string; render?: (r: T) => ReactNode; csv?: (r: T) => unknown; sortable?: boolean; num?: boolean; primary?: boolean; actions?: boolean }
 
-/** Tableau avec recherche, tri, pagination et export CSV ; sur mobile chaque ligne devient une fiche résumée. */
-export function Table<T extends object>({ columns, data, caption, pageSize = 10, exportName, rowKey }: { columns: Column<T>[]; data: T[]; caption: string; pageSize?: number; exportName?: string; rowKey: (r: T) => string }) {
+interface TableProps<T> {
+  columns: Column<T>[]; data: T[]; caption: string; rowKey: (r: T) => string;
+  pageSize?: number; exportName?: string;
+  /** Titre visible dans la barre d'outils (sinon la légende reste réservée aux lecteurs d'écran). */
+  title?: string;
+  /** Contrôles ajoutés à la barre d'outils (filtres Chips, boutons). */
+  toolbar?: ReactNode;
+  /** Cases de sélection et barre d'actions groupées. */
+  selectable?: boolean;
+  bulkActions?: (keys: string[], clear: () => void) => ReactNode;
+}
+
+/** Tableau du kit : recherche, tri, sélection, pagination, export CSV ; sous 640 px chaque ligne devient une fiche. */
+export function Table<T extends object>({ columns, data, caption, pageSize = 10, exportName, rowKey, title, toolbar, selectable, bulkActions }: TableProps<T>) {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null);
   const [page, setPage] = useState(0);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
   const sid = useId();
   const { t } = useTranslation();
   const filtered = useMemo(() => {
@@ -207,75 +279,135 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const cur = Math.min(page, pages - 1);
   const view = filtered.slice(cur * pageSize, cur * pageSize + pageSize);
+  // La sélection ne garde que les lignes encore présentes.
+  const keys = new Set(data.map(rowKey));
+  const sel = [...picked].filter((k) => keys.has(k));
+  const viewKeys = view.map(rowKey);
+  const allOn = viewKeys.length > 0 && viewKeys.every((k) => picked.has(k));
+  const someOn = viewKeys.some((k) => picked.has(k));
+  const toggle = (k: string) => setPicked((p) => { const n = new Set(p); if (n.has(k)) n.delete(k); else n.add(k); return n; });
+  const toggleAll = () => setPicked((p) => { const n = new Set(p); viewKeys.forEach((k) => (allOn ? n.delete(k) : n.add(k))); return n; });
+  const primaryKey = (columns.find((c) => c.primary) ?? columns[0])?.key;
+  const span = columns.length + (selectable ? 1 : 0);
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex w-full flex-col gap-1 sm:w-auto">
-          <label htmlFor={sid} className="text-sm font-semibold">{t('table.search')}</label>
-          <input id={sid} type="search" className={`${inputCls} sm:w-64`} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+    <section className="table-card">
+      <div className="table-toolbar">
+        {title && <h2 className="card-title mr-auto">{title}</h2>}
+        <div className="search">
+          <Icon name="search" />
+          <label htmlFor={sid} className="sr-only">{t('table.search')}</label>
+          <input id={sid} type="search" className="input" placeholder={t('table.search')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
         </div>
+        {toolbar}
         {exportName && (
-          <Button variant="secondary" onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)}>
-            <Download aria-hidden size={18} /> {t('table.exportCsv')}
+          <Button variant="secondary" size="sm" icon="download"
+            onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)}>
+            {t('table.exportCsv')}
           </Button>
         )}
-        <p className="text-sm text-muted" aria-live="polite">{t('table.rows', { count: filtered.length })}</p>
+        <p className="small muted ml-auto" aria-live="polite">{t('table.rows', { count: filtered.length })}</p>
       </div>
-      <div className="overflow-x-auto rounded border border-border bg-surface">
-        <table className="w-full border-collapse text-left">
+      {selectable && sel.length > 0 && (
+        <div className="bulkbar" role="region" aria-label={t('ui.selected', { count: sel.length })}>
+          <span>{t('ui.selected', { count: sel.length })}</span>
+          {bulkActions?.(sel, () => setPicked(new Set()))}
+        </div>
+      )}
+      <div className="table-scroll">
+        <table className="data-table table--cards">
           <caption className="sr-only">{caption}</caption>
-          <thead className="hidden md:table-header-group">
-            <tr className="border-b border-border">
-              {columns.map((c) => (
-                <th key={c.key} scope="col" className="p-2 text-sm font-semibold" aria-sort={sort?.key === c.key ? (sort.dir === 1 ? 'ascending' : 'descending') : undefined}>
-                  {c.sortable === false ? c.label : (
-                    <button type="button" className="inline-flex min-h-touch items-center gap-1" onClick={() => setSort((s) => (s?.key === c.key ? { key: c.key, dir: (s.dir * -1) as 1 | -1 } : { key: c.key, dir: 1 }))}>
-                      {c.label}
-                      {sort?.key === c.key && (sort.dir === 1 ? <ArrowUp aria-hidden size={14} /> : <ArrowDown aria-hidden size={14} />)}
-                    </button>
-                  )}
+          <thead>
+            <tr>
+              {selectable && (
+                <th scope="col" className="col-check">
+                  <input type="checkbox" className="cb" aria-label={t('ui.selectAll')} checked={allOn}
+                    ref={(el) => { if (el) el.indeterminate = someOn && !allOn; }} onChange={toggleAll} />
                 </th>
-              ))}
+              )}
+              {columns.map((c) => {
+                const on = sort?.key === c.key;
+                const cls = c.actions ? 'col-actions' : c.num ? 'num' : undefined;
+                if (c.sortable === false || c.actions) return <th key={c.key} scope="col" className={cls}>{c.actions ? <span className="sr-only">{c.label}</span> : c.label}</th>;
+                return (
+                  <th key={c.key} scope="col" className={cls} aria-sort={on ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}>
+                    <button type="button" className="th-sort" onClick={() => setSort((s) => (s?.key === c.key ? { key: c.key, dir: (s.dir * -1) as 1 | -1 } : { key: c.key, dir: 1 }))}>
+                      {c.label}<Icon name={on ? (sort.dir === 1 ? 'sort-asc' : 'sort-desc') : 'sort'} />
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {view.length === 0 && <tr><td className="p-3 text-muted" colSpan={columns.length}>{t('table.noMatch')}</td></tr>}
-            {view.map((r) => (
-              <tr key={rowKey(r)} className="block border-b border-border p-2 md:table-row md:p-0">
-                {columns.map((c) => (
-                  <td key={c.key} className="block break-words py-1 md:table-cell md:p-2 [&_a]:inline-flex [&_a]:min-h-touch [&_a]:items-center">
-                    <span className="mr-2 text-sm font-semibold text-muted md:hidden">{c.label} :</span>
-                    {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '')}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {view.length === 0 && <tr><td className="muted td-primary" colSpan={span}>{t('table.noMatch')}</td></tr>}
+            {view.map((r) => {
+              const k = rowKey(r);
+              return (
+                <tr key={k} className={picked.has(k) ? 'is-selected' : undefined}>
+                  {selectable && (
+                    <td className="col-check">
+                      <input type="checkbox" className="cb" aria-label={t('ui.selectRow')} checked={picked.has(k)} onChange={() => toggle(k)} />
+                    </td>
+                  )}
+                  {columns.map((c) => (
+                    <td key={c.key} data-label={c.label}
+                      className={`${c.key === primaryKey ? 'td-primary ' : ''}${c.actions ? 'col-actions ' : c.num ? 'num ' : ''}break-words [&_a]:inline-flex [&_a]:min-h-touch [&_a]:items-center`}>
+                      {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '')}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
       {pages > 1 && (
-        <nav aria-label={t('table.pagination')} className="flex items-center gap-2">
-          <Button variant="secondary" disabled={cur === 0} onClick={() => setPage(cur - 1)}>{t('table.prev')}</Button>
+        <nav aria-label={t('table.pagination')} className="pagination">
           <span>{t('table.page', { page: cur + 1, pages })}</span>
-          <Button variant="secondary" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>{t('table.next')}</Button>
+          <div className="pages">
+            <button type="button" className="page-btn" disabled={cur === 0} onClick={() => setPage(cur - 1)}>
+              <Icon name="chevron-left" /><span className="sr-only">{t('table.prev')}</span>
+            </button>
+            {pageList(cur, pages).map((p, i) => (p === null
+              ? <span key={`gap${i}`} aria-hidden>…</span>
+              : <button key={p} type="button" className="page-btn" aria-current={p === cur ? 'page' : undefined} onClick={() => setPage(p)}>{p + 1}</button>))}
+            <button type="button" className="page-btn" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>
+              <Icon name="chevron-right" /><span className="sr-only">{t('table.next')}</span>
+            </button>
+          </div>
         </nav>
       )}
-    </div>
+    </section>
   );
 }
+/** Nouveau nom, même composant. */
+export const DataTable = Table;
 
-export function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+/** Pages affichées : la première, la dernière et deux voisines de la courante ; null = trou. */
+export function pageList(cur: number, pages: number): (number | null)[] {
+  const keep = [...new Set([0, pages - 1, cur - 1, cur, cur + 1])].filter((p) => p >= 0 && p < pages).sort((a, b) => a - b);
+  return keep.flatMap((p, i) => (i > 0 && p - keep[i - 1] > 1 ? [null, p] : [p]));
+}
+
+/* ---------- Modale et tiroir latéral (Radix : focus piégé, Échap, voile, retour du focus) ---------- */
+export function Modal({ open, onClose, title, children, footer, sheet }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; sheet?: boolean }) {
   const { t } = useTranslation();
   return (
     <RD.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <RD.Portal>
-        <RD.Overlay className="fixed inset-0 z-[1000] bg-text/40" />
-        <RD.Content className="fixed left-1/2 top-1/2 z-[1001] max-h-[90vh] w-[min(560px,94vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded border border-border bg-surface p-4 shadow" aria-describedby={undefined}>
-          <RD.Title className="mb-3 text-xl font-semibold">{title}</RD.Title>
-          {children}
-          <RD.Close asChild><Button variant="ghost" className="mt-3">{t('common.close')}</Button></RD.Close>
+        <RD.Overlay className="modal-backdrop" />
+        <RD.Content className={`modal modal--radix${sheet ? ' modal--sheet' : ''}`} aria-describedby={undefined}>
+          <div className="modal-head">
+            <RD.Title className="modal-title">{title}</RD.Title>
+            <RD.Close asChild><button type="button" className="btn btn-icon" aria-label={t('common.close')}><Icon name="x" /></button></RD.Close>
+          </div>
+          <div className="modal-body">{children}</div>
+          {footer && <div className="modal-foot">{footer}</div>}
         </RD.Content>
       </RD.Portal>
     </RD.Root>
   );
 }
+export const Sheet = (p: Omit<Parameters<typeof Modal>[0], 'sheet'>) => <Modal {...p} sheet />;
+/** Ancien nom, gardé pour les pages. */
+export const Dialog = Modal;
