@@ -125,7 +125,7 @@ export function RegisterPage() {
       <div className="reg">
         <section className="card reg-step" role="status" aria-labelledby="reg-done">
           <div className="done-head">
-            <span className="done-icon"><Icon name="check-circle" size="lg" /></span>
+            <span className="done-icon"><Icon name="check-circle" size="lg" className="d-only" /><Icon name="clock" size="lg" className="m-only" /></span>
             <h2 className="section-title" id="reg-done" ref={heading} tabIndex={-1}>{t('register.doneTitle')}</h2>
           </div>
           <div className="code-box"><span className="small muted">{t('register.yourCode')}</span><span className="code">{done.code}</span></div>
