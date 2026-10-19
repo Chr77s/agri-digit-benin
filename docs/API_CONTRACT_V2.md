@@ -79,6 +79,10 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 
 - `GET /interop/{partner}/aggregates` où `partner` vaut `xroad|sonama|fnda`, en-tête `X-Api-Key` (clé dans `.env` : `INTEROP_KEY_<PARTNER>`), ou admin connecté. Renvoie des agrégats pseudonymisés par département et filière (producteurs validés, surface, campagnes), sans aucune donnée personnelle. Chaque appel est journalisé.
 - `POST /exports` accepte aussi `dataset: cooperatives|harvests|supports`.
+- Les cellules de moins de 5 producteurs sont masquées (`producers`, `area_ha`, `campaigns` à `null`, `masked: true`).
+- Clés : une clé active par partenaire, gardée hachée (SHA-256) ; la clé de configuration `INTEROP_KEY_<PARTENAIRE>` reste acceptée. `POST /interop/keys/{partenaire}/renew` (administrateur) -> 201 `{key}` affichée une seule fois, les clés précédentes sont révoquées ; `POST /interop/keys/{partenaire}/revoke` -> `{revoked}`.
+- `GET /interop/connectors` (administrateur) -> par partenaire `{configured, last_exchange_at, calls_24h, failures_24h, avg_ms, key: {masked, created_at, last_used_at} | null}`.
+- `GET /interop/exchanges?partner=&failed=1` (administrateur, paginé) -> `{at, partner, ok, via, rows, status, ip}` ; un refus de clé est journalisé (`interop.denied`, adresse tronquée).
 
 ## UC-22 Indicateurs de suivi-évaluation
 
