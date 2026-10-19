@@ -86,9 +86,12 @@ export interface OutboxMessage {
   encoding: string; status: 'livre' | 'echoue' | 'lu'; created_at: string;
 }
 
+export type ProgramState = 'brouillon' | 'a_venir' | 'ouvert' | 'clos';
 export interface Program {
   id: string; name: string; description: string; conditions: string; value_chains: string[];
   closes_at: string; is_open?: boolean; is_closed?: boolean;
+  status?: 'brouillon' | 'publie'; state?: ProgramState; opens_at?: string | null; committee_at?: string | null;
+  departments?: string[]; max_area_ha?: number | null; planned_beneficiaries?: number | null; require_campaign?: boolean;
 }
 export type ApplicationStatus = 'deposee' | 'en_instruction' | 'acceptee' | 'refusee';
 export interface Application {

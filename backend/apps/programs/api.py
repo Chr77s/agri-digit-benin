@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.http import Http404
 from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
@@ -16,15 +18,32 @@ MANAGERS = (RESPONSABLE, ADMIN)
 
 class ProgramSerializer(serializers.ModelSerializer):
     is_closed = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    status = serializers.ChoiceField(choices=["brouillon", "publie"], default="publie")
 
     class Meta:
         model = Program
-        fields = ["id", "name", "description", "conditions", "value_chains", "closes_at", "is_closed", "created_at"]
+        fields = ["id", "name", "description", "conditions", "value_chains", "status", "state", "opens_at",
+                  "closes_at", "committee_at", "departments", "max_area_ha", "planned_beneficiaries",
+                  "require_campaign", "is_closed", "created_at"]
 
     def get_is_closed(self, p):
-        from datetime import date
+        return p.closes_at is not None and p.closes_at < date.today()
 
-        return p.closes_at < date.today()
+    def get_state(self, p):
+        """brouillon | a_venir | ouvert | clos"""
+        if p.status == "brouillon":
+            return "brouillon"
+        if self.get_is_closed(p):
+            return "clos"
+        return "a_venir" if p.opens_at and p.opens_at > date.today() else "ouvert"
+
+
+class CriteriaSerializer(serializers.Serializer):
+    value_chains = serializers.ListField(child=serializers.CharField(), required=False, default=list)
+    departments = serializers.ListField(child=serializers.CharField(), required=False, default=list)
+    max_area_ha = serializers.FloatField(required=False, allow_null=True, min_value=0)
+    require_campaign = serializers.BooleanField(required=False, default=False)
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -84,12 +103,36 @@ class PublicRunSerializer(RunSerializer):
 @permission_classes([roles(PRODUCTEUR, AGENT, RESPONSABLE, ADMIN)])
 def program_list(request):
     if request.method == "GET":
-        return Response(ProgramSerializer(Program.objects.order_by("closes_at"), many=True).data)
+        qs = Program.objects.order_by("closes_at")
+        if request.user.role not in MANAGERS:  # un brouillon n'est visible que de qui le prépare
+            qs = qs.filter(status="publie")
+        return Response(ProgramSerializer(qs, many=True).data)
     if request.user.role not in MANAGERS:
         raise ApiError("Seul le responsable de programme crée un programme.", "forbidden", 403)
     s = ProgramSerializer(data=request.data)
     s.is_valid(raise_exception=True)
     return Response(ProgramSerializer(services.create_program(request.user, s.validated_data)).data, status=201)
+
+
+@api_view(["PATCH"])
+@permission_classes([roles(*MANAGERS)])
+def program_detail(request, pk):
+    """Brouillon : modification, puis publication avec {"status": "publie"}."""
+    program = Program.objects.filter(pk=pk).first()
+    if program is None:
+        raise Http404
+    s = ProgramSerializer(program, data=request.data, partial=True)
+    s.is_valid(raise_exception=True)
+    return Response(ProgramSerializer(services.update_draft(request.user, program, s.validated_data)).data)
+
+
+@api_view(["POST"])
+@permission_classes([roles(*MANAGERS)])
+def program_estimate(request):
+    """Producteurs validés qui rempliraient ces critères (aperçu du formulaire, aucune donnée personnelle)."""
+    s = CriteriaSerializer(data=request.data)
+    s.is_valid(raise_exception=True)
+    return Response({"count": services.eligible(s.validated_data).count()})
 
 
 @api_view(["POST"])

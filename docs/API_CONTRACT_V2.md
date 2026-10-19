@@ -103,3 +103,12 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 
 - `GET /audit-logs` renvoie aussi `seq`, `prev_hash`, `hash`.
 - `GET /audit-logs/verify` (auditeur, administrateur) -> `{ok, count, broken_seq, checked_at}` : recalcul de toute la chaîne ; `broken_seq` est le rang de la première entrée dont l'empreinte ou le lien ne correspond pas.
+
+## UC-17 Programmes : brouillon, critères et calendrier
+
+- `Program` ajoute `status` (`brouillon` | `publie`), `state` calculé (`brouillon`, `a_venir`, `ouvert`, `clos`), `opens_at`, `committee_at`, `departments` (vide = tout le Bénin), `max_area_ha` (total des parcelles), `planned_beneficiaries`, `require_campaign` (campagne déclarée sur une des filières du programme).
+- `POST /programs` accepte `status: "brouillon"` (incomplet permis). Publier exige au moins une filière et une clôture au moins 14 jours après l'ouverture : sinon 400 avec `fields`.
+- `PATCH /programs/{id}` (responsable, administrateur) : brouillon seulement (409 `published` sinon) ; `{"status": "publie"}` publie.
+- `POST /programs/estimate {value_chains, departments, max_area_ha, require_campaign}` -> `{count}` de fiches validées qui remplissent ces critères.
+- Le producteur ne voit que les programmes publiés. `POST /programs/{id}/apply` refuse `not_published`, `not_open_yet`, `not_eligible` (critères non remplis).
+

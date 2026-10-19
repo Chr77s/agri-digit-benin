@@ -62,6 +62,8 @@ v1 = [
     path("notifications/<uuid:pk>/read", alerts.notification_read),
     path("outbox", alerts.outbox_list),
     path("programs", prog.program_list),
+    path("programs/estimate", prog.program_estimate),
+    path("programs/<uuid:pk>", prog.program_detail),
     path("programs/<uuid:pk>/apply", prog.program_apply),
     path("applications", prog.application_list),
     path("applications/<uuid:pk>/decide", prog.application_decide),
