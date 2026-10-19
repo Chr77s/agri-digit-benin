@@ -80,7 +80,8 @@ export function NotificationsPage() {
             }}
           </QueryState>
         </div>
-        <Prefs />
+        {/* Réglages de démonstration (sans API) : absents de l'écran mobile de la maquette. */}
+        <div className="d-only"><Prefs /></div>
       </div>
     </>
   );

@@ -11,7 +11,8 @@ import { LEGAL_DOCS, LegalPage } from '../features/legal/LegalPage';
 import { ErrorPage, NotFoundPage } from '../features/legal/StatusPages';
 import { ApiError } from '../shared/api/client';
 import { Layout, NAV } from './Layout';
-import { Skeleton } from '../shared/ui';
+import { Skeleton, useIsMobile } from '../shared/ui';
+import { FirstLaunchPage, firstLaunchDone } from '../features/onboarding/FirstLaunchPage';
 import type { Role } from '../shared/api/types';
 
 function Guard({ roles, children }: { roles?: Role[]; children: ReactNode }) {
@@ -77,10 +78,15 @@ const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestion
 export function App() {
   const { user, ready } = useAuth();
   const { pathname } = useLocation();
-  // les visiteurs voient la landing plein écran ; le reste du site garde sa mise en page
-  if (pathname === '/' && !user) return ready ? <Suspense fallback={<Skeleton />}><LandingPage /></Suspense> : <Skeleton />;
+  const mobile = useIsMobile();
+  // les visiteurs voient la landing plein écran (sur téléphone, le premier lancement d'abord) ; le reste du site garde sa mise en page
+  if (pathname === '/' && !user) {
+    if (!ready) return <Skeleton />;
+    return mobile && !firstLaunchDone() ? <Navigate to="/bienvenue" replace /> : <Suspense fallback={<Skeleton />}><LandingPage /></Suspense>;
+  }
   return (
     <Routes>
+      <Route path="/bienvenue" element={<FirstLaunchPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/connexion" element={ready && user ? <Navigate to="/" replace /> : <LoginPage />} />
@@ -105,7 +111,7 @@ export function App() {
         <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
         <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
         <Route path="/verification/:code?" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
-        <Route path="/profil" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
+        <Route path="/profil/:section?" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
         <Route path="/cooperatives" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativesPage /></Guard>} />

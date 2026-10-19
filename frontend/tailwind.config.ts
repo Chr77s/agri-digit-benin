@@ -11,6 +11,8 @@ const vars = (p: Record<Key, string>) =>
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  // Classes du kit (kit.css) qui portent le nom d'un utilitaire Tailwind : sans cela, l'utilitaire (display: list-item) les écrase.
+  blocklist: ['list-item'],
   theme: {
     colors: {
       transparent: 'transparent',

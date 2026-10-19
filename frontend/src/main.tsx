@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './shared/ui/kit.css'; // composants du kit avant Tailwind : les utilitaires l'emportent
+import './shared/ui/mobile.css'; // présentation sous 640 px (maquettes/mobile)
 import './index.css';
 import './i18n';
 import { AuthProvider } from './features/auth/AuthContext';

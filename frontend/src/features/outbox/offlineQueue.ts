@@ -53,7 +53,9 @@ export async function syncQueue(qc?: QueryClient) {
   if (syncing || !navigator.onLine) return;
   syncing = true;
   try {
-    const items = await offlineDb.pending.orderBy('created_at').toArray();
+    let items: PendingWrite[];
+    try { items = await offlineDb.pending.orderBy('created_at').toArray(); } catch { return; } // IndexedDB absent (navigation privée ancienne, tests) : rien n'a pu être mis en file
+
     for (const it of items) {
       if (it.error || it.conflict) continue; // attend une décision de l'utilisateur
       try {

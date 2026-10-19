@@ -10,7 +10,7 @@ import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
 import { useNotifications } from '../features/alerts/api';
-import { Avatar, Button, Icon, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
+import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
 import type { Role, User } from '../shared/api/types';
 import i18n from '../i18n';
@@ -51,6 +51,44 @@ export const NAV: Record<Role, NavItem[]> = {
   distributeur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'warehouse'], ['/collecte', 'collection', 'truck']]),
   repr_mtdi: g(undefined, [['/langues', 'translations', 'languages'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/satellite', 'satellite', 'satellite']]),
 };
+
+/* ---------- Présentation mobile (< 640 px, maquettes/mobile/) ---------- */
+// Onglets du bas par rôle (5 au plus, maquettes/mobile/m.js) ; un rôle absent garde le tiroir seul. Le reste du menu reste dans le tiroir.
+export const TABS: Partial<Record<Role, NavItem[]>> = {
+  producteur: [
+    { to: '/', key: 'home', icon: 'home' }, { to: '/assistant', key: 'advice', icon: 'chat' }, { to: '/diagnostic', key: 'photo', icon: 'leaf-scan' },
+    { to: '/marche', key: 'market', icon: 'market' }, { to: '/parcelles', key: 'parcels', icon: 'parcel' },
+  ],
+};
+
+function MobileTabs({ role }: { role: Role }) {
+  const { t } = useTranslation();
+  const tabs = TABS[role];
+  return tabs ? <TabBar label={t('mobile.tabs')} items={tabs.map((n) => ({ to: n.to, icon: n.icon, end: n.to === '/', label: t(`mobile.tab.${n.key}`) }))} /> : null;
+}
+
+/** Notification du système sans jamais lever : Chrome Android refuse `new Notification` (« Illegal constructor ») et exige le service worker. */
+export async function showSystemNotification(title: string, opts: NotificationOptions) {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg?.active) return void (await reg.showNotification(title, opts));
+    new Notification(title, opts);
+  } catch { /* notification refusée par le navigateur : le message reste dans « Mes messages » */ }
+}
+
+/** Message non lu arrivé depuis le dernier passage : notification du système si la personne l'a autorisée (premier lancement). */
+function SystemNotifier() {
+  const q = useNotifications({ refetchInterval: 5 * 60_000, refetchIntervalInBackground: true });
+  useEffect(() => {
+    if (!q.data || typeof Notification === 'undefined' || Notification.permission !== 'granted' || !document.hidden) return;
+    let seen: string[] = [];
+    try { seen = JSON.parse(localStorage.getItem('adb-notified') ?? '[]') as string[]; } catch { /* rien de mémorisé */ }
+    const fresh = q.data.filter((n) => !(n.read_at || n.is_read) && !seen.includes(n.id));
+    try { localStorage.setItem('adb-notified', JSON.stringify([...seen, ...fresh.map((n) => n.id)].slice(-200))); } catch { /* idem */ }
+    fresh.forEach((n) => void showSystemNotification(n.title ?? 'Agri-Digit Bénin', { body: n.body ?? n.message ?? '', tag: n.id }));
+  }, [q.data]);
+  return null;
+}
 
 const LANGS: [string, string][] = [['fr', 'Français'], ['fon', 'Fɔngbè'], ['bba', 'Baatɔnum'], ['yo', 'Yorùbá'], ['dnd', 'Dendi']];
 const SIDEBAR_KEY = 'adb-sidebar';
@@ -350,7 +388,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
     <>
       <SkipLink />
       <ProtoBand />
-      <div className={`shell${collapsed ? ' is-collapsed' : ''}`}>
+      <div className={`shell${collapsed ? ' is-collapsed' : ''}${TABS[user.role] ? ' has-tabs' : ''}`}>
         <aside className="sidebar" id="sidebar" aria-label={t(`roles.${user.role}`)}>
           <SideNav user={user} nav={nav} collapsed={collapsed} onToggle={toggleCollapsed} />
         </aside>
@@ -386,6 +424,8 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
           <Footer />
         </div>
       </div>
+      <MobileTabs role={user.role} />
+      {user.role === 'producteur' && <SystemNotifier />}
       <Toaster />
     </>
   );

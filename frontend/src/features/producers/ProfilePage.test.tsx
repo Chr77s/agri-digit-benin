@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import i18n from '../../i18n';
@@ -35,6 +35,27 @@ describe('Mon profil', () => {
 
     await user.click(screen.getByRole('radio', { name: /Fɔngbè/ }));
     expect(i18n.language).toBe('fon');
+  });
+
+  it('sur téléphone : un menu, puis une rubrique par écran avec retour au profil', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: true, media: q, addEventListener: () => undefined, removeEventListener: () => undefined }));
+    auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi', phone: '0197214408', producer_id: 'p1' };
+    mockFetch((u) => (u.includes('/producers/p1') ? { body: producer } : u.includes('/ref/') ? { body: [] } : undefined));
+    const at = (path: string) => render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={[path]}><Routes><Route path="/profil/:section?" element={<ProfilePage />} /></Routes></MemoryRouter>
+      </QueryClientProvider>,
+    );
+    const { unmount } = at('/profil');
+    expect(await screen.findByText('BJ-AGR-2026-000001')).toBeInTheDocument();
+    for (const [name, href] of [['Langue et lecture', '/profil/langue'], ['Données hors ligne', '/profil/donnees'], ["File d'envoi", '/profil/envoi'], ['Aide et mon agent', '/profil/aide']]) {
+      expect(screen.getByRole('link', { name: new RegExp(name) })).toHaveAttribute('href', href);
+    }
+    unmount();
+    at('/profil/envoi');
+    expect(screen.getByRole('heading', { level: 1, name: "File d'envoi" })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Retour : Mon profil' })).toHaveAttribute('href', '/profil');
+    expect(screen.getByText("Rien n'est en attente d'envoi sur ce téléphone.")).toBeInTheDocument();
   });
 
   it('sans fiche liée au compte : le dit, sans appeler le serveur', () => {

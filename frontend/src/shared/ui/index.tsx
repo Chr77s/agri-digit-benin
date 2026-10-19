@@ -205,15 +205,18 @@ export function speak(text: string) {
 export function ListenButton({ text, label }: { text: string; label?: string }) {
   const { t } = useTranslation();
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
-  return <Button variant="secondary" onClick={() => speak(text)}><Volume2 aria-hidden size={20} /> {label ?? t('common.listen')}</Button>;
+  // lb-label : masqué sous 640 px (bouton rond de la maquette), toujours lu par les lecteurs d'écran.
+  return <Button variant="secondary" className="btn-listen" onClick={() => speak(text)}><Volume2 aria-hidden size={20} /> <span className="lb-label">{label ?? t('common.listen')}</span></Button>;
 }
 
-/** En-tête de page : fil d'Ariane facultatif, titre en grotesque, description, actions à droite. */
+/** En-tête de page : fil d'Ariane facultatif, titre en grotesque, description, actions à droite. Sous 640 px : retour vers le dernier lien du fil d'Ariane. */
 export function PageHeader({ title, desc, crumbs, listen, actions }: { title: string; desc?: ReactNode; crumbs?: { label: string; to?: string }[]; listen?: string; actions?: ReactNode }) {
   const { t } = useTranslation();
+  const back = crumbs?.filter((c) => c.to).pop();
   return (
     <div className="page-head">
       <div>
+        {back && <Link className="btn btn-icon ph-back" to={back.to!} aria-label={t('mobile.back', { page: back.label })}><Icon name="arrow-left" /></Link>}
         {crumbs && crumbs.length > 0 && (
           <nav className="crumbs" aria-label={t('ui.crumbs')}>
             <ol>{crumbs.map((c, i) => <li key={i}>{c.to ? <Link to={c.to}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}</li>)}</ol>
