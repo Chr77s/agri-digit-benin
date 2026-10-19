@@ -44,4 +44,16 @@ describe('Récoltes signalées', () => {
     expect(await screen.findByText('Déclaration confirmée')).toBeInTheDocument();
     expect(screen.getByText(/Vérifiée sur place\./)).toBeInTheDocument();
   });
+
+  it('plus rien à vérifier : l\'onglet « Vérifiées » reste accessible', async () => {
+    mockFetch((u) => {
+      if (u.includes('to_check=true')) return { body: { results: [], next: null } };
+      if (u.includes('to_check=false')) return { body: { results: [harvest({ id: 'h2', check_status: 'confirmee', check_reason: 'Vérifiée sur place.', checked_at: '2026-10-12T09:00:00Z' })], next: null } };
+      return u.includes('/ref/') ? { body: [] } : undefined;
+    });
+    const user = userEvent.setup();
+    renderApp(<FlaggedHarvestsPage />);
+    await user.click(await screen.findByRole('button', { name: /Vérifiées/ }));
+    expect(await screen.findByText(/Vérifiée sur place\./)).toBeInTheDocument();
+  });
 });

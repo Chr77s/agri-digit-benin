@@ -107,7 +107,8 @@ def decide(actor, app, status, reason):
     app.decided_at = None if status == "en_instruction" else timezone.now()
     app.save(update_fields=["status", "reason", "decided_by", "decided_at"])
     record(actor, "application.decide", app, status=status, reason=reason)
-    notify(app.producer, "Candidature", f"Agri-Digit : votre candidature « {app.program.name} » est {status}.")
+    label = {"en_instruction": "en instruction", "acceptee": "acceptée", "refusee": "refusée"}.get(status, status)
+    notify(app.producer, "Candidature", f"Agri-Digit : votre candidature « {app.program.name} » est {label}.")
     return app
 
 

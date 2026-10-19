@@ -23,6 +23,7 @@ def test_harvest_estimate_flag_and_limits(users, producer, campaign):
     assert c.post("/api/v1/harvests", {**body, "stored_kg": 3000, "sold_kg": 200}, format="json").status_code == 400
     agent = client_for(users["agent"])
     assert len(agent.get("/api/v1/harvests?flagged=true").json()["results"]) == 1
+    assert any("(Maïs)" in n["body"] for n in agent.get("/api/v1/notifications").json()["results"])
     assert client_for(users["agent_zou"]).get("/api/v1/harvests").json()["results"] == []
 
 
@@ -36,7 +37,8 @@ def test_producer_reports_a_missing_or_unreceived_support(users, producer):
     assert p.post(url, {"kind": "peut-etre"}, format="json").status_code == 400
     assert p.post(url, {"kind": "manque"}, format="json").status_code == 200
     assert p.get("/api/v1/supports").json()["results"][0]["status"] == "remis"  # reste à confirmer
-    assert any("Appui signalé" in n["title"] for n in agent.get("/api/v1/notifications").json()["results"])
+    assert any(n["title"] == "Appui signalé" and f"{producer.code} signale qu'il en manque une partie" in n["body"]
+               for n in agent.get("/api/v1/notifications").json()["results"])
     p.post(f"/api/v1/supports/{sid}/confirm")
     assert p.post(url, {"kind": "rien_recu"}, format="json").status_code == 400  # confirmé : plus rien à signaler
 

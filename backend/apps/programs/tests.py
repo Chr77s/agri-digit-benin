@@ -40,6 +40,7 @@ def test_producer_contests_a_refusal_once_within_fifteen_days(users, producer):
     resp.post(f"/api/v1/applications/{app_id}/decide",
               {"status": "refusee", "reason": "Quota atteint."}, format="json")
     assert Application.objects.get(pk=app_id).decided_at is not None
+    assert any(n["body"].endswith("« Kits » est refusée.") for n in c.get("/api/v1/notifications").json()["results"])
     assert resp.post(url, {"reason": "x"}, format="json").status_code == 403  # réservé au producteur
     assert c.post(url, {"reason": " "}, format="json").json()["code"] == "reason_required"
     r = c.post(url, {"reason": "Inscrit avant la date limite."}, format="json")

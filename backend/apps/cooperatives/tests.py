@@ -25,6 +25,10 @@ def test_cooperative_members_scope_and_history(users, producer):
     assert gest.get(url + "?active=true").json()["results"] == []
     assert gest.get(url + "?active=false").json()["results"][0]["left_at"] is not None  # historique conservé
     assert gest.post(url, {"producer": producer.code}, format="json").status_code == 201  # ré-adhésion
+    gest.post(f"/api/v1/memberships/{gest.get(url + '?active=true').json()['results'][0]['id']}/end",
+              {"reason": "départ"}, format="json")
+    type(producer).objects.filter(pk=producer.pk).update(status="en_attente")
+    assert gest.post(url, {"producer": producer.code}, format="json").status_code == 400  # fiche non validée
 
 
 def _coop(name, department="alibori", manager=None):

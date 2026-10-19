@@ -27,6 +27,8 @@ def create_cooperative(actor, d):
 
 def add_member(actor, coop, producer, role):
     """Un producteur peut appartenir à plusieurs coopératives, mais une seule adhésion active par coopérative."""
+    if producer.status != "valide":
+        raise ApiError("Seul un producteur validé peut être ajouté à une coopérative.", "producer_not_validated", 400)
     try:
         with transaction.atomic():
             m = Membership.objects.create(cooperative=coop, producer=producer, role=role, created_by=actor)

@@ -97,7 +97,7 @@ export function FlaggedHarvestsPage() {
       <PageHeader title={t('nav.flaggedHarvests')} desc={t('harvest.flaggedIntro')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.flaggedHarvests') }]} />
       <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
         <Alert tone="demo" title={t('harvest.estimatesTitle')}>{t('harvest.estimatesText')}</Alert>
-        <QueryState q={q} empty={(d) => d.length === 0 && !chain} emptyText={<div className="card"><EmptyState title={showDone ? t('harvest.noneChecked') : t('harvest.flaggedEmpty')}>{showDone ? undefined : t('harvest.flaggedEmptyHelp')}</EmptyState></div>}>
+        <QueryState q={q} empty={(d) => d.length === 0 && !chain && (showDone || !done.data?.length)}emptyText={<div className="card"><EmptyState title={showDone ? t('harvest.noneChecked') : t('harvest.flaggedEmpty')}>{showDone ? undefined : t('harvest.flaggedEmptyHelp')}</EmptyState></div>}>
           {(d) => (
             <Table<Harvest> title={showDone ? t('harvest.checkedTitle') : t('harvest.toCheckTitle')} caption={t('nav.flaggedHarvests')} data={d.filter((h) => !chain || h.value_chain === chain)} rowKey={(r) => r.id} exportName="recoltes-signalees"
               toolbar={<>

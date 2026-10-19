@@ -5,6 +5,7 @@ from apps.accounts.models import User
 from apps.audit.services import record
 from apps.core.errors import ApiError
 from apps.producers.services import notify
+from apps.referentiel.data import RESERVE_VALUE_CHAINS, VALUE_CHAINS
 from integrations.notifications import get_channel
 
 from .models import Harvest, ReferenceYield, Support
@@ -36,7 +37,7 @@ def create_support(actor, producer, d):
     return s
 
 
-ISSUES = {"manque": "il en manque une partie", "rien_recu": "rien n'a été reçu"}
+ISSUES = {"manque": "qu'il en manque une partie", "rien_recu": "n'avoir rien reçu"}
 
 
 @transaction.atomic
@@ -47,7 +48,7 @@ def report_support_issue(actor, s, kind):
     if kind not in ISSUES:
         raise ApiError("Signalement inconnu.", "invalid_kind", 400)
     record(actor, "support.issue", s, kind=kind)
-    _notify_user(s.delivered_by, "Appui signalé", f"Agri-Digit : {s.producer.code} signale que {ISSUES[kind]} pour "
+    _notify_user(s.delivered_by, "Appui signalé", f"Agri-Digit : {s.producer.code} signale {ISSUES[kind]} pour "
                                                    f"« {s.item} ». Contactez-le.")
     return s
 
@@ -116,7 +117,8 @@ def create_harvest(actor, campaign, d):
     record(actor, "harvest.create", h, campaign=str(campaign.id), flagged=h.flagged, deviation_pct=dev)
     if h.flagged:
         parcel = campaign.parcel
-        body = (f"Agri-Digit : récolte à vérifier pour {parcel.producer.code} ({campaign.value_chain}) : "
+        vc = dict(VALUE_CHAINS + RESERVE_VALUE_CHAINS).get(campaign.value_chain, campaign.value_chain)
+        body = (f"Agri-Digit : récolte à vérifier pour {parcel.producer.code} ({vc}) : "
                 f"écart de {dev:+.0f} % avec le rendement estimé.")
         for agent in User.objects.filter(role="agent_atda", department=parcel.department, is_active=True):
             _notify_user(agent, "Récolte à vérifier", body)
