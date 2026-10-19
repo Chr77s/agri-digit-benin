@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Chips, Dialog, EmptyState, Field, PageHeader, QueryState, Select, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Button, Chips, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Select, Timeline, fmtNum } from '../../shared/ui';
 import { HarvestForm, useHarvests } from '../harvests/HarvestPages';
 import { useVcSelect, useVcName } from '../../shared/api/ref';
 import type { Campaign, Parcel, Stage } from '../../shared/api/types';
 import { ListenGhost, STAGES, StageBar } from '../producers/producerKit';
 import { useCampaigns, useCreateCampaign, useParcels, useSetStage } from '../parcels/api';
+import { NEXT, addDays, cycleOf, dayOf, tasksFor } from './cycle';
 
 const SEASONS = ['2026-pluie-1', '2026-pluie-2', '2027-pluie-1'];
 
@@ -57,7 +58,7 @@ export function CampaignsPage() {
       </div>
       <Dialog open={!!harvestFor} onClose={() => setHarvestFor(null)}
         title={harvestFor ? t('campaigns.harvestTitle', { name: `${vcName(harvestFor.value_chain)}, ${parcel(harvestFor.parcel)?.name ?? ''}` }) : t('harvest.open')}>
-        {harvestFor && <HarvestForm campaign={harvestFor.id} />}
+        {harvestFor && <HarvestForm campaign={harvestFor.id} estimated={harvestFor.estimated_kg} />}
       </Dialog>
     </>
   );
@@ -68,7 +69,7 @@ function OpenForm({ parcels }: { parcels: Parcel[] }) {
   const [params] = useSearchParams();
   const vcSel = useVcSelect();
   const create = useCreateCampaign();
-  const [v, setV] = useState({ parcel: params.get('parcelle') ?? '', value_chain: '', season: SEASONS[0], stage: 'semis' as Stage });
+  const [v, setV] = useState({ parcel: params.get('parcelle') ?? '', value_chain: '', season: SEASONS[0], stage: 'semis' as Stage, variety: '', sown_at: '' });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState('');
 
@@ -81,7 +82,7 @@ function OpenForm({ parcels }: { parcels: Parcel[] }) {
     setMsg('');
     if (Object.keys(er).length) return;
     try {
-      const r = await create.mutateAsync(v);
+      const r = await create.mutateAsync({ ...v, variety: v.variety.trim(), sown_at: v.sown_at || null });
       setMsg(r === 'queued' ? 'queued' : 'opened');
     } catch { /* affiché */ }
   };
@@ -102,6 +103,12 @@ function OpenForm({ parcels }: { parcels: Parcel[] }) {
         </Field>
         <Field label={t('campaigns.stage')}>
           {(p) => <Select {...p} value={v.stage} onChange={(e) => setV({ ...v, stage: e.target.value as Stage })} options={STAGES.map((s) => ({ value: s, label: t(`stage.${s}`) }))} />}
+        </Field>
+        <Field label={t('cycle.variety')} optional hint={t('cycle.varietyHint')}>
+          {(p) => <Input {...p} value={v.variety} maxLength={80} onChange={(e) => setV({ ...v, variety: e.target.value })} />}
+        </Field>
+        <Field label={t('cycle.sownAt')} optional hint={t('cycle.sownAtHint')}>
+          {(p) => <Input {...p} type="date" value={v.sown_at} onChange={(e) => setV({ ...v, sown_at: e.target.value })} />}
         </Field>
       </div>
       <div className="mt-4 stack" style={{ ['--gap' as string]: '10px' }} aria-live="polite">
@@ -134,11 +141,71 @@ function CampaignCard({ c, parcel, title, busy, onStage, onHarvest }: { c: Campa
           <Field label={t('campaigns.currentStage')}>
             {(p) => <Select {...p} value={c.stage} disabled={busy} aria-busy={busy || undefined} onChange={(e) => onStage(e.target.value as Stage)} options={STAGES.map((s) => ({ value: s, label: t(`stage.${s}`) }))} />}
           </Field>
+          {NEXT[c.stage] && <Button variant="secondary" icon="chevron-right" busy={busy} onClick={() => onStage(NEXT[c.stage]!)}>{t('cycle.next', { stage: t(`stage.${NEXT[c.stage]}`).toLowerCase() })}</Button>}
           <Button variant={harvest ? 'primary' : 'secondary'} icon="wheat" onClick={onHarvest}>{t('harvest.open')}</Button>
         </div>
+        <CycleDetails c={c} />
       </div>
       <HarvestSummary campaign={c.id} />
     </article>
+  );
+}
+
+const fmtDay = (d: Date) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+
+/** Calendrier des stades et tâches (maquettes mobile calendrier et taches), estimés depuis la date de semis. */
+function CycleDetails({ c }: { c: Campaign }) {
+  const { t } = useTranslation();
+  const vcName = useVcName();
+  const [done, setDone] = useState<string[]>([]);
+  if (!c.sown_at) return <p className="hint">{t('cycle.noSowing')}</p>;
+  const cy = cycleOf(c.value_chain);
+  const order: Stage[] = ['semis', 'croissance', 'floraison', 'recolte'];
+  const cur = order.indexOf(c.stage);
+  const state = (s: Stage) => (order.indexOf(s) < cur ? 'done' as const : order.indexOf(s) === cur ? 'now' as const : undefined);
+  const tasks = tasksFor(c.value_chain, c.stage, c.sown_at);
+  const soon = new Date(Date.now() + 7 * 86_400_000);
+  const id = (k: string, d: Date) => `${c.id}-${k}-${d.getTime()}`;
+  const groups = [
+    ['week', tasks.filter((x) => !done.includes(id(x.key, x.due)) && x.due <= soon)],
+    ['later', tasks.filter((x) => !done.includes(id(x.key, x.due)) && x.due > soon)],
+    ['done', tasks.filter((x) => done.includes(id(x.key, x.due)))],
+  ] as const;
+  return (
+    <div className="grid-fit" style={{ '--min': '260px', '--gap': '16px' } as React.CSSProperties}>
+      <details open>
+        <summary className="label">{t('cycle.calendar', { day: dayOf(c.sown_at) })}</summary>
+        <Timeline items={[
+          { time: fmtDay(addDays(c.sown_at, 0)), title: t('stage.semis'), state: state('semis') },
+          { time: fmtDay(addDays(c.sown_at, cy.levee)), title: t('cycle.emergence'), state: cur > 0 ? 'done' : undefined },
+          { time: t('cycle.until', { date: fmtDay(addDays(c.sown_at, cy.floraison)) }), title: t('stage.croissance'), state: state('croissance') },
+          { time: t('cycle.around', { date: fmtDay(addDays(c.sown_at, cy.floraison)) }), title: t('stage.floraison'), state: state('floraison') },
+          { time: t('cycle.around', { date: fmtDay(addDays(c.sown_at, cy.recolte)) }), title: t('stage.recolte'), state: state('recolte') },
+        ]} />
+        <p className="hint mt-2">{t('cycle.estimated', { crop: vcName(c.value_chain), variety: c.variety || t('cycle.noVariety') })}</p>
+      </details>
+      <details open>
+        <summary className="label">{t('cycle.tasks')}</summary>
+        {groups.map(([g, list]) => list.length > 0 && (
+          <div key={g} className="mt-2">
+            <p className="small muted">{t(`cycle.group.${g}`)}</p>
+            {list.map((x) => {
+              const k = id(x.key, x.due);
+              return (
+                <div key={k} className="task">
+                  <input className="cb" type="checkbox" id={`tk-${k}`} checked={done.includes(k)} onChange={(e) => setDone((d) => (e.target.checked ? [...d, k] : d.filter((y) => y !== k)))} />
+                  <label htmlFor={`tk-${k}`}>
+                    <span className="t-title">{t(`cycle.task.${x.key}`, { crop: vcName(c.value_chain) })}</span>
+                    <span className="t-meta">{t('cycle.due', { date: fmtDay(x.due) })}</span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        <p className="hint mt-2">{t('cycle.tasksHint')}</p>
+      </details>
+    </div>
   );
 }
 

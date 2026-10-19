@@ -32,5 +32,40 @@
     "howTo": "Pour mesurer, faites le tour du champ à pied, le téléphone à la main.",
     "measure": "Mesurer une nouvelle parcelle",
     "desktopHint": "Sur le terrain, avec un téléphone :"
+  },
+  "cycle": {
+    "variety": "Variété",
+    "varietyHint": "Celle conseillée par votre agent ATDA, par exemple EVDT 97 STR pour le maïs.",
+    "sownAt": "Date de semis",
+    "sownAtHint": "Elle sert à estimer les dates des stades et des tâches.",
+    "next": "Passer au stade suivant ({{stage}})",
+    "noSowing": "Indiquez la date de semis en ouvrant la campagne pour voir son calendrier et ses tâches.",
+    "calendar": "Calendrier · jour {{day}}",
+    "emergence": "Levée",
+    "until": "jusque vers le {{date}}",
+    "around": "vers le {{date}}",
+    "estimated": "Dates estimées pour {{crop}} ({{variety}}), données de démonstration en attendant les fiches INRAB par variété.",
+    "noVariety": "variété non précisée",
+    "tasks": "Tâches",
+    "group": {
+      "week": "Cette semaine",
+      "later": "Plus tard",
+      "done": "Faites"
+    },
+    "due": "avant le {{date}}",
+    "task": {
+      "emergence": "Vérifier la levée : {{crop}}",
+      "weeding1": "Premier sarclage",
+      "weeding2": "Deuxième sarclage et buttage",
+      "scout": "Inspecter 20 plants (ravageurs, maladies)",
+      "prepareHarvest": "Préparer la récolte : sacs, aire de séchage",
+      "declareHarvest": "Déclarer la récolte"
+    },
+    "tasksHint": "Repères généraux, sans dosage : pour un traitement, voyez votre agent ATDA. Cocher une tâche ne l'enregistre pas."
+  },
+  "harvest": {
+    "sacks": "Soit {{n}} sacs de 100 kg",
+    "expected": "Estimé : {{low}} à {{high}} kg.",
+    "refDemo": "Rendement de référence de démonstration"
   }
 }

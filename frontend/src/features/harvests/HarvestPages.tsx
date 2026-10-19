@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, list, qs } from '../../shared/api/client';
 import type { Harvest } from '../../shared/api/types';
-import { Badge, Button, EmptyState, Field, inputCls, Notice, PageHeader, QueryState, Table, fieldError, fmtDate, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Button, EmptyState, Field, Input, PageHeader, QueryState, Table, fieldError, fmtDate, fmtNum } from '../../shared/ui';
 import { useVcName } from '../../shared/api/ref';
 
 export interface HarvestCreate { campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number }
@@ -15,16 +15,17 @@ export function useCreateHarvest() {
   return useMutation({ mutationFn: (b: HarvestCreate) => api<Harvest>('/harvests', { method: 'POST', body: b }), onSuccess: () => qc.invalidateQueries({ queryKey: ['harvests'] }) });
 }
 
-/** Saisie d'une récolte depuis une campagne ; affiche ensuite l'écart avec l'estimation et le signalement éventuel. */
-export function HarvestForm({ campaign }: { campaign: string }) {
+/** Saisie d'une récolte depuis une campagne (maquette mobile recolte) ; affiche ensuite l'écart avec l'estimation et le signalement éventuel. */
+export function HarvestForm({ campaign, estimated }: { campaign: string; estimated?: number | null }) {
   const { t } = useTranslation();
   const m = useCreateHarvest();
   const [v, setV] = useState({ harvested_at: new Date().toISOString().slice(0, 10), quantity_kg: '', stored_kg: '0', sold_kg: '0', price: '' });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: e.target.value });
+  const q = Number(v.quantity_kg);
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = Number(v.quantity_kg), st = Number(v.stored_kg || 0), so = Number(v.sold_kg || 0);
+    const st = Number(v.stored_kg || 0), so = Number(v.sold_kg || 0);
     const er: Record<string, string> = {};
     if (!(q > 0)) er.quantity_kg = t('harvest.errQuantity');
     if (st < 0) er.stored_kg = t('harvest.errNegative');
@@ -39,14 +40,19 @@ export function HarvestForm({ campaign }: { campaign: string }) {
   const err = (k: string, api?: string) => errs[k] ?? fieldError(m.error, api ?? k);
   if (m.data) return <HarvestResult h={m.data} />;
   return (
-    <form noValidate onSubmit={submit} className="flex flex-col gap-3">
-      <Field label={t('harvest.date')} error={err('harvested_at')}>{(p) => <input {...p} type="date" className={inputCls} value={v.harvested_at} onChange={set('harvested_at')} />}</Field>
-      <Field label={t('harvest.quantity')} error={err('quantity_kg')}>{(p) => <input {...p} type="number" inputMode="decimal" min="0" className={inputCls} value={v.quantity_kg} onChange={set('quantity_kg')} />}</Field>
-      <Field label={t('harvest.stored')} error={err('stored_kg')}>{(p) => <input {...p} type="number" inputMode="decimal" min="0" className={inputCls} value={v.stored_kg} onChange={set('stored_kg')} />}</Field>
-      <Field label={t('harvest.sold')} error={err('sold_kg')} hint={t('harvest.soldHint')}>{(p) => <input {...p} type="number" inputMode="decimal" min="0" className={inputCls} value={v.sold_kg} onChange={set('sold_kg')} />}</Field>
-      <Field label={t('harvest.price')} error={err('price', 'sale_price_xof_per_kg')}>{(p) => <input {...p} type="number" inputMode="numeric" min="0" className={inputCls} value={v.price} onChange={set('price')} />}</Field>
-      {m.error && !fieldError(m.error, 'quantity_kg') && <Notice tone="error" live>{m.error.message}</Notice>}
-      <Button type="submit" busy={m.isPending}>{t('harvest.submit')}</Button>
+    <form noValidate onSubmit={submit} className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+      <Field label={t('harvest.date')} error={err('harvested_at')}>{(p) => <Input {...p} type="date" value={v.harvested_at} onChange={set('harvested_at')} />}</Field>
+      <Field label={t('harvest.quantity')} error={err('quantity_kg')} hint={q > 0 ? t('harvest.sacks', { n: fmtNum(q / 100, 1) }) : undefined}>{(p) => <Input {...p} type="number" inputMode="decimal" min="0" value={v.quantity_kg} onChange={set('quantity_kg')} />}</Field>
+      <div className="form-grid">
+        <Field label={t('harvest.stored')} error={err('stored_kg')}>{(p) => <Input {...p} type="number" inputMode="decimal" min="0" value={v.stored_kg} onChange={set('stored_kg')} />}</Field>
+        <Field label={t('harvest.sold')} error={err('sold_kg')} hint={t('harvest.soldHint')}>{(p) => <Input {...p} type="number" inputMode="decimal" min="0" value={v.sold_kg} onChange={set('sold_kg')} />}</Field>
+      </div>
+      <Field label={t('harvest.price')} optional error={err('price', 'sale_price_xof_per_kg')}>{(p) => <Input {...p} type="number" inputMode="numeric" min="0" value={v.price} onChange={set('price')} />}</Field>
+      {estimated != null && (
+        <p className="small">{t('harvest.expected', { low: fmtNum(Math.round(estimated * 0.9 / 50) * 50), high: fmtNum(Math.round(estimated * 1.1 / 50) * 50) })} <Badge tone="demo">{t('harvest.refDemo')}</Badge></p>
+      )}
+      {m.error && !fieldError(m.error, 'quantity_kg') && <Alert tone="danger" live>{m.error.message}</Alert>}
+      <Button type="submit" icon="check" busy={m.isPending}>{t('harvest.submit')}</Button>
     </form>
   );
 }
@@ -54,11 +60,11 @@ export function HarvestForm({ campaign }: { campaign: string }) {
 function HarvestResult({ h }: { h: Harvest }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-2" role="status" aria-live="polite">
-      <Notice tone="success">{t('harvest.saved', { q: fmtNum(h.quantity_kg) })}</Notice>
+    <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties} role="status" aria-live="polite">
+      <Alert tone="ok">{t('harvest.saved', { q: fmtNum(h.quantity_kg) })}</Alert>
       <p>{t('harvest.estimate', { e: h.estimated_kg === null ? t('common.notAvailable') : t('common.kg', { n: fmtNum(h.estimated_kg) }) })}</p>
       <p>{t('harvest.deviation', { d: h.deviation_pct === null ? t('common.notAvailable') : `${h.deviation_pct > 0 ? '+' : ''}${fmtNum(h.deviation_pct, 1)} %` })}</p>
-      {h.flagged ? <Notice tone="warn">{t('harvest.flagged')}</Notice> : <p className="text-muted">{t('harvest.notFlagged')}</p>}
+      {h.flagged ? <Alert tone="warn" icon="flag">{t('harvest.flagged')}</Alert> : <p className="muted">{t('harvest.notFlagged')}</p>}
     </div>
   );
 }

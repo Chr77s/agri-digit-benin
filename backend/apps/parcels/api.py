@@ -32,9 +32,17 @@ class ParcelInSerializer(serializers.Serializer):
 
 
 class CampaignSerializer(serializers.ModelSerializer):
+    estimated_kg = serializers.SerializerMethodField()
+
     class Meta:
         model = Campaign
-        fields = ["id", "parcel", "value_chain", "season", "stage", "version", "created_at"]
+        fields = ["id", "parcel", "value_chain", "season", "stage", "variety", "sown_at", "estimated_kg", "version",
+                  "created_at"]
+
+    def get_estimated_kg(self, c):
+        from apps.production.services import estimate
+
+        return estimate(c)
 
 
 class CampaignInSerializer(serializers.Serializer):
@@ -42,6 +50,8 @@ class CampaignInSerializer(serializers.Serializer):
     value_chain = serializers.ChoiceField(choices=VALUE_CHAINS)
     season = serializers.RegexField(r"^\d{4}-[a-z0-9-]{3,12}$")
     stage = serializers.ChoiceField(choices=STAGES)
+    variety = serializers.CharField(max_length=80, required=False, allow_blank=True, default="")
+    sown_at = serializers.DateField(required=False, allow_null=True, default=None)
 
 
 def _check_role(user, write=False):
@@ -80,7 +90,8 @@ def parcel_list(request):
 @api_view(["GET", "POST"])
 def campaign_list(request):
     if request.method == "GET":
-        qs = Campaign.objects.filter(parcel__in=parcels_for(request.user)).order_by("-created_at")
+        qs = (Campaign.objects.filter(parcel__in=parcels_for(request.user)).select_related("parcel")
+              .order_by("-created_at"))
         if pid := request.query_params.get("parcel"):
             qs = qs.filter(parcel_id=pid)
         return Response(CampaignSerializer(qs, many=True).data)

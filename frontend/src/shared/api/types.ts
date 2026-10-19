@@ -54,8 +54,8 @@ export interface Parcel {
 }
 export interface ParcelCreate { producer?: string; name: string; geometry: GeoPolygon; land_type: LandType; tenure: Tenure }
 export type Stage = 'semis' | 'croissance' | 'floraison' | 'recolte';
-export interface Campaign { id: string; parcel: string; value_chain: string; season: string; stage: Stage; version?: number }
-export interface CampaignCreate { parcel: string; value_chain: string; season: string; stage: Stage }
+export interface Campaign { id: string; parcel: string; value_chain: string; season: string; stage: Stage; version?: number; variety?: string; sown_at?: string | null; estimated_kg?: number | null }
+export interface CampaignCreate { parcel: string; value_chain: string; season: string; stage: Stage; variety?: string; sown_at?: string | null }
 
 export interface Citation { doc_id: string; title: string; source: string; version: number | string }
 export interface AssistantAnswer {

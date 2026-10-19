@@ -25,6 +25,8 @@ class Campaign(models.Model):
     value_chain = models.CharField(max_length=40)
     season = models.CharField(max_length=20)
     stage = models.CharField(max_length=20)
+    variety = models.CharField(max_length=80, blank=True)
+    sown_at = models.DateField(null=True, blank=True)  # date de semis : calendrier et tâches estimés
     version = models.PositiveIntegerField(default=1)  # UC-25
     created_at = models.DateTimeField(auto_now_add=True)
 
