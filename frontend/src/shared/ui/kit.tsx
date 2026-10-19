@@ -1,7 +1,55 @@
 // Composants du kit « Bénin Vert » absents de l'ancienne bibliothèque. Classes : ./kit.css. Réexportés par ./index.tsx.
+//
+// Présentation mobile (lot 1, maquettes/mobile/) : la même PWA, les mêmes routes, sous 640 px (styles : ./mobile.css).
+// - La coque (app/Layout.tsx) pose l'en-tête compact et, pour les rôles listés dans TABS, la barre d'onglets du bas (<TabBar>).
+//   Une page n'a rien à faire pour en profiter ; un rôle qui veut ses onglets s'ajoute à TABS (lot 4 : agent_atda).
+// - <PageHeader> devient la barre de titre de la maquette (retour vers le dernier fil d'Ariane, titre, sous-titre, « Écouter ») :
+//   donner `crumbs` suffit pour avoir le bouton retour.
+// - Feuille du bas : <Modal> (index.tsx) s'ouvre déjà depuis le bas sous 640 px ; ne pas en créer d'autre.
+// - États : <Skeleton>, <EmptyState>, <ErrorState> (index.tsx) prennent la forme mobile seuls ; <SuccessState> ci-dessous pour « c'est fait, et ensuite ».
+// - Une page dont la structure change sur mobile (pas seulement le style) lit useIsMobile() ; sinon, préférer une règle dans mobile.css.
+// - Bouton d'action collé en bas d'écran : envelopper les boutons dans <div className="m-cta"> (sans effet au-dessus de 640 px).
 import { forwardRef, useId, useRef, useState, useSyncExternalStore, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from './Icon';
+
+/* ---------- Mobile ---------- */
+const MOBILE_Q = '(max-width: 640px)';
+const subscribeMobile = (cb: () => void) => {
+  const mq = typeof window !== 'undefined' ? window.matchMedia?.(MOBILE_Q) : undefined;
+  mq?.addEventListener('change', cb);
+  return () => mq?.removeEventListener('change', cb);
+};
+const readMobile = () => (typeof window !== 'undefined' && window.matchMedia?.(MOBILE_Q).matches) || false;
+/** Vrai sous 640 px (même seuil que mobile.css). Sans matchMedia (tests), faux : la présentation web. */
+export const useIsMobile = () => useSyncExternalStore(subscribeMobile, readMobile, () => false);
+
+export interface TabBarItem { to: string; label: string; icon: IconName; end?: boolean }
+/** Barre d'onglets du bas (5 entrées au plus) ; masquée au-dessus de 640 px. Rendue par la coque, pas par les pages. */
+export function TabBar({ items, label }: { items: TabBarItem[]; label: string }) {
+  return (
+    <nav className="tabbar" aria-label={label}>
+      {items.map((it) => (
+        <NavLink key={it.to} to={it.to} end={it.end} className="tabbar-link">
+          <span className="tabbar-pill"><Icon name={it.icon} /></span>{it.label}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+/** Écran de réussite : marque ronde, titre, ce qui a été fait, puis la suite. `wait` : envoyé, en attente d'une validation. */
+export function SuccessState({ title, children, actions, wait }: { title: string; children?: ReactNode; actions?: ReactNode; wait?: boolean }) {
+  return (
+    <div className="success-state" role="status">
+      <span className={`okmark${wait ? ' okmark--wait' : ''}`}><Icon name={wait ? 'clock' : 'check'} /></span>
+      <h2>{title}</h2>
+      {children && <div className="success-text">{children}</div>}
+      {actions && <div className="m-cta">{actions}</div>}
+    </div>
+  );
+}
 
 /* ---------- Cases, boutons radio, interrupteur ---------- */
 type CheckProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & { label: ReactNode; hint?: ReactNode };

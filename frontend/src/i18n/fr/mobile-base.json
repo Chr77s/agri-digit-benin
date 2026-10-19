@@ -1,0 +1,42 @@
+{
+  "mobile": {
+    "back": "Retour : {{page}}",
+    "tabs": "Navigation principale",
+    "tab": { "home": "Accueil", "advice": "Conseil", "photo": "Photo", "market": "Marché", "parcels": "Parcelles" },
+    "fl": {
+      "screen": "Écran {{n}} sur {{total}}",
+      "langTitle": "Choisissez votre langue",
+      "langLead": "Touchez le haut-parleur pour entendre chaque langue.",
+      "langSub": { "fr": "Texte et voix", "fon": "Fon", "bba": "Bariba", "yo": "Yoruba", "dnd": "Dendi" },
+      "toValidate": "À valider",
+      "listenLang": "Écouter : {{name}}",
+      "langNote": "Fon, bariba, yoruba, dendi : traduction en cours de validation.",
+      "continueFr": "Continuer en français",
+      "continueIn": "Continuer : {{name}}",
+      "skip": "Passer",
+      "next": "Suivant",
+      "start": "Commencer",
+      "back": "Retour",
+      "credit": "Photo {{author}}, {{license}}",
+      "i1": { "title": "Un conseiller dans votre poche", "text": "Posez votre question à l'écrit ou à la voix. Les réponses viennent des fiches de l'INRAB et de l'ATDA.", "q": "Quand semer le maïs ?", "a": "Au début des pluies, sol humide sur 10 cm." },
+      "i2": { "title": "Une photo de la feuille, un conseil", "text": "Photographiez une plante malade. L'application dit ce que c'est sans doute et ce qu'il faut faire.", "card": "Chenille légionnaire probable", "cardSub": "Exemple · un agronome vérifie en cas de doute" },
+      "i3": { "title": "Vendre, être payé, recevoir vos appuis", "text": "Publiez votre récolte, choisissez l'acheteur, recevez l'argent par Mobile Money. Vos saisies attendent le retour du réseau.", "card": "290 000 F reçus", "cardSub": "Mobile Money" },
+      "permTitle": "Autorisations",
+      "permSub": "Étape facultative",
+      "permLead": "L'application vous demande quatre accès. Vous pouvez dire non : elle marchera quand même, avec moins de services.",
+      "perm": {
+        "geo": "Position", "geoWhy": "Pour mesurer vos parcelles et donner la météo de votre village.",
+        "camera": "Appareil photo", "cameraWhy": "Pour photographier une feuille malade ou votre récolte.",
+        "mic": "Micro", "micWhy": "Pour poser vos questions à voix haute.",
+        "notif": "Notifications", "notifWhy": "Pour recevoir les alertes pluie et ravageurs."
+      },
+      "allow": "Autoriser",
+      "allowNamed": "Autoriser : {{name}}",
+      "state": { "ok": "Autorisé", "no": "Refusé", "none": "Absent du téléphone" },
+      "permLater": "Vous pourrez changer d'avis plus tard dans les réglages du téléphone.",
+      "allowAll": "Tout autoriser, un par un",
+      "later": "Plus tard",
+      "finish": "Continuer"
+    }
+  }
+}
