@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T00:00:00Z",
+  "title": "Design System: Agri-Digit Bénin",
+  "extensions": {
+    "colorMeta": {
+      "canopy": {
+        "role": "primary",
+        "displayName": "Canopée",
+        "canonical": "#0E2F1C",
+        "tonalRamp": [
+          "#123B23",
+          "#1F683E",
+          "#2C9559",
+          "#3AC273",
+          "#65D193",
+          "#92DEB2",
+          "#BEECD2",
+          "#EBF9F1"
+        ]
+      },
+      "canopy-deep": {
+        "role": "primary",
+        "displayName": "Canopée profonde",
+        "canonical": "#0A2415",
+        "tonalRamp": [
+          "#113C23",
+          "#1D693E",
+          "#2A9758",
+          "#37C573",
+          "#62D392",
+          "#90E0B2",
+          "#BDEDD1",
+          "#EBF9F1"
+        ]
+      },
+      "canopy-2": {
+        "role": "primary",
+        "displayName": "Canopée claire",
+        "canonical": "#12391F",
+        "tonalRamp": [
+          "#123A20",
+          "#206638",
+          "#2E9350",
+          "#3CBF68",
+          "#67CF89",
+          "#93DDAC",
+          "#BFEBCE",
+          "#ECF9F0"
+        ]
+      },
+      "leaf": {
+        "role": "primary",
+        "displayName": "Feuille",
+        "canonical": "#1F5A32",
+        "tonalRamp": [
+          "#143920",
+          "#236438",
+          "#319050",
+          "#40BB68",
+          "#6ACC89",
+          "#95DBAC",
+          "#C1EACE",
+          "#ECF8F0"
+        ]
+      },
+      "leaf-hover": {
+        "role": "primary",
+        "displayName": "Feuille au survol",
+        "canonical": "#276B3D",
+        "tonalRamp": [
+          "#143820",
+          "#246338",
+          "#348D51",
+          "#43B869",
+          "#6CC98A",
+          "#97D9AC",
+          "#C2E9CE",
+          "#ECF8F0"
+        ]
+      },
+      "maize": {
+        "role": "primary",
+        "displayName": "Jeune maïs",
+        "canonical": "#6FA83A",
+        "tonalRamp": [
+          "#263914",
+          "#426423",
+          "#5F9032",
+          "#7BBB41",
+          "#99CC6A",
+          "#B7DB95",
+          "#D4E9C1",
+          "#F2F8EC"
+        ]
+      },
+      "maize-hover": {
+        "role": "primary",
+        "displayName": "Jeune maïs au survol",
+        "canonical": "#82BC4A",
+        "tonalRamp": [
+          "#263815",
+          "#436224",
+          "#608D34",
+          "#7DB744",
+          "#9AC96D",
+          "#B7D997",
+          "#D5E8C2",
+          "#F2F8EC"
+        ]
+      },
+      "sun": {
+        "role": "secondary",
+        "displayName": "Soleil de récolte",
+        "canonical": "#F3C54A",
+        "tonalRamp": [
+          "#483605",
+          "#7E5E08",
+          "#B5870C",
+          "#ECB010",
+          "#F3C343",
+          "#F6D47A",
+          "#FAE6B0",
+          "#FDF7E7"
+        ]
+      },
+      "laterite": {
+        "role": "tertiary",
+        "displayName": "Latérite",
+        "canonical": "#B4532D",
+        "tonalRamp": [
+          "#3D1C0F",
+          "#6C321B",
+          "#9A4727",
+          "#C95D32",
+          "#D7815F",
+          "#E3A58D",
+          "#EECABC",
+          "#FAEFEB"
+        ]
+      },
+      "rain": {
+        "role": "neutral",
+        "displayName": "Lumière après la pluie",
+        "canonical": "#E8F1DF",
+        "tonalRamp": [
+          "#263517",
+          "#435E29",
+          "#61863B",
+          "#7EAF4D",
+          "#9BC274",
+          "#B8D49C",
+          "#D5E6C5",
+          "#F2F7ED"
+        ]
+      },
+      "rain-2": {
+        "role": "neutral",
+        "displayName": "Lumière après la pluie, ombrée",
+        "canonical": "#DCE9D0",
+        "tonalRamp": [
+          "#263418",
+          "#425C2B",
+          "#5F843E",
+          "#7CAB50",
+          "#99BF77",
+          "#B7D29E",
+          "#D4E4C6",
+          "#F2F7EE"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre canopée",
+        "canonical": "#0E2F1C",
+        "tonalRamp": [
+          "#123B23",
+          "#1F683E",
+          "#2C9559",
+          "#3AC273",
+          "#65D193",
+          "#92DEB2",
+          "#BEECD2",
+          "#EBF9F1"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Encre secondaire",
+        "canonical": "#33513C",
+        "tonalRamp": [
+          "#1E2F23",
+          "#34533D",
+          "#4B7658",
+          "#619A72",
+          "#84B292",
+          "#A8C8B2",
+          "#CCDFD1",
+          "#EFF5F1"
+        ]
+      },
+      "on-dark": {
+        "role": "neutral",
+        "displayName": "Texte sur sombre",
+        "canonical": "#F1F6EC",
+        "tonalRamp": [
+          "#263419",
+          "#435B2B",
+          "#61833E",
+          "#7EAB51",
+          "#9BBF77",
+          "#B8D19F",
+          "#D5E4C6",
+          "#F2F7EE"
+        ]
+      },
+      "on-dark-2": {
+        "role": "neutral",
+        "displayName": "Texte secondaire sur sombre",
+        "canonical": "#C3D6B9",
+        "tonalRamp": [
+          "#23301C",
+          "#3E5532",
+          "#597A47",
+          "#739F5D",
+          "#93B581",
+          "#B2CBA5",
+          "#D2E0CA",
+          "#F1F6EF"
+        ]
+      },
+      "app-bg": {
+        "role": "neutral",
+        "displayName": "Fond d'application",
+        "canonical": "#F3F7EE",
+        "tonalRamp": [
+          "#283418",
+          "#465C2B",
+          "#64833E",
+          "#83AB50",
+          "#9FBF77",
+          "#BBD29E",
+          "#D7E4C6",
+          "#F3F7EE"
+        ]
+      },
+      "app-ink": {
+        "role": "neutral",
+        "displayName": "Encre d'application",
+        "canonical": "#13261A",
+        "tonalRamp": [
+          "#193323",
+          "#2D5A3D",
+          "#408158",
+          "#54A873",
+          "#79BC92",
+          "#A0D0B2",
+          "#C7E3D1",
+          "#EEF7F1"
+        ]
+      },
+      "app-ink-2": {
+        "role": "neutral",
+        "displayName": "Encre secondaire d'application",
+        "canonical": "#4A5E4F",
+        "tonalRamp": [
+          "#222B24",
+          "#3B4B3F",
+          "#556C5B",
+          "#6F8D76",
+          "#8FA795",
+          "#B0C0B4",
+          "#D0DAD3",
+          "#F1F4F1"
+        ]
+      },
+      "app-line": {
+        "role": "neutral",
+        "displayName": "Filet d'application",
+        "canonical": "#DCE6D3",
+        "tonalRamp": [
+          "#26311C",
+          "#425631",
+          "#5F7B46",
+          "#7CA05B",
+          "#99B67F",
+          "#B7CCA4",
+          "#D5E1CA",
+          "#F2F6EF"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titre du héros, révélé ligne par ligne."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Titres de section et de chapitre."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Titres de panneau, définitions, questions de FAQ."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Chapeau sous un titre, max 60ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Paragraphes, Atkinson Hyperlegible Next."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Étiquettes Démonstration / Simulé."
+      },
+      "app": {
+        "displayName": "App (Figtree)",
+        "purpose": "Texte du téléphone simulé uniquement."
+      },
+      "lcd": {
+        "displayName": "LCD (VT323)",
+        "purpose": "Écran du téléphone simple (USSD/SMS) uniquement."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel-float",
+        "value": "0 30px 70px -40px rgba(0,0,0,.8)",
+        "purpose": "Panneaux de chapitre posés sur le champ."
+      },
+      {
+        "name": "console",
+        "value": "0 50px 90px -50px rgba(14,47,28,.9), 0 0 0 1px rgba(14,47,28,.9)",
+        "purpose": "Console institutionnelle sur fond clair."
+      },
+      {
+        "name": "drawer",
+        "value": "0 24px 60px -20px rgba(0,0,0,.7)",
+        "purpose": "Tiroir de navigation mobile."
+      },
+      {
+        "name": "toast",
+        "value": "0 18px 40px -16px rgba(0,0,0,.6)",
+        "purpose": "Toast de langue."
+      },
+      {
+        "name": "button-light",
+        "value": "0 10px 26px -14px rgba(31,90,50,.9)",
+        "purpose": "Bouton principal sur fond clair."
+      },
+      {
+        "name": "node",
+        "value": "0 1px 0 rgba(14,47,28,.08), 0 10px 24px -18px rgba(14,47,28,.5)",
+        "purpose": "Cartes blanches X-Road."
+      },
+      {
+        "name": "device",
+        "value": "0 34px 60px -24px rgba(6,22,12,.6), 0 14px 26px -14px rgba(6,22,12,.45), inset 0 0 0 1.5px #4a504b, inset 0 0 0 3px #0a0b0a",
+        "purpose": "Coque du téléphone simulé."
+      },
+      {
+        "name": "app-card",
+        "value": "0 1px 2px rgba(19,38,26,.06), 0 4px 12px -6px rgba(19,38,26,.12)",
+        "purpose": "Cartes dans l'écran du téléphone."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-page",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Toutes les transitions de la page."
+      },
+      {
+        "name": "ease-phone",
+        "value": "cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Transitions internes du téléphone simulé."
+      },
+      {
+        "name": "dawn",
+        "value": "1.4s",
+        "purpose": "Voile d'aube qui se lève sur le champ à l'ouverture."
+      },
+      {
+        "name": "line-up",
+        "value": ".8s, décalage .1s par ligne",
+        "purpose": "Révélation des lignes du titre."
+      },
+      {
+        "name": "phone-rise",
+        "value": "1s (délai .5s), allumage 1s (délai 1s)",
+        "purpose": "Le téléphone monte puis s'allume."
+      },
+      {
+        "name": "sillons-draw",
+        "value": "1.6s, décalage .07s par trait",
+        "purpose": "Tracé des sillons à l'apparition."
+      },
+      {
+        "name": "reduced",
+        "value": "0.01ms",
+        "purpose": "Mouvement réduit (système ou html.reduce) : tout figé, champ rendu une fois, téléphone en pause."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "console",
+        "value": "1100px"
+      },
+      {
+        "name": "nav",
+        "value": "960px"
+      },
+      {
+        "name": "phone-top",
+        "value": "820px"
+      },
+      {
+        "name": "narrow",
+        "value": "520px"
+      },
+      {
+        "name": "tiny",
+        "value": "360px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal (sombre)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale sur canopée ou sur le champ.",
+      "html": "<div style=\"background:#0E2F1C;padding:16px\"><button class=\"ds-btn-primary\">Créer mon compte producteur</button></div>",
+      "css": ".ds-btn-primary{min-height:48px;padding:.7em 1.35em;border-radius:999px;border:1.5px solid transparent;background:#6FA83A;color:#0E2F1C;font:700 1rem \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1)}.ds-btn-primary:hover{background:#82BC4A}.ds-btn-primary:active{transform:translateY(1px) scale(.985)}.ds-btn-primary:focus-visible{outline:3px solid #F3C54A;outline-offset:3px}"
+    },
+    {
+      "name": "Bouton fantôme (sombre)",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Action secondaire sur canopée.",
+      "html": "<div style=\"background:#0E2F1C;padding:16px\"><button class=\"ds-btn-ghost\">Voir la démonstration</button></div>",
+      "css": ".ds-btn-ghost{min-height:48px;padding:.7em 1.35em;border-radius:999px;border:1.5px solid rgba(241,246,236,.55);background:rgba(14,47,28,.35);color:#F1F6EC;font:700 1rem \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,border-color .2s}.ds-btn-ghost:hover{border-color:#F1F6EC;background:rgba(14,47,28,.6)}.ds-btn-ghost:focus-visible{outline:3px solid #F3C54A;outline-offset:3px}"
+    },
+    {
+      "name": "Bouton principal (clair)",
+      "kind": "button",
+      "refersTo": "button-primary-light",
+      "description": "Action principale sur lumière après la pluie.",
+      "html": "<div style=\"background:#E8F1DF;padding:16px\"><button class=\"ds-btn-light\">Créer mon compte</button></div>",
+      "css": ".ds-btn-light{min-height:48px;padding:.7em 1.35em;border-radius:999px;border:0;background:#1F5A32;color:#fff;box-shadow:0 10px 26px -14px rgba(31,90,50,.9);font:700 1rem \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s}.ds-btn-light:hover{background:#276B3D}.ds-btn-light:focus-visible{outline:3px solid #1F5A32;outline-offset:3px}"
+    },
+    {
+      "name": "Étiquettes Démonstration / Simulé",
+      "kind": "chip",
+      "refersTo": "tag-demo",
+      "description": "Honnêteté des données : POC en soleil, fictif en latérite.",
+      "html": "<div style=\"background:#0E2F1C;padding:16px;display:flex;gap:8px\"><span class=\"ds-tag ds-tag-demo\">Démonstration</span><span class=\"ds-tag ds-tag-sim\">Simulé</span></div>",
+      "css": ".ds-tag{display:inline-flex;padding:3px 10px;border-radius:999px;font:700 .78rem \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif;letter-spacing:.02em}.ds-tag-demo{background:rgba(243,197,74,.16);color:#F3C54A;border:1px solid rgba(243,197,74,.4)}.ds-tag-sim{background:rgba(180,83,45,.2);color:#F2B79B;border:1px solid rgba(180,83,45,.55)}"
+    },
+    {
+      "name": "Sélecteur de langue",
+      "kind": "input",
+      "refersTo": "lang-select",
+      "description": "Bascule de langue ; hors français, toast de validation.",
+      "html": "<div style=\"background:#0E2F1C;padding:16px\"><select class=\"ds-lang\"><option>Français</option><option>Fon</option></select></div>",
+      "css": ".ds-lang{appearance:none;min-height:44px;padding:0 30px 0 14px;border-radius:10px;border:1px solid rgba(195,214,185,.22);background:rgba(14,47,28,.4);color:#F1F6EC;font:600 .93rem \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif;cursor:pointer}.ds-lang:hover{border-color:#C3D6B9}.ds-lang:focus-visible{outline:3px solid #F3C54A;outline-offset:3px}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "description": "En-tête solide après défilement : verre canopée, filet, liens 44px.",
+      "html": "<nav class=\"ds-nav\"><strong>Agri-Digit Bénin</strong><a href=\"#\">Producteurs</a><a href=\"#\">État</a><a href=\"#\">Filières</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;height:64px;padding:0 24px;background:rgba(10,36,21,.82);backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 1px 0 rgba(195,214,185,.22);color:#F1F6EC;font-family:\"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif}.ds-nav strong{font:700 1.12rem \"Bricolage Grotesque\",sans-serif;margin-right:auto}.ds-nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;color:inherit;text-decoration:none;font-weight:600}.ds-nav a:hover{background:rgba(241,246,236,.08)}.ds-nav a:focus-visible{outline:3px solid #F3C54A;outline-offset:3px}"
+    },
+    {
+      "name": "Panneau de chapitre",
+      "kind": "card",
+      "refersTo": "chapter-panel",
+      "description": "Verre canopée posé sur le champ 3D.",
+      "html": "<div style=\"background:#4A5A78;padding:24px\"><div class=\"ds-chapter\"><h2>L'alerte pluie arrive avant la pluie.</h2><p>Prévision locale et alerte sur le téléphone.</p></div></div>",
+      "css": ".ds-chapter{max-width:560px;padding:28px;border-radius:22px;background:rgba(10,36,21,.74);border:1px solid rgba(195,214,185,.14);box-shadow:0 30px 70px -40px rgba(0,0,0,.8);backdrop-filter:blur(6px);color:#F1F6EC;font:400 1.0625rem/1.6 \"Atkinson Hyperlegible Next\",\"Segoe UI\",sans-serif}.ds-chapter h2{margin:0;font:700 2rem/1.04 \"Bricolage Grotesque\",sans-serif;letter-spacing:-.025em}.ds-chapter p{margin:18px 0 0}"
+    },
+    {
+      "name": "Sillons",
+      "kind": "custom",
+      "description": "Transition entre sections : faisceau de courbes parallèles tracées.",
+      "html": "<svg class=\"ds-sillons\" viewBox=\"0 0 1440 120\" preserveAspectRatio=\"none\"><path d=\"M0 20 C 360 -10, 1080 50, 1440 18\"/><path d=\"M0 34 C 360 4, 1080 64, 1440 32\"/><path d=\"M0 48 C 360 18, 1080 78, 1440 46\"/><path d=\"M0 62 C 360 32, 1080 92, 1440 60\"/><path d=\"M0 76 C 360 46, 1080 106, 1440 74\"/><path d=\"M0 90 C 360 60, 1080 120, 1440 88\"/><path d=\"M0 104 C 360 74, 1080 134, 1440 102\"/></svg>",
+      "css": ".ds-sillons{display:block;width:100%;height:110px;background:linear-gradient(to bottom,rgba(232,241,223,0),#E8F1DF 78%),#0E2F1C}.ds-sillons path{fill:none;stroke:#1F5A32;opacity:.55;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linecap:round}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le champ et la preuve",
+    "overview": "On se tient dans un champ de maïs vivant, rendu en 3D temps réel, et le téléphone du producteur, debout dans le champ, montre la plateforme au travail. La page alterne la nature (le champ qui pousse, la lumière qui passe du matin à l'or au fil du défilement) et la preuve (l'écran simulé qui agit). Le vert est engagé à l'échelle de la page, jamais un simple accent : sections sombres en canopée, sections claires en lumière après la pluie.\n\nLa densité est calme et lisible : une colonne de texte à gauche, le téléphone épinglé à droite, des panneaux de chapitre translucides posés sur le champ. Les données sont toujours étiquetées honnêtement (« démonstration », « simulé », « écran simulé »). Les transitions entre sections sont des sillons : des courbes parallèles, comme des rangs vus du ciel, qui se tracent à l'apparition.",
+    "keyCharacteristics": [
+      "Vert à l'échelle de la page : canopée sombre et lumière claire alternent par section.",
+      "Champ de maïs 3D plein écran en fond fixe, piloté par le défilement (croissance et lumière), avec photo de repli.",
+      "Téléphone simulé épinglé, qui change d'écran à chaque chapitre puis devient un téléphone simple (USSD/SMS).",
+      "Sillons courbes comme filets et transitions.",
+      "Soleil de récolte réservé aux données, repères et focus ; latérite minoritaire (sol, alertes, simulation).",
+      "Polices auto-hébergées, texte en Atkinson Hyperlegible Next."
+    ],
+    "rules": [
+      {
+        "name": "The Sun Is Data Rule",
+        "body": "Le jaune soleil marque une donnée, un repère ou un focus. Il ne colore ni un fond de section, ni un titre, ni un bouton.",
+        "section": "colors"
+      },
+      {
+        "name": "The Honest Label Rule",
+        "body": "Tout chiffre du POC porte « Démonstration » (soleil) ; tout écran ou calcul fictif porte « Simulé » / « écran simulé » (latérite ou badge vert dans le téléphone).",
+        "section": "colors"
+      },
+      {
+        "name": "The Lining Figures Rule",
+        "body": "Chiffres alignés partout ; chiffres tabulaires (`.num`, `tabular-nums`) pour toute valeur comparée : prix, surfaces, pourcentages, heures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Still Field Rule",
+        "body": "En mouvement réduit (préférence système ou bouton du pied de page, classe `html.reduce`) : animations et transitions ramenées à 0.01ms, un seul rendu figé du champ, téléphone en pause, balayage masqué. Le bouton de mouvement du pied de page est obligatoire.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do alterner sections canopée et sections lumière après la pluie, reliées par des sillons.",
+      "Do réserver le soleil (#F3C54A) aux données, repères et focus.",
+      "Do étiqueter tout chiffre du POC « Démonstration » et tout écran fictif « Simulé ».",
+      "Do garder des cibles tactiles d'au moins 44px et un anneau de focus 3px visible.",
+      "Do fournir une image fixe et un mode mouvement réduit pour le champ 3D et le téléphone.",
+      "Do séparer les listes par des filets de 1px plutôt que par des cartes."
+    ],
+    "donts": [
+      "Don't traiter le vert comme un simple accent sur fond blanc ou gris.",
+      "Don't reprendre le schéma photo + mot en jaune + rangée de chiffres + grille de cartes identiques.",
+      "Don't utiliser la latérite comme couleur dominante d'une section.",
+      "Don't inventer de traduction fon, bariba ou autre : montrer la bascule et la mention de validation.",
+      "Don't utiliser Figtree ou VT323 hors du téléphone simulé."
+    ]
+  }
+}

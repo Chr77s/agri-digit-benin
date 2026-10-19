@@ -15,3 +15,5 @@ backend/data/poc/maize_tiles/
 playwright-report/
 test-results/
 *.log
+# captures de revue des maquettes (régénérables)
+.impeccable/review/
