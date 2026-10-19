@@ -3,6 +3,17 @@
     "back": "Retour : {{page}}",
     "tabs": "Navigation principale",
     "tab": { "home": "Accueil", "advice": "Conseil", "photo": "Photo", "market": "Marché", "parcels": "Parcelles" },
+    "home": {
+      "wxWhere": "{{place}}",
+      "offline": "Hors ligne",
+      "offlinePending_one": "{{count}} saisie sera envoyée au retour du réseau.",
+      "offlinePending_other": "{{count}} saisies seront envoyées au retour du réseau.",
+      "offlineNone": "Les pages déjà ouvertes restent lisibles.",
+      "see": "Voir",
+      "pendingTitle": "En attente d'envoi",
+      "waiting": "En attente",
+      "tile": { "supports": "Mes appuis", "coop": "Coopérative", "card": "Ma carte", "prices": "Prix" }
+    },
     "fl": {
       "screen": "Écran {{n}} sur {{total}}",
       "langTitle": "Choisissez votre langue",

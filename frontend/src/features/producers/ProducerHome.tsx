@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton, buttonCls, fmtDate, fmtNum, type IconName } from '../../shared/ui';
+import { Alert, Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
-import type { Campaign } from '../../shared/api/types';
+import type { Campaign, Notification } from '../../shared/api/types';
+import { useOfflineStatus } from '../outbox/offlineQueue';
 import { useAuth } from '../auth/AuthContext';
 import { useCampaigns, useParcels } from '../parcels/api';
 import { useNotifications } from '../alerts/api';
@@ -30,6 +31,15 @@ export function ProducerHome() {
   const where = [place(user?.commune), place(user?.department)].filter(Boolean).join(', ');
   const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const alert = (notes.data ?? []).find((n) => !(n.is_read ?? n.read_at));
+  const mobile = useIsMobile();
+
+  if (mobile) {
+    return (
+      <MobileHome firstName={firstName} place={place(user?.commune) || where} commune={user?.commune ?? ''} where={where}
+        alert={alert}
+        campaigns={campaigns} parcels={parcels} />
+    );
+  }
 
   return (
     <>
@@ -80,6 +90,103 @@ export function ProducerHome() {
         </div>
       </div>
     </>
+  );
+}
+
+/* ---------- Accueil sous 640 px (maquettes/mobile : accueil, accueil-hors-ligne) ---------- */
+const TILES: { to: string; icon: IconName; key: string }[] = [
+  { to: '/appuis', icon: 'gift', key: 'supports' }, { to: '/mes-cooperatives', icon: 'users', key: 'coop' },
+  { to: '/ma-carte', icon: 'id-card', key: 'card' }, { to: '/meteo-prix', icon: 'coins', key: 'prices' },
+];
+
+function MobileHome({ firstName, place, commune, where, alert, campaigns, parcels }: {
+  firstName: string; place: string; commune: string; where: string; alert?: Notification;
+  campaigns: Q<Campaign[]>; parcels: Q<{ id: string; name: string; area_ha: number; overlap_warning: boolean }[]>;
+}) {
+  const { t } = useTranslation();
+  const vcName = useVcName();
+  const { online, pending } = useOfflineStatus();
+  const [now, ...next] = demoForecast(commune || 'benin', new Date(), 5);
+  const heavy = next.find((d) => d.rainMm >= 30);
+  const c = campaigns.data?.[0];
+  const p = c && parcels.data?.find((x) => x.id === c.parcel);
+  return (
+    <div className="m-home">
+      <section className="m-hero" aria-labelledby="m-hello">
+        <div className="m-hello">
+          <div>
+            <h1 id="m-hello">{t('home.hello', { name: firstName })}</h1>
+            <p><Icon name="map-pin" size="sm" />{where || t('common.notAvailable')}</p>
+          </div>
+          {/* La cloche des messages reste dans l'en-tête compact de la coque, au-dessus. */}
+          {'speechSynthesis' in window && (
+            <button type="button" className="m-hero-btn m-hero-btn--listen" aria-label={t('home.listenBtn')} onClick={() => speak(t('home.listenPage', { name: firstName }))}><Icon name="megaphone" /></button>
+          )}
+        </div>
+        <Link className="m-wx" to="/meteo-prix">
+          <Icon name={now.icon} className="m-wx-ic" />
+          <span className="m-wx-deg num">{now.tmax}°</span>
+          <span className="m-wx-t">
+            <b>{heavy ? t('home.heavyRain', { day: heavy.date.toLocaleDateString('fr-FR', { weekday: 'long' }) }) : t('home.rainToday', { pct: now.rainPct })}</b>
+            {t('mobile.home.wxWhere', { place: place || t('common.notAvailable') })} · {t('weather.simulated')}
+          </span>
+        </Link>
+      </section>
+
+      {!online && (
+        <div className="m-offline" role="status">
+          <Icon name="wifi-off" />
+          <span><b>{t('mobile.home.offline')}</b>{pending.length ? t('mobile.home.offlinePending', { count: pending.length }) : t('mobile.home.offlineNone')}</span>
+          {pending.length > 0 && <Link to="/profil/envoi">{t('mobile.home.see')}</Link>}
+        </div>
+      )}
+
+      <div className="m-home-body">
+        {alert && (
+          <Link className="m-alert" to="/messages">
+            <span className="m-alert-ic"><Icon name="alert" /></span>
+            <span><b>{alert.title ?? t('notifications.message')}</b>{alert.body ?? alert.message}</span>
+            <Icon name="chevron-right" />
+          </Link>
+        )}
+
+        {campaigns.isLoading || parcels.isLoading ? <Skeleton lines={2} />
+          : c && p ? (
+            <Link className="card m-stage" to="/campagnes">
+              <span className="m-row">
+                <span className="m-ico"><Icon name="sprout" /></span>
+                <span className="m-grow"><b>{vcName(c.value_chain)} · {p.name}</b><small className="num">{t('parcels.ha', { n: fmtNum(p.area_ha, 2) })}</small></span>
+                <Icon name="chevron-right" />
+              </span>
+              <StageBar stage={c.stage} />
+            </Link>
+          ) : (
+            <Card><EmptyState icon="parcel" title={t('home.emptyTitle')} action={<Link className={buttonCls()} to="/parcelles"><Icon name="plus" />{t('home.emptyAction')}</Link>}>{t('home.emptyText')}</EmptyState></Card>
+          )}
+
+        {!online && pending.length > 0 && (
+          <section aria-labelledby="m-pending">
+            <h2 className="m-sec" id="m-pending">{t('mobile.home.pendingTitle')}</h2>
+            <ul className="list card">
+              {pending.slice(0, 3).map((w) => (
+                <li key={w.id} className="list-item">
+                  <span className="li-icon"><Icon name="cloud-upload" /></span>
+                  <span className="li-main"><span className="li-title">{w.label}</span><span className="li-meta num">{new Date(w.created_at).toLocaleString('fr-FR')}</span></span>
+                  <Badge tone="wait">{t('mobile.home.waiting')}</Badge>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <TasksCard campaigns={campaigns.data ?? []} parcelName={(id) => parcels.data?.find((x) => x.id === id)?.name ?? ''} />
+        <SupportCard />
+
+        <nav className="m-tiles" aria-label={t('home.shortcuts')}>
+          {TILES.map((s) => <Link key={s.to} className="m-tile" to={s.to}><i><Icon name={s.icon} /></i>{t(`mobile.home.tile.${s.key}`)}</Link>)}
+        </nav>
+      </div>
+    </div>
   );
 }
 
