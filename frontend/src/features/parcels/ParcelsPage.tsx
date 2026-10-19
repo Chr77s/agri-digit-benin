@@ -10,13 +10,16 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Chips, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table, buttonCls, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Button, Chips, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table, buttonCls, fmtNum, useIsMobile } from '../../shared/ui';
 import type { GeoPolygon, Parcel } from '../../shared/api/types';
 import { useVcName } from '../../shared/api/ref';
 import i18n from '../../i18n';
 import { ListenGhost } from '../producers/producerKit';
 import { useCampaigns, useCreateParcel, useParcels } from './api';
 import { ParcelDetail } from './ParcelDetail';
+import { GpsTrace } from './GpsTrace';
+import { fitPoints, ringOf } from './shape';
+import './gps.css';
 
 export const LAND_TYPES = ['pluvial_plateau', 'bas_fond', 'irrigue'] as const;
 export const TENURES = ['propriete', 'location', 'pret', 'coutumier', 'autre'] as const;
@@ -78,11 +81,59 @@ const schema = z.object({
   tenure: z.string().min(1, 'parcels.errTenure'),
 });
 
-/** /parcelles : carte, formulaire et liste ; /parcelles?parcelle=<id> : fiche d'une parcelle. */
+/** /parcelles : carte, formulaire et liste ; /parcelles?parcelle=<id> : fiche d'une parcelle ; /parcelles?tracer=1 : mesure en marchant. */
 export function ParcelsPage() {
   const [params] = useSearchParams();
+  const mobile = useIsMobile();
   const id = params.get('parcelle');
-  return id ? <ParcelDetail id={id} /> : <ParcelsList />;
+  if (params.get('tracer')) return <GpsTrace />;
+  return id ? <ParcelDetail id={id} /> : mobile ? <MobileParcels /> : <ParcelsList />;
+}
+
+/** Vignette du contour d'une parcelle. */
+export function ParcelThumb({ p }: { p: Parcel }) {
+  const xy = fitPoints(ringOf(p.geometry), 56, 56, 6);
+  return <svg className="parcel-thumb" viewBox="0 0 56 56" aria-hidden><path d={xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ') + ' Z'} /></svg>;
+}
+
+/** Sous 640 px (maquette mobile « Mes parcelles ») : une carte par champ, et la mesure en marchant. */
+function MobileParcels() {
+  const { t } = useTranslation();
+  const q = useParcels();
+  const camps = useCampaigns();
+  const vcName = useVcName();
+  const total = (q.data ?? []).reduce((s, p) => s + p.area_ha, 0);
+  return (
+    <>
+      <PageHeader title={t('nav.parcels')} desc={q.data ? t('gps.listSub', { count: q.data.length, area: fmtNum(total, 1) }) : undefined} />
+      <div className="stack" style={{ ['--gap' as string]: '14px' }}>
+        <QueryState q={q} empty={(d) => d.length === 0} emptyText={<div className="card"><EmptyState icon="parcel" title={t('parcels.empty')}>{t('parcels.emptyHelp')}</EmptyState></div>}>
+          {(d) => (
+            <ul className="list card">
+              {d.map((p) => {
+                const c = camps.data?.find((x) => x.parcel === p.id);
+                return (
+                  <li key={p.id}>
+                    <Link className="list-item" to={`/parcelles?parcelle=${p.id}`}>
+                      <ParcelThumb p={p} />
+                      <span className="li-main">
+                        <span className="li-title">{p.name}</span>
+                        <span className="li-meta num">{t('parcels.ha', { n: fmtNum(p.area_ha, 1) })}{c ? ` · ${vcName(c.value_chain)}, ${t(`stage.${c.stage}`).toLowerCase()}` : ''}</span>
+                      </span>
+                      {p.overlap_warning ? <Badge tone="wait">{t('parcels.overlapBadge')}</Badge> : <Badge tone="ok">{t(`parcels.tenure.${p.tenure}`, p.tenure)}</Badge>}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </QueryState>
+        <p className="hint">{t('parcels.previewNote')}</p>
+        <p className="small"><Icon name="map-pin" /> {t('gps.howTo')}</p>
+        <div className="m-cta"><Link className={buttonCls({ block: true })} to="/parcelles?tracer=1"><Icon name="target" />{t('gps.measure')}</Link></div>
+      </div>
+    </>
+  );
 }
 
 function ParcelsList() {
@@ -97,6 +148,7 @@ function ParcelsList() {
           {!!count && <a className={buttonCls({ variant: 'secondary' })} href="#t-liste"><Icon name="list-check" />{t('parcels.seeAll', { count })}</a>}
         </>} />
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
+        <p className="small"><Icon name="map-pin" /> {t('gps.desktopHint')} <Link to="/parcelles?tracer=1">{t('gps.measure')}</Link></p>
         <NewParcel parcels={q.data ?? []} />
         <QueryState q={q} empty={(d) => d.length === 0}
           emptyText={<div className="card"><EmptyState icon="parcel" title={t('parcels.empty')}>{t('parcels.emptyHelp')}</EmptyState></div>}>
