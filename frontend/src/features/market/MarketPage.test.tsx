@@ -77,4 +77,23 @@ describe('Marché', () => {
     expect(screen.queryByText('Petit lot')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '2 annonces' })).toBeInTheDocument();
   });
+
+  it('transformateur propriétaire d’une offre acceptée : demande le paiement, ne paie pas sa propre vente', async () => {
+    auth.user = { id: 'u3', role: 'transformateur', full_name: 'Sika Transfo' };
+    mockFetch((u) => {
+      if (u.includes('/offers')) return { body: { results: [], next: null } };
+      if (u.includes('/matches/mine')) return { body: { results: [{ id: 'm1', offer: 'o1', status: 'acceptee', is_owner: true, counterpart_phone: '0197000042', offer_summary: { type: 'offre', value_chain: 'mais', quantity_kg: 500, price_xof_per_kg: 400, status: 'en_relation' } }], next: null } };
+      return ref(u);
+    });
+    const user = userEvent.setup();
+    page(<MarketPage />);
+    await user.click(screen.getByRole('tab', { name: /Mes mises en relation/ }));
+    const list = await screen.findByRole('list', { name: 'Mes mises en relation' });
+    expect(await within(list).findByRole('button', { name: 'Paiement' })).toBeInTheDocument();
+    expect(within(list).queryByRole('button', { name: 'Payer' })).not.toBeInTheDocument();
+
+    await user.click(within(list).getByRole('button', { name: 'Paiement' }));
+    expect(await screen.findByRole('button', { name: 'Demander le paiement (simulation)' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Payer/ })).not.toBeInTheDocument();
+  });
 });

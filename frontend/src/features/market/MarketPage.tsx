@@ -24,6 +24,8 @@ type Sort = 'price' | 'qty' | 'recent';
 /** Vendeur (producteur, coopérative), acheteur (transformateur, distributeur) ou administrateur (lecture et remboursement). */
 type Mode = 'seller' | 'buyer' | 'admin';
 const modeOf = (role?: string): Mode => (role === 'admin_maep' ? 'admin' : role === 'producteur' || role === 'gestionnaire_cooperative' ? 'seller' : 'buyer');
+// Sur une mise en relation, c'est l'annonce qui dit qui vend (propriétaire d'une offre, ou celui qui répond à une demande), pas le rôle.
+const sellsIn = (m: Match, fallback: boolean) => (m.offer_summary ? m.is_owner === (m.offer_summary.type === 'offre') : fallback);
 
 export function MarketPage() {
   const { t } = useTranslation();
@@ -339,7 +341,7 @@ function MatchesPanel({ seller, onPay }: { seller?: boolean; onPay: (matchId: st
                             onClick={() => decide.mutate({ id: m.id, accept: true }, { onSuccess: () => toast(t('market.accepted')) })}>{t('market.accept')}</Button>
                         </>
                       )}
-                      {m.status === 'acceptee' && <Button variant="secondary" icon="wallet" onClick={() => onPay(m.id)}>{seller ? t('market.tab.payment') : t('market.pay')}</Button>}
+                      {m.status === 'acceptee' && <Button variant="secondary" icon="wallet" onClick={() => onPay(m.id)}>{sellsIn(m, !!seller) ? t('market.tab.payment') : t('market.pay')}</Button>}
                     </div>
                   </li>
                 );
@@ -366,14 +368,16 @@ function PaymentPanel({ mode, match, onMatch, paymentId, onPayment }: { mode: Mo
   );
 }
 
-function PayForm({ seller, match, onMatch, onCreated }: { seller: boolean; match: string; onMatch: (id: string) => void; onCreated: (id: string) => void }) {
+function PayForm({ seller: roleSeller, match, onMatch, onCreated }: { seller: boolean; match: string; onMatch: (id: string) => void; onCreated: (id: string) => void }) {
   const { t } = useTranslation();
   const vcName = useVcName();
   const matches = useMatches();
   const create = useCreatePayment();
   const accepted = (matches.data ?? []).filter((m) => m.status === 'acceptee');
   const selected = match || (accepted.length === 1 ? accepted[0].id : '');
-  const s = accepted.find((m) => m.id === selected)?.offer_summary;
+  const sel = accepted.find((m) => m.id === selected);
+  const s = sel?.offer_summary;
+  const seller = sel ? sellsIn(sel, roleSeller) : roleSeller;
   const [amount, setAmount] = useState<string | null>(null); // null : montant calculé depuis l'annonce
   const [phone, setPhone] = useState('');
   const [errs, setErrs] = useState<Record<string, string>>({});
