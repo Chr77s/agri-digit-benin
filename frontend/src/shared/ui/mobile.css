@@ -53,7 +53,7 @@
   .btn-listen .lb-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Les autres actions d'en-tête passent sous le titre */
   .page-head:has(.page-actions > :not(.btn-listen)) { flex-wrap: wrap; }
-  .page-head:has(.page-actions > :not(.btn-listen)) .page-actions { width: 100%; }
+  .page-head:has(.page-actions > :not(.btn-listen)) .page-actions { width: 100%; flex-wrap: wrap; } /* deux actions longues passent à la ligne au lieu de déborder */
 
   /* ---------- Bouton d'action en bas d'écran ---------- */
   .m-cta { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
