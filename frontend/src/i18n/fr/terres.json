@@ -1,0 +1,181 @@
+{
+  "nav": {
+    "schemes": "Aménagements",
+    "lands": "Sols et terres",
+    "climate": "Risques climatiques"
+  },
+  "sch": {
+    "title": "Aménagements",
+    "desc": "Bas-fonds, périmètres irrigués et plateaux : superficies disponibles, exploitables et exploitées, état, travaux de réhabilitation, nouveaux aménagements et entretien.",
+    "add": "Enregistrer un aménagement",
+    "empty": "Aucun aménagement enregistré",
+    "emptyHelp": "Un agent ou l'administration enregistre les aménagements de la zone.",
+    "kpi": {
+      "count": "Aménagements",
+      "available": "Superficie disponible",
+      "arable": "Superficie exploitable",
+      "used": "Superficie exploitée"
+    },
+    "kind": {
+      "bas_fond": "Bas-fond",
+      "irrigue": "Périmètre irrigué",
+      "plateau": "Plateau"
+    },
+    "status": {
+      "operationnel": "Opérationnel",
+      "projet": "Projet",
+      "a_rehabiliter": "À réhabiliter",
+      "en_travaux": "En travaux"
+    },
+    "areas": "Disponible : {{available}} ha · exploitable : {{arable}} ha · exploitée : {{used}} ha.",
+    "noWorks": "Aucun travaux enregistré sur cet aménagement.",
+    "worksOf": "Travaux de {{name}}",
+    "col": {
+      "works": "Travaux",
+      "state": "État",
+      "progress": "Avancement",
+      "cost": "Coût (FCFA)",
+      "date": "Date"
+    },
+    "type": {
+      "rehabilitation": "Réhabilitation",
+      "nouvel_amenagement": "Nouvel aménagement",
+      "entretien": "Entretien"
+    },
+    "worksStatus": {
+      "planifie": "Planifié",
+      "en_cours": "En cours",
+      "termine": "Terminé",
+      "abandonne": "Abandonné"
+    },
+    "act": {
+      "start": "Démarrer",
+      "finish": "Terminer",
+      "abandon": "Abandonner"
+    },
+    "addWorks": "Ajouter des travaux",
+    "addWorksTitle": "Travaux sur {{name}}",
+    "worksType": "Type de travaux",
+    "worksTitle": "Intitulé",
+    "plannedOn": "Date prévue",
+    "cost": "Coût estimé",
+    "contractor": "Entreprise ou maître d'œuvre",
+    "notes": "Notes",
+    "worksSaved": "Travaux enregistrés.",
+    "saved": "Aménagement enregistré.",
+    "name": "Nom de l'aménagement",
+    "kindLabel": "Type",
+    "statusLabel": "État",
+    "available": "Superficie disponible",
+    "arable": "Superficie exploitable",
+    "used": "Superficie exploitée",
+    "errName": "Indiquez le nom de l'aménagement.",
+    "errDepartment": "Choisissez le département.",
+    "errArea": "La superficie disponible doit être supérieure à zéro.",
+    "errOrder": "Il faut : exploitée ≤ exploitable ≤ disponible.",
+    "errTitle": "Indiquez l'intitulé des travaux."
+  },
+  "land": {
+    "title": "Sols et terres",
+    "desc": "Comment les terres sont utilisées, et ce que disent les analyses de sol de chaque parcelle.",
+    "tab": {
+      "use": "Utilisation des terres",
+      "mine": "Mes terres",
+      "soil": "Analyses de sol"
+    },
+    "season": "Campagne",
+    "noSeason": "Aucune campagne",
+    "emptyUse": "Aucune parcelle enregistrée",
+    "emptyUseHelp": "Les superficies apparaissent dès que des parcelles sont tracées.",
+    "useParcels": "Parcelles des producteurs",
+    "useSchemes": "Aménagements",
+    "landType": "Type de terrain",
+    "type": {
+      "pluvial_plateau": "Plateau pluvial",
+      "bas_fond": "Bas-fond",
+      "irrigue": "Irrigué"
+    },
+    "count": "Nombre",
+    "available": "Disponible (ha)",
+    "arable": "Exploitable (ha)",
+    "used": "Exploitée (ha)",
+    "rate": "Taux d'exploitation",
+    "useHelp": "Disponible : superficie mesurée sur le tracé. Exploitable : déclarée par le producteur, sinon toute la surface. Exploitée : exploitable des parcelles qui portent une campagne de la saison choisie.",
+    "noParcels": "Aucune parcelle",
+    "noParcelsHelp": "Tracez une parcelle pour déclarer sa superficie exploitable.",
+    "measured": "Superficie mesurée : {{n}} ha.",
+    "arableDeclared": "Superficie exploitable",
+    "arableHint": "Ce qui peut vraiment être cultivé. Laissez vide pour toute la surface.",
+    "arableSaved": "Superficie exploitable enregistrée.",
+    "noSoil": "Aucune analyse de sol",
+    "noSoilHelp": "Un agent enregistre le résultat d'une analyse de sol pour votre parcelle ; vous le lisez ici avec ses conseils.",
+    "soilOf": "Sol de {{parcel}}",
+    "values": "pH {{ph}} · matière organique {{om}} % · phosphore {{p}} ppm · texture {{texture}}",
+    "texture": {
+      "sableux": "sableuse",
+      "limoneux": "limoneuse",
+      "argileux": "argileuse",
+      "equilibre": "équilibrée"
+    },
+    "level": {
+      "ok": "Correct",
+      "attention": "À surveiller",
+      "alerte": "À corriger"
+    },
+    "soilSummary": "Analyses par département",
+    "analyses": "Analyses",
+    "phMean": "pH moyen",
+    "acidShare": "Sols acides",
+    "lowOrganic": "Matière organique faible",
+    "lowPhosphorus": "Phosphore faible",
+    "addSoil": "Enregistrer une analyse de sol",
+    "parcel": "Parcelle",
+    "sampledOn": "Date du prélèvement",
+    "lab": "Laboratoire",
+    "ph": "pH (eau)",
+    "om": "Matière organique (%)",
+    "p": "Phosphore assimilable (ppm)",
+    "textureLabel": "Texture",
+    "saveSoil": "Enregistrer l'analyse",
+    "soilSaved": "Analyse enregistrée.",
+    "errParcel": "Choisissez la parcelle.",
+    "errPh": "Le pH doit être compris entre 3 et 10.",
+    "errOm": "Indiquez la matière organique."
+  },
+  "clim": {
+    "title": "Risques climatiques",
+    "desc": "Stress hydrique, sécheresse et inondation de vos parcelles, d'après la pluie des 14 derniers jours et la prévision.",
+    "level": {
+      "faible": "Faible",
+      "moyen": "Moyen",
+      "eleve": "Élevé"
+    },
+    "kind": {
+      "stress_hydrique": "Stress hydrique",
+      "secheresse": "Sécheresse",
+      "inondation": "Inondation"
+    },
+    "detail": {
+      "stress": "{{rain}} mm de pluie pour {{need}} mm de besoin de la culture sur 14 jours.",
+      "dry": "{{days}} jours de suite sans pluie utile.",
+      "flood": "Jusqu'à {{mm}} mm attendus en 3 jours."
+    },
+    "stage": {
+      "semis": "semis",
+      "croissance": "croissance",
+      "floraison": "floraison",
+      "recolte": "récolte"
+    },
+    "adviceTitle": "À faire",
+    "simulated": "Données simulées",
+    "real": "Open-Meteo",
+    "empty": "Aucune parcelle à évaluer",
+    "emptyHelp": "Tracez une parcelle pour voir ses risques climatiques.",
+    "byProducer": "Parcelles d'un producteur",
+    "byDepartment": "Risques par département",
+    "parcels_one": "{{count}} parcelle enregistrée",
+    "parcels_other": "{{count}} parcelles enregistrées",
+    "departmentHelp": "Évaluation au centre du département, pour une culture en croissance sur plateau : elle situe la région, pas chaque parcelle.",
+    "method": "Les niveaux viennent d'un bilan hydrique simple (pluie reçue contre besoin de la culture, jours secs de suite, cumul de pluie prévu en 3 jours). Les seuils sont des repères généraux, à valider par l'INRAB ; ils ne remplacent pas l'avis de l'agent ATDA."
+  }
+}

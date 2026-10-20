@@ -26,6 +26,7 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 | `apps/market` | Offres, mise en relation, paiement FakePay | 21 |
 | `apps/satellite` | NDVI et humidité de démonstration | 23 |
 | `apps/interop` | Agrégats pseudonymisés pour X-Road, SONAMA, FNDA | 24 |
+| `apps/lands` | Aménagements et travaux (réhabilitation, nouvel aménagement, entretien), analyses de sol et leur lecture, utilisation des terres (disponible, exploitable, exploitée), risques climatiques (`climate`) | |
 | `apps/ussd` | Téléphone simple : menus USSD sans état (météo, prix, conseil, appuis, langue) et commandes SMS | |
 | `apps/core` | Erreurs, pagination, permissions, périmètre | |
 | `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad`, `market_data` (météo et prix de démonstration partagés avec l'USSD) | |

@@ -77,8 +77,12 @@ const ContestsPage = lazy(() => import('../features/contests/ContestsPage').then
 const RepaymentsPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RepaymentsPage })));
 const RecoveryPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RecoveryPage })));
 const RevenuePage = lazy(() => import('../features/revenue/RevenuePage').then((m) => ({ default: m.RevenuePage })));
+const SchemesPage = lazy(() => import('../features/lands/SchemesPage').then((m) => ({ default: m.SchemesPage })));
+const LandsPage = lazy(() => import('../features/lands/LandsPage').then((m) => ({ default: m.LandsPage })));
+const ClimatePage = lazy(() => import('../features/lands/ClimatePage').then((m) => ({ default: m.ClimatePage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
+const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
 
 export function App() {
@@ -141,6 +145,9 @@ export function App() {
         <Route path="/remboursements" element={<Guard roles={['producteur', 'transformateur']}><RepaymentsPage /></Guard>} />
         <Route path="/recouvrement" element={<Guard roles={['agent_financier', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><RecoveryPage /></Guard>} />
         <Route path="/revenu" element={<Guard roles={['producteur']}><RevenuePage /></Guard>} />
+        <Route path="/amenagements" element={<Guard roles={LAND}><SchemesPage /></Guard>} />
+        <Route path="/sols" element={<Guard roles={LAND}><LandsPage /></Guard>} />
+        <Route path="/risques-climatiques" element={<Guard roles={LAND}><ClimatePage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

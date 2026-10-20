@@ -50,7 +50,7 @@ export type Tenure = 'propriete' | 'location' | 'pret' | 'coutumier' | 'autre';
 export interface GeoPolygon { type: 'Polygon'; coordinates: number[][][] }
 export interface Parcel {
   id: string; producer?: string; name: string; geometry: GeoPolygon; land_type: LandType; tenure: Tenure;
-  area_ha: number; overlap_warning: boolean; overlap_with: string[];
+  area_ha: number; arable_ha?: number | null; overlap_warning: boolean; overlap_with: string[];
 }
 export interface ParcelCreate { producer?: string; name: string; geometry: GeoPolygon; land_type: LandType; tenure: Tenure }
 export type Stage = 'semis' | 'croissance' | 'floraison' | 'recolte';
@@ -156,3 +156,17 @@ export interface SatelliteRow { department: string; commune: string | null; ndvi
 export interface SatelliteData { source: string; results: SatelliteRow[] }
 export interface SeaIndicator extends Indicator { breakdown?: { label: string; value: number | null }[] }
 export interface SeaDashboard { scope: Dashboard['scope']; indicators: SeaIndicator[] }
+export interface Works { id: string; scheme: string; type: 'rehabilitation' | 'nouvel_amenagement' | 'entretien'; title: string; status: 'planifie' | 'en_cours' | 'termine' | 'abandonne'; planned_on: string | null; started_on: string | null; finished_on: string | null; cost_xof: number | null; contractor: string; progress_pct: number; notes: string; created_at: string }
+export interface Scheme { id: string; name: string; kind: 'bas_fond' | 'irrigue' | 'plateau'; department: string; commune: string; lat: number | null; lon: number | null; area_available_ha: number; area_arable_ha: number; area_used_ha: number; status: 'projet' | 'operationnel' | 'a_rehabiliter' | 'en_travaux'; works: Works[]; created_at: string }
+export interface SoilFinding { code: string; level: 'ok' | 'attention' | 'alerte'; text: string }
+export interface SoilAnalysis { id: string; parcel: string; parcel_name: string; sampled_on: string; laboratory: string; ph: number; organic_matter_pct: number; phosphorus_ppm: number | null; texture: string; findings: SoilFinding[]; reference: string }
+export interface SoilSummary { department: string; analyses: number; ph_mean: number; acid_share: number; low_organic_share: number; low_phosphorus_share: number | null }
+export interface LandUseRow { department: string; land_type: string; count: number; available_ha: number; arable_ha: number; used_ha: number }
+export interface LandUse { season: string | null; seasons: string[]; parcels: LandUseRow[]; schemes: { kind: string; count: number; available_ha: number; arable_ha: number; used_ha: number }[] }
+export type RiskLevel = 'faible' | 'moyen' | 'eleve';
+export interface ClimateRisks {
+  stage: string; land_type: string; source: string; simulated: boolean; advice: string[];
+  risks: { stress_hydrique: { level: RiskLevel; coverage: number; rain_mm: number; need_mm: number }; secheresse: { level: RiskLevel; dry_days: number; rain_next_3d_mm: number }; inondation: { level: RiskLevel; max_3d_mm: number } };
+}
+export interface ParcelClimate extends ClimateRisks { parcel: string; name: string; value_chain: string | null; updated_at: string }
+export interface DepartmentClimate extends ClimateRisks { department: string; parcels: number; lowland_parcels: number }

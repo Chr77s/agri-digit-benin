@@ -49,3 +49,15 @@ Limites : aucune calibration sur des remboursements réels ; peu de données pou
 ## 4. Évolution
 
 Calibration sur données réelles avec scikit-learn seulement après AIPD finale (art. 428), en gardant un modèle explicable (régression logistique) et un suivi des écarts par département et par sexe.
+
+## 5. Risques climatiques et lecture des analyses de sol
+
+Deux modèles **à règles**, sans apprentissage : leurs seuils sont des repères agronomiques généraux, **non validés**. Ils doivent être relus par l'INRAB avant tout usage opérationnel.
+
+- Risques climatiques (`apps/lands/climate.py`). Données : pluie et évapotranspiration de référence (ET0) des 14 derniers jours et prévision de 7 jours, Open-Meteo, au centre de la parcelle ; sans réseau, pluie de démonstration et ET0 fixe de 4,5 mm/jour, signalées `simulated`.
+  - Stress hydrique : pluie reçue ÷ (coefficient cultural du stade × ET0 cumulée). Coefficients : semis 0,4 ; croissance 0,8 ; floraison 1,15 ; récolte 0,6. Moins de 0,4 : élevé ; moins de 0,7 : moyen.
+  - Sécheresse : nombre de jours de suite sans 1 mm de pluie. 10 jours ou plus : élevé ; 6 : moyen. 10 mm ou plus annoncés dans les 3 jours retirent 3 jours à la série.
+  - Inondation : plus forte pluie cumulée sur 3 jours dans la prévision. Plateau : moyen à 50 mm, élevé à 80 ; périmètre irrigué : 45 et 70 ; bas-fond : 35 et 60.
+  - Limites : le point est le centre de la parcelle (maille d'environ 1 km), le stade est celui de la dernière campagne déclarée, la texture et le drainage du sol ne sont pas pris en compte, aucune confrontation à des sinistres observés.
+- Lecture des analyses de sol (`apps/lands/services.py`). pH eau : très acide sous 5,0 ; acide sous 5,5 ; légèrement alcalin au-dessus de 7,0 ; très alcalin au-dessus de 7,8. Matière organique : très faible sous 1 % ; faible sous 2 %. Phosphore assimilable (Bray 1) : faible sous 8 ppm ; moyen sous 15 ppm. Les textes sont qualitatifs et **ne donnent jamais de dose** : la recommandation chiffrée revient à l'agent ou à l'INRAB (même règle que l'assistant).
+- Mise à jour : quand l'INRAB fournit des seuils par culture et par zone, les remplacer dans `KC`, `FLOOD_MM` et `interpret`, puis compléter cette section.

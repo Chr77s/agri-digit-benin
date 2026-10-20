@@ -16,6 +16,7 @@ from apps.farms import api as farms
 from apps.interop import api as interop
 from apps.knowledge import api as kn
 from apps.knowledge import publications as pubs
+from apps.lands import api as lands
 from apps.market import api as market
 from apps.parcels import api as parcels
 from apps.producers import api as prod
@@ -52,6 +53,7 @@ v1 = [
     path("consents/mine", prod.consents_mine),
     path("consents/<uuid:pk>/withdraw", prod.consent_withdraw),
     path("parcels", parcels.parcel_list),
+    path("parcels/<uuid:pk>", parcels.parcel_detail),
     path("campaigns", parcels.campaign_list),
     path("campaigns/<uuid:pk>", parcels.campaign_detail),
     path("assistant/ask", assistant.ask),
@@ -101,6 +103,15 @@ v1 = [
     path("supports/<uuid:pk>/report", prodn.support_report),
     path("harvests/<uuid:pk>/check", prodn.harvest_check),
     path("harvests", prodn.harvest_list),
+    path("schemes", lands.scheme_list),
+    path("schemes/<uuid:pk>", lands.scheme_detail),
+    path("schemes/<uuid:pk>/works", lands.scheme_works),
+    path("works/<uuid:pk>", lands.works_detail),
+    path("soil-analyses", lands.soil_list),
+    path("soil-analyses/summary", lands.soil_summary),
+    path("land-use", lands.land_use),
+    path("climate-risks", lands.climate_risks),
+    path("climate-risks/departments", lands.climate_departments),
     path("claims", recovery_api.claim_list),
     path("claims/portfolio", recovery_api.claim_portfolio),
     path("claims/<uuid:pk>", recovery_api.claim_detail),

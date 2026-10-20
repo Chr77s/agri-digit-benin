@@ -22,29 +22,29 @@ const g = (group: string | undefined, items: [string, string, IconName][]): NavI
 // La 1re entrée de chaque rôle est sa page d'arrivée (App.tsx).
 export const NAV: Record<Role, NavItem[]> = {
   producteur: [
-    ...g('farm', [['/', 'home', 'home'], ['/parcelles', 'parcels', 'parcel'], ['/campagnes', 'campaigns', 'calendar']]),
-    ...g('advice', [['/assistant', 'assistant', 'chat'], ['/diagnostic', 'diagnosis', 'leaf-scan'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('farm', [['/', 'home', 'home'], ['/parcelles', 'parcels', 'parcel'], ['/campagnes', 'campaigns', 'calendar'], ['/sols', 'lands', 'wheat'], ['/amenagements', 'schemes', 'drop']]),
+    ...g('advice', [['/assistant', 'assistant', 'chat'], ['/diagnostic', 'diagnosis', 'leaf-scan'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/risques-climatiques', 'climate', 'sun'], ['/satellite', 'satellite', 'satellite']]),
     ...g('sell', [['/marche', 'market', 'market'], ['/appuis', 'mySupports', 'gift'], ['/remboursements', 'repayments', 'coins'], ['/revenu', 'revenue', 'trend'], ['/programmes', 'programs', 'clipboard'], ['/mes-cooperatives', 'myCoops', 'users'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),
     ...g('rights', [['/ma-carte', 'card', 'id-card'], ['/messages', 'notifications', 'mail'], ['/contestations', 'contests', 'scale'], ['/consentements', 'consents', 'shield-check']]),
   ],
   agent_atda: [
     ...g('field', [['/', 'home', 'home'], ['/producteurs', 'producers', 'users'], ['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/meteo-prix', 'weatherPrices', 'cloud-sun']]),
     ...g('programs', [['/candidatures', 'applications', 'file-text'], ['/selection', 'selection', 'list-check'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/contestations', 'contestsReview', 'scale']]),
-    ...g('chains', [['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('chains', [['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun']]),
     ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/services', 'services', 'sprout']]),
   ],
   agronome_inrab: g(undefined, [['/fiches', 'knowledge', 'book'], ['/diagnostic', 'diagnosisQueue', 'microscope'], ['/services', 'services', 'sprout']]),
   responsable_programme: [
     ...g(undefined, [['/programmes', 'programs', 'clipboard'], ['/selection', 'selection', 'list-check'], ['/candidatures', 'applications', 'file-text'], ['/recouvrement', 'recovery', 'coins']]),
-    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/satellite', 'satellite', 'satellite'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
+    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
   ],
   admin_maep: [
     ...g('steering', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/exports', 'exports', 'download'], ['/interoperabilite', 'interop', 'network']]),
-    ...g('registry', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/marche', 'market', 'market'], ['/satellite', 'satellite', 'satellite']]),
+    ...g('registry', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/marche', 'market', 'market'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun']]),
     ...g('communication', [['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/langues', 'translations', 'languages'], ['/services', 'services', 'sprout']]),
     ...g('governance', [['/selection', 'selection', 'list-check'], ['/contestations', 'contestsReview', 'scale'], ['/comptes', 'admin', 'user-cog'], ['/journal', 'audit', 'scroll']]),
   ],
-  auditeur_copil: g(undefined, [['/journal', 'audit', 'scroll'], ['/recouvrement', 'recovery', 'coins'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
+  auditeur_copil: g(undefined, [['/journal', 'audit', 'scroll'], ['/recouvrement', 'recovery', 'coins'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
   agent_financier: g(undefined, [['/credit', 'credit', 'coins'], ['/recouvrement', 'recovery', 'wallet'], ['/services', 'services', 'sprout']]),
   gestionnaire_cooperative: g(undefined, [['/cooperatives', 'myCoop', 'building'], ['/marche', 'market', 'market'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
   transformateur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'tag'], ['/remboursements', 'repayments', 'coins'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),

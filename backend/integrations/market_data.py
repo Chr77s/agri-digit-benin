@@ -66,6 +66,39 @@ def weather(lat, lon, place, days=7):
     return out
 
 
+def climate_series(lat, lon, place, past=14, ahead=7):
+    """Pluie et évapotranspiration de référence (ET0) des `past` derniers jours puis des `ahead` suivants, pour le
+    modèle de risque climatique. Open-Meteo (données ouvertes) ; en cas d'échec, pluie de démonstration et ET0 fixe de
+    4,5 mm/jour, étiquetées comme simulées. Cache 3 h (30 min après un échec)."""
+    import httpx
+    from django.conf import settings
+    from django.core.cache import cache
+    from django.utils import timezone
+
+    key = f"climate:{round(lat, 2)}:{round(lon, 2)}"
+    if (hit := cache.get(key)) is not None:
+        return hit
+    try:
+        if settings.WEATHER_BACKEND != "open-meteo":
+            raise RuntimeError("météo réelle désactivée")
+        r = httpx.get(settings.WEATHER_URL, timeout=5, params={
+            "latitude": lat, "longitude": lon, "timezone": "Africa/Porto-Novo", "past_days": past,
+            "forecast_days": ahead, "daily": "precipitation_sum,et0_fao_evapotranspiration"})
+        r.raise_for_status()
+        d = r.json()["daily"]
+        out = {"source": "Open-Meteo (données ouvertes)", "simulated": False, "updated_at": timezone.now().isoformat(),
+               "days": [{"date": d["time"][i], "rain_mm": d["precipitation_sum"][i] or 0.0,
+                         "et0_mm": d["et0_fao_evapotranspiration"][i] or 0.0} for i in range(len(d["time"]))]}
+        cache.set(key, out, 3 * 3600)
+    except Exception:  # réseau coupé : démonstration signalée
+        start = date.today() - timedelta(days=past)
+        out = {"source": "Démonstration (service météo injoignable)", "simulated": True,
+               "updated_at": timezone.now().isoformat(),
+               "days": [{"date": x["date"].isoformat(), "rain_mm": float(x["rain_mm"]), "et0_mm": 4.5}
+                        for x in forecast(place, start, past + ahead)]}
+        cache.set(key, out, 1800)
+    return out
+
 MARKETS = [
     ("Banikoara", "Alibori", 0.88), ("Kandi", "Alibori", 0.92), ("Malanville", "Alibori", 1.04),
     ("Parakou (Arzéké)", "Borgou", 1), ("Bohicon", "Zou", 1.13), ("Dantokpa (Cotonou)", "Littoral", 1.22),

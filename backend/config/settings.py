@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.production",
     "apps.ussd",
     "apps.interop",
+    "apps.lands",
 ]
 
 MIDDLEWARE = [
