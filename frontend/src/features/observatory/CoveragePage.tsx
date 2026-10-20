@@ -41,7 +41,7 @@ export function CoveragePage() {
           return (
             <div className="stack" style={gap(20)}>
               {demo && <Alert tone="warn" title={d.demo_source || t('ncov.demoTitle')}>{t('ncov.demoText')}</Alert>}
-              <Watch d={d} />
+              {d.chains.length > 0 && <Watch d={d} />}
               {d.chains.length === 0
                 ? <div className="card"><EmptyState icon="globe" title={t('ncov.empty')}>{t('ncov.emptyHelp')}</EmptyState></div>
                 : (
