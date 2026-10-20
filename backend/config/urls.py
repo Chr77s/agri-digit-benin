@@ -13,6 +13,7 @@ from apps.dashboard import api as dashboard
 from apps.diagnosis import api as diag
 from apps.exports import api as exports
 from apps.farms import api as farms
+from apps.farmservices import api as fs
 from apps.interop import api as interop
 from apps.knowledge import api as kn
 from apps.knowledge import publications as pubs
@@ -112,6 +113,18 @@ v1 = [
     path("land-use", lands.land_use),
     path("climate-risks", lands.climate_risks),
     path("climate-risks/departments", lands.climate_departments),
+    path("equipment", fs.equipment_list),
+    path("equipment/summary", fs.equipment_summary),
+    path("equipment/<uuid:pk>", fs.equipment_detail),
+    path("mechanization/providers", fs.mech_providers),
+    path("mechanization/requests", fs.mech_requests),
+    path("mechanization/requests/<uuid:pk>/decide", fs.mech_decide),
+    path("mechanization/requests/<uuid:pk>/complete", fs.mech_complete),
+    path("mechanization/requests/<uuid:pk>/cancel", fs.mech_cancel),
+    path("seed-lots", fs.seed_lot_list),
+    path("seed-lots/<uuid:pk>/distribute", fs.seed_lot_distribute),
+    path("pmea", fs.pmea_list),
+    path("pmea/<uuid:pk>/verify", fs.pmea_verify),
     path("claims", recovery_api.claim_list),
     path("claims/portfolio", recovery_api.claim_portfolio),
     path("claims/<uuid:pk>", recovery_api.claim_detail),

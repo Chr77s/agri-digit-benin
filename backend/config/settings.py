@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "apps.ussd",
     "apps.interop",
     "apps.lands",
+    "apps.farmservices",
 ]
 
 MIDDLEWARE = [

@@ -80,9 +80,14 @@ const RevenuePage = lazy(() => import('../features/revenue/RevenuePage').then((m
 const SchemesPage = lazy(() => import('../features/lands/SchemesPage').then((m) => ({ default: m.SchemesPage })));
 const LandsPage = lazy(() => import('../features/lands/LandsPage').then((m) => ({ default: m.LandsPage })));
 const ClimatePage = lazy(() => import('../features/lands/ClimatePage').then((m) => ({ default: m.ClimatePage })));
+const EquipmentPage = lazy(() => import('../features/farmservices/EquipmentPage').then((m) => ({ default: m.EquipmentPage })));
+const MechanizationPage = lazy(() => import('../features/farmservices/MechanizationPage').then((m) => ({ default: m.MechanizationPage })));
+const SeedsPage = lazy(() => import('../features/farmservices/SeedsPage').then((m) => ({ default: m.SeedsPage })));
+const PmeaPage = lazy(() => import('../features/farmservices/PmeaPage').then((m) => ({ default: m.PmeaPage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
+const OWNERS: Role[] = ['producteur', 'gestionnaire_cooperative'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
 
 export function App() {
@@ -148,6 +153,10 @@ export function App() {
         <Route path="/amenagements" element={<Guard roles={LAND}><SchemesPage /></Guard>} />
         <Route path="/sols" element={<Guard roles={LAND}><LandsPage /></Guard>} />
         <Route path="/risques-climatiques" element={<Guard roles={LAND}><ClimatePage /></Guard>} />
+        <Route path="/materiels" element={<Guard roles={[...OWNERS, 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><EquipmentPage /></Guard>} />
+        <Route path="/mecanisation" element={<Guard roles={OWNERS}><MechanizationPage /></Guard>} />
+        <Route path="/semences" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><SeedsPage /></Guard>} />
+        <Route path="/pmea" element={<Guard><PmeaPage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

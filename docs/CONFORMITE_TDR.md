@@ -18,7 +18,7 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 
 | Exigence | État | Constat |
 | --- | --- | --- |
-| Base d'identification de **tous les acteurs** et de leurs **actifs** par filière | Partiel | Producteurs, coopératives, organisations de filière, sites géolocalisés des acteurs (magasins, unités de transformation, points de vente) avec capacité et équipements. Manquent les matériels individuels des producteurs. |
+| Base d'identification de **tous les acteurs** et de leurs **actifs** par filière | Fait | Producteurs, coopératives, organisations de filière, sites géolocalisés des acteurs (magasins, unités de transformation, points de vente) avec capacité et équipements, et matériel individuel des producteurs (type, nombre, état, location), vu du personnel par département avec le seul code producteur. |
 | Gestion des interrelations entre acteurs | Fait | Adhésions, organisations de filière, mises en relation du marché, lots livrés d'un acteur à l'autre, messagerie producteur et agent. |
 | Suivi des efforts de l'État envers les acteurs | Fait | Appuis, programmes, candidatures, sélection, financements mobilisés. |
 | Assistant temps réel alimenté par les fiches INRAB/ATDA | Fait | 42 fiches publiées, sources citées, dosage renvoyé à un agent ; LLM du réseau local branché. |
@@ -27,9 +27,9 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Diagnostic photo : état, maladie probable, recommandations | Simulé | Résultat tiré du hachage de l'image, aucun modèle. |
 | Diagnostic photo : **niveau de risque** | Simulé | Affiché (élevé, moyen) ; valeurs par maladie à valider par l'INRAB. |
 | Prévision des rendements | Simulé | Page « Prévisions » calculée dans le navigateur. |
-| Analyses des sols et de l'utilisation des terres | Absent | |
-| Risques climatiques (sécheresse, inondation, stress hydrique) | Partiel | Alertes de pluie forte et de sécheresse calculées sur la prévision météo réelle de la parcelle ; pas de modèle de risque. |
-| Scoring crédit | Partiel | Grille transparente avec consentement et journal ; pas de modèle statistique ni de données alternatives (Mobile Money). |
+| Analyses des sols et de l'utilisation des terres | Fait | Analyses de sol saisies par l'agent et lues sans aucune dose (seuils à valider par l'INRAB, `MODEL_CARD.md` § 5) ; utilisation des terres par département et type de terrain (disponible, exploitable, exploitée). Les analyses sont à saisir : le prototype n'en contient pas. |
+| Risques climatiques (sécheresse, inondation, stress hydrique) | Fait | Modèle à règles (bilan hydrique sur la pluie des 14 derniers jours et la prévision Open-Meteo) : stress hydrique, sécheresse, inondation, par parcelle et par département, avec conseils sans dose. Seuils publiés et **à valider par l'INRAB** ; sans réseau, résultat signalé « données simulées ». |
+| Scoring crédit | Partiel | Grille transparente avec consentement et journal ; le facteur « Appuis remboursés » suit désormais les échéances réellement payées (appuis et prêts). Pas de modèle statistique (aucune issue de crédit observée) ni de données Mobile Money. |
 | Accès des analyses à MAEP central, ATDA/INRAB, institutions financières | Fait | Rôles et périmètres vérifiés par le serveur. |
 | Synergie avec les SI du MAEP et X-Road | Partiel | API d'agrégats et formats ouverts ; aucun raccordement. |
 
@@ -38,19 +38,19 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Maillon | Exigence | État |
 | --- | --- | --- |
 | Aménagements | Parcelles par GPS | Fait (tracé, surface calculée par le serveur) |
-| Aménagements | Superficies disponibles / exploitables / exploitées ; pluvial bas-fond, plateau, irrigué | Partiel : type de terrain oui, une seule surface |
-| Aménagements | Réhabilitation, nouveaux aménagements, entretien des périmètres | Absent |
+| Aménagements | Superficies disponibles / exploitables / exploitées ; pluvial bas-fond, plateau, irrigué | Fait (disponible mesurée sur le tracé, exploitable déclarée, exploitée = parcelles portant une campagne de la saison ; aménagements avec les trois superficies) |
+| Aménagements | Réhabilitation, nouveaux aménagements, entretien des périmètres | Fait (travaux suivis de la planification à la clôture, l'état de l'aménagement en découle) |
 | Production | Producteurs et parcelles | Fait |
-| Production | Activités semencières (centre → bénéficiaires) | Partiel : site « centre semencier » et lots ; pas de circuit dédié aux semences certifiées |
+| Production | Activités semencières (centre → bénéficiaires) | Fait (lots certifiés avec certificat, stock, remise aux producteurs en appuis à confirmer, code du lot conservé) |
 | Production | Appuis en intrants | Fait |
-| Production | Prestations de mécanisation | Absent |
+| Production | Prestations de mécanisation | Fait (demande, acceptation, réalisation ; le coût entre dans le revenu ; le paiement de la prestation se règle hors plateforme) |
 | Production | Suivi de la production (campagnes, stades, récoltes) | Fait |
-| Production | Recouvrement des appuis | Partiel : appui « à rembourser » marqué, pas d'échéancier ni de paiement |
+| Production | Recouvrement des appuis | Fait (échéancier, paiement en un clic par Mobile Money simulé, retards, rappels, taux de recouvrement) |
 | Production | Magasins de stockage | Fait (sites géolocalisés, lots en stock par magasin) |
 | Transformation | Transformateurs et sites par GPS, plateau technique | Fait (sites « unité de transformation » avec équipements) |
 | Transformation | Flux matières | Fait (lots collectés, livrés, transformés, remontée jusqu'à la récolte) |
 | Transformation | Prix brut et transformé | Partiel : prix des annonces et prix convenus par les organisations ; relevés de marché simulés |
-| Transformation | Renforcement du plateau, recouvrement | Partiel : formations enregistrées ; pas de recouvrement |
+| Transformation | Renforcement du plateau, recouvrement | Fait (équipement remis à un transformateur en créance remboursable ; formations enregistrées) |
 | Distribution | Distributeurs, magasins, points de vente par GPS | Fait (sites « point de vente ») |
 | Distribution | Stocks et anticipation des ruptures | Partiel : stocks réels par lot ; pas d'anticipation des ruptures |
 | Distribution | Prix | Partiel (prix des annonces ; relevés simulés) |
@@ -75,15 +75,15 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Tous | Analyses prospectives des marchés | Absent |
 | Producteur | Mise en relation avec un transformateur, appui à la vente | Fait (marché, suspension, retrait et fermeture d'une annonce) |
 | Producteur | Échange avec son agent | Fait (messagerie, réponse aussi par SMS) |
-| Producteur | Accès aux PMEA de la zone | Partiel (sites et services publiés par zone ; pas d'annuaire des PMEA) |
-| Producteur | Suivi du revenu | Absent |
-| Producteur | Paiement en un clic des appuis reçus | Absent (le paiement existe pour le marché seulement) |
+| Producteur | Accès aux PMEA de la zone | Fait (annuaire par département et service, entreprises vérifiées par l'agent de la zone) |
+| Producteur | Suivi du revenu | Fait (ventes déclarées − dépenses déclarées − remboursements payés, par campagne) |
+| Producteur | Paiement en un clic des appuis reçus | Fait (prochaine échéance, FakePay simulé) |
 | Transformateur, distributeur | Mise en relation, paiement en un clic | Fait |
 | Transformateur, distributeur | Prévision des récoltes | Simulé |
 | Transformateur, distributeur | Circuit de collecte | Fait (mise en lot depuis la récolte, livraison) |
 | Transformateur, distributeur | Renforcement des capacités, promotion des produits | Partiel (formations, annonces du marché) |
 | Institutions financières | Enregistrement, accès au scoring | Fait |
-| Institutions financières | Fourniture de services aux acteurs, recouvrement | Partiel (publication de leurs offres ; pas de recouvrement) |
+| Institutions financières | Fourniture de services aux acteurs, recouvrement | Fait (publication de leurs offres ; prêts aux producteurs consentants et recouvrement des échéances) |
 
 ## 4. Langues, canaux, qualité (§ 1, 3.1, 3.4)
 
