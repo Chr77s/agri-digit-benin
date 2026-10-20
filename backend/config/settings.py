@@ -125,6 +125,9 @@ PAYMENT_BACKEND = env("PAYMENT_BACKEND", default="fakepay")
 LLM_BACKEND = env("LLM_BACKEND", default="auto")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")
 OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
+OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="http://glm-gateway.tail577250.ts.net:4000/v1")
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")  # renseignée : l'assistant passe par la passerelle
+OPENAI_MODEL = env("OPENAI_MODEL", default="")  # vide : premier modèle annoncé par la passerelle
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
 ANTHROPIC_BASE_URL = env("ANTHROPIC_BASE_URL", default="https://api.anthropic.com")  # serveur Claude du réseau local
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
