@@ -27,9 +27,10 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 | `apps/satellite` | NDVI et humidité de démonstration | 23 |
 | `apps/interop` | Agrégats pseudonymisés pour X-Road, SONAMA, FNDA | 24 |
 | `apps/lands` | Aménagements et travaux (réhabilitation, nouvel aménagement, entretien), analyses de sol et leur lecture, utilisation des terres (disponible, exploitable, exploitée), risques climatiques (`climate`) | |
+| `apps/markets` | Relevés de prix brut et transformé, écart brut / transformé (`prices`), analyses prospectives des prix et de l'offre attendue (`analysis`), enquêtes de satisfaction publiques et anonymes (`surveys`, `surveys_api`), formations et vitrine des produits (`trainings`, `showcase`, `trainings_api`) ; les stocks et ruptures sont dans `apps/production/stocks.py` | |
 | `apps/ussd` | Téléphone simple : menus USSD sans état (météo, prix, conseil, appuis, langue) et commandes SMS | |
 | `apps/core` | Erreurs, pagination, permissions, périmètre | |
-| `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad`, `market_data` (météo et prix de démonstration partagés avec l'USSD) | |
+| `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad`, `market_data` (météo réelle, prix : derniers relevés saisis, à défaut démonstration étiquetée, partagés avec l'USSD) | |
 | `tests/e2e_backend.py` | Scénario de démonstration rejoué par l'API | |
 
 ## Frontend (`frontend/`, Vite + React + TypeScript, PWA)
