@@ -56,7 +56,7 @@ def test_producer_requests_to_join_and_the_manager_decides(users, producer):
     decide = f"/api/v1/join-requests/{rid}/decide"
     assert client_for(users["transf"]).post(decide, {"status": "acceptee"}, format="json").status_code == 403
     assert client_for(users["agent_zou"]).post(decide, {"status": "acceptee"}, format="json").status_code == 404
-    assert p.post(decide, {"status": "acceptee"}, format="json").status_code == 403  # le producteur ne décide pas
+    assert p.post(decide, {"status": "acceptee"}, format="json").status_code == 404  # le producteur ne décide pas
     assert gest.post(decide, {"status": "refusee"}, format="json").json()["code"] == "reason_required"
     assert gest.post(decide, {"status": "refusee", "reason": "Parcelles hors zone."}, format="json").status_code == 200
     nearby = p.get("/api/v1/cooperatives/nearby").json()["results"][0]
@@ -67,3 +67,21 @@ def test_producer_requests_to_join_and_the_manager_decides(users, producer):
     assert [m["cooperative"] for m in p.get("/api/v1/memberships/mine").json()["results"]] == [str(coop.id)]
     assert p.get("/api/v1/cooperatives/nearby").json()["results"] == []  # déjà membre
     assert p.post(url, {}, format="json").status_code == 409
+
+
+def test_bureau_member_manages_the_cooperative(users, producer):
+    coop = _coop("Coop du bureau", manager=users["gest"])
+    gest, p = client_for(users["gest"]), client_for(producer.user)
+    mid = gest.post(f"/api/v1/cooperatives/{coop.id}/members", {"producer": producer.code}, format="json").json()["id"]
+    assert p.get(f"/api/v1/cooperatives/{coop.id}").status_code == 404  # simple membre : pas de gestion
+    gest.post(f"/api/v1/memberships/{mid}/end", {"reason": "passe au bureau"}, format="json")
+    gest.post(f"/api/v1/cooperatives/{coop.id}/members", {"producer": producer.code, "role": "president"},
+              format="json")
+    assert p.get(f"/api/v1/cooperatives/{coop.id}").json()["name"] == "Coop du bureau"
+    assert [c["name"] for c in p.get("/api/v1/cooperatives").json()["results"]] == ["Coop du bureau"]
+    assert p.get(f"/api/v1/cooperatives/{coop.id}/members?active=true").status_code == 200
+    other = _coop("Autre coop", manager=users["gest"])
+    assert p.get(f"/api/v1/cooperatives/{other.id}").status_code == 404  # pas au bureau de celle-ci
+    assert p.post("/api/v1/cooperatives", {**NEW, "name": "Nouvelle"}, format="json").status_code == 403
+    rid = p.post(f"/api/v1/cooperatives/{other.id}/join-request", {}, format="json").json()["id"]
+    assert p.post(f"/api/v1/join-requests/{rid}/decide", {"status": "acceptee"}, format="json").status_code == 404

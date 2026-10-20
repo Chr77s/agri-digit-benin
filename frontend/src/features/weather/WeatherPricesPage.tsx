@@ -4,7 +4,8 @@ import { Alert, Badge, Card, Chips, Field, Icon, PageHeader, Select, Switch, Tab
 import { useDepartments, usePlaceName, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import '../producers/producteur.css';
-import { PRICE_CHAINS, demoForecast, demoPriceHistory, demoPrices, type MarketPrice } from './demo';
+import { PRICE_CHAINS, demoPriceHistory, demoPrices, type MarketPrice } from './demo';
+import { useForecast } from './api';
 
 /** /meteo-prix (producteur, agent ATDA) : aucune API météo ni prix côté serveur, toutes les valeurs sont simulées et étiquetées. */
 export function WeatherPricesPage() {
@@ -43,14 +44,16 @@ export function WeatherPricesPage() {
 
 function Forecast({ commune, name }: { commune: string; name: string }) {
   const { t } = useTranslation();
-  const days = demoForecast(commune || 'benin');
+  const fc = useForecast(commune);
+  const days = fc.days;
+  const note = fc.simulated ? t('weather.simNote') : t('weather.liveNote');
   const total = days.reduce((s, d) => s + d.rainMm, 0);
   const heavy = days.filter((d) => d.rainMm >= 30);
   const dry = days.every((d) => d.rainMm < 5);
   const label = (d: Date, i: number) => (i === 0 ? t('weather.today') : d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }));
   return (
     <>
-      <Card title={t('weather.weekTitle', { place: name })} sub={t('weather.updated')} actions={<Badge tone="sim">{t('weather.simulated')}</Badge>}>
+      <Card title={t('weather.weekTitle', { place: name })} sub={fc.simulated ? t('weather.updated') : t('weather.liveSub', { source: fc.source, time: new Date(fc.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) })} actions={<Badge tone={fc.simulated ? 'sim' : 'ok'}>{fc.simulated ? t('weather.simulated') : t('weather.live')}</Badge>}>
         <ul className="week">
           {days.map((d, i) => (
             <li key={d.date.toISOString()} className={i === 0 ? 'is-today' : d.rainMm >= 10 ? 'is-rain' : undefined}
@@ -70,10 +73,10 @@ function Forecast({ commune, name }: { commune: string; name: string }) {
         <h2 className="section-title" id="t-alertes">{t('weather.alertsTitle')}</h2>
         {heavy.map((d) => (
           <Alert key={d.date.toISOString()} tone="warn" icon="drop" title={t('weather.heavy', { day: d.date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }), mm: d.rainMm })}>
-            <p>{t('weather.heavyTip')}</p><p className="small muted">{t('weather.simNote')}</p>
+            <p>{t('weather.heavyTip')}</p><p className="small muted">{note}</p>
           </Alert>
         ))}
-        {dry && <Alert tone="info" icon="sun" title={t('weather.dry')}><p>{t('weather.dryTip')}</p><p className="small muted">{t('weather.simNote')}</p></Alert>}
+        {dry && <Alert tone="info" icon="sun" title={t('weather.dry')}><p>{t('weather.dryTip')}</p><p className="small muted">{note}</p></Alert>}
         {heavy.length === 0 && !dry && <p className="muted">{t('weather.noAlert')}</p>}
         <p className="hint">{t('weather.realAlerts')}</p>
       </section>

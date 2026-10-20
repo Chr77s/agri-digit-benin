@@ -9,13 +9,14 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.audit.models import RetentionPolicy
-from apps.cooperatives.models import Cooperative, Membership
-from apps.knowledge.models import KnowledgeDoc, KnowledgeDocVersion
+from apps.cooperatives.models import Cooperative, Membership, Organisation, OrgEvent
+from apps.knowledge.models import KnowledgeDoc, KnowledgeDocVersion, Publication
 from apps.market.services import seed_market
 from apps.parcels.models import Campaign, Parcel
 from apps.parcels.services import area_ha
 from apps.producers.models import Consent, Producer, ProducerVersion
 from apps.producers.services import next_code, snapshot
+from apps.production.models import Site
 from apps.production.services import seed_reference_yields
 from apps.programs.models import Program
 from apps.referentiel.data import DEPARTMENTS, VALUE_CHAINS, slug
@@ -33,6 +34,7 @@ STAFF = [
     ("0197000007", "Agent financier (démo)", "agent_financier", ""),
     ("0197000008", "Gestionnaire de coopérative (démo)", "gestionnaire_cooperative", "alibori"),
     ("0197000011", "Représentant MTDI (démo)", "repr_mtdi", ""),
+    ("0197000012", "Représentante MTDI 2 (démo)", "repr_mtdi", ""),  # la validation exige un second locuteur
 ]
 COOPERATIVE = "Coopérative des producteurs de maïs de Banikoara"
 
@@ -98,6 +100,7 @@ class Command(BaseCommand):
         self._programs()
         self._knowledge()
         self._cooperative()
+        self._governance()
         seed_reference_yields()
         seed_entries()
         seed_market(PASSWORD)
@@ -134,6 +137,35 @@ class Command(BaseCommand):
         for i, p in enumerate(members):
             Membership.objects.get_or_create(cooperative=coop, producer=p, left_at=None,
                                              defaults={"role": "president" if i == 0 else "membre"})
+
+    def _governance(self):
+        """Organisation de filière, publications et sites de DÉMONSTRATION (noms fictifs, marqués [démo])."""
+        coop = Cooperative.objects.get(name=COOPERATIVE)
+        union, created = Organisation.objects.get_or_create(
+            name="Union communale des producteurs de maïs de Banikoara [démo]",
+            defaults={"kind": "union", "value_chains": ["mais"], "department": "alibori"})
+        union.cooperatives.add(coop)
+        if created:
+            OrgEvent.objects.create(organisation=union, kind="prix", date=date(2026, 10, 1), price_xof_per_kg=190,
+                                    title="Prix bord champ convenu, campagne 2026 [démo]")
+            OrgEvent.objects.create(organisation=union, kind="formation", date=date(2026, 9, 15), participants=30,
+                                    women=14, youth=9, title="Gestion des stocks et du warrantage [démo]")
+        for kind, title, body, provider, chains, deps, amount in [
+            ("service", "Assurance récolte indicielle [démo]", "Couverture contre la sécheresse, souscrite par la "
+             "coopérative. Offre de démonstration.", "Assureur partenaire (démo)", [], [], None),
+            ("service", "Compte Mobile Money agricole [démo]", "Recevez le paiement de vos ventes et remboursez vos "
+             "appuis sans vous déplacer. Offre de démonstration.", "Banque partenaire (démo)", [], [], None),
+            ("innovation", "Sac à triple fond pour le niébé", "Le triple ensachage hermétique protège le niébé des "
+             "bruches sans produit chimique (voir la fiche technique).", "INRAB", ["niebe"], [], None),
+            ("financement", "Ligne de crédit de campagne maïs [démo]", "Crédit de campagne pour les membres des "
+             "coopératives validées. Montant fictif.", "Fonds de démonstration", ["mais"], ["alibori"], 250_000_000),
+        ]:
+            Publication.objects.get_or_create(title=title, defaults={
+                "kind": kind, "body": body, "provider": provider, "value_chains": chains, "departments": deps,
+                "amount_xof": amount})
+        Site.objects.get_or_create(name="Magasin de Kandi [démo]", defaults={
+            "owner": User.objects.get(phone="0197000008"), "kind": "magasin", "department": "alibori",
+            "commune": "kandi", "lat": 11.134, "lon": 2.938, "capacity_t": 200})
 
     def _programs(self):
         for name, desc, chains, closes in [

@@ -92,7 +92,7 @@ def _paginate(request, qs, serializer):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER)])
+@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER, PRODUCTEUR)])
 def cooperative_list(request):
     if request.method == "GET":
         return _paginate(request, selectors.search(selectors.cooperatives_for(request.user), request.query_params),
@@ -106,14 +106,15 @@ def cooperative_list(request):
 
 
 @api_view(["GET"])
-@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER)])
+@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER, PRODUCTEUR)])
 def cooperative_detail(request, pk):
     return Response(CooperativeSerializer(selectors.get_cooperative(request.user, pk)).data)
 
 
 def _producer_for_coop(user, coop, ref):
-    # le gestionnaire n'a pas accès au registre : il désigne un producteur du département de sa coopérative
-    qs = Producer.objects.filter(department=coop.department) if user.role == COOP_MANAGER else producers_for(user)
+    # gestionnaire et bureau n'ont pas accès au registre : il désigne un producteur du département de sa coopérative
+    in_dept = user.role in (COOP_MANAGER, PRODUCTEUR)
+    qs = Producer.objects.filter(department=coop.department) if in_dept else producers_for(user)
     try:
         p = qs.filter(pk=uuid.UUID(ref)).first()
     except ValueError:
@@ -124,7 +125,7 @@ def _producer_for_coop(user, coop, ref):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER)])
+@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER, PRODUCTEUR)])
 def cooperative_members(request, pk):
     coop = selectors.get_cooperative(request.user, pk)
     if request.method == "GET":
@@ -141,7 +142,7 @@ def cooperative_members(request, pk):
 
 
 @api_view(["POST"])
-@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER)])
+@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER, PRODUCTEUR)])
 def membership_end(request, pk):
     m = selectors.get_membership(request.user, pk)
     return Response(MemberSerializer(services.end_membership(request.user, m,
@@ -179,9 +180,12 @@ def join_request_list(request):
 
 
 @api_view(["POST"])
-@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER)])
+@permission_classes([roles(AGENT, ADMIN, COOP_MANAGER, PRODUCTEUR)])
 def join_request_decide(request, pk):
-    r = selectors.join_requests_for(request.user).filter(pk=pk).first()
+    # décider : seulement les demandes des coopératives gérées, jamais la sienne
+    r = MembershipRequest.objects.filter(pk=pk, cooperative__in=selectors.cooperatives_for(request.user).values("pk")
+                                         ).exclude(producer__user=request.user).select_related("cooperative",
+                                                                                              "producer").first()
     if r is None:
         raise Http404
     return Response(JoinRequestSerializer(services.decide_request(

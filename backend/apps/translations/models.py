@@ -36,3 +36,25 @@ class TranslationReview(models.Model):
     score = models.PositiveSmallIntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CorpusEntry(models.Model):
+    """Corpus de l'assistant en langue nationale : une question et sa réponse écrites par un locuteur, avec leur
+    source en français et des reformulations ; seule une entrée validée par un second représentant MTDI sert."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    language = models.CharField(max_length=5, choices=[(x, x) for x in LANGUAGES], db_index=True)
+    value_chain = models.CharField(max_length=40, blank=True)
+    question = models.TextField(blank=True)  # vide tant que la question posée n'est pas traitée
+    answer = models.TextField(blank=True)
+    paraphrases = models.JSONField(default=list, blank=True)  # autres façons de poser la question : servent au test
+    french_question = models.TextField(blank=True)
+    french_answer = models.TextField(blank=True)
+    status = models.CharField(max_length=12, choices=[(s, s) for s in STATUSES], default="a_traduire", db_index=True)
+    asked_count = models.PositiveIntegerField(default=0)  # questions de producteurs restées sans réponse validée
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    validated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                     related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

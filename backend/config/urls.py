@@ -7,6 +7,7 @@ from apps.alerts import api as alerts
 from apps.assistant import api as assistant
 from apps.audit import api as audit
 from apps.cooperatives import api as coop
+from apps.cooperatives import organisations as orgs
 from apps.credit import api as credit
 from apps.dashboard import api as dashboard
 from apps.diagnosis import api as diag
@@ -14,14 +15,17 @@ from apps.exports import api as exports
 from apps.farms import api as farms
 from apps.interop import api as interop
 from apps.knowledge import api as kn
+from apps.knowledge import publications as pubs
 from apps.market import api as market
 from apps.parcels import api as parcels
 from apps.producers import api as prod
 from apps.production import api as prodn
+from apps.production import lots_api
 from apps.programs import api as prog
 from apps.referentiel import api as ref
 from apps.satellite import api as sat
 from apps.translations import api as trans
+from apps.translations import corpus
 from apps.ussd import api as ussd
 
 v1 = [
@@ -61,6 +65,9 @@ v1 = [
     path("alerts/<uuid:pk>/send", alerts.alert_send),
     path("notifications", alerts.notification_list),
     path("notifications/<uuid:pk>/read", alerts.notification_read),
+    path("chat", alerts.chat_mine),
+    path("chat/threads", alerts.chat_threads),
+    path("chat/<uuid:producer_id>", alerts.chat_thread),
     path("outbox", alerts.outbox_list),
     path("ussd/gateway", ussd.ussd_gateway),
     path("sms/inbound", ussd.sms_inbound),
@@ -94,6 +101,23 @@ v1 = [
     path("supports/<uuid:pk>/report", prodn.support_report),
     path("harvests/<uuid:pk>/check", prodn.harvest_check),
     path("harvests", prodn.harvest_list),
+    path("organisations", orgs.organisation_list),
+    path("organisations/<uuid:pk>", orgs.organisation_detail),
+    path("organisations/<uuid:pk>/cooperatives", orgs.organisation_add_cooperative),
+    path("organisations/<uuid:pk>/events", orgs.organisation_event),
+    path("publications", pubs.publication_list),
+    path("publications/<uuid:pk>/archive", pubs.publication_archive),
+    path("dashboard/financing", pubs.financing),
+    path("corpus", corpus.corpus_list),
+    path("corpus/stats", corpus.corpus_stats),
+    path("corpus/<uuid:pk>/answer", corpus.corpus_answer),
+    path("corpus/<uuid:pk>/validate", corpus.corpus_validate),
+    path("sites", lots_api.site_list),
+    path("lots", lots_api.lot_list),
+    path("lots/collect", lots_api.lot_collect),
+    path("lots/transform", lots_api.lot_transform),
+    path("lots/<uuid:pk>/transfer", lots_api.lot_transfer),
+    path("lots/<str:ref>/trace", lots_api.lot_trace),
     path("diagnoses", diag.diagnosis_list),
     path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),
     path("diagnoses/<uuid:pk>/ask-agronome", diag.diagnosis_ask_agronome),
@@ -105,6 +129,7 @@ v1 = [
     path("i18n/<str:language>.json", trans.i18n_dictionary),
     path("offers", market.offer_list),
     path("offers/<uuid:pk>/contact", market.offer_contact),
+    path("offers/<uuid:pk>/status", market.offer_status),
     path("matches/mine", market.matches_mine),
     path("matches/<uuid:pk>/accept", market.match_accept),
     path("matches/<uuid:pk>/refuse", market.match_refuse),
@@ -112,6 +137,7 @@ v1 = [
     path("payments/<uuid:pk>", market.payment_detail),
     path("payments/<uuid:pk>/refund", market.payment_refund),
     path("satellite", sat.satellite),
+    path("weather", sat.weather),
     path("interop/connectors", interop.connectors),
     path("interop/exchanges", interop.exchanges),
     path("interop/keys/<str:partner>/renew", interop.key_renew),

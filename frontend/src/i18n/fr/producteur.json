@@ -61,6 +61,9 @@
     "weekTitle": "Prévisions sur 7 jours · {{place}}",
     "updated": "Mise à jour ce matin",
     "simulated": "Prévision simulée",
+    "live": "Open-Meteo",
+    "liveSub": "Source : {{source}}, mise à jour {{time}}",
+    "liveNote": "Prévision de modèles météo, à croiser avec les bulletins de Météo-Bénin.",
     "dayLabel": "{{day}} : {{max}} degrés au plus, {{min}} au moins, pluie {{mm}} millimètres, probabilité {{pct}} pour cent",
     "mm": "{{n}} mm",
     "total": "Total sur 7 jours : {{mm}} mm. Températures maximale et minimale, pluie prévue et probabilité.",
@@ -200,6 +203,11 @@
     "resultCol": "Résultat",
     "reviewedSay": "Confirmé par un agronome : « {{comment}} »",
     "confidenceCol": "Confiance",
+    "riskLabel": "Niveau de risque",
+    "risk": {
+      "eleve": "Élevé : agissez vite, la maladie se propage",
+      "moyen": "Moyen : surveillez et suivez les conseils"
+    },
     "seeNamed": "Voir le diagnostic du {{date}}",
     "see": "Voir",
     "probable": "Problème probable",

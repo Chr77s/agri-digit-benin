@@ -55,3 +55,16 @@ def test_seller_can_request_payment_and_is_the_payee(users, settings):
     got = seller.get(f"/api/v1/payments/{p.json()['id']}").json()
     assert got["status"] == "reussi" and got["receipt"]["payee_masked"] == services.mask(users["transf"].phone)
     assert buyer.get(f"/api/v1/payments/{p.json()['id']}").status_code == 200  # l'acheteur suit le paiement demandé
+
+
+def test_owner_suspends_reopens_and_withdraws_an_offer(users):
+    seller, buyer, oid, mid = _matched(users)
+    url = f"/api/v1/offers/{oid}/status"
+    assert buyer.post(url, {"status": "retiree"}, format="json").status_code == 404  # pas son annonce
+    assert seller.post(url, {"status": "suspendue"}, format="json").json()["status"] == "suspendue"
+    assert all(o["id"] != oid for o in buyer.get("/api/v1/offers").json()["results"])  # masquée aux autres
+    assert buyer.post(f"/api/v1/offers/{oid}/contact", {}, format="json").json()["code"] == "offer_closed"
+    assert seller.post(url, {"status": "ouverte"}, format="json").json()["status"] == "ouverte"
+    assert seller.post(url, {"status": "retiree"}, format="json").json()["status"] == "retiree"
+    assert buyer.get("/api/v1/matches/mine").json()["results"][0]["status"] == "refusee"  # contact en attente refusé
+    assert seller.post(url, {"status": "ouverte"}, format="json").json()["code"] == "invalid_status"  # définitif

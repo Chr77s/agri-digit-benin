@@ -52,3 +52,37 @@ class Harvest(models.Model):
     declared_kg = models.FloatField(null=True, blank=True)  # quantité d'origine, gardée quand l'agent la corrige
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Site(models.Model):
+    """Lieu physique d'un acteur, géolocalisé : magasin, unité de transformation, point de vente, centre semencier."""
+
+    KINDS = ("magasin", "unite_transformation", "point_vente", "centre_semencier")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sites")
+    kind = models.CharField(max_length=30)
+    name = models.CharField(max_length=150)
+    department = models.CharField(max_length=40, db_index=True)
+    commune = models.CharField(max_length=40, blank=True)
+    lat = models.FloatField()
+    lon = models.FloatField()
+    capacity_t = models.FloatField(null=True, blank=True)
+    equipment = models.TextField(blank=True)  # plateau technique (transformation), équipements de stockage
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Lot(models.Model):
+    """Quantité de produit suivie de la récolte au point de vente. Un lot transformé ou divisé garde ses parents."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=20, unique=True)
+    value_chain = models.CharField(max_length=40)
+    product = models.CharField(max_length=120)  # « maïs grain », « farine de maïs »…
+    quantity_kg = models.FloatField()
+    status = models.CharField(max_length=20, default="en_stock", db_index=True)  # en_stock|transfere|transforme
+    holder = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="lots")
+    site = models.ForeignKey(Site, null=True, blank=True, on_delete=models.SET_NULL, related_name="lots")
+    harvest = models.ForeignKey(Harvest, null=True, blank=True, on_delete=models.PROTECT, related_name="lots")
+    parents = models.ManyToManyField("self", symmetrical=False, blank=True, related_name="children")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)

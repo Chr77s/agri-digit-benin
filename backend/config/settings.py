@@ -123,6 +123,8 @@ SPECTACULAR_SETTINGS = {"TITLE": "Agri-Digit Bénin API", "VERSION": "1.0.0", "S
 ANIP_BACKEND = env("ANIP_BACKEND", default="mock")
 PAYMENT_BACKEND = env("PAYMENT_BACKEND", default="fakepay")
 LLM_BACKEND = env("LLM_BACKEND", default="auto")
+WEATHER_BACKEND = env("WEATHER_BACKEND", default="open-meteo")  # "demo" : valeurs simulées
+WEATHER_URL = env("WEATHER_URL", default="https://api.open-meteo.com/v1/forecast")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")
 OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
 OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="http://glm-gateway.tail577250.ts.net:4000/v1")

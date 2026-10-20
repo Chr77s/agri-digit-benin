@@ -47,3 +47,25 @@ def test_local_openai_gateway_needs_only_the_key(settings, monkeypatch):
                      ("POST", "http://gw:4000/v1/chat/completions", "Bearer sk-test", "glm-4.6")]
     settings.OPENAI_API_KEY = ""
     assert llm.get_backend().name != "openai"  # sans clé, la passerelle n'est pas utilisée
+
+
+def test_assistant_context_carries_the_parcel_and_real_weather(producer, settings, monkeypatch):
+    from apps.assistant.services import _field_context
+    from apps.parcels.models import Campaign, Parcel
+
+    settings.WEATHER_BACKEND = "open-meteo"
+    daily = {"daily": {"time": ["2026-10-20"], "temperature_2m_max": [35.0], "temperature_2m_min": [24.0],
+                       "precipitation_sum": [3.0], "precipitation_probability_max": [40]}}
+    monkeypatch.setattr(httpx, "get", lambda url, **kw: httpx.Response(200, json=daily,
+                                                                        request=httpx.Request("GET", url)))
+    parcel = Parcel.objects.create(producer=producer, name="P", department="alibori", land_type="pluvial_plateau",
+                                   tenure="coutumier", area_ha=1.5, geometry={"type": "Polygon", "coordinates": [
+                                       [[2.43, 11.3], [2.44, 11.3], [2.44, 11.31], [2.43, 11.3]]]})
+    Campaign.objects.create(parcel=parcel, value_chain="mais", season="2026-pluie-1", stage="floraison")
+    ctx = _field_context(producer.user)
+    assert ctx["parcelle"] == "pluvial_plateau, 1.5 ha, mais au stade floraison"
+    assert ctx["meteo_3_jours"] == "2026-10-20 : 35 °C, pluie 3 mm (40 %)"
+    settings.WEATHER_BACKEND = "demo"
+    from django.core.cache import cache
+    cache.clear()
+    assert "meteo_3_jours" not in _field_context(producer.user)  # météo simulée : pas transmise au modèle

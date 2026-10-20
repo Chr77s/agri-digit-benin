@@ -5,6 +5,7 @@ import { api, ApiError, list, qs } from '../../shared/api/client';
 import type { Paginated, TrLang, TrStatus, TranslationEntry, TranslationSummary } from '../../shared/api/types';
 import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Notice, PageHeader, QueryState, Select, fmtNum, inputCls } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
+import { CorpusSection } from './Corpus';
 import '../dashboard/pilotage.css';
 import './translations.css';
 
@@ -191,6 +192,8 @@ export function TranslationsPage() {
           </QueryState>
           <p className="hint mt-2.5">{t('translations.threshold', { pct: OPEN_THRESHOLD_PCT })}</p>
         </section>
+
+        <CorpusSection canEdit={canEdit} />
 
         <Card title={t('translations.entriesTitle')}>
           <div className="cluster mb-2" style={{ alignItems: 'flex-end' }}>

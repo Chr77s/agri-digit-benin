@@ -188,6 +188,7 @@ function TurnView({ x, pending, onRetry }: { x: Turn; pending: boolean; onRetry:
             {pending && <p>{t('assistant.searching')}</p>}
             {x.error && <Alert tone="danger" actions={<Button variant="secondary" size="sm" icon="sync" onClick={onRetry}>{t('common.retry')}</Button>}>{x.error}</Alert>}
             {a?.status === 'escalated' && <Alert tone="warn" icon="user" title={t('assistant.escalatedTitle')}>{a.answer || t('assistant.escalatedText')}</Alert>}
+            {a?.language_notice && <Alert tone="info" icon="languages">{t('assistant.noNative')}</Alert>}
             {a?.status === 'unknown' && <Alert tone="info" title={t('assistant.unknownTitle')}>{t('assistant.unknownText')}</Alert>}
             {a?.answer && a.status !== 'escalated' && <p className="whitespace-pre-line">{a.answer}</p>}
             {a && a.citations.length > 0 && (

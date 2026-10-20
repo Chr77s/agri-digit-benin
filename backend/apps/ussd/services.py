@@ -11,7 +11,7 @@ from apps.assistant.services import ask
 from apps.production.models import Support
 from apps.production.services import confirm_support, report_support_issue
 from apps.referentiel.models import Commune
-from integrations.market_data import PRICE_CHAINS, forecast, prices
+from integrations.market_data import PRICE_CHAINS, prices
 
 MAX_CHARS = 182
 CHAINS = [("mais", "Mais"), ("soja", "Soja"), ("riz", "Riz"), ("niebe", "Niebe"), ("manioc", "Manioc"),
@@ -49,13 +49,19 @@ def _place(producer):
 
 
 def weather_text(producer):
+    from datetime import date
+
+    from apps.satellite.api import place_of
+    from integrations.market_data import weather
+
     key, name = _place(producer)
-    days = forecast(key, days=3)
+    lat, lon, _, _ = place_of(producer)
+    w = weather(lat, lon, key, days=3)
     lines = [f"METEO {name.upper()}"]
-    for i, d in enumerate(days):
-        label = "Auj" if i == 0 else DAYS[d["date"].weekday()]
+    for i, d in enumerate(w["days"]):
+        label = "Auj" if i == 0 else DAYS[date.fromisoformat(d["date"]).weekday()]
         lines.append(f"{label} {d['tmax']}C pluie {d['rain_pct']}% {d['rain_mm']}mm")
-    lines.append("(simulation)")
+    lines.append("(simulation)" if w["simulated"] else "(Open-Meteo)")
     return "\n".join(lines)
 
 

@@ -65,6 +65,9 @@ const CooperativeDetailPage = lazy(() => import('../features/cooperatives/Cooper
 const MyCooperativesPage = lazy(() => import('../features/cooperatives/CooperativesPages').then((m) => ({ default: m.MyCooperativesPage })));
 const SupportsPage = lazy(() => import('../features/supports/SupportsPage').then((m) => ({ default: m.SupportsPage })));
 const FlaggedHarvestsPage = lazy(() => import('../features/harvests/HarvestPages').then((m) => ({ default: m.FlaggedHarvestsPage })));
+const OrganisationsPage = lazy(() => import('../features/governance/GovernancePages').then((m) => ({ default: m.OrganisationsPage })));
+const ServicesPage = lazy(() => import('../features/governance/GovernancePages').then((m) => ({ default: m.ServicesPage })));
+const TracePage = lazy(() => import('../features/trace/TracePage').then((m) => ({ default: m.TracePage })));
 const MarketPage = lazy(() => import('../features/market/MarketPage').then((m) => ({ default: m.MarketPage })));
 const DiagnosesPage = lazy(() => import('../features/diagnoses/DiagnosesPage').then((m) => ({ default: m.DiagnosesPage })));
 const SatellitePage = lazy(() => import('../features/satellite/SatellitePage').then((m) => ({ default: m.SatellitePage })));
@@ -115,7 +118,7 @@ export function App() {
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
         <Route path="/cooperatives" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativesPage /></Guard>} />
-        <Route path="/cooperatives/:id" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativeDetailPage /></Guard>} />
+        <Route path="/cooperatives/:id" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative', 'producteur']}><CooperativeDetailPage /></Guard>} />
         <Route path="/mes-cooperatives" element={<Guard roles={['producteur']}><MyCooperativesPage /></Guard>} />
         <Route path="/appuis" element={<Guard roles={['producteur', ...AGENT]}><SupportsPage /></Guard>} />
         <Route path="/recoltes-signalees" element={<Guard roles={AGENT}><FlaggedHarvestsPage /></Guard>} />
@@ -130,6 +133,9 @@ export function App() {
         <Route path="/interoperabilite" element={<Guard roles={['admin_maep']}><InteropPage /></Guard>} />
         <Route path="/collecte" element={<Guard roles={['transformateur', 'distributeur', 'gestionnaire_cooperative']}><CollectionPage /></Guard>} />
         <Route path="/offres" element={<Guard roles={['distributeur', 'transformateur']}><OffersPage /></Guard>} />
+        <Route path="/tracabilite" element={<Guard roles={['producteur', 'gestionnaire_cooperative', 'transformateur', 'distributeur', 'agent_atda', 'admin_maep']}><TracePage /></Guard>} />
+        <Route path="/organisations" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil', 'gestionnaire_cooperative']}><OrganisationsPage /></Guard>} />
+        <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -9,7 +9,7 @@ import {
 import { useDepartments, usePlaceName, useVcName, useVcSelect } from '../../shared/api/ref';
 import type { Match, Offer, OfferType, Payment } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
-import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, usePayment, useRefund, type OfferFilter } from './api';
+import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, useOfferStatus, usePayment, useRefund, type OfferFilter } from './api';
 import { PRICE_CHAINS, demoPrices } from '../weather/demo';
 import { EXPECTED_HARVESTS } from './demo';
 import './market.css';
@@ -17,7 +17,7 @@ import './market.css';
 const TYPES: OfferType[] = ['offre', 'demande'];
 const MAX_INT = 10_000_000; // bornes du serveur pour quantité et prix
 export const toInt = (s: string) => { const c = s.replace(/\s/g, ''); return /^\d+$/.test(c) ? Number(c) : 0; };
-const statusTone = { ouverte: 'neutral', en_relation: 'wait', conclue: 'ok', retiree: 'draft' } as const;
+const statusTone = { ouverte: 'neutral', en_relation: 'wait', conclue: 'ok', retiree: 'draft', suspendue: 'draft' } as const;
 const matchTone = { proposee: 'wait', acceptee: 'ok', refusee: 'bad' } as const;
 type Sort = 'price' | 'qty' | 'recent';
 
@@ -99,7 +99,9 @@ function MineTable({ q, mine, onPublish, onBuyers }: { q: ReturnType<typeof useO
     { key: 'price_xof_per_kg', label: t('market.col.price'), num: true, render: (o) => fmtNum(o.price_xof_per_kg) },
     { key: 'commune', label: t('market.col.place'), render: (o) => `${place(o.commune)}, ${place(o.department)}` },
     { key: 'status', label: t('market.col.status'), render: (o) => <Badge tone={statusTone[o.status]}>{t(`market.offerStatus.${o.status}`)}</Badge> },
-    { key: 'actions', label: t('market.col.actions'), actions: true, render: (o) => (o.status === 'en_relation' ? <Button variant="ghost" size="sm" onClick={onBuyers}>{t('market.seeBuyers')}</Button> : null) },
+    { key: 'actions', label: t('market.col.actions'), actions: true, render: (o) => (
+      <>{o.status === 'en_relation' && <Button variant="ghost" size="sm" onClick={onBuyers}>{t('market.seeBuyers')}</Button>}<OwnerActions o={o} /></>
+    ) },
   ];
   return (
     <QueryState q={q} empty={() => mine.length === 0}
@@ -107,9 +109,33 @@ function MineTable({ q, mine, onPublish, onBuyers }: { q: ReturnType<typeof useO
       {() => (
         <Table columns={cols} data={rows} rowKey={(o) => o.id} caption={t('market.mineCaption')}
           toolbar={<Chips label={t('market.statusFilter')} value={st} onChange={setSt}
-            options={(['ouverte', 'en_relation', 'conclue'] as const).map((s) => ({ value: s, label: t(`market.offerStatus.${s}`), count: count(s) }))} />} />
+            options={(['ouverte', 'en_relation', 'suspendue', 'conclue', 'retiree'] as const).map((s) => ({ value: s, label: t(`market.offerStatus.${s}`), count: count(s) }))} />} />
       )}
     </QueryState>
+  );
+}
+
+/** L'auteur suspend, reprend, ferme (vendue) ou retire son annonce ; fermer et retirer demandent confirmation. */
+function OwnerActions({ o }: { o: Offer }) {
+  const { t } = useTranslation();
+  const m = useOfferStatus();
+  const [ask, setAsk] = useState<'conclue' | 'retiree' | null>(null);
+  const go = (status: Offer['status']) => m.mutate({ id: o.id, status }, { onSuccess: () => { setAsk(null); toast(t(`market.ownerAct.done.${status}`)); } });
+  const live = o.status === 'ouverte' || o.status === 'en_relation';
+  if (!live && o.status !== 'suspendue') return null;
+  return (
+    <>
+      {live
+        ? <Button variant="ghost" size="sm" disabled={m.isPending} onClick={() => go('suspendue')}>{t('market.ownerAct.suspendue')}</Button>
+        : <Button variant="ghost" size="sm" disabled={m.isPending} onClick={() => go('ouverte')}>{t('market.ownerAct.ouverte')}</Button>}
+      <Button variant="ghost" size="sm" onClick={() => { m.reset(); setAsk('conclue'); }}>{t('market.ownerAct.conclue')}</Button>
+      <Button variant="ghost" size="sm" onClick={() => { m.reset(); setAsk('retiree'); }}>{t('market.ownerAct.retiree')}</Button>
+      <Dialog open={!!ask} onClose={() => setAsk(null)} title={ask ? t(`market.ownerAct.confirm.${ask}.title`) : ''}
+        footer={<><Button variant="ghost" onClick={() => setAsk(null)}>{t('common.cancel')}</Button><Button busy={m.isPending} onClick={() => ask && go(ask)}>{ask ? t(`market.ownerAct.${ask}`) : ''}</Button></>}>
+        <p>{ask && t(`market.ownerAct.confirm.${ask}.text`)}</p>
+        {m.error && <ErrorState error={m.error} />}
+      </Dialog>
+    </>
   );
 }
 
@@ -183,10 +209,11 @@ function OfferItem({ o, canContact, waiting, onContact }: { o: Offer; canContact
         {o.description && <p className="small">{o.description}</p>}
       </div>
       <div className="offer-price"><b>{fmtNum(o.price_xof_per_kg)}</b><span className="small muted">{t('market.perKg')}</span></div>
-      {(canContact || waiting) && (
+      {(canContact || waiting || o.is_mine) && (
         <div className="offer-foot">
           {waiting && <span className="small muted">{t('market.pendingReply')}</span>}
           {canContact && <Button variant="secondary" size="sm" onClick={onContact}>{t('market.contact')}</Button>}
+          {o.is_mine && <OwnerActions o={o} />}
         </div>
       )}
     </li>
@@ -279,7 +306,7 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
         <Field label={t('market.quantity')} error={err('quantity_kg')}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.qty} onChange={(e) => setV({ ...v, qty: e.target.value })} /><span className="addon addon--end">kg</span></div>
         )}</Field>
-        <Field label={t('market.price')} error={err('price_xof_per_kg')} hint={priceHint(v.value_chain)}>{(p) => (
+        <Field label={t(`market.priceFor.${v.type}`)} error={err('price_xof_per_kg')} hint={<>{t('market.priceNegotiable')} {priceHint(v.value_chain)}</>}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.price} onChange={(e) => setV({ ...v, price: e.target.value })} /><span className="addon addon--end">FCFA/kg</span></div>
         )}</Field>
         <Field label={t('common.department')}>{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder={t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>

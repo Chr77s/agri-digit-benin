@@ -45,3 +45,17 @@ class Outbox(models.Model):
     status = models.CharField(max_length=10, default="livre")
     department = models.CharField(max_length=40, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ChatMessage(models.Model):
+    """Messagerie entre un producteur et les agents ATDA de son secteur : un fil par producteur."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    producer = models.ForeignKey("producers.Producer", on_delete=models.CASCADE, related_name="chat")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    body = models.TextField()
+    read_at = models.DateTimeField(null=True, blank=True)  # lu par l'autre partie
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["created_at"]

@@ -1,0 +1,31 @@
+{
+  "corpus": {
+    "title": "Corpus de l'assistant",
+    "desc": "Questions et réponses écrites par des locuteurs natifs. Une réponse ne sert aux producteurs qu'après validation par un second représentant. Aucune réponse en langue nationale n'est produite par la machine.",
+    "counts": "{{valid}} validées · {{pending}} à valider · {{waiting}} questions en attente",
+    "accuracy": "Justesse mesurée : {{pct}} % des reformulations retrouvent la bonne réponse",
+    "noAccuracy": "Justesse : pas encore de reformulation pour la mesurer",
+    "waiting": "Questions des producteurs sans réponse validée",
+    "noWaiting": "Aucune question en attente.",
+    "asked_one": "posée {{count}} fois",
+    "asked_other": "posée {{count}} fois",
+    "write": "Rédiger la réponse",
+    "writeTitle": "Réponse en {{lang}}",
+    "asked_fr": "Question posée : « {{q}} »",
+    "question": "Question, écrite dans la langue",
+    "answer": "Réponse, écrite dans la langue",
+    "paraphrases": "Autres façons de poser la question",
+    "paraphrasesHint": "Une par ligne. Elles servent à reconnaître la question et à mesurer la justesse.",
+    "frenchAnswer": "Réponse source en français (fiche technique)",
+    "propose": "Proposer",
+    "toValidate": "Textes à valider",
+    "noneToValidate": "Aucun texte à valider.",
+    "source": "Source : « {{q}} » → « {{a}} »",
+    "validate": "Valider",
+    "reject": "Refuser",
+    "saved": "Enregistré."
+  },
+  "assistant": {
+    "noNative": "Pas encore de réponse validée dans cette langue : voici la réponse en français. Votre question est transmise au MTDI pour enrichir le corpus."
+  }
+}

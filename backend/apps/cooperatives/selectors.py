@@ -7,10 +7,12 @@ from apps.core.permissions import ADMIN, AGENT
 from .models import Cooperative, Membership, MembershipRequest
 
 COOP_MANAGER = "gestionnaire_cooperative"
+BUREAU = ("president", "secretaire", "tresorier")
 
 
 def cooperatives_for(user):
-    """Admin : toutes ; agent : son département ; gestionnaire : seulement les siennes ; autres rôles : 403."""
+    """Admin : toutes ; agent : son département ; gestionnaire : les siennes ; producteur : celles dont il est membre
+    actif du bureau ; autres rôles : 403."""
     qs = Cooperative.objects.select_related("manager").annotate(
         members_count=Count("memberships", filter=Q(memberships__left_at__isnull=True)))
     if user.role == ADMIN:
@@ -19,6 +21,9 @@ def cooperatives_for(user):
         return qs.filter(department=user.department)
     if user.role == COOP_MANAGER:
         return qs.filter(manager=user)
+    if user.role == "producteur":
+        return qs.filter(pk__in=Membership.objects.filter(producer__user=user, left_at__isnull=True,
+                                                         role__in=BUREAU).values("cooperative_id"))
     raise PermissionDenied()
 
 
@@ -50,8 +55,8 @@ def nearby_for(producer):
 
 def join_requests_for(user):
     qs = MembershipRequest.objects.select_related("cooperative", "producer")
-    if user.role == "producteur":
-        return qs.filter(producer__user=user)
+    if user.role == "producteur":  # ses demandes, et celles des coopératives dont il est au bureau
+        return qs.filter(Q(producer__user=user) | Q(cooperative__in=cooperatives_for(user).values("pk")))
     return qs.filter(cooperative__in=cooperatives_for(user))
 
 

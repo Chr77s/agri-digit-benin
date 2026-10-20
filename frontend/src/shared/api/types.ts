@@ -60,7 +60,7 @@ export interface CampaignCreate { parcel: string; value_chain: string; season: s
 export interface Citation { doc_id: string; title: string; source: string; version: number | string }
 export interface AssistantAnswer {
   status: 'answered' | 'unknown' | 'escalated'; answer: string; citations: Citation[];
-  disclaimer: string; backend: string;
+  disclaimer: string; backend: string; language?: string; language_notice?: 'no_validated_answer';
 }
 
 export type KnowledgeStatus = 'brouillon' | 'relu' | 'publie';
@@ -126,13 +126,13 @@ export interface VerifyResult { status: ProducerStatus; full_name: string }
 export interface Support { id: string; producer: string; producer_code?: string; program?: string | null; program_name?: string | null; item: string; quantity: string; unit: string; value_xof: number; repayable: boolean; status: 'remis' | 'confirme'; created_at?: string; confirmed_at?: string | null }
 export interface Harvest { id: string; campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number | null; estimated_kg: number | null; deviation_pct: number | null; flagged: boolean; producer_code?: string; value_chain?: string;
   check_status?: 'a_verifier' | 'visite' | 'confirmee' | 'corrigee'; check_reason?: string; checked_at?: string | null; declared_kg?: number | null }
-export interface Diagnosis { id: string; pathology: string; pathology_label: string; confidence: number; status: 'auto' | 'transmis_agronome' | 'revu'; advice: string; simulation: boolean; value_chain?: string; created_at?: string; review_comment?: string | null; reviewed_at?: string | null; producer_note?: string; image_url?: string; help?: string }
+export interface Diagnosis { id: string; pathology: string; pathology_label: string; confidence: number; status: 'auto' | 'transmis_agronome' | 'revu'; advice: string; simulation: boolean; risk?: 'eleve' | 'moyen' | null; value_chain?: string; created_at?: string; review_comment?: string | null; reviewed_at?: string | null; producer_note?: string; image_url?: string; help?: string }
 export type TrLang = 'fon' | 'bba' | 'yo' | 'dnd';
 export type TrStatus = 'a_traduire' | 'propose' | 'valide' | 'rejete';
 export interface TranslationEntry { id: string; key: string; language: TrLang; source_text: string; text: string; status: TrStatus; average_score: number | null; reviews_count: number; updated_at?: string }
 export interface TranslationSummary { language: TrLang; total: number; valide: number; average_score: number | null; open_to_producers: boolean }
 export type OfferType = 'offre' | 'demande';
-export interface Offer { id: string; type: OfferType; value_chain: string; quantity_kg: number; price_xof_per_kg: number; department: string; commune: string; description: string; status: 'ouverte' | 'en_relation' | 'conclue' | 'retiree'; owner?: string; owner_name?: string; created_at?: string; owner_role?: string; owner_phone_masked?: string; is_mine?: boolean }
+export interface Offer { id: string; type: OfferType; value_chain: string; quantity_kg: number; price_xof_per_kg: number; department: string; commune: string; description: string; status: 'ouverte' | 'en_relation' | 'conclue' | 'retiree' | 'suspendue'; owner?: string; owner_name?: string; created_at?: string; owner_role?: string; owner_phone_masked?: string; is_mine?: boolean }
 export interface Match { id: string; offer: string | Offer; requester: string; requester_name?: string; status: 'proposee' | 'acceptee' | 'refusee'; message?: string; other_phone?: string | null; is_owner?: boolean; created_at?: string; decided_at?: string | null; counterpart_phone?: string; offer_summary?: Pick<Offer, 'type' | 'value_chain' | 'quantity_kg' | 'price_xof_per_kg' | 'status'> }
 export type PaymentStatus = 'en_attente' | 'reussi' | 'echoue' | 'rembourse';
 export interface Receipt { reference: string; amount_xof: number; payer_masked: string; payee_masked: string; paid_at: string }

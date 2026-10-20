@@ -118,6 +118,7 @@ function ResultCard({ d, headingRef, vcName }: { d: Diagnosis; headingRef: React
         <div className="stack" style={{ ['--gap' as string]: '14px' }}>
           <div><p className="small muted">{t('diagnosis.probable')}</p><p className="card-title" style={{ fontSize: '1.25rem' }}>{d.pathology_label}</p></div>
           <div><p className="small muted">{t('diagnosis.confidenceCol')}</p><Confidence value={d.confidence} /></div>
+          {d.risk && <div><p className="small muted">{t('diagnosis.riskLabel')}</p><Badge tone={d.risk === 'eleve' ? 'bad' : 'wait'}>{t(`diagnosis.risk.${d.risk}`)}</Badge></div>}
           {d.status === 'transmis_agronome' && <Alert tone="info" icon="user">{t('diagnosis.lowConfidence')}</Alert>}
           {d.status === 'revu' && d.review_comment && <Alert tone="ok" title={t('diagnosis.reviewComment')}>{d.review_comment}</Alert>}
         </div>

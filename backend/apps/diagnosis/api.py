@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from apps.core.pagination import Cursor
 from apps.core.permissions import AGRONOME, PRODUCTEUR, roles
 from apps.referentiel.models import ValueChain
+from integrations.diagnosis import RISK
 
 from . import selectors, services
 
@@ -24,11 +25,15 @@ class DiagnosisSerializer(serializers.Serializer):
     reviewed_at = serializers.DateTimeField()
     created_at = serializers.DateTimeField()
     image_url = serializers.SerializerMethodField()
+    risk = serializers.SerializerMethodField()
     simulation = serializers.SerializerMethodField()
     help = serializers.SerializerMethodField()
 
     def get_image_url(self, d):
         return f"/api/v1/diagnoses/{d.id}/image"
+
+    def get_risk(self, d):
+        return RISK.get(d.pathology)  # « autre » (relecture agronome) : pas de niveau
 
     def get_simulation(self, d):
         return True

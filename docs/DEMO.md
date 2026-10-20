@@ -19,6 +19,7 @@ Connexion : saisir le téléphone, demander le code ; le code à 6 chiffres s'af
 | transformateur | 0197000009 | AgriDemo-2026! | Parakou, Borgou |
 | distributeur | 0197000010 | AgriDemo-2026! | Cotonou, Littoral |
 | repr_mtdi | 0197000011 | AgriDemo-2026! | national |
+| repr_mtdi (second locuteur, pour valider) | 0197000012 | AgriDemo-2026! | national |
 
 NPI pour l'inscription : `1000000002` (Awa SABI, née le 1990-07-01). Autres cas : `MOCKS.md`.
 
@@ -49,6 +50,14 @@ NPI pour l'inscription : `1000000002` (Awa SABI, née le 1990-07-01). Autres cas
 23. **Partager.** Producteur : « Ma carte », « Partager le lien » (feuille de partage du téléphone, ou copie du lien). Marché : en publiant une annonce, les prix du jour de Banikoara et de Parakou (démonstration) sont rappelés sous le champ prix ; le reçu de paiement se lit à voix haute et se partage.
 24. **Agent sur le terrain, sans réseau.** Sous 640 px (téléphone), l'agent ATDA a sa barre d'onglets (Accueil, Producteurs, Inscrire, Remises, Alertes). Réseau coupé (outils du navigateur), « Inscrire » un producteur ou enregistrer une remise d'appui : la page dit que la saisie est gardée sur le téléphone ; au retour du réseau, la file d'envoi la rejoue (l'ANIP simulée vérifie alors l'inscription).
 25. **Récolte signalée à vérifier.** Producteur : déclarer une récolte très au-dessus (ou très en dessous) du rendement estimé de la parcelle (écart de plus de 50 %) : elle est signalée et les agents ATDA du département sont prévenus. Agent ATDA : « Récoltes signalées », « Vérifier », puis « Déclaration confirmée », « Quantité corrigée » (quantité et motif obligatoires) ou « Visite nécessaire ». Le producteur voit la conclusion sur sa campagne ; les vérifiées se retrouvent dans l'onglet « Vérifiées ».
+26. **Écrire à son agent.** Producteur : « Mes messages », onglet « Mon agent ATDA », écrire et « Envoyer ». Agent ATDA : « Mes messages », onglet « Messages des producteurs », ouvrir la conversation et répondre ; le producteur est prévenu par SMS (boîte d'envoi).
+27. **Gérer une annonce.** Auteur d'une annonce sur le marché : « Suspendre » (masquée aux acheteurs), « Reprendre », « Marquer vendue » ou « Retirer » (définitif, demandes en attente refusées).
+28. **Coopérative gérée par son bureau.** Producteur président (Bio GOUNOU, `0197000001`) : « Mes coopératives », « Gérer la coopérative » : membres et demandes d'adhésion, comme le gestionnaire.
+29. **Traçabilité.** Gestionnaire (`0197000008`) : « Traçabilité », « Mettre en lot » une récolte stockée d'un membre (déclarer d'abord une récolte avec du stock, étape 25), site « Magasin de Kandi [démo] » ; « Livrer » une partie au transformateur (`0197000009`). Transformateur : « Traçabilité », « Transformer » le lot reçu en « Farine de maïs » ; « Remonter » le code du lot : producteur, parcelle, saison, intrants reçus.
+30. **Organisations de filière.** Agent ATDA : « Organisations de filière », « Union communale des producteurs de maïs de Banikoara [démo] » : coopératives membres, effectifs, prix convenu, formation ; ajouter une réunion.
+31. **Services et innovations.** Producteur : « Services et innovations » : offres de partenaires, innovations, financements de sa zone. Administrateur : total des financements mobilisés et des appuis remis.
+32. **Assistant en langue nationale.** Producteur : assistant, langue « Fɔngbè » : sans réponse validée, réponse en français avec la mention, et la question part au MTDI. MTDI (`0197000011`) : « Langues », « Corpus de l'assistant », « Rédiger la réponse » ; MTDI 2 (`0197000012`) : « Valider ». Reposée, la question reçoit la réponse validée. N'écrire en langue nationale que si un locuteur est présent.
+33. **Météo réelle.** Producteur : accueil et « Météo et prix » : prévision Open-Meteo au point de la parcelle, source et heure affichées (Internet nécessaire ; sinon « Prévision simulée »).
 
 ## Où lire le code (bandeau Simulation)
 

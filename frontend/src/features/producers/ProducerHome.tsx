@@ -9,7 +9,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useCampaigns, useParcels } from '../parcels/api';
 import { useNotifications } from '../alerts/api';
 import { useSupportActions, useSupports } from '../supports/SupportsPage';
-import { demoForecast } from '../weather/demo';
+import { useForecast } from '../weather/api';
 import { ListenGhost, StageBar } from './producerKit';
 
 const dayFmt = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'short' });
@@ -106,7 +106,8 @@ function MobileHome({ firstName, place, commune, where, alert, campaigns, parcel
   const { t } = useTranslation();
   const vcName = useVcName();
   const { online, pending } = useOfflineStatus();
-  const [now, ...next] = demoForecast(commune || 'benin', new Date(), 5);
+  const fc = useForecast(commune, 5);
+  const [now, ...next] = fc.days;
   const heavy = next.find((d) => d.rainMm >= 30);
   const c = campaigns.data?.[0];
   const p = c && parcels.data?.find((x) => x.id === c.parcel);
@@ -128,7 +129,7 @@ function MobileHome({ firstName, place, commune, where, alert, campaigns, parcel
           <span className="m-wx-deg num">{now.tmax}°</span>
           <span className="m-wx-t">
             <b>{heavy ? t('home.heavyRain', { day: heavy.date.toLocaleDateString('fr-FR', { weekday: 'long' }) }) : t('home.rainToday', { pct: now.rainPct })}</b>
-            {t('mobile.home.wxWhere', { place: place || t('common.notAvailable') })} · {t('weather.simulated')}
+            {t('mobile.home.wxWhere', { place: place || t('common.notAvailable') })} · {fc.simulated ? t('weather.simulated') : t('weather.live')}
           </span>
         </Link>
       </section>
@@ -192,10 +193,11 @@ function MobileHome({ firstName, place, commune, where, alert, campaigns, parcel
 
 function WeatherCard({ commune, name }: { commune: string; name: string }) {
   const { t } = useTranslation();
-  const [now, ...next] = demoForecast(commune || 'benin', new Date(), 5);
+  const fc = useForecast(commune, 5);
+  const [now, ...next] = fc.days;
   const heavy = next.find((d) => d.rainMm >= 30);
   return (
-    <Card title={t('home.weatherTitle', { place: name })} sub={t('home.weatherSub')} actions={<Badge tone="sim">{t('weather.simulated')}</Badge>}>
+    <Card title={t('home.weatherTitle', { place: name })} sub={fc.simulated ? t('home.weatherSub') : t('weather.liveSub', { source: fc.source, time: new Date(fc.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) })} actions={<Badge tone={fc.simulated ? 'sim' : 'ok'}>{fc.simulated ? t('weather.simulated') : t('weather.live')}</Badge>}>
       <div className="wx-now">
         <span className="wx-ic"><Icon name={now.icon} /></span>
         <div>

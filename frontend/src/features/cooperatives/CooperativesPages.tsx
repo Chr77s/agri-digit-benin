@@ -10,6 +10,8 @@ import { useCooperative, useCooperatives, useCreateCooperative, useDecideJoinReq
 import '../producers/agent.css';
 
 const MEMBER_ROLES: MemberRole[] = ['membre', 'president', 'tresorier', 'secretaire'];
+/** Les membres du bureau gèrent leur coopérative (mêmes droits que le gestionnaire, vérifiés par le serveur). */
+const BUREAU: MemberRole[] = ['president', 'tresorier', 'secretaire'];
 
 function useRoleOptions() {
   const { t } = useTranslation();
@@ -107,13 +109,13 @@ export function CooperativeDetailPage() {
   const place = usePlaceName();
   const vcName = useVcName();
   const [addOpen, setAddOpen] = useState(false);
-  const canEdit = ['agent_atda', 'admin_maep', 'gestionnaire_cooperative'].includes(user?.role ?? '');
+  const canEdit = ['agent_atda', 'admin_maep', 'gestionnaire_cooperative', 'producteur'].includes(user?.role ?? ''); // producteur : seul le bureau atteint cette page
   const pending = useJoinRequests({ cooperative: id, status: 'en_attente' });
   return (
     <QueryState q={q}>
       {(c) => (
         <>
-          <PageHeader title={c.name} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('coop.title'), to: '/cooperatives' }, { label: c.name }]}
+          <PageHeader title={c.name} crumbs={[{ label: t('nav.home'), to: '/' }, user?.role === 'producteur' ? { label: t('nav.myCoops'), to: '/mes-cooperatives' } : { label: t('coop.title'), to: '/cooperatives' }, { label: c.name }]}
             desc={c.manager_phone ? t('ag.coop.manager', { phone: c.manager_phone }) : undefined}
             actions={canEdit && <Button icon="plus" onClick={() => setAddOpen(true)}>{t('coop.addMember')}</Button>} />
           <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
@@ -319,6 +321,9 @@ export function MyCooperativesPage() {
                         <dt>{t('ag.coop.myRole')}</dt><dd>{roleLabel(m.role)}</dd>
                         <dt>{t('ag.coop.memberLabel')}</dt><dd className="num">{t('coop.since', { date: fmtDate(m.joined_at) })}</dd>
                       </dl>
+                      {BUREAU.includes(m.role) && m.cooperative && (
+                        <Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to={`/cooperatives/${m.cooperative}`}>{t('coop.manage')}</Link>
+                      )}
                     </Card>
                   ))}
                 </div>

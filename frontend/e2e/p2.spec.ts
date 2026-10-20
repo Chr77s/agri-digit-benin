@@ -152,7 +152,7 @@ test('marché : offre du transformateur, demande du distributeur, acceptation', 
   await create.getByRole('group', { name: "Type d'annonce" }).getByRole('radio', { name: /^Offre/ }).check();
   await create.getByLabel('Filière').selectOption('mais');
   await create.getByLabel('Quantité (kg)').fill('1200');
-  await create.getByLabel('Prix proposé (FCFA par kg)').fill('210');
+  await create.getByLabel('Prix de vente proposé (FCFA par kg)').fill('210');
   await create.getByLabel('Département').selectOption('borgou');
   await create.getByLabel('Commune').selectOption('parakou');
   await create.getByLabel('Description (facultatif)').fill(description);

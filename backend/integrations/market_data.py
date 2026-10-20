@@ -33,6 +33,39 @@ def forecast(place, today=None, days=7):
     return out
 
 
+def weather(lat, lon, place, days=7):
+    """Prévisions réelles Open-Meteo (données ouvertes, modèles ECMWF et Météo-France) pour un point ; en cas
+    d'échec, valeurs de démonstration étiquetées. Mise en cache 1 h (30 min après un échec)."""
+    import httpx
+    from django.conf import settings
+    from django.core.cache import cache
+    from django.utils import timezone
+
+    key = f"weather:{round(lat, 2)}:{round(lon, 2)}:{days}"
+    if (hit := cache.get(key)) is not None:
+        return hit
+    try:
+        if settings.WEATHER_BACKEND != "open-meteo":
+            raise RuntimeError("météo réelle désactivée")
+        r = httpx.get(settings.WEATHER_URL, timeout=5, params={
+            "latitude": lat, "longitude": lon, "timezone": "Africa/Porto-Novo", "forecast_days": days,
+            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max"})
+        r.raise_for_status()
+        d = r.json()["daily"]
+        out = {"source": "Open-Meteo (prévisions ECMWF et Météo-France, données ouvertes)", "simulated": False,
+               "updated_at": timezone.now().isoformat(),
+               "days": [{"date": d["time"][i], "tmax": _round(d["temperature_2m_max"][i]),
+                         "tmin": _round(d["temperature_2m_min"][i]), "rain_mm": _round(d["precipitation_sum"][i] or 0),
+                         "rain_pct": d["precipitation_probability_max"][i] or 0} for i in range(len(d["time"]))]}
+        cache.set(key, out, 3600)
+    except Exception:  # réseau coupé, service indisponible : la démonstration prend le relais, signalée comme telle
+        out = {"source": "Démonstration (service météo injoignable)", "simulated": True,
+               "updated_at": timezone.now().isoformat(),
+               "days": [{**x, "date": x["date"].isoformat()} for x in forecast(place, days=days)]}
+        cache.set(key, out, 1800)
+    return out
+
+
 MARKETS = [
     ("Banikoara", "Alibori", 0.88), ("Kandi", "Alibori", 0.92), ("Malanville", "Alibori", 1.04),
     ("Parakou (Arzéké)", "Borgou", 1), ("Bohicon", "Zou", 1.13), ("Dantokpa (Cotonou)", "Littoral", 1.22),

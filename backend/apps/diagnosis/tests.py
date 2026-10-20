@@ -45,7 +45,8 @@ def test_low_confidence_goes_to_agronomist_and_exif_is_stripped(users, producer,
 
 def test_high_confidence_is_auto_and_bad_files_refused(users, producer, settings):
     settings.DIAGNOSIS_THRESHOLD = 0
-    assert _post(producer.user).json()["status"] == "auto"
+    d = _post(producer.user).json()
+    assert d["status"] == "auto" and d["risk"] in ("eleve", "moyen")  # niveau de risque attendu par le TDR
     assert _post(producer.user, b"pas une image").status_code == 400
     assert client_for(users["agronome"]).get("/api/v1/diagnoses").json()["results"] == []  # rien à relire
 

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../shared/api/client';
-import { Alert, Badge, Button, Card, Chips, EmptyState, Icon, PageHeader, QueryState, Switch, fmtDateTime, speak, toast } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Chips, EmptyState, Icon, PageHeader, QueryState, Switch, Tabs, fmtDateTime, speak, toast } from '../../shared/ui';
 import type { Notification } from '../../shared/api/types';
 import '../producers/producteur.css';
 import { useMarkRead, useNotifications } from './api';
+import { AgentInbox, ChatThread } from './Chat';
+import { useAuth } from '../auth/AuthContext';
 
 const isUnread = (n: Notification) => !(n.is_read ?? n.read_at);
 
@@ -17,6 +19,7 @@ export function NotificationsPage() {
   const [filter, setFilter] = useState(['all']);
   const [allBusy, setAllBusy] = useState(false);
   const unread = (q.data ?? []).filter(isUnread);
+  const role = useAuth().user?.role;
 
   // Pas d'endpoint groupé : on marque chaque message, puis on recharge une fois.
   const markAll = async () => {
@@ -32,10 +35,7 @@ export function NotificationsPage() {
     }
   };
 
-  return (
-    <>
-      <PageHeader title={t('nav.notifications')} desc={t('notifications.desc')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.notifications') }]}
-        actions={unread.length > 0 ? <Button variant="secondary" icon="check" busy={allBusy} onClick={() => void markAll()}>{t('notifications.markAll')}</Button> : undefined} />
+  const inbox = (
       <div className="split">
         <div className="stack" style={{ ['--gap' as string]: '14px' }}>
           {read.error && <Alert tone="danger" live>{read.error.message}</Alert>}
@@ -83,6 +83,18 @@ export function NotificationsPage() {
         {/* Réglages de démonstration (sans API) : absents de l'écran mobile de la maquette. */}
         <div className="d-only"><Prefs /></div>
       </div>
+  );
+
+  return (
+    <>
+      <PageHeader title={t('nav.notifications')} desc={t('notifications.desc')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.notifications') }]}
+        actions={unread.length > 0 ? <Button variant="secondary" icon="check" busy={allBusy} onClick={() => void markAll()}>{t('notifications.markAll')}</Button> : undefined} />
+      {role === 'producteur' || role === 'agent_atda' ? (
+        <Tabs label={t('nav.notifications')} tabs={[
+          { id: 'chat', label: role === 'producteur' ? t('chat.tabProducer') : t('chat.tabAgent'), content: role === 'producteur' ? <ChatThread /> : <AgentInbox /> },
+          { id: 'notifications', label: t('chat.tabNotifications'), count: unread.length || undefined, content: inbox },
+        ]} />
+      ) : inbox}
     </>
   );
 }
