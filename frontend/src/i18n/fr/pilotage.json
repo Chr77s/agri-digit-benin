@@ -194,7 +194,7 @@
       "na": {
         "maize_yield": {
           "label": "Rendement moyen, maïs",
-          "why": "Aucune pesée de récolte n'est encore reliée. Les prévisions simulées sont dans « Prévisions »."
+          "why": "Aucune pesée de récolte n'est encore reliée. Le rendement déclaré par les producteurs est dans « Production par filière et par saison », plus bas ; les prévisions simulées sont dans « Prévisions »."
         },
         "credits_granted": {
           "label": "Crédits accordés",

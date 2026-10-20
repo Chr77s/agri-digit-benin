@@ -147,3 +147,21 @@ def test_pmea_directory_is_verified_before_it_is_public(users, producer):
     assert other.get("/api/v1/pmea?department=borgou&service=intrants").json()["results"] == []
     assert len(other.get("/api/v1/pmea?department=borgou&service=stockage").json()["results"]) == 1
     assert client_for(users["transf"]).post(f"/api/v1/pmea/{p['id']}/verify").status_code == 403
+
+
+def test_pmea_and_rented_equipment_appear_on_the_map_by_department_only(users, producer):
+    eq = _tractor(client_for(producer.user))  # proposé à la location
+    client_for(producer.user).post("/api/v1/equipment", {"kind": "pompe"}, format="json")  # non loué : absent
+    transf = client_for(users["transf"])
+    p = transf.post("/api/v1/pmea", {"name": "Huilerie de Parakou", "services": ["transformation"],
+                                     "department": "borgou", "phone": "0196112233", "value_chains": ["soja"]},
+                    format="json").json()
+    admin = client_for(users["admin"])
+    admin.post(f"/api/v1/pmea/{p['id']}/verify")
+    data = admin.get("/api/v1/map/actors?layers=pmea,equipment").json()
+    by = {f["properties"]["layer"]: f["properties"] for f in data["features"]}
+    assert by["pmea"]["department"] == "borgou" and by["pmea"]["precision"] == "departement"
+    assert by["equipment"]["count"] == 1 and by["equipment"]["by_tag"] == {"tracteur": 1}, eq
+    assert "0196112233" not in str(data) and producer.user.phone not in str(data)  # ni téléphone ni nom
+    chain = admin.get("/api/v1/map/actors?layers=pmea&value_chain=mais").json()
+    assert [f for f in chain["features"] if f["properties"]["layer"] == "pmea"] == []  # filtre filière

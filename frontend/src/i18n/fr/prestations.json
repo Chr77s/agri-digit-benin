@@ -15,13 +15,24 @@
     "mine": "Mon matériel",
     "kind": "Type de matériel",
     "kinds": {
-      "tracteur": "Tracteur", "motoculteur": "Motoculteur", "charrue": "Charrue", "semoir": "Semoir", "pulverisateur": "Pulvérisateur",
-      "decortiqueuse": "Décortiqueuse", "pompe": "Motopompe", "tricycle": "Tricycle de transport", "autre": "Autre"
+      "tracteur": "Tracteur",
+      "motoculteur": "Motoculteur",
+      "charrue": "Charrue",
+      "semoir": "Semoir",
+      "pulverisateur": "Pulvérisateur",
+      "decortiqueuse": "Décortiqueuse",
+      "pompe": "Motopompe",
+      "tricycle": "Tricycle de transport",
+      "autre": "Autre"
     },
     "label": "Précision (marque, puissance…)",
     "quantity": "Nombre",
     "condition": "État",
-    "conditions": { "bon": "Bon", "moyen": "Moyen", "mauvais": "Mauvais" },
+    "conditions": {
+      "bon": "Bon",
+      "moyen": "Moyen",
+      "mauvais": "Mauvais"
+    },
     "year": "Année d'acquisition",
     "hire": "Location",
     "hireRate": "{{n}} FCFA / ha",
@@ -48,7 +59,11 @@
   "mech": {
     "title": "Mécanisation",
     "desc": "Trouvez un prestataire de labour, de semis, de récolte ou de transport dans votre département, demandez une prestation, ou répondez aux demandes reçues pour votre matériel.",
-    "tab": { "find": "Trouver un prestataire", "sent": "Mes demandes", "received": "Demandes reçues" },
+    "tab": {
+      "find": "Trouver un prestataire",
+      "sent": "Mes demandes",
+      "received": "Demandes reçues"
+    },
     "allKinds": "Tous les types",
     "noProvider": "Aucun prestataire dans votre département",
     "noProviderHelp": "Aucun matériel n'est proposé à la location pour le moment.",
@@ -61,7 +76,14 @@
     "send": "Envoyer la demande",
     "sent": "Demande envoyée.",
     "operation": "Opération",
-    "op": { "labour": "Labour", "semis": "Semis", "traitement": "Traitement", "recolte": "Récolte", "battage": "Battage", "transport": "Transport" },
+    "op": {
+      "labour": "Labour",
+      "semis": "Semis",
+      "traitement": "Traitement",
+      "recolte": "Récolte",
+      "battage": "Battage",
+      "transport": "Transport"
+    },
     "area": "Surface à travailler",
     "wishedOn": "Date souhaitée",
     "notes": "Précisions",
@@ -73,7 +95,13 @@
     "requests": "Demandes de prestation",
     "for": "pour le {{date}}",
     "price": "Prix (FCFA)",
-    "status": { "demandee": "En attente", "acceptee": "Acceptée", "refusee": "Refusée", "realisee": "Réalisée", "annulee": "Annulée" },
+    "status": {
+      "demandee": "En attente",
+      "acceptee": "Acceptée",
+      "refusee": "Refusée",
+      "realisee": "Réalisée",
+      "annulee": "Annulée"
+    },
     "accept": "Accepter",
     "refuse": "Refuser",
     "complete": "Prestation faite",
@@ -91,10 +119,26 @@
     "add": "Enregistrer un lot",
     "empty": "Aucun lot de semences",
     "emptyHelp": "Un agent enregistre les lots certifiés d'un centre semencier avant de les remettre.",
-    "kpi": { "lots": "Lots", "stock": "Stock disponible", "given": "Déjà remis", "beneficiaries": "Remises" },
+    "kpi": {
+      "lots": "Lots",
+      "stock": "Stock disponible",
+      "given": "Déjà remis",
+      "beneficiaries": "Remises"
+    },
     "lots": "Lots de semences",
-    "col": { "code": "Lot", "variety": "Variété", "centre": "Centre semencier", "available": "Disponible / total (kg)", "beneficiaries": "Remises" },
-    "category": { "pre_base": "Pré-base", "base": "Base", "r1": "Certifiée R1", "r2": "Certifiée R2" },
+    "col": {
+      "code": "Lot",
+      "variety": "Variété",
+      "centre": "Centre semencier",
+      "available": "Disponible / total (kg)",
+      "beneficiaries": "Remises"
+    },
+    "category": {
+      "pre_base": "Pré-base",
+      "base": "Base",
+      "r1": "Certifiée R1",
+      "r2": "Certifiée R2"
+    },
     "categoryLabel": "Catégorie",
     "cert": "Numéro du certificat",
     "producedOn": "Date de production",
@@ -118,7 +162,14 @@
     "desc": "Annuaire des petites et moyennes entreprises agricoles de la zone : transformation, intrants, mécanisation, stockage, vente, conseil.",
     "add": "Inscrire une entreprise",
     "service": "Service",
-    "services": { "transformation": "Transformation", "intrants": "Intrants", "mecanisation": "Mécanisation", "stockage": "Stockage", "commercialisation": "Commercialisation", "conseil": "Conseil" },
+    "services": {
+      "transformation": "Transformation",
+      "intrants": "Intrants",
+      "mecanisation": "Mécanisation",
+      "stockage": "Stockage",
+      "commercialisation": "Commercialisation",
+      "conseil": "Conseil"
+    },
     "empty": "Aucune entreprise dans l'annuaire",
     "emptyHelp": "Essayez un autre département ou un autre service.",
     "isVerified": "Vérifiée",
@@ -133,5 +184,15 @@
     "addHelp": "L'entreprise apparaît pour les autres après vérification par l'agent de la zone.",
     "errName": "Indiquez le nom de l'entreprise.",
     "errServices": "Choisissez au moins un service."
+  },
+  "amap": {
+    "layer": {
+      "pmea": "Entreprises agricoles vérifiées (par département)",
+      "equipment": "Matériel proposé à la location (par département)"
+    },
+    "short": {
+      "pmea": "Entreprise",
+      "equipment": "Matériel"
+    }
   }
 }

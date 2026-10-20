@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "apps.interop",
     "apps.lands",
     "apps.farmservices",
+    "apps.observatory",
 ]
 
 MIDDLEWARE = [

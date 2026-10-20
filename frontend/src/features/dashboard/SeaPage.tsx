@@ -8,6 +8,7 @@ import { Alert, Badge, Button, Card, EmptyState, Field, Icon, PageHeader, QueryS
 import { useDepartments, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { HBars, Meter, OfflineNote, Src, StackBar, TableView, Val } from './viz';
+import { SeaDetail } from './SeaDetail';
 
 /** Indicateurs regroupés par question de suivi (maquette suivi-evaluation). `na:` = indicateur des TDR sans source : affiché « non disponible ». */
 const GROUPS: { id: string; keys: string[] }[] = [
@@ -76,6 +77,7 @@ export function SeaPage() {
             );
           }}
         </QueryState>
+        <SeaDetail department={canFilter ? dep : ''} />
       </div>
     </div>
   );

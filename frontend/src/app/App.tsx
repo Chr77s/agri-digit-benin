@@ -84,6 +84,9 @@ const EquipmentPage = lazy(() => import('../features/farmservices/EquipmentPage'
 const MechanizationPage = lazy(() => import('../features/farmservices/MechanizationPage').then((m) => ({ default: m.MechanizationPage })));
 const SeedsPage = lazy(() => import('../features/farmservices/SeedsPage').then((m) => ({ default: m.SeedsPage })));
 const PmeaPage = lazy(() => import('../features/farmservices/PmeaPage').then((m) => ({ default: m.PmeaPage })));
+const CoveragePage = lazy(() => import('../features/observatory/CoveragePage').then((m) => ({ default: m.CoveragePage })));
+const ActorsMapPage = lazy(() => import('../features/observatory/ActorsMapPage').then((m) => ({ default: m.ActorsMapPage })));
+const ModelQualityPage = lazy(() => import('../features/observatory/ModelQualityPage').then((m) => ({ default: m.ModelQualityPage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
@@ -157,6 +160,9 @@ export function App() {
         <Route path="/mecanisation" element={<Guard roles={OWNERS}><MechanizationPage /></Guard>} />
         <Route path="/semences" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><SeedsPage /></Guard>} />
         <Route path="/pmea" element={<Guard><PmeaPage /></Guard>} />
+        <Route path="/couverture" element={<Guard roles={['admin_maep', 'responsable_programme', 'auditeur_copil', 'agent_atda']}><CoveragePage /></Guard>} />
+        <Route path="/carte-acteurs" element={<Guard><ActorsMapPage /></Guard>} />
+        <Route path="/qualite-modeles" element={<Guard roles={['admin_maep', 'responsable_programme', 'agronome_inrab', 'auditeur_copil']}><ModelQualityPage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
