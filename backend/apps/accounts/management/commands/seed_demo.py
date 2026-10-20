@@ -12,6 +12,7 @@ from apps.audit.models import RetentionPolicy
 from apps.cooperatives.models import Cooperative, Membership, Organisation, OrgEvent
 from apps.knowledge.models import KnowledgeDoc, KnowledgeDocVersion, Publication
 from apps.market.services import seed_market
+from apps.observatory.models import NationalStat
 from apps.parcels.models import Campaign, Parcel
 from apps.parcels.services import area_ha
 from apps.producers.models import Consent, Producer, ProducerVersion
@@ -101,6 +102,7 @@ class Command(BaseCommand):
         self._knowledge()
         self._cooperative()
         self._governance()
+        self._national_stats()
         seed_reference_yields()
         seed_entries()
         seed_market(PASSWORD)
@@ -166,6 +168,19 @@ class Command(BaseCommand):
         Site.objects.get_or_create(name="Magasin de Kandi [démo]", defaults={
             "owner": User.objects.get(phone="0197000008"), "kind": "magasin", "department": "alibori",
             "commune": "kandi", "lat": 11.134, "lon": 2.938, "capacity_t": 200})
+
+    def _national_stats(self):
+        """Statistiques nationales FICTIVES (chiffres ronds), pour montrer le calcul et la veille : source marquée
+        « Données de démonstration (non officielles) », bandeau affiché. Jamais écrasées par ce seed."""
+        for vc, year, prod, cons, imp in [
+            ("riz", 2023, 100_000, 150_000, 50_000), ("riz", 2024, 120_000, 160_000, 40_000),
+            ("riz", 2025, 90_000, 170_000, 60_000),
+            ("mais", 2023, 200_000, 210_000, 10_000), ("mais", 2024, 205_000, 215_000, 11_000),
+            ("mais", 2025, 210_000, 220_000, 11_500),
+            ("soja", 2024, 50_000, 80_000, 30_000), ("soja", 2025, 52_000, 82_000, 30_000),
+        ]:
+            NationalStat.objects.get_or_create(value_chain=vc, year=year, defaults={
+                "production_t": prod, "consumption_t": cons, "imports_t": imp, "source": NationalStat.DEMO_SOURCE})
 
     def _programs(self):
         for name, desc, chains, closes in [

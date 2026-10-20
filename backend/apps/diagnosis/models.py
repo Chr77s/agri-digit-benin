@@ -15,6 +15,9 @@ class Diagnosis(models.Model):
     image = models.CharField(max_length=200, blank=True)
     pathology = models.CharField(max_length=60)
     pathology_label = models.CharField(max_length=120)
+    # Ce que le modèle avait répondu : `pathology` est remplacée par celle de l'agronome à la relecture. Sert à mesurer
+    # la qualité du modèle (apps/observatory/quality.py) ; vide pour les relectures faites avant ce champ.
+    predicted_pathology = models.CharField(max_length=60, blank=True)
     confidence = models.FloatField()
     status = models.CharField(max_length=20, choices=[(s, s) for s in STATUSES], db_index=True)
     advice = models.TextField(blank=True)

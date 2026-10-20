@@ -10,6 +10,7 @@ from apps.cooperatives import api as coop
 from apps.cooperatives import organisations as orgs
 from apps.credit import api as credit
 from apps.dashboard import api as dashboard
+from apps.dashboard import sea_detail
 from apps.diagnosis import api as diag
 from apps.exports import api as exports
 from apps.farms import api as farms
@@ -18,6 +19,7 @@ from apps.knowledge import api as kn
 from apps.knowledge import publications as pubs
 from apps.lands import api as lands
 from apps.market import api as market
+from apps.observatory import api as observatory
 from apps.parcels import api as parcels
 from apps.producers import api as prod
 from apps.production import api as prodn
@@ -163,6 +165,14 @@ v1 = [
     path("interop/keys/<str:partner>/revoke", interop.key_revoke),
     path("interop/<str:partner>/aggregates", interop.aggregates),
     path("dashboard/sea", dashboard.sea),
+    path("dashboard/sea/production", sea_detail.production),
+    path("dashboard/sea/workforce", sea_detail.workforce),
+    path("dashboard/sea/impact", sea_detail.impact),
+    path("national-coverage", observatory.national_coverage),
+    path("national-coverage/import", observatory.national_import),
+    path("national-coverage/<uuid:pk>", observatory.national_stat_delete),
+    path("map/actors", observatory.map_actors),
+    path("models/quality", observatory.models_quality),
     path("farms/aggregates", farms.farm_aggregates),
     path("farms", farms.farm_list),
     path("dashboard", dashboard.dashboard),
