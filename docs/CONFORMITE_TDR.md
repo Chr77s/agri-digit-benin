@@ -58,9 +58,9 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Gouvernance | Interprofessions, OIA, fédérations | Fait (organisations de filière : union, fédération, interprofession, OIA, OPA) |
 | Gouvernance | Coopératives et effectifs | Fait (membres, effectifs par organisation dont femmes) |
 | Gouvernance | Fonctionnement des interprofessions, mécanismes de prix, renforcement des capacités | Fait (assemblées, réunions, prix convenus, formations avec femmes et jeunes) |
-| Suivi-évaluation | Production par filière, effectifs, impact des appuis | Partiel (indicateurs SEA) |
-| Suivi-évaluation | Taux de couverture de la consommation nationale, importations, tendances, veille | Absent |
-| Suivi-évaluation | Cartographie des acteurs | Partiel (fermes POC, parcelles, sites géolocalisés ; pas encore de carte commune) |
+| Suivi-évaluation | Production par filière, effectifs, impact des appuis | Fait (production et rendement par filière et saison, effectifs par sexe et tranche d'âge, impact des appuis comparé à des producteurs du même département, de la même filière et de la même saison ; cellules de moins de 5 masquées, comparaison non causale dite telle) |
+| Suivi-évaluation | Taux de couverture de la consommation nationale, importations, tendances, veille | Fait côté outil (saisie avec source obligatoire, import en lot, taux de couverture et de dépendance, variations annuelles, alertes de veille). **Les chiffres nationaux sont à saisir par le MAEP** : le prototype n'en contient que de démonstration, étiquetés ; les seuils de veille (80 %, +20 %, −15 %) sont à arrêter |
+| Suivi-évaluation | Cartographie des acteurs | Fait (carte commune à couches : sites, aménagements, organisations, coopératives, entreprises agricoles vérifiées, matériel loué, et parcelles pour le personnel seulement ; une entité sans position propre est placée au centre de son département, jamais de nom de personne ni de téléphone) |
 
 ## 3. Services aux acteurs (§ 3.1)
 
@@ -98,7 +98,7 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Formats ouverts, pas de système propriétaire | Fait | |
 | Sécurité, confidentialité, protection des données | Fait | Consentements, journal chaîné, périmètres, minimisation. |
 | Code source, documentation, scripts d'installation | Fait | |
-| Cadre de réentraînement des modèles | Absent | À rédiger dans le rapport final. |
+| Cadre de réentraînement des modèles | Fait côté outil | Cadre rédigé (`docs/REENTRAINEMENT.md`), qualité mesurée sur les données de la plateforme (`/models/quality`), export d'entraînement pseudonymisé. **Aucun modèle appris à ce jour** ; les seuils chiffrés sont des propositions pour le comité ; il manque le consentement « amélioration des modèles », l'AIPD et l'avis de l'APDP. |
 
 ## 5. Hors logiciel (non comptés)
 
