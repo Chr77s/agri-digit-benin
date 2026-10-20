@@ -99,14 +99,27 @@ def climate_series(lat, lon, place, past=14, ahead=7):
         cache.set(key, out, 1800)
     return out
 
+# Prix de DÉMONSTRATION (département = code du référentiel) : ils ne servent que tant qu'une filière n'a aucun relevé.
 MARKETS = [
-    ("Banikoara", "Alibori", 0.88), ("Kandi", "Alibori", 0.92), ("Malanville", "Alibori", 1.04),
-    ("Parakou (Arzéké)", "Borgou", 1), ("Bohicon", "Zou", 1.13), ("Dantokpa (Cotonou)", "Littoral", 1.22),
+    ("Banikoara", "alibori", 0.88), ("Kandi", "alibori", 0.92), ("Malanville", "alibori", 1.04),
+    ("Parakou (Arzéké)", "borgou", 1), ("Bohicon", "zou", 1.13), ("Dantokpa (Cotonou)", "littoral", 1.22),
 ]
 PRICE_CHAINS = {"mais": 215, "soja": 300, "riz": 260, "niebe": 420, "manioc": 330, "anacarde": 400}
 
 
+def demo_prices(chain):
+    """Valeurs de démonstration, étiquetées `simulated` ; rien pour une filière sans prix de démonstration."""
+    base = PRICE_CHAINS.get(chain)
+    if base is None:
+        return []
+    return [{"market": m, "department": dep, "form": "brut", "product": chain, "price": _round(base * f / 5) * 5,
+             "change": _round((unit(f"{chain}:{m}") - 0.6) * 12), "observed_on": None, "simulated": True}
+            for m, dep, f in MARKETS]
+
+
 def prices(chain):
-    base = PRICE_CHAINS.get(chain, 200)
-    return [{"market": m, "department": dep, "price": _round(base * f / 5) * 5,
-             "change": _round((unit(f"{chain}:{m}") - 0.6) * 12)} for m, dep, f in MARKETS]
+    """Prix au marché d'une filière, forme brute : derniers relevés saisis (30 jours au plus) ; à défaut, démonstration.
+    Chaque ligne dit si elle est simulée (`simulated`) et la date du relevé (`observed_on`)."""
+    from apps.markets.prices import latest
+    real = [r for r in latest(chain) if r["form"] == "brut"]
+    return real or demo_prices(chain)

@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from apps.parcels.models import Campaign
 from apps.producers.models import Producer
@@ -151,3 +152,13 @@ class Expense(models.Model):
     amount_xof = models.PositiveIntegerField()
     spent_on = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class StockAlertSent(models.Model):
+    """Alerte de stock déjà envoyée à un détenteur pour un produit : sert à n'en envoyer qu'une par semaine."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    holder = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    product = models.CharField(max_length=120)
+    level = models.CharField(max_length=10)  # rupture | critique
+    sent_at = models.DateTimeField(default=timezone.now, db_index=True)

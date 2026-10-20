@@ -65,10 +65,19 @@ def weather_text(producer):
     return "\n".join(lines)
 
 
-def prices_text(chain):
+MAX_PRICE_ROWS = 6  # un écran de 182 caractères ne porte pas plus de marchés
+
+
+def prices_text(chain, department=None):
+    """Derniers relevés de marché (ceux du département du producteur d'abord), à défaut démonstration signalée."""
     name = dict(CHAINS).get(chain, chain)
-    rows = [f"{p['market'].split(' (')[0]} {p['price']}" for p in prices(chain)]
-    return "\n".join([f"PRIX {name.upper()} (F/kg)", *rows, "(demonstration)"])
+    found = prices(chain)
+    found = sorted(found, key=lambda p: (p["department"] != department, p["market"]))[:MAX_PRICE_ROWS]
+    rows = [f"{p['market'].split(' (')[0]} {p['price']}" for p in found]
+    dates = [p["observed_on"] for p in found if p.get("observed_on")]
+    note = "(demonstration)" if any(p.get("simulated") for p in found) else f"(releves du {max(dates):%d/%m})"
+    return "\n".join([f"PRIX {name.upper()} (F/kg)", *rows, note]) if found else \
+        f"PRIX {name.upper()}\nAucun releve recent."
 
 
 def _supports(producer):
@@ -92,7 +101,8 @@ def handle(phone, text):
         if not rest:
             return con("PRIX\n" + "\n".join(f"{i} {n}" for i, (_, n) in enumerate(CHAINS, 1)))
         i = int(rest[0]) if rest[0].isdigit() else 0
-        return end(prices_text(CHAINS[i - 1][0])) if 1 <= i <= len(CHAINS) else end("Choix inconnu.")
+        return end(prices_text(CHAINS[i - 1][0], producer.department if producer else None)) \
+            if 1 <= i <= len(CHAINS) else end("Choix inconnu.")
     if producer is None:  # conseil, appuis et langue : réservés aux producteurs inscrits et validés
         return end("Numero inconnu ou fiche non validee. Inscrivez-vous aupres de votre agent ATDA.")
     if choice == "3":
@@ -153,5 +163,5 @@ def sms_reply(phone, text):
     if words[:1] == ["PRIX"]:
         codes = {n.upper(): c for c, n in CHAINS}
         chain = codes.get(words[1]) if len(words) > 1 else None
-        return gsm(prices_text(chain) if chain else HELP), dep
+        return gsm(prices_text(chain, dep) if chain else HELP), dep
     return gsm(HELP), dep
