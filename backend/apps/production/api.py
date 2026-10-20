@@ -23,7 +23,8 @@ class SupportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Support
         fields = ["id", "producer", "producer_code", "program", "program_name", "item", "quantity", "unit",
-                  "value_xof", "repayable", "status", "created_at", "confirmed_at"]
+                  "value_xof", "repayable", "repay_installments", "repay_first_due", "status", "created_at",
+                  "confirmed_at"]
         read_only_fields = ["status", "created_at", "confirmed_at"]
 
 
@@ -35,6 +36,8 @@ class SupportInSerializer(serializers.Serializer):
     unit = serializers.CharField(max_length=20)
     value_xof = serializers.IntegerField(min_value=0)
     repayable = serializers.BooleanField()
+    repay_installments = serializers.IntegerField(min_value=1, max_value=12, required=False)
+    repay_first_due = serializers.DateField(required=False, allow_null=True)
 
 
 class HarvestSerializer(serializers.ModelSerializer):

@@ -20,7 +20,7 @@ from apps.market import api as market
 from apps.parcels import api as parcels
 from apps.producers import api as prod
 from apps.production import api as prodn
-from apps.production import lots_api
+from apps.production import lots_api, recovery_api, revenue
 from apps.programs import api as prog
 from apps.referentiel import api as ref
 from apps.satellite import api as sat
@@ -101,6 +101,14 @@ v1 = [
     path("supports/<uuid:pk>/report", prodn.support_report),
     path("harvests/<uuid:pk>/check", prodn.harvest_check),
     path("harvests", prodn.harvest_list),
+    path("claims", recovery_api.claim_list),
+    path("claims/portfolio", recovery_api.claim_portfolio),
+    path("claims/<uuid:pk>", recovery_api.claim_detail),
+    path("claims/<uuid:pk>/pay", recovery_api.claim_pay),
+    path("claim-payments/<uuid:pk>", recovery_api.claim_payment_detail),
+    path("expenses", revenue.expense_list),
+    path("expenses/<uuid:pk>", revenue.expense_delete),
+    path("revenue", revenue.revenue_summary),
     path("organisations", orgs.organisation_list),
     path("organisations/<uuid:pk>", orgs.organisation_detail),
     path("organisations/<uuid:pk>/cooperatives", orgs.organisation_add_cooperative),

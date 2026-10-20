@@ -8,6 +8,7 @@ from apps.producers.services import notify
 from apps.referentiel.data import RESERVE_VALUE_CHAINS, VALUE_CHAINS
 from integrations.notifications import get_channel
 
+from . import recovery
 from .models import Harvest, ReferenceYield, Support
 
 DEVIATION_FLAG_PCT = 50  # écart absolu au rendement estimé au-delà duquel la récolte est signalée
@@ -31,6 +32,9 @@ def _notify_user(user, title, body):
 def create_support(actor, producer, d):
     if producer.status != "valide":
         raise ApiError("Un appui ne peut être remis qu'à un producteur validé.", "not_validated", 400)
+    if d.get("repay_first_due") and d["repay_first_due"] < timezone.localdate():
+        raise ApiError("La première échéance ne peut pas être passée.", "validation_error", 400,
+                       fields={"repay_first_due": ["Date passée."]})
     s = Support.objects.create(producer=producer, delivered_by=actor, **d)
     record(actor, "support.deliver", s, producer=producer.code, value_xof=s.value_xof, repayable=s.repayable)
     notify(producer, "Appui remis", f"Agri-Digit : un appui ({s.item}) vous a été remis. Confirmez la réception.")
@@ -60,6 +64,11 @@ def confirm_support(actor, s):
     s.status, s.confirmed_at = "confirme", timezone.now()
     s.save(update_fields=["status", "confirmed_at"])
     record(actor, "support.confirm", s)
+    if s.repayable and s.value_xof > 0 and s.producer.user:  # la dette naît à la réception confirmée
+        today = timezone.localdate()
+        recovery.open_claim(actor, s.producer.user, "appui", s.item, s.value_xof, installments=s.repay_installments,
+                            first_due=max(s.repay_first_due, today) if s.repay_first_due else None,
+                            creditor=s.delivered_by, support=s, department=s.producer.department)
     _notify_user(s.delivered_by, "Appui confirmé", f"Agri-Digit : {s.producer.code} a confirmé la réception de "
                                                    f"« {s.item} ».")
     return s

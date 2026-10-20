@@ -7,6 +7,7 @@ from apps.audit.services import record
 from apps.core.errors import ApiError
 from apps.parcels.models import Campaign
 from apps.producers.models import Consent
+from apps.production.recovery import repayment_rate
 
 DISCLAIMER = "Aide à la décision. La décision de crédit revient à une personne (art. 401)."
 AREA_CAP_HA = 10.0
@@ -42,12 +43,13 @@ def compute(producer):
     area = producer.parcels.aggregate(s=Sum("area_ha"))["s"] or 0.0
     seniority = 0.0 if producer.status != "valide" else min(1.0, max(1, len(camps)) / 3)
     harvest = sum(1 for s, _ in camps if s == "recolte") / len(camps) if camps else NEUTRAL
+    repaid = repayment_rate(producer.user) if producer.user_id else None
     factors = [
         ("Fiche validée et ancienneté", 0.2, seniority),
         ("Superficie cultivée", 0.2, min(area, AREA_CAP_HA) / AREA_CAP_HA),
         ("Campagnes suivies jusqu'à la récolte", 0.25, harvest),
-        # aucun module d'appuis dans le prototype : valeur neutre, jamais défavorable
-        ("Appuis remboursés", 0.25, NEUTRAL),
+        # part des échéances échues payées (appuis et prêts) ; neutre tant qu'aucune n'est échue, jamais défavorable
+        ("Appuis remboursés", 0.25, NEUTRAL if repaid is None else repaid),
         ("Diversification", 0.1, 1.0 if len({v for _, v in camps}) >= 2 else 0.0),
     ]
     out = [{"name": n, "weight": w, "value": round(v, 3), "contribution": round(100 * w * v, 1)}

@@ -20,7 +20,7 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 | `apps/dashboard` | Indicateurs avec source et date | 22 |
 | `apps/exports` | Export CSV avec motif | 24 |
 | `apps/cooperatives` | Coopératives, adhésions avec historique, demandes d'adhésion du producteur | 06 |
-| `apps/production` | Appuis remis, confirmés ou signalés incomplets, récoltes et écart au rendement de référence | 10, 11 |
+| `apps/production` | Appuis remis, confirmés ou signalés incomplets, récoltes et écart au rendement de référence ; sites et lots (`lots`) ; créances à échéances et remboursement en un clic (`recovery`, `recovery_api`) ; dépenses et revenu du producteur (`revenue`) | 10, 11 |
 | `apps/diagnosis` | Diagnostic par photo simulé, EXIF retiré, « Pas sûr ? » vers l'agronome, relecture, purge | 13 |
 | `apps/translations` | Entrées fon/bariba à valider, notes, ouverture à 80 % | 15 |
 | `apps/market` | Offres, mise en relation, paiement FakePay | 21 |

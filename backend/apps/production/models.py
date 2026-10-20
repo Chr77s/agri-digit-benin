@@ -26,6 +26,9 @@ class Support(models.Model):
     unit = models.CharField(max_length=20)
     value_xof = models.PositiveIntegerField()
     repayable = models.BooleanField(default=False)
+    # modalités de remboursement fixées à la remise ; la créance s'ouvre quand le producteur confirme la réception
+    repay_installments = models.PositiveSmallIntegerField(default=3)
+    repay_first_due = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, default="remis")  # remis | confirme
     delivered_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,4 +88,66 @@ class Lot(models.Model):
     harvest = models.ForeignKey(Harvest, null=True, blank=True, on_delete=models.PROTECT, related_name="lots")
     parents = models.ManyToManyField("self", symmetrical=False, blank=True, related_name="children")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Claim(models.Model):
+    """Créance remboursée par échéances : appui remboursable, prêt d'une institution financière ou équipement du
+    plateau d'un transformateur. Le reste dû se calcule sur les échéances, jamais stocké."""
+
+    KINDS = ("appui", "pret", "plateau")
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    kind = models.CharField(max_length=10, db_index=True)
+    debtor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="claims")
+    creditor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    support = models.OneToOneField(Support, null=True, blank=True, on_delete=models.PROTECT, related_name="claim")
+    label = models.CharField(max_length=150)
+    amount_xof = models.PositiveIntegerField()
+    department = models.CharField(max_length=40, blank=True, db_index=True)  # périmètre de l'agent
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Installment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    claim = models.ForeignKey(Claim, on_delete=models.CASCADE, related_name="installments")
+    rank = models.PositiveSmallIntegerField()
+    due_on = models.DateField()
+    amount_xof = models.PositiveIntegerField()
+    paid_xof = models.PositiveIntegerField(default=0)
+    reminded_on = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["rank"]
+        constraints = [models.UniqueConstraint(fields=["claim", "rank"], name="uniq_installment_rank")]
+
+
+class ClaimPayment(models.Model):
+    """Remboursement SIMULÉ (FakePay), imputé sur les échéances les plus anciennes quand il réussit."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    claim = models.ForeignKey(Claim, on_delete=models.PROTECT, related_name="payments")
+    payer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    amount_xof = models.PositiveIntegerField()
+    payer_phone = models.CharField(max_length=10)
+    provider = models.CharField(max_length=20)
+    reference = models.CharField(max_length=40, unique=True)
+    transaction_id = models.CharField(max_length=80)
+    status = models.CharField(max_length=12, default="en_attente", db_index=True)  # en_attente|reussi|echoue
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+
+class Expense(models.Model):
+    """Dépense d'exploitation déclarée par le producteur, pour calculer son revenu."""
+
+    CATEGORIES = ("intrants", "main_oeuvre", "mecanisation", "transport", "autre")
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    producer = models.ForeignKey(Producer, on_delete=models.CASCADE, related_name="expenses")
+    campaign = models.ForeignKey(Campaign, null=True, blank=True, on_delete=models.SET_NULL, related_name="expenses")
+    category = models.CharField(max_length=20)
+    label = models.CharField(max_length=150, blank=True)
+    amount_xof = models.PositiveIntegerField()
+    spent_on = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)

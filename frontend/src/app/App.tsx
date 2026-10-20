@@ -74,6 +74,9 @@ const SatellitePage = lazy(() => import('../features/satellite/SatellitePage').t
 const TranslationsPage = lazy(() => import('../features/translations/TranslationsPage').then((m) => ({ default: m.TranslationsPage })));
 const SeaPage = lazy(() => import('../features/dashboard/SeaPage').then((m) => ({ default: m.SeaPage })));
 const ContestsPage = lazy(() => import('../features/contests/ContestsPage').then((m) => ({ default: m.ContestsPage })));
+const RepaymentsPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RepaymentsPage })));
+const RecoveryPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RecoveryPage })));
+const RevenuePage = lazy(() => import('../features/revenue/RevenuePage').then((m) => ({ default: m.RevenuePage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
@@ -135,6 +138,9 @@ export function App() {
         <Route path="/offres" element={<Guard roles={['distributeur', 'transformateur']}><OffersPage /></Guard>} />
         <Route path="/tracabilite" element={<Guard roles={['producteur', 'gestionnaire_cooperative', 'transformateur', 'distributeur', 'agent_atda', 'admin_maep']}><TracePage /></Guard>} />
         <Route path="/organisations" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil', 'gestionnaire_cooperative']}><OrganisationsPage /></Guard>} />
+        <Route path="/remboursements" element={<Guard roles={['producteur', 'transformateur']}><RepaymentsPage /></Guard>} />
+        <Route path="/recouvrement" element={<Guard roles={['agent_financier', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><RecoveryPage /></Guard>} />
+        <Route path="/revenu" element={<Guard roles={['producteur']}><RevenuePage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
