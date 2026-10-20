@@ -80,6 +80,9 @@ const RevenuePage = lazy(() => import('../features/revenue/RevenuePage').then((m
 const SchemesPage = lazy(() => import('../features/lands/SchemesPage').then((m) => ({ default: m.SchemesPage })));
 const LandsPage = lazy(() => import('../features/lands/LandsPage').then((m) => ({ default: m.LandsPage })));
 const ClimatePage = lazy(() => import('../features/lands/ClimatePage').then((m) => ({ default: m.ClimatePage })));
+const CoveragePage = lazy(() => import('../features/observatory/CoveragePage').then((m) => ({ default: m.CoveragePage })));
+const ActorsMapPage = lazy(() => import('../features/observatory/ActorsMapPage').then((m) => ({ default: m.ActorsMapPage })));
+const ModelQualityPage = lazy(() => import('../features/observatory/ModelQualityPage').then((m) => ({ default: m.ModelQualityPage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
@@ -148,6 +151,9 @@ export function App() {
         <Route path="/amenagements" element={<Guard roles={LAND}><SchemesPage /></Guard>} />
         <Route path="/sols" element={<Guard roles={LAND}><LandsPage /></Guard>} />
         <Route path="/risques-climatiques" element={<Guard roles={LAND}><ClimatePage /></Guard>} />
+        <Route path="/couverture" element={<Guard roles={['admin_maep', 'responsable_programme', 'auditeur_copil', 'agent_atda']}><CoveragePage /></Guard>} />
+        <Route path="/carte-acteurs" element={<Guard><ActorsMapPage /></Guard>} />
+        <Route path="/qualite-modeles" element={<Guard roles={['admin_maep', 'responsable_programme', 'agronome_inrab', 'auditeur_copil']}><ModelQualityPage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
