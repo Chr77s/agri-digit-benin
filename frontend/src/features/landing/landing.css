@@ -75,7 +75,7 @@
 .lp-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .lp-scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, var(--lp-scrim) 0%, var(--lp-scrim) 24%, var(--lp-scrim-0) 62%); }
 @media (max-width: 859px) {
-  .lp-scrim { background: linear-gradient(0deg, var(--lp-scrim) 0%, var(--lp-scrim) 34%, var(--lp-scrim-0) 66%); }
+  .lp-scrim { background: linear-gradient(180deg, var(--lp-scrim) 0%, var(--lp-scrim) 62%, var(--lp-scrim-0) 100%); } /* le texte est en haut au téléphone : voile vertical qui le couvre (chapeau mesuré à 1,61:1 sur le relief avant) */
 }
 .lp-fieldrail { position: absolute; left: max(16px, 5vw); bottom: 28px; width: min(30rem, calc(100% - 32px)); margin: 0; }
 .landing:not(.landing--calm) .lp-fieldrail { opacity: 0; }

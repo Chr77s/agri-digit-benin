@@ -108,7 +108,7 @@ export function RecoveryPage() {
               <div className="grid-fit" style={{ '--min': '170px' } as React.CSSProperties}>
                 <Stat label={t('rec.kpi.advanced')} value={fmtNum(d.total.amount_xof)} unit="FCFA" />
                 <Stat label={t('rec.kpi.outstanding')} value={fmtNum(d.total.outstanding_xof)} unit="FCFA" />
-                <Stat label={t('rec.kpi.overdue')} value={fmtNum(d.total.overdue_xof)} unit="FCFA" foot={t('rec.kpi.overdueCount', { count: d.total.overdue_count })} />
+                <Stat tone="peach" label={t('rec.kpi.overdue')} value={fmtNum(d.total.overdue_xof)} unit="FCFA" foot={t('rec.kpi.overdueCount', { count: d.total.overdue_count })} />
                 <Stat label={t('rec.kpi.rate')} value={d.total.recovery_rate === null ? t('common.notAvailable') : `${fmtNum(100 * d.total.recovery_rate, 0)} %`} foot={t('rec.kpi.rateHelp')} />
               </div>
               {Object.keys(d.by_department).length > 1 && (

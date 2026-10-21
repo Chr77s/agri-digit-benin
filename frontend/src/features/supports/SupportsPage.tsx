@@ -139,7 +139,7 @@ function AgentSupports() {
               ]} />
             </Card>
             <div className="grid-fit" style={{ '--min': '150px' } as React.CSSProperties}>
-              <Stat label={t('ag.sup.toConfirm')} value={q.data ? fmtNum(q.data.filter((s) => s.status === 'remis').length) : '…'} />
+              <Stat tone="butter" label={t('ag.sup.toConfirm')} value={q.data ? fmtNum(q.data.filter((s) => s.status === 'remis').length) : '…'} />
               <Stat label={t('ag.sup.toRepay')} value={q.data ? fmtNum(q.data.filter((s) => s.repayable).length) : '…'} />
             </div>
           </aside>

@@ -76,7 +76,7 @@ export function ProducerHome() {
         <div className="grid-fit" style={{ ['--min' as string]: '200px' }}>
           <Link className="stat-link" to="/parcelles"><Stat icon="parcel" label={t('refonte.stat.parcels')} value={parcels.data ? fmtNum(parcels.data.length) : '…'} foot={parcels.data ? t('refonte.stat.parcelsSub', { n: fmtNum(parcels.data.reduce((a, p) => a + p.area_ha, 0), 1) }) : undefined} /></Link>
           <Link className="stat-link" to="/campagnes"><Stat icon="calendar" label={t('refonte.stat.campaigns')} value={campaigns.data ? fmtNum(campaigns.data.length) : '…'} foot={t('refonte.stat.campaignsSub')} /></Link>
-          <Link className="stat-link" to="/appuis"><Stat icon="gift" label={t('refonte.stat.supports')} value={supports.data ? fmtNum(toConfirm) : '…'} foot={toConfirm > 0 ? t('refonte.stat.supportsSub') : undefined} /></Link>
+          <Link className="stat-link" to="/appuis"><Stat icon="gift" tone={toConfirm > 0 ? 'butter' : undefined} label={t('refonte.stat.supports')} value={supports.data ? fmtNum(toConfirm) : '…'} foot={toConfirm > 0 ? t('refonte.stat.supportsSub') : undefined} /></Link>
           <Link className="stat-link" to="/messages"><Stat icon="mail" label={t('refonte.stat.messages')} value={notes.data ? fmtNum(unread) : '…'} /></Link>
         </div>
 

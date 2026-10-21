@@ -231,7 +231,7 @@ export function OutboxPage() {
               <>
                 <div className="grid-fit" style={{ '--min': '180px' } as React.CSSProperties}>
                   <Stat label={t('ag.out.delivered')} value={fmtNum(count('livre') + count('lu'))} foot={<Badge tone="sim">{t('ag.sim')}</Badge>} />
-                  <Stat label={t('ag.out.failed')} value={fmtNum(count('echoue'))} foot={t('ag.out.failedFoot')} />
+                  <Stat tone="peach" label={t('ag.out.failed')} value={fmtNum(count('echoue'))} foot={t('ag.out.failedFoot')} />
                   <Stat label={t('ag.out.billed')} value={fmtNum(all.reduce((s, m) => s + (m.segments ?? 0), 0))} foot={t('ag.out.billedFoot', { count: all.length })} />
                 </div>
                 {all.length === 0 ? (

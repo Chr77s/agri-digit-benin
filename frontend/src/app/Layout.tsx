@@ -229,6 +229,12 @@ function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { use
     if (last && last.key === n.group) last.items.push(n); else acc.push({ key: n.group, items: [n] });
     return acc;
   }, []);
+  // Menus longs (administrateur, agent) : rubriques repliables, celle de la page courante et la première restent ouvertes.
+  const { pathname } = useLocation();
+  const collapsible = nav.length > 12 && groups.length > 3 && !collapsed;
+  const activeGroup = nav.filter((n) => n.to === pathname || (n.to !== '/' && pathname.startsWith(n.to + '/'))).sort((a, b) => b.to.length - a.to.length)[0]?.group;
+  const [opened, setOpened] = useState<Record<string, boolean>>({});
+  const isOpen = (k?: string) => !collapsible || !k || (opened[k] ?? (k === activeGroup || k === groups[0]?.key));
   return (
     <>
       <div className="sb-head">
@@ -245,13 +251,16 @@ function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { use
       <nav className="sb-nav" aria-label={t('app.mainNav')}>
         {groups.map((grp, i) => (
           <div key={i}>
-            {grp.key && <p className="sb-group" id={`${gid}-${i}`}>{t(`navGroup.${grp.key}`)}</p>}
-            <ul aria-labelledby={grp.key ? `${gid}-${i}` : undefined}>
+            {grp.key && (collapsible
+              ? <button type="button" className="sb-group sb-group-btn" id={`${gid}-${i}`} aria-expanded={isOpen(grp.key)} aria-controls={`${gid}-${i}-l`}
+                  onClick={() => setOpened((o) => ({ ...o, [grp.key as string]: !isOpen(grp.key) }))}>{t(`navGroup.${grp.key}`)}<Icon name="chevron-down" /></button>
+              : <p className="sb-group" id={`${gid}-${i}`}>{t(`navGroup.${grp.key}`)}</p>)}
+            <ul id={`${gid}-${i}-l`} hidden={!isOpen(grp.key)} aria-labelledby={grp.key ? `${gid}-${i}` : undefined}>
               {grp.items.map((n) => {
                 const label = t(`nav.${n.key}`);
                 return (
                   <li key={n.to + n.key}>
-                    <NavLink end to={n.to} className="sb-link" title={collapsed ? label : undefined} onClick={onNavigate}>
+                    <NavLink end to={n.to} className="sb-link" title={label} onClick={onNavigate}>
                       <Icon name={n.icon} /><span className="sb-label">{label}</span>
                     </NavLink>
                   </li>
