@@ -14,7 +14,6 @@ import { useNotifications } from '../features/alerts/api';
 import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
 import type { Role, User } from '../shared/api/types';
-import i18n from '../i18n';
 
 /** Entrée de navigation ; `group` = clé navGroup.* de la rubrique (rubriques reprises de maquettes/web/kit.js). */
 export interface NavItem { to: string; key: string; icon: IconName; group?: string }
@@ -104,16 +103,20 @@ const readCollapsed = () => { try { return localStorage.getItem(SIDEBAR_KEY) ===
 const writeCollapsed = (on: boolean) => { try { localStorage.setItem(SIDEBAR_KEY, on ? 'collapsed' : 'open'); } catch { /* stockage indisponible : le choix ne sera pas gardé */ } };
 const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-function LangSelect({ className = '' }: { className?: string }) {
-  const { t } = useTranslation();
-  const id = useId();
+/** Un seul bouton : le code de la langue courante ; un clic passe à la suivante (les langues nationales sont annoncées « à valider »). */
+function LangButton() {
+  const { t, i18n: inst } = useTranslation();
+  const idx = Math.max(0, LANGS.findIndex(([v]) => v === inst.language));
+  const [code, name] = LANGS[idx];
+  const [nextCode, nextName] = LANGS[(idx + 1) % LANGS.length];
+  const next = () => {
+    void inst.changeLanguage(nextCode);
+    if (nextCode !== 'fr') toast({ type: 'info', text: `${nextName} (${t('lang.toValidate')})` });
+  };
   return (
-    <>
-      <label htmlFor={id} className="sr-only">{t('app.language')}</label>
-      <select id={id} className={`select ${className}`} value={i18n.language} onChange={(e) => void i18n.changeLanguage(e.target.value)}>
-        {LANGS.map(([v, l]) => <option key={v} value={v}>{v === 'fr' ? l : `${l} (${t('lang.toValidate')})`}</option>)}
-      </select>
-    </>
+    <button type="button" className="btn btn-icon tb-lang-btn" aria-label={`${t('app.language')} : ${name}. ${nextName}`} title={`${name} → ${nextName}`} onClick={next}>
+      {code.toUpperCase()}
+    </button>
   );
 }
 
@@ -131,7 +134,6 @@ function Footer() {
   const { t } = useTranslation();
   return (
     <footer className="app-foot">
-      <span>{t('app.footerShort')}</span>
       <nav aria-label={t('legal.nav')}>
         {LEGAL_DOCS.map(({ doc, to }) => <Link key={doc} to={to}>{t(`legal.${doc}.title`)}</Link>)}
       </nav>
@@ -185,11 +187,11 @@ function SyncButton() {
     setBusy(true);
     try { await syncQueue(qc); toast(t('app.syncSent')); } finally { setBusy(false); }
   };
+  if (state === 'online') return null; // tout est envoyé : rien à montrer
   return (
-    <button type="button" className="sync" data-state={state} aria-label={t('app.syncState', { state: text })} onClick={() => void onClick()}>
+    <button type="button" className="sync" data-state={state} aria-label={t('app.syncState', { state: text })} title={text} onClick={() => void onClick()}>
       <span className="sync-dot" aria-hidden />
       <Icon name={state === 'offline' ? 'wifi-off' : 'sync'} />
-      <span className="sync-label">{text}</span>
     </button>
   );
 }
@@ -220,7 +222,7 @@ function SearchBox({ nav, inputRef, onDone }: { nav: NavItem[]; inputRef: React.
   );
 }
 
-function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { user: User; nav: NavItem[]; collapsed?: boolean; onToggle?: () => void; onNavigate?: () => void; inDrawer?: boolean }) {
+function SideNav({ nav, collapsed, onToggle, onNavigate, inDrawer }: { nav: NavItem[]; collapsed?: boolean; onToggle?: () => void; onNavigate?: () => void; inDrawer?: boolean }) {
   const { t } = useTranslation();
   const gid = useId();
   // Rubriques consécutives : une liste par rubrique, titrée si la rubrique a un nom.
@@ -247,7 +249,6 @@ function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { use
           </RD.Close>
         )}
       </div>
-      <div className="sb-role"><Avatar name={user.full_name} /><span><span className="sb-hello">{t('refonte.hello')}</span><b>{user.full_name}</b><small>{t(`roles.${user.role}`)}</small></span></div>
       <nav className="sb-nav" aria-label={t('app.mainNav')}>
         {groups.map((grp, i) => (
           <div key={i}>
@@ -272,10 +273,7 @@ function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { use
       </nav>
       <div className="sb-foot">
         {inDrawer ? (
-          <div className="flex flex-col gap-2 px-2 pb-1">
-            <span className="sb-group !m-0">{t('app.language')}</span>
-            <LangSelect />
-          </div>
+          <div className="flex justify-start px-2 pb-1"><LangButton /></div>
         ) : (
           <button type="button" className="sb-link sb-collapse w-full cursor-pointer border-0 bg-transparent" aria-expanded={!collapsed} aria-controls="sidebar"
             title={collapsed ? t('app.expand') : undefined} onClick={onToggle}>
@@ -297,8 +295,6 @@ function ProfileMenu({ user }: { user: User }) {
       <DM.Trigger asChild>
         <button type="button" className="profile-btn">
           <Avatar name={user.full_name} />
-          <span className="pb-name">{user.full_name}<small>{role}</small></span>
-          <Icon name="chevron-down" size="sm" />
           <span className="sr-only">{t('app.account')}</span>
         </button>
       </DM.Trigger>
@@ -368,7 +364,7 @@ function PublicShell({ children }: { children?: ReactNode }) {
       <header className="topbar">
         <Link to="/" className="tb-brand !inline-flex"><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span></Link>
         <span className="tb-spacer" />
-        <LangSelect className="w-auto" />
+        <LangButton />
         <ThemeToggle />
       </header>
       <OfflineBar />
@@ -421,7 +417,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
       <ProtoBand />
       <div className={`shell${collapsed ? ' is-collapsed' : ''}${TABS[user.role] ? ' has-tabs' : ''}`}>
         <aside className="sidebar" id="sidebar" aria-label={t(`roles.${user.role}`)}>
-          <SideNav user={user} nav={nav} collapsed={collapsed} onToggle={toggleCollapsed} />
+          <SideNav nav={nav} collapsed={collapsed} onToggle={toggleCollapsed} />
         </aside>
         <div className="main">
           <header className={`topbar${searching ? ' is-searching' : ''}`}>
@@ -433,7 +429,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
                 <RD.Overlay className="scrim z-[1500]" />
                 <RD.Content aria-describedby={undefined} aria-modal="true" className="sidebar drawer-panel z-[1501]">
                   <RD.Title className="sr-only">{t('app.menu')}</RD.Title>
-                  <SideNav user={user} nav={nav} inDrawer onNavigate={() => setOpen(false)} />
+                  <SideNav nav={nav} inDrawer onNavigate={() => setOpen(false)} />
                 </RD.Content>
               </RD.Portal>
             </RD.Root>
@@ -445,7 +441,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
               <Icon name="search" />
             </button>
             <SyncButton />
-            <LangSelect className="tb-lang" />
+            <LangButton />
             <NotifLink />
             <ProfileMenu user={user} />
           </header>

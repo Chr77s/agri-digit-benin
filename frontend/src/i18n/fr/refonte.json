@@ -1,6 +1,7 @@
 {
   "refonte": {
     "hello": "Bonjour,",
+    "statInfo": "Source et détails",
     "todo": "à traiter aujourd'hui",
     "quick": "Accès rapide",
     "stat": {

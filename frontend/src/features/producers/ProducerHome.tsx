@@ -284,7 +284,6 @@ function TasksCard({ campaigns, parcelName }: { campaigns: Campaign[]; parcelNam
             <Icon name="chevron-right" />
           </Link>
         ))}
-      <p className="hint mt-2">{t('home.tasksHint')}</p>
     </Card>
   );
 }

@@ -396,3 +396,35 @@ main:focus { outline: none; }
 .sb-group-btn .ic { width: 16px; height: 16px; transition: transform var(--t-fast) var(--ease); }
 .sb-group-btn[aria-expanded="true"] .ic { transform: rotate(180deg); }
 .sb-nav ul[hidden] { display: none; }
+
+/* ==========================================================================
+   Minimalisme : coque réduite à l'essentiel (icônes seules, une recherche qui s'ouvre, pas de fil d'Ariane)
+   ========================================================================== */
+.tb-search { display: none; }
+.topbar.is-searching .tb-search { display: block; position: absolute; left: 8px; right: 8px; top: 8px; max-width: none; z-index: 2; }
+.btn.tb-search-toggle { display: inline-flex; }
+.sync { padding: 0; width: 44px; justify-content: center; border-radius: 50%; }
+.sync .sync-label { display: none; }
+.tb-lang-btn { font-size: .8125rem; font-weight: 800; letter-spacing: .02em; }
+.profile-btn { padding: 4px; }
+.crumbs { display: none; }
+/* La description de page reste lue par les lecteurs d'écran, sans alourdir l'écran. */
+.page-head .page-desc { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.app-foot { justify-content: flex-end; }
+
+/* Chiffre : la source et les détails tiennent derrière une icône, au lieu d'un paragraphe sous chaque carte. */
+.stat-src { margin-top: 2px; }
+.stat-src summary { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; margin-left: -6px; border-radius: 50%; cursor: pointer; list-style: none; color: var(--ink-2); }
+.stat-src summary::-webkit-details-marker { display: none; }
+.stat-src summary::after { content: ""; position: absolute; inset: -8px; } /* zone tactile de 44 px */
+.stat-src summary .ic { width: 16px; height: 16px; }
+.stat-src[open] summary { color: var(--leaf); }
+.stat-src .stat-foot { margin-top: 2px; }
+
+/* Sous-titres de carte : lus par les lecteurs d'écran, pas affichés. */
+.card-head .card-sub, .card-sub { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .topbar .tb-brand, .topbar .tb-lang-btn { display: none; } /* la langue reste dans le tiroir et sur l'écran de premier lancement */
+}
+.m-alert > span:not(.m-alert-ic) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

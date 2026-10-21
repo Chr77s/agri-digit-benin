@@ -229,14 +229,14 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
 }
 
 /* ---------- Tuile de chiffre (avec parcimonie : un chiffre qui sert une décision) ---------- */
-export function Stat({ label, value, unit, delta, foot, icon, tone }: { label: ReactNode; value: ReactNode; unit?: ReactNode; delta?: { text: ReactNode; down?: boolean }; foot?: ReactNode; icon?: IconName; tone?: 'mint' | 'peach' | 'butter' | 'sky' }) {
+export function Stat({ label, value, unit, delta, foot, tone }: { label: ReactNode; value: ReactNode; unit?: ReactNode; delta?: { text: ReactNode; down?: boolean }; foot?: ReactNode; icon?: IconName; tone?: 'mint' | 'peach' | 'butter' | 'sky' }) {
+  const { t } = useTranslation();
   return (
     <div className={`stat${tone ? ` stat--${tone}` : ''}`}>
-      {icon && <span className="stat-ic"><Icon name={icon} /></span>}
       <span className="stat-label">{label}</span>
       <span className="stat-value num">{value}{unit && <small>{unit}</small>}</span>
       {delta && <span className={`stat-delta${delta.down ? ' stat-delta--down' : ''}`}><Icon name={delta.down ? 'arrow-down' : 'arrow-up'} />{delta.text}</span>}
-      {foot && <span className="stat-foot">{foot}</span>}
+      {foot && <details className="stat-src"><summary aria-label={t('refonte.statInfo')} title={t('refonte.statInfo')}><Icon name="info" /></summary><span className="stat-foot">{foot}</span></details>}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, qs, rows } from '../../shared/api/client';
 import type { Dashboard, FarmAggregate, Indicator, SeaDashboard } from '../../shared/api/types';
-import { Alert, Badge, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, Stat, Table, buttonCls, fmtDateTime, fmtNum, type IconName } from '../../shared/ui';
+import { Badge, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, Stat, Table, buttonCls, fmtDateTime, fmtNum, type IconName } from '../../shared/ui';
 import { useDepartments, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { HBars, OfflineNote, Src, Val } from './viz';
@@ -50,7 +50,6 @@ export function DashboardPage() {
           )}
         </form>
         <OfflineNote at={dash.dataUpdatedAt} />
-        <Alert tone="demo" title={t('pilotage.demoTitle')}>{t('pilotage.dash.demoText')}</Alert>
 
         <QueryState q={dash} empty={(d) => d.indicators.length === 0} emptyText={<EmptyState title={t('dashboard.emptyIndicators')} />}>
           {(d) => <Indicators list={d.indicators} />}
@@ -108,8 +107,6 @@ export function DashboardPage() {
               { key: 'name', label: byCommune ? t('common.commune') : t('common.department') },
               { key: 'farms', label: t('dashboard.farmsDetected'), num: true, render: (r) => <Val v={r.farms} digits={0} /> },
               { key: 'maize_ha', label: t('dashboard.maizeHa'), num: true, render: (r) => <Val v={r.maize_ha} /> },
-              { key: 'source', label: t('common.source') },
-              { key: 'updated_at', label: t('common.date'), num: true, render: (r) => fmtDateTime(r.updated_at) },
             ]} />
           )}
         </QueryState>
@@ -145,7 +142,6 @@ function Indicators({ list }: { list: Indicator[] }) {
         {women && card(women, share !== null ? t('pilotage.dash.ofRegistered', { pct: share }) : undefined)}
         {rest.map((r) => card(r))}
       </div>
-      <p className="small muted"><Badge tone="demo">{t('pilotage.demo')}</Badge></p>
     </section>
   );
 }

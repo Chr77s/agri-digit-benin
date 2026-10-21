@@ -303,12 +303,10 @@ export function Table<T extends object>({ columns, data, caption, pageSize = 10,
         </div>
         {toolbar}
         {exportName && (
-          <Button variant="secondary" size="sm" icon="download"
-            onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)}>
-            {t('table.exportCsv')}
-          </Button>
+          <Button variant="secondary" size="sm" iconOnly icon="download" aria-label={t('table.exportCsv')} title={t('table.exportCsv')}
+            onClick={() => downloadBlob(new Blob(['﻿' + toCsv(columns as Column<never>[], filtered)], { type: 'text/csv' }), `${exportName}.csv`)} />
         )}
-        <p className="small muted ml-auto" aria-live="polite">{t('table.rows', { count: filtered.length })}</p>
+        <p className="sr-only" aria-live="polite">{t('table.rows', { count: filtered.length })}</p>
       </div>
       {selectable && sel.length > 0 && (
         <div className="bulkbar" role="region" aria-label={t('ui.selected', { count: sel.length })}>

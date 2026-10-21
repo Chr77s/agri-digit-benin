@@ -9,7 +9,7 @@ import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { useSupports } from '../supports/SupportsPage';
 import { useProducer, useProducerActions, useProducers, useProducerVersions } from './api';
-import { daysSince, LATE_DAYS } from './AgentHome';
+import { daysSince } from './AgentHome';
 import './agent.css';
 
 const tone = (s: ProducerStatus) => (s === 'valide' ? 'ok' : s === 'rejete' ? 'bad' : s === 'en_attente' ? 'wait' : 'neutral');
@@ -19,30 +19,23 @@ export function StatusBadge({ s }: { s: ProducerStatus }) {
   return <Badge tone={tone(s)}>{t(`status.${s}`)}</Badge>;
 }
 
-/** NPI masqué dans les listes : seuls les 4 derniers chiffres. */
-const maskNpi = (npi?: string) => (npi ? `•••• ${npi.slice(-4)}` : '');
-
 export function ProducersListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [status, setStatus] = useState('en_attente');
   const [commune, setCommune] = useState('');
-  const [age, setAge] = useState('');
   const q = useProducers({ status });
   const place = usePlaceName();
   const deps = useDepartments();
   const communes = deps.data?.find((d) => d.code === user?.department)?.communes ?? deps.data?.flatMap((d) => d.communes) ?? [];
-  const filtered = (d: Producer[]) => d.filter((p) => (!commune || p.commune === commune)
-    && (!age || (age === 'late' ? daysSince(p.created_at) > LATE_DAYS : daysSince(p.created_at) <= LATE_DAYS)));
-  const clear = () => { setCommune(''); setAge(''); };
+  const filtered = (d: Producer[]) => d.filter((p) => !commune || p.commune === commune);
+  const clear = () => setCommune('');
   const filters = (
     <>
       <Chips single label={t('producers.filterStatus')} value={[status]} onChange={(v) => setStatus(v[0])}
         options={[{ value: 'en_attente', label: t('producers.filter.pending') }, { value: 'valide', label: t('producers.filter.valid') }, { value: 'rejete', label: t('producers.filter.rejected') }]} />
       <div className="field min-w-[180px]"><label className="sr-only" htmlFor="f-com">{t('common.commune')}</label>
         <Select id="f-com" value={commune} onChange={(e) => setCommune(e.target.value)} placeholder={t('ag.prod.allCommunes')} options={communes.map((c) => ({ value: c.code, label: c.name }))} /></div>
-      <div className="field min-w-[180px]"><label className="sr-only" htmlFor="f-age">{t('ag.prod.age')}</label>
-        <Select id="f-age" value={age} onChange={(e) => setAge(e.target.value)} placeholder={t('ag.prod.allAges')} options={[{ value: 'late', label: t('ag.prod.ageLate', { n: LATE_DAYS }) }, { value: 'recent', label: t('ag.prod.ageRecent', { n: LATE_DAYS }) }]} /></div>
     </>
   );
   return (
@@ -55,7 +48,7 @@ export function ProducersListPage() {
           if (!d.length) return (
             <div className="stack">
               <div className="cluster">{filters}</div>
-              <div className="card"><EmptyState title={t('producers.empty')} action={(commune || age) ? <Button variant="secondary" onClick={clear}>{t('ag.prod.clear')}</Button> : undefined}>{t('producers.emptyHelp')}</EmptyState></div>
+              <div className="card"><EmptyState title={t('producers.empty')} action={commune ? <Button variant="secondary" onClick={clear}>{t('ag.prod.clear')}</Button> : undefined}>{t('producers.emptyHelp')}</EmptyState></div>
             </div>
           );
           return (
@@ -67,13 +60,12 @@ export function ProducersListPage() {
               toolbar={filters}
               columns={[
                 { key: 'last_name', label: t('common.producer'), csv: (r) => `${r.first_name} ${r.last_name} (${r.code})`, render: (r) => (
-                  <Link style={{ flexDirection: 'column', alignItems: 'flex-start' }} to={`/producteurs/${r.id}`}><span className="cell-main">{r.first_name} {r.last_name}</span><span className="cell-sub num">{r.code} · NPI {maskNpi(r.npi)}</span></Link>
+                  <Link style={{ flexDirection: 'column', alignItems: 'flex-start' }} to={`/producteurs/${r.id}`}><span className="cell-main">{r.first_name} {r.last_name}</span><span className="cell-sub num">{r.code}</span></Link>
                 ) },
                 { key: 'commune', label: t('common.commune'), render: (r) => place(r.commune), csv: (r) => place(r.commune) },
                 { key: 'status', label: t('common.status'), render: (r) => r.status === 'en_attente'
                   ? <Badge tone="wait">{t('ag.prod.pendingDays', { count: daysSince(r.created_at) })}</Badge> : <StatusBadge s={r.status} /> },
                 { key: 'created_at', label: t('producers.registeredOn'), num: true, render: (r) => fmtDate(r.created_at) },
-                { key: 'act', label: t('common.action'), actions: true, render: (r) => <Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to={`/producteurs/${r.id}`}>{r.status === 'en_attente' ? t('ag.prod.instruct') : t('ag.home.open')}</Link> },
               ]}
             />
           );
