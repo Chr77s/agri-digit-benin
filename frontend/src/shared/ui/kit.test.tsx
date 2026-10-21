@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { Hero, OtpInput, QuickTiles, Stat, Table, initials, pageList } from '.';
@@ -31,6 +31,13 @@ describe('kit Bénin Vert', () => {
     await user.click(boxes[0]);
     await user.paste('654321');
     expect(screen.getByRole('status')).toHaveTextContent('654321');
+  });
+
+  it('OTP : la saisie automatique du SMS met le code entier dans la première case', () => {
+    function Host() { const [v, setV] = useState(''); return <><OtpInput label="Code" value={v} onChange={setV} /><output>{v}</output></>; }
+    render(<Host />);
+    fireEvent.change(screen.getAllByRole('textbox')[0], { target: { value: '698085' } });
+    expect(screen.getByRole('status')).toHaveTextContent('698085');
   });
 
   it('tableau : sélection de toutes les lignes visibles et barre groupée', async () => {

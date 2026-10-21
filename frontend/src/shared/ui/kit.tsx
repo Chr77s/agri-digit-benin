@@ -97,9 +97,14 @@ export function OtpInput({ value, onChange, length = 6, label, invalid, id, auto
     <div className="otp" role="group" aria-label={label} data-invalid={invalid || undefined}>
       {digits.map((d, i) => (
         <input key={i} ref={(el) => { refs.current[i] = el; }} id={i === 0 ? id : undefined} value={d} placeholder=" "
-          inputMode="numeric" autoComplete={i === 0 ? 'one-time-code' : 'off'} maxLength={1} autoFocus={autoFocus && i === 0}
+          inputMode="numeric" autoComplete={i === 0 ? 'one-time-code' : 'off'} maxLength={i === 0 ? length : 1} autoFocus={autoFocus && i === 0}
           aria-label={t('ui.otpDigit', { n: i + 1, total: length })} aria-invalid={invalid || undefined}
-          onChange={(e) => { const c = e.target.value.replace(/\D/g, '').slice(-1); set(i, c); if (c) focus(i + 1); }}
+          onChange={(e) => {
+            const all = e.target.value.replace(/\D/g, '');
+            // saisie automatique du SMS (« one-time-code ») : le code entier arrive dans la première case
+            if (all.length > 1 && i === 0) { onChange(all.slice(0, length)); focus(all.length); return; }
+            const c = all.slice(-1); set(i, c); if (c) focus(i + 1);
+          }}
           onKeyDown={onKey(i)}
           onPaste={(e) => {
             const p = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length);
