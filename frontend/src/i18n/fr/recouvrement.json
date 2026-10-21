@@ -73,6 +73,7 @@
     "filter": "État",
     "empty": "Aucune créance",
     "emptyHelp": "Les créances apparaissent à la confirmation d'un appui remboursable, ou quand vous en ouvrez une.",
+    "emptyHelpBank": "Les prêts que vous ouvrez à un producteur ayant consenti au crédit apparaissent ici.",
     "openLoan": "Ouvrir un prêt",
     "openLoanHelp": "Seuls les producteurs qui ont donné leur consentement crédit peuvent recevoir un prêt. L'échéancier est calculé en parts égales, une échéance tous les 30 jours.",
     "openEquipment": "Équipement du plateau",

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, rows } from '../../shared/api/client';
+import { usePlaceName } from '../../shared/api/ref';
 import type { Paginated } from '../../shared/api/types';
 import { Alert, Badge, Button, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Select, Table, Tabs, Textarea, fmtDate, fmtNum, toast } from '../../shared/ui';
 import { EQUIPMENT_KINDS, type Equipment } from './EquipmentPage';
@@ -37,6 +38,7 @@ export function MechanizationPage() {
 
 function Providers() {
   const { t } = useTranslation();
+  const place = usePlaceName();
   const [kind, setKind] = useState('');
   const [pick, setPick] = useState<Equipment | null>(null);
   const q = useQuery({ queryKey: ['mech-providers', kind], queryFn: async () => rows(await api<Paginated<Equipment>>(`/mechanization/providers${kind ? `?kind=${kind}` : ''}`)) });
@@ -47,8 +49,7 @@ function Providers() {
         {(d) => (
           <Table<Equipment> caption={t('mech.providers')} title={t('mech.providers')} data={d} rowKey={(r) => r.id} columns={[
             { key: 'kind', label: t('eqp.kind'), render: (r) => <><span className="cell-main">{t(`eqp.kinds.${r.kind}`)}</span>{r.label && <span className="cell-sub">{r.label}</span>}</>, csv: (r) => r.kind },
-            { key: 'owner', label: t('mech.provider'), render: (r) => <span className="num">{r.owner}</span> },
-            { key: 'commune', label: t('common.commune') },
+            { key: 'owner', label: t('mech.provider'), render: (r) => <><span className="cell-main num" style={{ whiteSpace: 'nowrap' }}>{r.owner}</span><span className="cell-sub">{place(r.commune)}</span></>, csv: (r) => r.owner },
             { key: 'condition', label: t('eqp.condition'), render: (r) => t(`eqp.conditions.${r.condition}`), csv: (r) => r.condition },
             { key: 'hire_rate_xof_per_ha', label: t('mech.rate'), num: true, render: (r) => fmtNum(r.hire_rate_xof_per_ha) },
             { key: 'act', label: t('common.action'), actions: true, render: (r) => <Button size="sm" onClick={() => setPick(r)}>{t('mech.request')}</Button> },

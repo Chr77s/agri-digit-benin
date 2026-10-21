@@ -72,7 +72,7 @@ function DiagnosticCard({ d }: { d: Diagnostic }) {
         <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           <Stat label={t('mq.diagnostic.total')} value={fmtNum(d.total)} />
           <Stat label={t('mq.diagnostic.escalated')} value={<Measured v={d.escalated_share.value} n={d.escalated_share.n} reliable={d.escalated_share.reliable} />}
-            foot={t('mq.diagnostic.escalatedDetail', { low: d.escalated_low_confidence, threshold: d.threshold, asked: d.escalated_by_producer })} />
+            foot={t('mq.diagnostic.escalatedDetail', { low: d.escalated_low_confidence, threshold: fmtNum(d.threshold, 1), asked: d.escalated_by_producer })} />
           <Stat label={t('mq.diagnostic.confirmed')} value={<Measured v={d.confirmed_share.value} n={d.confirmed_share.n} reliable={d.confirmed_share.reliable} />}
             foot={t('mq.diagnostic.confirmedDetail', { reviewed: d.reviewed, corrected: d.corrected })} />
         </div>

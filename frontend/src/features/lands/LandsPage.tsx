@@ -84,11 +84,13 @@ function MyParcels() {
           {save.error && <Alert tone="danger" live>{save.error.message}</Alert>}
           {d.map((p) => (
             <Card key={p.id} title={p.name} sub={t(`land.type.${p.land_type}`)}>
-              <form className="cluster" noValidate onSubmit={(e) => { e.preventDefault(); save.mutate({ id: p.id, v: draft[p.id] ?? (p.arable_ha == null ? '' : String(p.arable_ha)) }); }}>
+              <div className="stack" style={gap(10)}>
                 <p className="small">{t('land.measured', { n: fmtNum(p.area_ha, 2) })}</p>
-                <Field label={t('land.arableDeclared')} hint={t('land.arableHint')}>{(f) => <div className="input-group"><Input {...f} inputMode="decimal" className="input-num" value={draft[p.id] ?? (p.arable_ha == null ? '' : String(p.arable_ha))} onChange={(e) => setDraft({ ...draft, [p.id]: e.target.value.replace(',', '.').replace(/[^\d.]/g, '') })} /><span className="addon addon--end">ha</span></div>}</Field>
-                <Button type="submit" variant="secondary" busy={save.isPending && save.variables?.id === p.id}>{t('common.save')}</Button>
-              </form>
+                <form className="cluster" style={{ alignItems: 'flex-end' }} noValidate onSubmit={(e) => { e.preventDefault(); save.mutate({ id: p.id, v: draft[p.id] ?? (p.arable_ha == null ? '' : String(p.arable_ha)) }); }}>
+                  <Field label={t('land.arableDeclared')} hint={t('land.arableHint')}>{(f) => <div className="input-group"><Input {...f} inputMode="decimal" className="input-num" value={draft[p.id] ?? (p.arable_ha == null ? '' : String(p.arable_ha))} onChange={(e) => setDraft({ ...draft, [p.id]: e.target.value.replace(',', '.').replace(/[^\d.]/g, '') })} /><span className="addon addon--end">ha</span></div>}</Field>
+                  <Button type="submit" variant="secondary" busy={save.isPending && save.variables?.id === p.id}>{t('common.save')}</Button>
+                </form>
+              </div>
             </Card>
           ))}
         </div>

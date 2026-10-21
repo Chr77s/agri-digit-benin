@@ -124,7 +124,7 @@ export function RecoveryPage() {
           )}
         </QueryState>
         <div className={canOpen ? 'split' : undefined}>
-          <QueryState q={q} empty={(d) => d.length === 0} emptyText={<div className="card"><EmptyState icon="coins" title={t('rec.empty')}>{t('rec.emptyHelp')}</EmptyState></div>}>
+          <QueryState q={q} empty={(d) => d.length === 0} emptyText={<div className="card"><EmptyState icon="coins" title={t('rec.empty')}>{t(user?.role === 'agent_financier' ? 'rec.emptyHelpBank' : 'rec.emptyHelp')}</EmptyState></div>}>
             {(d) => (
               <Table<Claim> title={t('rec.registry')} caption={t('rec.registry')} data={d.filter((c) => !filter.length || filter.includes(c.status))} rowKey={(r) => r.id} exportName="creances"
                 toolbar={<Chips label={t('rec.filter')} value={filter} onChange={setFilter} options={(['en_retard', 'en_cours', 'solde'] as const).map((s) => ({ value: s, label: t(`rec.status.${s}`), count: d.filter((c) => c.status === s).length }))} />}

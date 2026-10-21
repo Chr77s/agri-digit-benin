@@ -1,6 +1,7 @@
 {
   "nav": {
     "equipment": "Mon matériel",
+    "equipmentStaff": "Matériel agricole",
     "mechanization": "Mécanisation",
     "seeds": "Semences certifiées",
     "pmea": "Entreprises agricoles"
@@ -115,7 +116,7 @@
   },
   "seed": {
     "title": "Semences certifiées",
-    "desc": "Lots de semences certifiées des centres semencier, et leur remise aux producteurs. Chaque remise devient un appui que le producteur confirme, avec le code du lot.",
+    "desc": "Lots de semences certifiées des centres semenciers, et leur remise aux producteurs. Chaque remise devient un appui que le producteur confirme, avec le code du lot.",
     "add": "Enregistrer un lot",
     "empty": "Aucun lot de semences",
     "emptyHelp": "Un agent enregistre les lots certifiés d'un centre semencier avant de les remettre.",

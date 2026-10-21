@@ -20,7 +20,7 @@ export function EquipmentPage() {
   const owner = role === 'producteur' || role === 'gestionnaire_cooperative';
   return (
     <>
-      <PageHeader title={t(owner ? 'eqp.title' : 'eqp.titleStaff')} desc={t(owner ? 'eqp.desc' : 'eqp.descStaff')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.equipment') }]} listen={owner ? t('eqp.desc') : undefined} />
+      <PageHeader title={t(owner ? 'eqp.title' : 'eqp.titleStaff')} desc={t(owner ? 'eqp.desc' : 'eqp.descStaff')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t(owner ? 'nav.equipment' : 'nav.equipmentStaff') }]} listen={owner ? t('eqp.desc') : undefined} />
       {owner ? <Mine /> : <Inventory />}
     </>
   );
