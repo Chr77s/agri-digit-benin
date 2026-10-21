@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, qs, rows } from '../../shared/api/client';
 import type { Dashboard, FarmAggregate, Indicator, SeaDashboard } from '../../shared/api/types';
-import { Alert, Badge, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, Table, buttonCls, fmtDateTime, fmtNum } from '../../shared/ui';
+import { Alert, Badge, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, Stat, Table, buttonCls, fmtDateTime, fmtNum, type IconName } from '../../shared/ui';
 import { useDepartments, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { HBars, OfflineNote, Src, Val } from './viz';
@@ -118,6 +118,12 @@ export function DashboardPage() {
   );
 }
 
+const IND_ICON: Record<string, IconName> = {
+  producers_total: 'users', producers_validated: 'check-circle', producers_women: 'user', parcels_area: 'parcel', farms_detected: 'satellite',
+  maize_area_detected: 'wheat', alerts_sent: 'megaphone', applications: 'clipboard', maize_yield: 'trend',
+};
+
+/** Chiffres clés en cartes pastel : l'état « non disponible » reste écrit en toutes lettres, jamais un 0 ni une couleur seule. */
 function Indicators({ list }: { list: Indicator[] }) {
   const { t } = useTranslation();
   const k = (key: string) => list.find((i) => i.key === key);
@@ -126,44 +132,20 @@ function Indicators({ list }: { list: Indicator[] }) {
   const women = k('producers_women');
   const rest = list.filter((i) => !HERO.includes(i.key) && i !== main);
   const share = total?.value && women?.value !== null && women?.value !== undefined ? Math.round((100 * women.value) / total.value) : null;
+  const card = (i: Indicator, foot?: React.ReactNode) => (
+    <Stat key={i.key} icon={IND_ICON[i.key] ?? 'chart-bar'} label={i.label} value={<Val v={i.value} digits={i.unit === 'ha' ? 1 : 0} />}
+      unit={i.value === null || i.value === undefined ? undefined : i.unit}
+      foot={foot ?? (i.value === null || i.value === undefined ? t('pilotage.noSource') : (i.updated_at ? t('pilotage.srcLine', { source: i.source, date: fmtDateTime(i.updated_at) }) : t('pilotage.srcOnly', { source: i.source })))} />
+  );
   return (
-    <>
-      <Card title={main.label} actions={<Badge tone="demo">{t('pilotage.demo')}</Badge>}>
-        <div className="hero-ind">
-          <p className="big num"><Val v={main.value} digits={0} /></p>
-          {(total || women) && (
-            <dl className="dl" style={{ flex: '1 1 320px' }}>
-              {total && <><dt>{t('pilotage.dash.registered')}</dt><dd className="num"><Val v={total.value} digits={0} /></dd></>}
-              {women && <><dt>{t('pilotage.dash.women')}</dt><dd className="num"><Val v={women.value} digits={0} />{share !== null && ` (${t('pilotage.dash.ofRegistered', { pct: share })})`}</dd></>}
-            </dl>
-          )}
-        </div>
-        <div className="mt-3"><Src source={main.source} at={main.updated_at} /></div>
-      </Card>
-      {rest.length > 0 && (
-        <section className="table-card" aria-labelledby="h-ind">
-          <div className="table-toolbar"><h2 className="card-title mr-auto" id="h-ind">{t('dashboard.others')}</h2></div>
-          <div className="table-scroll">
-            <table className="data-table table--cards">
-              <caption className="sr-only">{t('pilotage.dash.indCaption')}</caption>
-              <thead><tr><th scope="col">{t('dashboard.indicator')}</th><th scope="col" className="num">{t('dashboard.value')}</th><th scope="col">{t('common.source')}</th><th scope="col">{t('dashboard.updated')}</th></tr></thead>
-              <tbody>
-                {rest.map((r) => {
-                  const na = r.value === null || r.value === undefined;
-                  return (
-                    <tr key={r.key} className={na ? 'ind-row-na' : undefined}>
-                      <td className="td-primary" data-label={t('dashboard.indicator')}><span className="cell-main">{r.label}</span>{na && <span className="cell-sub">{t('pilotage.noSourceYet')}</span>}</td>
-                      <td className="num" data-label={t('dashboard.value')}><Val v={r.value} unit={r.unit} /></td>
-                      <td data-label={t('common.source')}>{na ? <span className="na">{t('pilotage.noSource')}</span> : r.source}</td>
-                      <td className="num" data-label={t('dashboard.updated')}>{r.updated_at ? fmtDateTime(r.updated_at) : <span className="na">—</span>}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-    </>
+    <section aria-label={t('dashboard.others')} className="stack" style={{ '--gap': '16px' } as React.CSSProperties}>
+      <div className="grid-fit" style={{ '--min': '160px' } as React.CSSProperties}>
+        {card(main)}
+        {total && card(total)}
+        {women && card(women, share !== null ? t('pilotage.dash.ofRegistered', { pct: share }) : undefined)}
+        {rest.map((r) => card(r))}
+      </div>
+      <p className="small muted"><Badge tone="demo">{t('pilotage.demo')}</Badge></p>
+    </section>
   );
 }

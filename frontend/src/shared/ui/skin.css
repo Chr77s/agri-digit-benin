@@ -244,7 +244,7 @@ a.list-item:hover { background: rgba(255,255,255,.55); }
 .tab:hover { background: rgba(30,122,76,.10); }
 .tab[aria-selected="true"] { background: var(--grad-action); color: var(--leaf-ink); box-shadow: var(--sh-btn); }
 .tab[aria-selected="true"] .count { background: rgba(255,255,255,.28); color: inherit; }
-.chip { background: var(--glass-strong); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card); min-height: 38px; }
+.chip { background: var(--glass-strong); border: 1.5px solid var(--line-input); box-shadow: 0 4px 10px -6px rgba(34,72,52,.3); min-height: 38px; }
 .chip:hover { border-color: var(--leaf); }
 .chip[aria-pressed="true"], .chip[aria-checked="true"] { background: var(--mint); border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(30,122,76,.15); }
 .progress { height: 10px; background: rgba(75,99,84,.14); box-shadow: var(--sh-in); }
@@ -372,3 +372,11 @@ a.list-item:hover { background: rgba(255,255,255,.55); }
 .queue-nav .qn-l { color: var(--ink); opacity: .8; }
 .queue-nav a.is-hot .qn-n { color: var(--bad-ink); }
 @media (prefers-reduced-motion: reduce) { .tile:hover, .stat-link:hover, .hero-wx:hover, .queue-nav a:hover { transform: none; } }
+
+/* Sous-ligne d'une cellule de tableau : alignée comme son titre, même quand ses chiffres sont tabulaires. */
+.cell-sub.num { text-align: inherit; }
+
+/* Tableau en colonne principale d'une page à deux colonnes : cellules plus serrées, codes sur une ligne. */
+.split > * .data-table th, .split > * .data-table td { padding-inline: 10px; }
+.split > * .data-table td > .num:not(.cell-sub) { white-space: nowrap; }
+.split { grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); }
