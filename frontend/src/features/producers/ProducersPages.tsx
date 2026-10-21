@@ -181,17 +181,21 @@ export function ProducerDetailPage() {
 
                 <aside className="card decision" aria-labelledby="h-dec">
                   <h2 className="card-title" id="h-dec">{t('ag.prod.decisionTitle')}</h2>
-                  <p className="card-sub mb-3">{t('ag.prod.checksSub')}</p>
-                  <ul className="checklist">
-                    {checks.map((c) => <li key={c.text}><Icon name={c.ok ? 'check-circle' : 'alert'} className={c.ok ? 'ok' : 'ko'} /><span>{c.text}</span></li>)}
-                  </ul>
+                  {p.status !== 'valide' && ( // une fois la fiche validée, les contrôles et la consigne n'ont plus d'objet
+                    <>
+                      <p className="card-sub mb-3">{t('ag.prod.checksSub')}</p>
+                      <ul className="checklist">
+                        {checks.map((c) => <li key={c.text}><Icon name={c.ok ? 'check-circle' : 'alert'} className={c.ok ? 'ok' : 'ko'} /><span>{c.text}</span></li>)}
+                      </ul>
+                    </>
+                  )}
                   <div className="stack mt-4" style={{ '--gap': '10px' } as React.CSSProperties} aria-live="polite">
                     {p.status === 'valide' && <Alert tone="ok" title={t('ag.prod.validTitle')}>{t('ag.prod.validText')}</Alert>}
                     {p.status === 'rejete' && <Alert tone="danger" title={t('ag.prod.rejectedTitle')}>{p.reject_reason && t('producers.rejectReason') + ' : ' + p.reject_reason}</Alert>}
                     {p.status !== 'valide' && <Button block icon="check" busy={a.validate.isPending} onClick={() => a.validate.mutate(undefined, { onSuccess: () => toast({ title: t('ag.prod.validTitle'), text: t('producers.validated') }) })}>{t('producers.validate')}</Button>}
                     {p.status !== 'rejete' && <Button block variant="danger" onClick={() => { setReasonErr(''); setRejectOpen(true); }}>{t('ag.prod.rejectWith')}</Button>}
                   </div>
-                  <p className="hint mt-3">{t('ag.prod.decisionHint')}</p>
+                  {p.status !== 'valide' && <p className="hint mt-3">{t('ag.prod.decisionHint')}</p>}
                 </aside>
               </div>
             </div>

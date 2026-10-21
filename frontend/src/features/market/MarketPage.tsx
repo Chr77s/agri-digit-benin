@@ -264,6 +264,7 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
   const { user } = useAuth();
   const vc = useVcSelect();
   const deps = useDepartments();
+  const place = usePlaceName();
   const m = useCreateOffer();
   const [v, setV] = useState({ type: 'offre' as OfferType, value_chain: '', qty: '', price: '', department: user?.department ?? '', commune: user?.commune ?? '', description: '' });
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -273,7 +274,8 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
   const prices = usePriceRows(v.value_chain);
   const priceHint = () => {
     const raw = prices.latest.filter((r) => r.form === 'brut').sort((a, b) => Number(b.department === v.department) - Number(a.department === v.department));
-    const seen = raw.slice(0, 2).map((r) => `${r.market.replace(/ \(.*\)/, '')} ${fmtNum(r.price)} F`);
+    // un prix d'un autre département que celui de l'annonce porte son département, pour ne pas passer pour un prix local
+    const seen = raw.slice(0, 2).map((r) => `${r.market.replace(/ \(.*\)/, '')}${r.department && r.department !== v.department ? ` (${place(r.department)})` : ''} ${fmtNum(r.price)} F`);
     if (!seen.length) return undefined;
     const dates = raw.map((r) => r.observed_on).filter((d): d is string => !!d).sort();
     return t('mk.priceHint', { list: seen.join(' · '), source: prices.simulated ? t('mk.prices.sourceShortDemo') : t('mk.prices.sourceShortReal', { date: fmtDate(dates[dates.length - 1]) }) });

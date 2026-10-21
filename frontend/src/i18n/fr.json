@@ -512,7 +512,7 @@
     "noThreadsHelp": "Les producteurs de votre secteur vous écrivent depuis « Mes messages ».",
     "unread_one": "{{count}} non lu",
     "unread_other": "{{count}} non lus",
-    "pick": "Choisissez une conversation à gauche."
+    "pick": "Choisissez une conversation dans la liste."
   },
   "notifications": {
     "listen": "Mes messages. Vos alertes et les nouvelles de votre inscription.",

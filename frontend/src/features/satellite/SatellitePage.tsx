@@ -33,7 +33,6 @@ export function SatellitePage() {
       <PageHeader title={t('nav.satellite')} desc={t('satellite.desc')} listen={t('satellite.listen')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.satellite') }]} />
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         <Alert tone="demo" icon="satellite" title={t('satellite.banner')}>
-          <p>{t('satellite.bannerText')}</p>
           {q.data?.source && <p className="small">{q.data.source}</p>}
         </Alert>
         {canFilter && (

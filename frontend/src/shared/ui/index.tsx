@@ -1,5 +1,5 @@
 import * as RD from '@radix-ui/react-dialog';
-import { forwardRef, useId, useMemo, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import { forwardRef, useEffect, useId, useMemo, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import { Link } from 'react-router-dom';
 import { Volume2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -123,8 +123,11 @@ export function Badge({ tone = 'neutral', icon, children }: { tone?: BadgeTone; 
 const ALERTS = { info: 'info', ok: 'check-circle', warn: 'alert', danger: 'x-circle', demo: 'info' } as const satisfies Record<string, IconName>;
 export type AlertTone = keyof typeof ALERTS;
 export function Alert({ tone = 'info', title, children, actions, live, icon }: { tone?: AlertTone; title?: ReactNode; children?: ReactNode; actions?: ReactNode; live?: boolean; icon?: IconName }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Dans une boîte de dialogue qui défile, une erreur qui apparaît en bas doit entrer dans la vue.
+  useEffect(() => { if (tone === 'danger' && ref.current?.closest('[role=dialog]')) ref.current.scrollIntoView?.({ block: 'nearest' }); }, [tone]);
   return (
-    <div className={`alert alert--${tone}`} role={live ? 'status' : undefined} aria-live={live ? 'polite' : undefined}>
+    <div ref={ref} className={`alert alert--${tone}`} role={live ? 'status' : undefined} aria-live={live ? 'polite' : undefined}>
       <Icon name={icon ?? ALERTS[tone]} />
       <div className="al-body">
         {title && <span className="al-title">{title}</span>}

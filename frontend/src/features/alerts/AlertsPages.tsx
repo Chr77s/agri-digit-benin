@@ -72,6 +72,8 @@ export function AlertsPage() {
       onSuccess: (r) => {
         setV({ ...v, title: '', message: '' });
         toast(r.status === 'en_attente_validation' ? { title: t('ag.alerts.urgentSavedTitle'), text: t('ag.alerts.urgentSavedText') } : t('alerts.saved'));
+        // l'alerte enregistrée et son bouton « Envoyer » sont en bas de page : on y amène la personne
+        requestAnimationFrame(() => document.getElementById('al-list')?.scrollIntoView?.({ block: 'start' }));
       },
     });
   };
@@ -146,7 +148,7 @@ export function AlertsPage() {
           </aside>
         </div>
 
-        <section className="card" aria-labelledby="h-hist">
+        <section className="card" id="al-list" aria-labelledby="h-hist">
           <div className="card-head">
             <h2 className="card-title" id="h-hist">{t('ag.alerts.histTitle')}</h2>
             <Chips label={t('ag.alerts.filterLabel')} value={filter} onChange={setFilter} options={(['pending', 'ready', 'sent'] as const).map((b) => ({ value: b, label: t(`ag.alerts.bucket.${b}`), count: (q.data ?? []).filter((x) => bucket(x) === b).length }))} />
