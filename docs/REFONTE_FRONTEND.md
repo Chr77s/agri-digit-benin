@@ -77,8 +77,9 @@ Une seule commande lourde à la fois (`tsc`, `vitest`, `vite build`) ; si `tsc` 
 - [x] P4 : accueils producteur et agent (`Hero`, `QuickTiles`, `Stat` avec `icon` et `tone` dans `kit.tsx`) ; le tableau de bord de pilotage hérite de la peau (cartes pastel par rang) : à revoir en P7
 - [x] P5 : CSS de pages : accueil téléphone, bulles de l'assistant, météo (`producteur.css`), file de l'agent (`agent.css`). Les objets sombres voulus restent (carte d'identité, aperçu SMS, illustrations de bienvenue, scène de la landing)
 - [x] P6 : connexion vérifiée (la peau suffit) ; **landing : D16, scène sombre conservée**
-- [ ] P7 : passe sur les pages des lots A à E (cartes pastel, tuiles) et pages restantes
-- [ ] P8 : contraste (`scripts/contrast.mjs`), tests, types, parcours navigateur à 375 / 768 / 1280, captures, correction
+- [x] P7 : passe sur les pages : toutes héritent de la peau ; vérifiées au navigateur : accueils producteur et agent, tableau de bord, producteurs, marché, parcelles (carte), connexion, mobile 375 px, mode sombre
+- [x] P8 : contraste (`scripts/contrast.mjs`, 0 échec), types, 150 tests d'application, parcours navigateur à 375 et 1360 px
+- [ ] **Reste possible (non fait, par choix ou faute de temps)** : (a) landing en clair (D16) ; (b) pages de pilotage (`DashboardPage`, `SeaPage`) : y poser des cartes pastel avec icône à la place des tableaux d'indicateurs ; (c) illustrations 3D de l'image 1 (dent) : l'équivalent agricole serait un épi de maïs ou une parcelle rendus en canvas comme la scène de la landing ; (d) captures d'écran de revue à 768 px ; (e) revoir à l'œil les pages des rôles transformateur, distributeur, gestionnaire, agent financier, agronome, MTDI, auditeur
 
 ## 7. Journal des décisions prises en cours de route
 
@@ -89,3 +90,5 @@ Une seule commande lourde à la fois (`tsc`, `vitest`, `vite build`) ; si `tsc` 
 (une ligne par décision : date, quoi, pourquoi)
 
 - 2026-10-21 : refonte lancée ; décisions D1 à D15 ci-dessus.
+- 2026-10-21 D17 (parcours) : aucune route, aucun menu, aucun rôle n'a changé. La hiérarchie d'un accueil devient : carte de bienvenue (une action principale en corail) → 4 chiffres pastel cliquables → 6 tuiles d'accès rapide → détails. Raison : règle du skill « une action principale par écran, navigation du bas à 5 entrées au plus » et image 2.
+- 2026-10-21 : piège rencontré : `skin.css` est chargé après `kit.css`, donc `.btn { padding }` écrase `.btn-icon { padding: 0 }` ; les surcharges de taille (`.btn-sm`, `.btn-icon`) sont redites après `.btn` dans `skin.css`. À garder en tête pour toute règle générique ajoutée à la peau.

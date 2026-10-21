@@ -157,6 +157,10 @@ body {
 [data-theme='dark'] .btn-secondary:hover { background: rgba(255,255,255,.12); }
 .btn-accent { background: var(--grad-accent); color: rgb(var(--c-coralInk)); border-color: rgba(255,255,255,.35); box-shadow: 0 10px 22px -10px rgba(200,75,36,.7), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 6px rgba(120,30,10,.25); }
 .btn-accent:hover { color: rgb(var(--c-coralInk)); filter: brightness(1.06); transform: translateY(-1px); }
+.btn-sm { min-height: 38px; padding: 0 16px; }
+.btn-icon, .btn-sm.btn-icon { padding: 0; }
+.btn-icon { width: 46px; min-width: 46px; }
+.btn-sm.btn-icon { width: 38px; min-width: 38px; }
 .btn-ghost:hover, .btn-icon:hover { background: rgba(30,122,76,.10); }
 .btn-danger { background: var(--grad-accent); color: #fff; }
 .btn-danger:hover { color: #fff; filter: brightness(.95); }
@@ -203,6 +207,7 @@ a.list-item:hover { background: rgba(255,255,255,.55); }
 .stat { position: relative; overflow: hidden; gap: 6px; padding: 18px 20px; background: var(--stat-bg, var(--glass)); }
 .stat::before { content: ""; position: absolute; inset: 0 0 45% 0; background: linear-gradient(180deg, rgba(255,255,255,.45), transparent); pointer-events: none; }
 .stat > * { position: relative; }
+[data-theme='dark'] .stat::before { background: linear-gradient(180deg, rgba(255,255,255,.08), transparent); }
 .grid-fit > .stat:nth-child(4n+1), .stat--mint { --stat-bg: var(--mint); backdrop-filter: none; }
 .grid-fit > .stat:nth-child(4n+2), .stat--peach { --stat-bg: var(--peach); backdrop-filter: none; }
 .grid-fit > .stat:nth-child(4n+3), .stat--butter { --stat-bg: var(--butter); backdrop-filter: none; }
