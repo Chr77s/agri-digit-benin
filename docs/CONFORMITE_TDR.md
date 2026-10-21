@@ -1,16 +1,17 @@
 # Conformité du prototype au TDR (révision du TDR « Agri-Digit Bénin »)
 
-Relecture du 20 octobre 2026 : TDR lu en entier, chaque exigence confrontée au code, puis compléments développés le même jour (section 7). Légende : **Fait** (réel et testé), **Simulé** (l'écran existe, les données sont fictives), **Partiel** (une partie seulement), **Absent**.
+Relecture du 20 octobre 2026 : TDR lu en entier, chaque exigence confrontée au code, puis compléments développés le même jour (section 7). Légende : **Fait** (réel et testé), **Fait côté outil** (l'outil est réel et testé, mais son résultat dépend de chiffres ou de validations que seul un tiers fournit : MAEP, INRAB, APDP), **Simulé** (l'écran existe, les données sont fictives), **Partiel** (une partie seulement), **Absent**.
 
 ## Verdict
 
-Le prototype ne couvre pas encore 99 % du TDR. Sur les **66 exigences logicielles** des tableaux ci-dessous : 30 faites (45 %), 6 simulées, 21 partielles, 9 absentes. Le matin du 20 octobre, sur 64 : 15 faites (23 %), 8 simulées, 14 partielles, 27 absentes.
+Le prototype ne couvre pas 99 % du TDR, mais l'écart n'est plus dans le code qu'à la marge. Sur les **66 exigences logicielles** des tableaux ci-dessous : **48 faites (73 %)**, **6 faites côté outil (9 %)**, 4 simulées, 8 partielles, aucune absente. Le matin du 20 octobre, sur 64 : 15 faites (23 %), 8 simulées, 14 partielles, 27 absentes. Les lots A à E de la journée (recouvrement et revenu ; terres, aménagements, sols, climat ; matériel, mécanisation, semences, PMEA ; prix, stocks, analyses, enquêtes, formations ; suivi-évaluation, couverture nationale, carte, réentraînement) ont traité les 21 partielles et les 9 absentes qui relevaient du code.
 
-Ce qui empêche d'aller plus loin ne dépend plus seulement du code :
+Ce qui reste en dehors du code :
 
-1. **Le contenu en langues nationales.** Le circuit est prêt (corpus, validation par un second locuteur, mesure de la justesse, file des questions posées), mais aucun texte en fon, bariba, yoruba ou dendi n'existe tant que le MTDI ne l'a pas écrit. La machine n'en invente pas.
-2. **Les données réelles** : modèle de diagnostic validé par l'INRAB, rendements de référence, imagerie satellite, prix des marchés (SIM), raccordements X-Road, ANIP, Mobile Money et opérateur SMS.
-3. **Trois maillons non développés** : aménagements (réhabilitation, entretien des périmètres), mécanisation, enquêtes de satisfaction des consommateurs.
+1. **Le contenu en langues nationales** (4 lignes partielles). Le circuit est prêt (corpus, validation par un second locuteur, mesure de la justesse, file des questions posées), mais aucun texte en fon, bariba, yoruba ou dendi n'existe tant que le MTDI ne l'a pas écrit. La machine n'en invente pas.
+2. **Les données et validations d'un tiers** (les 6 lignes « côté outil »). Relevés de prix (agents, SIM), statistiques nationales de consommation et d'importation (MAEP), rendements de référence et seuils des sols, du climat, des stocks et de la veille (INRAB, MAEP), consentement d'amélioration des modèles, AIPD et avis de l'APDP pour le réentraînement.
+3. **Ce qui reste simulé** (4 lignes) : le diagnostic par photo (aucun modèle appris : état, maladie, niveau de risque), la page « Prévisions », et les canaux SMS, USSD et vocal (aucun opérateur raccordé). Les paiements Mobile Money passent par FakePay.
+4. **Deux lignes partielles de fond** : le scoring crédit (une grille, pas de modèle statistique faute d'issues de crédit observées) et la synergie avec X-Road (habilitation du MAEP).
 
 Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, modèle économique, validation par le CoPil) sont listés à la fin, hors du décompte.
 
@@ -49,12 +50,12 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Production | Magasins de stockage | Fait (sites géolocalisés, lots en stock par magasin) |
 | Transformation | Transformateurs et sites par GPS, plateau technique | Fait (sites « unité de transformation » avec équipements) |
 | Transformation | Flux matières | Fait (lots collectés, livrés, transformés, remontée jusqu'à la récolte) |
-| Transformation | Prix brut et transformé | Partiel : prix des annonces et prix convenus par les organisations ; relevés de marché simulés |
+| Transformation | Prix brut et transformé | Fait côté outil (relevés saisis par les agents, les gestionnaires, transformateurs et distributeurs, avec forme brute ou transformée, écart et marge de transformation ; **aucun relevé n'est pré-chargé** : sans relevé récent la démonstration reste affichée, étiquetée « simulée ») |
 | Transformation | Renforcement du plateau, recouvrement | Fait (équipement remis à un transformateur en créance remboursable ; formations enregistrées) |
 | Distribution | Distributeurs, magasins, points de vente par GPS | Fait (sites « point de vente ») |
-| Distribution | Stocks et anticipation des ruptures | Partiel : stocks réels par lot ; pas d'anticipation des ruptures |
-| Distribution | Prix | Partiel (prix des annonces ; relevés simulés) |
-| Distribution | Enquêtes de satisfaction des consommateurs | Absent |
+| Distribution | Stocks et anticipation des ruptures | Fait (stock, sortie moyenne par jour et jours de couverture par détenteur, produit et site ; niveaux rupture, critique sous 7 jours, bas sous 15 jours ; alertes `check_stock_alerts`). Seuils à valider avec le MAEP ; une vente du marché non rattachée à un lot n'est pas vue |
+| Distribution | Prix | Fait côté outil (mêmes relevés que ci-dessus, lus par la page « Météo et prix », l'USSD, le SMS et le rappel du marché) |
+| Distribution | Enquêtes de satisfaction des consommateurs | Fait (enquête créée par le personnel, réponse publique sans compte ni donnée personnelle, limitation de débit, résultats agrégés avec masquage sous 5 réponses). Le recueil dépend des répondants |
 | Gouvernance | Interprofessions, OIA, fédérations | Fait (organisations de filière : union, fédération, interprofession, OIA, OPA) |
 | Gouvernance | Coopératives et effectifs | Fait (membres, effectifs par organisation dont femmes) |
 | Gouvernance | Fonctionnement des interprofessions, mécanismes de prix, renforcement des capacités | Fait (assemblées, réunions, prix convenus, formations avec femmes et jeunes) |
@@ -67,21 +68,21 @@ Les livrables qui ne sont pas du logiciel (rapports, formations, consultations, 
 | Acteur | Service | État |
 | --- | --- | --- |
 | Tous | Météo | Fait (Open-Meteo, données ouvertes, au point de la parcelle ; repli signalé si le service ne répond pas). Météo-Bénin non raccordé. |
-| Tous | Prix | Simulé (relevés de marché) |
+| Tous | Prix | Fait côté outil (relevés réels dès qu'ils sont saisis, démonstration étiquetée sinon) |
 | Tous | Conseil par l'assistant | Fait (français) |
 | Tous | Disponibilités en produits | Fait (marché) |
 | Tous | Services de partenaires : e-banking, assurance, publicité | Fait (« Services et innovations », par département et filière) |
 | Tous | Promotion des innovations, financements mobilisés au bénéfice des filières | Fait (publications, total des financements et des appuis) |
-| Tous | Analyses prospectives des marchés | Absent |
+| Tous | Analyses prospectives des marchés | Fait côté outil (moyenne mobile, variation et tendance par marché, fiabilité selon le nombre de relevés, **aucune projection sous 6 relevés** ; offre attendue par filière et département). Heuristique sans apprentissage (`MODEL_CARD.md` § 7) ; rendements de référence de démonstration à valider par l'INRAB |
 | Producteur | Mise en relation avec un transformateur, appui à la vente | Fait (marché, suspension, retrait et fermeture d'une annonce) |
 | Producteur | Échange avec son agent | Fait (messagerie, réponse aussi par SMS) |
 | Producteur | Accès aux PMEA de la zone | Fait (annuaire par département et service, entreprises vérifiées par l'agent de la zone) |
 | Producteur | Suivi du revenu | Fait (ventes déclarées − dépenses déclarées − remboursements payés, par campagne) |
 | Producteur | Paiement en un clic des appuis reçus | Fait (prochaine échéance, FakePay simulé) |
 | Transformateur, distributeur | Mise en relation, paiement en un clic | Fait |
-| Transformateur, distributeur | Prévision des récoltes | Simulé |
+| Transformateur, distributeur | Prévision des récoltes | Partiel (« offre attendue » par filière et département, calculée sur les campagnes déclarées et des rendements de référence de démonstration ; la page « Prévisions » reste calculée dans le navigateur) |
 | Transformateur, distributeur | Circuit de collecte | Fait (mise en lot depuis la récolte, livraison) |
-| Transformateur, distributeur | Renforcement des capacités, promotion des produits | Partiel (formations, annonces du marché) |
+| Transformateur, distributeur | Renforcement des capacités, promotion des produits | Fait (formations avec inscription volontaire, présence et rapport par département ; vitrine des produits). Pas de rappel de séance par message ni de certificat |
 | Institutions financières | Enregistrement, accès au scoring | Fait |
 | Institutions financières | Fourniture de services aux acteurs, recouvrement | Fait (publication de leurs offres ; prêts aux producteurs consentants et recouvrement des échéances) |
 
@@ -131,9 +132,19 @@ Rapport de démarrage, rapport de diagnostic, rapports de mission et techniques,
 - Services, innovations et financements mobilisés.
 - Assistant en langues nationales : corpus validé, réponse native, file des questions, mesure de la justesse ; second compte MTDI de démonstration (0197000012) pour montrer la validation.
 
+### Lots A à E (même journée, après la relecture)
+
+- **A, argent des appuis** : créances à échéances (appui remboursable, prêt d'une institution financière, équipement du plateau), paiement en un clic, rappels, taux de recouvrement, revenu du producteur, facteur « Appuis remboursés » du score de crédit.
+- **B, terres** : aménagements et travaux, superficies disponible, exploitable et exploitée, analyses de sol lues sans dose, utilisation des terres, risques climatiques par bilan hydrique.
+- **C, exploitations** : matériel des producteurs, mécanisation, semences certifiées distribuées en appuis, annuaire des PMEA vérifiés.
+- **D, marchés** : relevés de prix réels, stocks et ruptures, analyses prospectives, enquêtes publiques de satisfaction, formations, vitrine des produits.
+- **E, pilotage** : suivi-évaluation détaillé, couverture de la consommation nationale, carte commune des acteurs, qualité mesurée des modèles et cadre de réentraînement.
+
+Aucun de ces écrans n'a été vu dans un navigateur : ils sont vérifiés par des tests du serveur et de l'application, pas par un parcours à l'écran. Les nouveaux écrans de D et de E partent vides dans la démonstration : les pas 34 à 38 de `docs/DEMO.md` les remplissent à la main.
+
 ## 8. Ajouts sans lien avec le TDR, ou incohérents
 
-- **Pages « Collecte » et « Offres »** : toujours remplies de données écrites dans le code (`frontend/src/features/supply/demo.ts`). La traçabilité réelle est dans « Traçabilité » ; ces deux pages sont à retirer ou à brancher dessus.
+- **Pages « Collecte » et « Offres »** : toujours remplies de données écrites dans le code (`frontend/src/features/supply/demo.ts`). La traçabilité réelle est dans « Traçabilité », et les stocks réels dans la nouvelle page « Stocks et ruptures » ; ces deux pages sont à retirer ou à brancher dessus. L'encart des récoltes attendues de la page « Marché » reste aussi de la démonstration.
 - **Traduction de l'interface** : utile, mais distincte de l'exigence du TDR (assistant en langue nationale), désormais couverte par le corpus.
 - **Sélection de bénéficiaires sur 200 000 fermes synthétiques** réparties à égalité entre départements : le calcul est réel, les données non ; les chiffres ne se recoupent pas avec le tableau de bord (10 053 contre 16 667 en Alibori).
 - **Parcelle de démonstration de 97,75 ha** pour un petit producteur, d'où une récolte estimée à 146 tonnes.

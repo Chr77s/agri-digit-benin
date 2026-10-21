@@ -1,5 +1,6 @@
-// shortcut: aucune API météo ni relevé de prix côté serveur ; ces valeurs sont des données de DÉMONSTRATION,
-// toujours affichées avec un badge « Prévision simulée » ou « Démonstration ». À remplacer par un service (Météo-Bénin, SIM) quand il existe.
+// Repli de DÉMONSTRATION, toujours affiché avec un badge « Prévision simulée » ou « Démonstration » : la météo vient d'Open-Meteo et les
+// prix des relevés saisis (GET /prices) ; ces valeurs ne servent que sans réseau ou pour une filière sans aucun relevé récent.
+// shortcut: Météo-Bénin et le SIM ne sont pas raccordés, voir docs/MOCKS.md.
 import type { IconName } from '../../shared/ui';
 
 export interface DayForecast { date: Date; tmax: number; tmin: number; rainMm: number; rainPct: number; icon: IconName }

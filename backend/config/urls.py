@@ -20,11 +20,13 @@ from apps.knowledge import api as kn
 from apps.knowledge import publications as pubs
 from apps.lands import api as lands
 from apps.market import api as market
+from apps.markets import api as markets
+from apps.markets import surveys_api, trainings_api
 from apps.observatory import api as observatory
 from apps.parcels import api as parcels
 from apps.producers import api as prod
 from apps.production import api as prodn
-from apps.production import lots_api, recovery_api, revenue
+from apps.production import lots_api, recovery_api, revenue, stocks_api
 from apps.programs import api as prog
 from apps.referentiel import api as ref
 from apps.satellite import api as sat
@@ -152,6 +154,22 @@ v1 = [
     path("lots/transform", lots_api.lot_transform),
     path("lots/<uuid:pk>/transfer", lots_api.lot_transfer),
     path("lots/<str:ref>/trace", lots_api.lot_trace),
+    path("stocks/outlook", stocks_api.outlook),
+    path("prices", markets.price_list),
+    path("prices/margins", markets.price_margins),
+    path("market-analysis", markets.market_analysis),
+    path("surveys", surveys_api.survey_list),
+    path("surveys/<uuid:pk>/close", surveys_api.survey_close),
+    path("surveys/<uuid:pk>/results", surveys_api.survey_results),
+    path("public/surveys/<str:code>", surveys_api.public_survey),
+    path("public/surveys/<str:code>/respond", surveys_api.public_respond),
+    path("trainings", trainings_api.training_list),
+    path("trainings/report", trainings_api.training_report),
+    path("trainings/<uuid:pk>/register", trainings_api.training_register),
+    path("trainings/<uuid:pk>/registrations", trainings_api.training_registrations),
+    path("trainings/<uuid:pk>/attendance", trainings_api.training_attendance),
+    path("showcase", trainings_api.showcase_list),
+    path("showcase/<uuid:pk>/withdraw", trainings_api.showcase_withdraw),
     path("diagnoses", diag.diagnosis_list),
     path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),
     path("diagnoses/<uuid:pk>/ask-agronome", diag.diagnosis_ask_agronome),

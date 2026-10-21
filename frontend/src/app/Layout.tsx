@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
+import { MARKETS_NAV } from '../features/markets/nav';
 import { useNotifications } from '../features/alerts/api';
 import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
@@ -51,6 +52,9 @@ export const NAV: Record<Role, NavItem[]> = {
   distributeur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'warehouse'], ['/pmea', 'pmea', 'building'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),
   repr_mtdi: g(undefined, [['/langues', 'translations', 'languages'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/satellite', 'satellite', 'satellite']]),
 };
+
+// Relevés de prix, analyses, stocks, enquêtes, formations et vitrine : rubrique « Marchés et formation » en fin de menu (features/markets/nav.ts).
+for (const [role, items] of Object.entries(MARKETS_NAV) as [Role, [string, string, IconName][]][]) NAV[role].push(...g('markets', items));
 
 /* ---------- Présentation mobile (< 640 px, maquettes/mobile/) ---------- */
 // Onglets du bas par rôle (5 au plus, maquettes/mobile/m.js) ; un rôle absent garde le tiroir seul. Le reste du menu reste dans le tiroir.

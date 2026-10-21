@@ -87,11 +87,20 @@ const PmeaPage = lazy(() => import('../features/farmservices/PmeaPage').then((m)
 const CoveragePage = lazy(() => import('../features/observatory/CoveragePage').then((m) => ({ default: m.CoveragePage })));
 const ActorsMapPage = lazy(() => import('../features/observatory/ActorsMapPage').then((m) => ({ default: m.ActorsMapPage })));
 const ModelQualityPage = lazy(() => import('../features/observatory/ModelQualityPage').then((m) => ({ default: m.ModelQualityPage })));
+const PricesPage = lazy(() => import('../features/markets/PricesPage').then((m) => ({ default: m.PricesPage })));
+const AnalysisPage = lazy(() => import('../features/markets/AnalysisPage').then((m) => ({ default: m.AnalysisPage })));
+const SurveysPage = lazy(() => import('../features/markets/SurveysPage').then((m) => ({ default: m.SurveysPage })));
+const SurveyPublicPage = lazy(() => import('../features/markets/SurveyPublicPage').then((m) => ({ default: m.SurveyPublicPage })));
+const TrainingsPage = lazy(() => import('../features/markets/TrainingsPage').then((m) => ({ default: m.TrainingsPage })));
+const ShowcasePage = lazy(() => import('../features/markets/ShowcasePage').then((m) => ({ default: m.ShowcasePage })));
+const StocksPage = lazy(() => import('../features/stocks/StocksPage').then((m) => ({ default: m.StocksPage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
 const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
 const OWNERS: Role[] = ['producteur', 'gestionnaire_cooperative'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
+const MK_ACTORS: Role[] = ['producteur', 'gestionnaire_cooperative', 'transformateur', 'distributeur'];
+const MK_STAFF: Role[] = ['agent_atda', 'responsable_programme', 'admin_maep'];
 
 export function App() {
   const { user, ready } = useAuth();
@@ -129,6 +138,7 @@ export function App() {
         <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
         <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
         <Route path="/verification/:code?" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
+        <Route path="/enquete/:code" element={<Suspense fallback={<Skeleton />}><SurveyPublicPage /></Suspense>} />
         <Route path="/profil/:section?" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
@@ -163,6 +173,12 @@ export function App() {
         <Route path="/couverture" element={<Guard roles={['admin_maep', 'responsable_programme', 'auditeur_copil', 'agent_atda']}><CoveragePage /></Guard>} />
         <Route path="/carte-acteurs" element={<Guard><ActorsMapPage /></Guard>} />
         <Route path="/qualite-modeles" element={<Guard roles={['admin_maep', 'responsable_programme', 'agronome_inrab', 'auditeur_copil']}><ModelQualityPage /></Guard>} />
+        <Route path="/prix" element={<Guard roles={[...MK_STAFF, 'gestionnaire_cooperative', 'transformateur', 'distributeur']}><PricesPage /></Guard>} />
+        <Route path="/analyses-marches" element={<Guard roles={[...MK_STAFF, 'transformateur', 'distributeur']}><AnalysisPage /></Guard>} />
+        <Route path="/stocks" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><StocksPage /></Guard>} />
+        <Route path="/enquetes" element={<Guard roles={MK_STAFF}><SurveysPage /></Guard>} />
+        <Route path="/formations" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><TrainingsPage /></Guard>} />
+        <Route path="/vitrine" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><ShowcasePage /></Guard>} />
         <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
