@@ -432,3 +432,6 @@ main:focus { outline: none; }
 /* Indicateurs sans source : repliés sous les indicateurs disponibles */
 .ind-missing { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
 .ind-missing summary { min-height: 36px; display: flex; align-items: center; cursor: pointer; color: var(--ink-2); font-weight: 600; font-size: var(--fs-sm); }
+
+/* Cartes de tableau au téléphone : une cellule vide (ex. état « actif » non marqué) ne montre pas son libellé seul. */
+.table--cards td:empty { display: none; }
