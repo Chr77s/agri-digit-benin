@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, QuickTiles, Skeleton, Stat, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
+import { Alert, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, Skeleton, Stat, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
 import type { Campaign, Notification } from '../../shared/api/types';
 import { useOfflineStatus } from '../outbox/offlineQueue';
@@ -9,17 +9,8 @@ import { useCampaigns, useParcels } from '../parcels/api';
 import { useNotifications } from '../alerts/api';
 import { useSupportActions, useSupports } from '../supports/SupportsPage';
 import { useForecast } from '../weather/api';
-import { ListenGhost, StageBar } from './producerKit';
+import { StageBar } from './producerKit';
 
-const dayFmt = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'short' });
-const SHORTCUTS: { to: string; icon: IconName; key: string }[] = [
-  { to: '/diagnostic', icon: 'leaf-scan', key: 'diagnosis' },
-  { to: '/marche', icon: 'market', key: 'market' },
-  { to: '/meteo-prix', icon: 'cloud-sun', key: 'weatherPrices' },
-  { to: '/revenu', icon: 'coins', key: 'revenue' },
-  { to: '/remboursements', icon: 'wallet', key: 'repayments' },
-  { to: '/ma-carte', icon: 'id-card', key: 'card' },
-];
 
 export function ProducerHome() {
   const { t } = useTranslation();
@@ -30,7 +21,6 @@ export function ProducerHome() {
   const notes = useNotifications();
   const firstName = (user?.full_name ?? '').split(/\s+/)[0] ?? '';
   const where = [place(user?.commune), place(user?.department)].filter(Boolean).join(', ');
-  const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const alert = (notes.data ?? []).find((n) => !(n.is_read ?? n.read_at));
   const unread = (notes.data ?? []).filter((n) => !(n.is_read ?? n.read_at)).length;
   const supports = useSupports();
@@ -50,10 +40,8 @@ export function ProducerHome() {
   return (
     <>
       <Hero title={t('home.hello', { name: firstName })}
-        text={t('home.desc', { date: today.charAt(0).toUpperCase() + today.slice(1), where: where || t('common.notAvailable') })}
         actions={<>
           <Link className={buttonCls({ variant: 'accent' })} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
-          <ListenGhost text={t('home.listenPage', { name: firstName })} label={t('home.listenBtn')} />
         </>}
         aside={wx && (
           <Link className="hero-wx" to="/meteo-prix" aria-label={t('home.weatherTitle', { place: place(user?.commune) || where })}>
@@ -80,11 +68,8 @@ export function ProducerHome() {
           <Link className="stat-link" to="/messages"><Stat icon="mail" label={t('refonte.stat.messages')} value={notes.data ? fmtNum(unread) : '…'} /></Link>
         </div>
 
-        <QuickTiles label={t('refonte.quick')} items={SHORTCUTS.map((s) => ({ to: s.to, icon: s.icon, label: t(`nav.${s.key}`) }))} />
-
         <div className="split">
           <div className="stack" style={{ ['--gap' as string]: '20px' }}>
-            <WeatherCard commune={user?.commune ?? ''} name={place(user?.commune) || where} />
             <Card title={t('home.stagesTitle')} sub={campaigns.data ? t('home.stagesSub', { count: campaigns.data.length }) : undefined}
               actions={<Link className={buttonCls({ variant: 'ghost', size: 'sm' })} to="/campagnes">{t('nav.campaigns')}<Icon name="chevron-right" /></Link>}>
               <ParcelStages campaigns={campaigns} parcels={parcels} />
@@ -195,38 +180,6 @@ function MobileHome({ firstName, place, commune, where, alert, campaigns, parcel
         </nav>
       </div>
     </div>
-  );
-}
-
-function WeatherCard({ commune, name }: { commune: string; name: string }) {
-  const { t } = useTranslation();
-  const fc = useForecast(commune, 5);
-  const [now, ...next] = fc.days;
-  const heavy = next.find((d) => d.rainMm >= 30);
-  return (
-    <Card title={t('home.weatherTitle', { place: name })} sub={fc.simulated ? t('home.weatherSub') : t('weather.liveSub', { source: fc.source, time: new Date(fc.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) })} actions={<Badge tone={fc.simulated ? 'sim' : 'ok'}>{fc.simulated ? t('weather.simulated') : t('weather.live')}</Badge>}>
-      <div className="wx-now">
-        <span className="wx-ic"><Icon name={now.icon} /></span>
-        <div>
-          <p className="wx-temp num">{now.tmax} °C</p>
-          <p className="muted">{t('home.rainToday', { pct: now.rainPct })}</p>
-        </div>
-        <Link className={buttonCls({ variant: 'ghost', size: 'sm' })} style={{ marginLeft: 'auto' }} to="/meteo-prix">{t('home.week')}<Icon name="chevron-right" /></Link>
-      </div>
-      <ul className="wx-days" aria-label={t('home.nextDays')}>
-        {next.map((d) => (
-          <li key={d.date.toISOString()} className={d.rainMm >= 10 ? 'is-rain' : undefined}>
-            <span>{dayFmt(d.date)}</span><Icon name={d.icon} /><b className="num">{d.tmax}°</b>
-            <span className={`num${d.rainMm ? '' : ' muted'}`}>{t('weather.mm', { n: d.rainMm })}</span>
-          </li>
-        ))}
-      </ul>
-      {heavy && (
-        <div className="mt-3.5">
-          <Alert tone="info" icon="drop" title={t('home.heavyRain', { day: heavy.date.toLocaleDateString('fr-FR', { weekday: 'long' }) })}>{t('home.heavyRainTip')}</Alert>
-        </div>
-      )}
-    </Card>
   );
 }
 
