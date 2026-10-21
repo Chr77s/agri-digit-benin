@@ -326,8 +326,22 @@ function NotifLink() {
 
 function Main({ children }: { children?: ReactNode }) {
   const location = useLocation();
+  const ref = useRef<HTMLElement>(null);
+  const first = useRef(true);
+  // Changement de page : retour en haut, titre du document = titre de la page (h1, parfois chargé après), focus sur main pour les lecteurs d'écran.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const el = ref.current;
+    if (!el) return;
+    if (first.current) first.current = false; else el.focus({ preventScroll: true });
+    const setTitle = () => { const h = el.querySelector('h1')?.textContent?.trim(); if (h) document.title = `${h} · Agri-Digit Bénin`; return !!h; };
+    if (setTitle()) return;
+    const mo = new MutationObserver(() => { if (setTitle()) mo.disconnect(); });
+    mo.observe(el, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [location.pathname]);
   // isolate : les couches Leaflet (z-index 400+) restent sous l'en-tête collant.
-  return <main id="main" tabIndex={-1} className="page isolate"><ErrorBoundary key={location.pathname}>{children ?? <Outlet />}</ErrorBoundary></main>;
+  return <main ref={ref} id="main" tabIndex={-1} className="page isolate"><ErrorBoundary key={location.pathname}>{children ?? <Outlet />}</ErrorBoundary></main>;
 }
 
 function SkipLink() {

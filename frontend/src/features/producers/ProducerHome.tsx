@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Alert, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, QuickTiles, Skeleton, Stat, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
@@ -268,24 +267,22 @@ function ParcelStages({ campaigns, parcels }: { campaigns: Q<Campaign[]>; parcel
   );
 }
 
-/** Repères selon le stade de chaque campagne ; cocher ne les enregistre pas (pas d'API de tâches). */
+/** Repères selon le stade de chaque campagne : chaque ligne ouvre la campagne (il n'y a pas d'API de tâches, donc pas de case à cocher qui n'enregistrerait rien). */
 function TasksCard({ campaigns, parcelName }: { campaigns: Campaign[]; parcelName: (id: string) => string }) {
   const { t } = useTranslation();
   const vcName = useVcName();
-  const [done, setDone] = useState<string[]>([]);
   return (
-    <Card title={t('home.tasksTitle')} actions={campaigns.length > 0 ? <span className="small muted num">{t('home.tasksDone', { n: done.length, total: campaigns.length })}</span> : undefined}>
+    <Card title={t('home.tasksTitle')}>
       {campaigns.length === 0
         ? <p className="muted">{t('home.tasksEmpty')}</p>
         : campaigns.map((c) => (
-          <div key={c.id} className="task">
-            <input className="cb" type="checkbox" id={`tk-${c.id}`} checked={done.includes(c.id)}
-              onChange={(e) => setDone((d) => (e.target.checked ? [...d, c.id] : d.filter((x) => x !== c.id)))} />
-            <label htmlFor={`tk-${c.id}`}>
+          <Link key={c.id} to="/campagnes" className="task task-link">
+            <span className="t-body">
               <span className="t-title">{t(`home.task.${c.stage}`, { crop: vcName(c.value_chain) })}</span>
               <span className="t-meta">{parcelName(c.parcel)} · {t(`stage.${c.stage}`)}</span>
-            </label>
-          </div>
+            </span>
+            <Icon name="chevron-right" />
+          </Link>
         ))}
       <p className="hint mt-2">{t('home.tasksHint')}</p>
     </Card>

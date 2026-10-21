@@ -30,3 +30,4 @@ Sur le PC de développement, la protection contre les rançongiciels de Windows 
 - Le prototype n'utilise pas Docker : il tourne sur SQLite. Les fichiers de `infra/` sont gardés pour un déploiement ultérieur et n'ont pas été testés.
 - Le fichier POC fait 77,5 Mo (et non 17,8 Mo) ; l'import doit se faire en flux sur un poste à faible mémoire.
 - Le passage "quand semer le maïs à Banikoara" s'appuie sur un extrait WOCAT non ouvert directement : à confirmer par l'ATDA Alibori.
+- La photo de démonstration `docs/demo/photo-feuille-douteuse.jpg` (et sa copie dans `backend/media/diagnoses/`) porte un filigrane « iStock » : à remplacer par une image libre et créditée (CC BY-SA, comme les vignettes de la landing) avant toute présentation. Je n'ai pas pu en fournir une depuis ce poste.

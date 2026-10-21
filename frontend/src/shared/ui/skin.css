@@ -384,3 +384,11 @@ a.list-item:hover { background: rgba(255,255,255,.55); }
 .split > * .data-table td > .num:not(.cell-sub) { white-space: nowrap; }
 .split { grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); }
 @media (max-width: 1100px) { .split { grid-template-columns: minmax(0, 1fr); } } /* même seuil que kit.css, redit ici car cette règle l'écrasait */
+
+/* Focus donné à <main> à chaque changement de page (Layout.tsx) : pas d'anneau autour de toute la page. */
+main:focus { outline: none; }
+
+/* Cibles tactiles de 44 px (PRODUCT.md) au téléphone et sur écran tactile ; le bureau garde les 38 px denses. */
+@media (max-width: 640px), (pointer: coarse) {
+  .chip, .btn-sm, .tab { min-height: 44px; }
+}

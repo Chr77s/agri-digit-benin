@@ -45,7 +45,7 @@
       "recolte": "Déclarer la récolte : {{crop}}",
       "terminee": "Campagne terminée : {{crop}}"
     },
-    "tasksHint": "Repères d'après le calendrier cultural, selon le stade de chaque campagne (démonstration). Cocher une tâche ne l'enregistre pas.",
+    "tasksHint": "Repères d'après le calendrier cultural, selon le stade de chaque campagne (démonstration). Touchez une ligne pour ouvrir la campagne.",
     "supportTitle": "Appui à confirmer",
     "supportPending": "{{count}} en attente",
     "supportMeta": "Remis le {{date}} · {{repay}}",
