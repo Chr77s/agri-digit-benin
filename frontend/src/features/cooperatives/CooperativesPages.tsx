@@ -276,17 +276,18 @@ function AddMemberDialog({ coopId, onClose, onDone }: { coopId: string; onClose:
   const a = useMembershipActions(coopId);
   const roles = useRoleOptions();
   const { user } = useAuth();
-  // Le gestionnaire n'a pas accès au registre (/producers répond 403) : pas d'appel pour lui, saisie de l'identifiant ou du code à la place.
-  const producers = useProducers({ status: 'valide' }, user?.role !== 'gestionnaire_cooperative');
+  // Seul le personnel (agent, administrateur) lit le registre : le gestionnaire (403) et le président producteur (ne verrait que lui-même) saisissent le code du producteur.
+  const staff = user?.role === 'agent_atda' || user?.role === 'admin_maep';
+  const producers = useProducers({ status: 'valide' }, staff);
   const [producer, setProducer] = useState('');
   const [role, setRole] = useState<MemberRole>('membre');
   const [err, setErr] = useState('');
-  const canList = producers.isSuccess && producers.data.length > 0;
+  const canList = staff && producers.isSuccess && producers.data.length > 0;
   return (
     <Dialog open onClose={onClose} title={t('coop.addMember')}
       footer={<><Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button><Button type="submit" form="f-add" busy={a.add.isPending}>{t('coop.addConfirm')}</Button></>}>
       <form id="f-add" noValidate className="stack" onSubmit={(e) => { e.preventDefault(); if (!producer) { setErr(t('coop.errProducer')); return; } a.add.mutate({ producer, role }, { onSuccess: onDone }); }}>
-        <Field label={t('common.producer')} error={err} hint={canList ? t('ag.coop.validOnly') : t('coop.producerIdHint')}>
+        <Field label={canList ? t('common.producer') : t('coop.producerCode')} error={err} hint={canList ? t('ag.coop.validOnly') : t('coop.producerIdHint')}>
           {(p) => canList
             ? <Select {...p} value={producer} onChange={(e) => { setProducer(e.target.value); setErr(''); }} placeholder={t('common.choose')} options={producers.data!.map((x) => ({ value: x.id, label: `${x.code} ${x.first_name} ${x.last_name}` }))} />
             : <Input {...p} value={producer} onChange={(e) => { setProducer(e.target.value.trim()); setErr(''); }} />}

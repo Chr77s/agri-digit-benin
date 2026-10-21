@@ -60,6 +60,8 @@ Les étapes de `docs/DEMO.md` ont été rejouées avec les comptes de démonstra
 14. **Messages** : « Choisissez une conversation à gauche » sur un écran à une colonne.
 15. **Formation** : le public visé affichait aussi « Distributeur » alors que seul « Transformateur » avait été coché (à confirmer : case cochée par défaut ?).
 
+Corrigés ensuite (défauts 1 à 6, avec tests) : le président et le gestionnaire saisissent le **code** du producteur (champ « Code du producteur », plus de liste du registre) ; l'assistant ne cite plus une fiche qui ne partage que « maïs » avec la question (mots d'action comme « contre » ou « lutter » ignorés, et une fiche doit porter plus de la moitié des mots de la question : la question sur la chenille répond désormais « aucune fiche publiée ne couvre cette question », la fiche chenille n'étant qu'à l'état de brouillon ; la question « taches sur le manioc » reçoit la même réponse faute de fiche qui parle de taches) ; les départements et communes s'affichent par leur nom (organisations, sites, chemin d'un lot) ; « 1 producteur », « 1 alerte » au singulier ; le journal d'audit écrit l'action en français (le code brut reste en infobulle, dans le détail et dans l'export CSV) et abrège l'identifiant de l'objet.
+
 Corrigés dans ce passage : la case piège de l'enquête publique était visible (« Ne pas remplir ce champ ») ; la mention du chemin `docs/REENTRAINEMENT.md` s'affichait aux utilisateurs de « Qualité des modèles ».
 
 ## Effet de la simplification de l'interface

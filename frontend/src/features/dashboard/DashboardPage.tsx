@@ -7,7 +7,7 @@ import type { Dashboard, FarmAggregate, Indicator, SeaDashboard } from '../../sh
 import { Badge, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, Stat, Table, buttonCls, fmtDateTime, fmtNum, type IconName } from '../../shared/ui';
 import { useDepartments, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
-import { HBars, OfflineNote, Src, Val } from './viz';
+import { HBars, OfflineNote, Src, Val, unitFor } from './viz';
 
 /** Indicateurs mis en avant dans la carte principale ; les autres vont dans le tableau. */
 const HERO = ['producers_validated', 'producers_total', 'producers_women'];
@@ -131,7 +131,7 @@ function Indicators({ list }: { list: Indicator[] }) {
   const share = total?.value && women?.value !== null && women?.value !== undefined ? Math.round((100 * women.value) / total.value) : null;
   const card = (i: Indicator, foot?: React.ReactNode) => (
     <Stat key={i.key} icon={IND_ICON[i.key] ?? 'chart-bar'} label={i.label} value={<Val v={i.value} digits={i.unit === 'ha' ? 1 : 0} />}
-      unit={i.value === null || i.value === undefined ? undefined : i.unit}
+      unit={i.value === null || i.value === undefined ? undefined : unitFor(i.value, i.unit)}
       foot={foot ?? (i.value === null || i.value === undefined ? t('pilotage.noSource') : (i.updated_at ? t('pilotage.srcLine', { source: i.source, date: fmtDateTime(i.updated_at) }) : t('pilotage.srcOnly', { source: i.source })))} />
   );
   return (

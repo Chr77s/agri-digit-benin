@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../shared/api/client';
-import { useDepartments } from '../../shared/api/ref';
+import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import {
   Alert, Badge, Button, Card, Checkbox, Dialog, EmptyState, ErrorState, Field, Input, PageHeader, QueryState, Select, Table,
   Textarea, fmtDate, fmtNum, toast, type Column,
@@ -59,6 +59,7 @@ function Search() {
 
 function TraceDialog({ code, onClose }: { code: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const place = usePlaceName();
   const q = useQuery({ queryKey: ['trace', code], queryFn: () => api<Trace>(`/lots/${encodeURIComponent(code)}/trace`), retry: false });
   return (
     <Dialog open onClose={onClose} title={t('trace.chainTitle', { code })}>
@@ -70,7 +71,7 @@ function TraceDialog({ code, onClose }: { code: string; onClose: () => void }) {
                 <h3 className="card-title">{t('trace.origins')}</h3>
                 {d.origins.map((o) => (
                   <div key={o.lot} className="mt-2">
-                    <p>{t('trace.originLine', { code: o.producer_code, commune: o.commune, parcel: o.parcel, season: o.season, date: fmtDate(o.harvested_at) })}</p>
+                    <p>{t('trace.originLine', { code: o.producer_code, commune: place(o.commune), parcel: o.parcel, season: o.season, date: fmtDate(o.harvested_at) })}</p>
                     <p className="small muted">{o.inputs.length ? t('trace.inputs', { list: o.inputs.join(', ') }) : t('trace.noInputs')}</p>
                   </div>
                 ))}
@@ -188,6 +189,7 @@ function TransformDialog({ lots, siteOpts, onClose }: { lots: Lot[]; siteOpts: {
 
 function Sites({ canAdd }: { canAdd: boolean }) {
   const { t } = useTranslation();
+  const place = usePlaceName();
   const user = useAuth().user;
   const deps = useDepartments();
   const q = useQuery({ queryKey: ['sites'], queryFn: () => api<{ results: Site[] }>('/sites') });
@@ -200,7 +202,7 @@ function Sites({ canAdd }: { canAdd: boolean }) {
   const cols: Column<Site>[] = [
     { key: 'name', label: t('trace.name') },
     { key: 'kind', label: t('trace.kind.label'), render: (s) => t(`trace.kind.${s.kind}`) },
-    { key: 'department', label: t('trace.department') },
+    { key: 'department', label: t('trace.department'), render: (s) => place(s.department), csv: (s) => place(s.department) },
     { key: 'lat', label: 'GPS', render: (s) => <span className="num">{s.lat.toFixed(4)}, {s.lon.toFixed(4)}</span> },
     { key: 'capacity_t', label: t('trace.capacity'), num: true, render: (s) => (s.capacity_t == null ? '—' : fmtNum(s.capacity_t)) },
   ];

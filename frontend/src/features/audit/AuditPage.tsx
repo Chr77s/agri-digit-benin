@@ -50,6 +50,7 @@ export function AuditPage() {
   });
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const objLabel = (o: string) => t(`pilotage.audit.obj.${o}`, { defaultValue: o });
+  const actionLabel = (a: string) => t(`refonte.auditAction.${a.replaceAll('.', '_')}`, { defaultValue: a });
   return (
     <div className="pv">
       <PageHeader title={t('nav.audit')} crumbs={[{ label: t('pilotage.crumbGov') }, { label: t('nav.audit') }]} desc={t('pilotage.audit.desc')} />
@@ -74,8 +75,8 @@ export function AuditPage() {
                     { key: 'at', label: t('common.date'), num: true, render: (r) => fmtSec(r.at) },
                     { key: 'actor_phone', label: t('audit.actor'), num: true, render: (r) => r.actor_phone || '—' },
                     { key: 'actor_role', label: t('admin.role'), render: (r) => t(`roles.${r.actor_role}`, { defaultValue: r.actor_role }) },
-                    { key: 'action', label: t('common.action'), render: (r) => <span className="mono">{r.action}</span> },
-                    { key: 'object_type', label: t('audit.object'), render: (r) => `${objLabel(r.object_type)} ${r.object_id ?? ''}` },
+                    { key: 'action', label: t('common.action'), render: (r) => <span title={r.action}>{actionLabel(r.action)}</span>, csv: (r) => r.action },
+                    { key: 'object_type', label: t('audit.object'), render: (r) => <span title={r.object_id ?? undefined}>{objLabel(r.object_type)}{r.object_id ? <span className="mono muted"> · {String(r.object_id).slice(0, 8)}</span> : null}</span>, csv: (r) => `${r.object_type} ${r.object_id ?? ''}` },
                     { key: 'details', label: t('audit.details'), sortable: false, render: (r) => <span className="small">{summary(r.details)}</span>, csv: (r) => JSON.stringify(r.details) },
                     { key: 'open', label: t('pilotage.audit.detail'), actions: true, render: (r) => <Button size="sm" variant="ghost" onClick={() => setOpen(r)}>{t('pilotage.audit.detail')}</Button> },
                   ]} />
@@ -90,7 +91,7 @@ export function AuditPage() {
           <dl className="dl mb-3">
             <dt>{t('common.date')}</dt><dd className="num">{fmtSec(open.at)}</dd>
             <dt>{t('audit.actor')}</dt><dd>{open.actor_phone || '—'} · {t(`roles.${open.actor_role}`, { defaultValue: open.actor_role })}</dd>
-            <dt>{t('common.action')}</dt><dd className="mono">{open.action}</dd>
+            <dt>{t('common.action')}</dt><dd>{actionLabel(open.action)} <span className="mono muted">({open.action})</span></dd>
             <dt>{t('audit.object')}</dt><dd>{objLabel(open.object_type)} {open.object_id}</dd>
             <dt>{t('pilotage.audit.id')}</dt><dd className="mono">{open.id}</dd>
             {open.hash && <><dt>{t('pilotage.audit.hash')}</dt><dd className="mono">{t('pilotage.audit.hashPrev')} {shortHash(open.prev_hash)}<br />{t('pilotage.audit.hashThis')} {shortHash(open.hash)}</dd></>}
