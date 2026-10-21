@@ -159,8 +159,8 @@ function RouteMap() {
         <rect width="480" height="270" fill="#DDE9CF" />
         <path d="M0 60 L160 30 L190 140 L0 170Z" fill="#CFE1BC" /><path d="M300 0 L480 0 L480 120 L340 150Z" fill="#D3E4C2" /><path d="M0 200 L150 190 L180 270 L0 270Z" fill="#C7DCB2" />
         <path d="M-10 230 C120 200 260 230 490 160" stroke="#F8FBF4" strokeWidth="10" fill="none" />
-        <path d="M110 190 L200 90 L330 70 L390 180 L110 190" fill="none" stroke="#1F5A32" strokeWidth="3" strokeLinejoin="round" strokeDasharray="10 6" />
-        <g stroke="#fff" strokeWidth="3"><circle cx="110" cy="190" r="10" fill="#0E2F1C" /><circle cx="200" cy="90" r="9" fill="#1F5A32" /><circle cx="330" cy="70" r="9" fill="#1F5A32" /><circle cx="390" cy="180" r="9" fill="#6FA83A" /></g>
+        <path d="M110 190 L200 90 L330 70 L390 180 L110 190" fill="none" stroke="#016648" strokeWidth="3" strokeLinejoin="round" strokeDasharray="10 6" />
+        <g stroke="#fff" strokeWidth="3"><circle cx="110" cy="190" r="10" fill="#0E2F1C" /><circle cx="200" cy="90" r="9" fill="#016648" /><circle cx="330" cy="70" r="9" fill="#016648" /><circle cx="390" cy="180" r="9" fill="#6FA83A" /></g>
         <text className="route-lab" x="126" y="214">Magasin de Kandi</text><text className="route-lab" x="150" y="72">1 · Sonsoro</text>
         <text className="route-lab" x="300" y="52">2 · Angaradébou</text><text className="route-lab" x="350" y="210">3 · Donwari</text>
       </svg>

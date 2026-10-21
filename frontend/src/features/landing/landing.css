@@ -1,7 +1,7 @@
 /* Landing : jetons (sombre uniquement) et scène. Les sections du bas de page sont dans landing-sections.css. */
 .landing {
   --lp-serif: 'Young Serif', Georgia, 'Times New Roman', serif;
-  --lp-lime: #c6f432;
+  --lp-lime: #12be78;
   --lp-lime-ink: #0a2417;
   position: relative;
   min-height: 100vh;
@@ -17,10 +17,10 @@
   --lp-line: rgba(239, 235, 216, 0.18);
   --lp-glass: rgba(14, 46, 29, 0.8);
   --lp-glass-line: rgba(239, 235, 216, 0.22);
-  --lp-accent: #c6f432;
+  --lp-accent: #12be78;
   --lp-accent-ink: #0a2417;
-  --lp-ochre: #e39a55;
-  --lp-focus: #c6f432;
+  --lp-ochre: #f8793a;
+  --lp-focus: #12be78;
   --lp-scrim: rgba(10, 36, 23, 0.94);
   --lp-scrim-0: rgba(10, 36, 23, 0);
   color-scheme: dark;

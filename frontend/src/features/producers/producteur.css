@@ -135,7 +135,7 @@
 .bar-cell .meter { width: 90px; height: 8px; border-radius: var(--r-pill); background: var(--rain-2); overflow: hidden; flex: none; }
 .bar-cell .meter i { display: block; height: 100%; background: var(--d1); border-radius: var(--r-pill); }
 .bar-cell .meter.moist i { background: var(--rain-ink); }
-.ndvi-scale { position: relative; display: flex; height: 10px; border-radius: var(--r-pill); background: linear-gradient(90deg, #C9B79A, #E2D58A, #A7CC6E, #4E8A2B, #1F5A32); }
+.ndvi-scale { position: relative; display: flex; height: 10px; border-radius: var(--r-pill); background: linear-gradient(90deg, #C9B79A, #E2D58A, #A7CC6E, #4E8A2B, #016648); }
 .ndvi-scale i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--surface); }
 .ndvi-ticks { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-2); margin-top: 4px; }
 @media (max-width: 640px) { .bar-cell .meter { width: 60px; } }
@@ -215,7 +215,7 @@
 .m-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 4px; }
 .m-tile { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 88px; color: var(--ink); font-size: .875rem; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; }
 .m-tile:hover { color: var(--leaf); text-decoration: none; }
-.m-tile i { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 19px; background: var(--mint); color: var(--leaf); box-shadow: inset 0 2px 0 rgba(255,255,255,.75), 0 10px 16px -10px rgba(34,72,52,.45); }
+.m-tile i { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 19px; background: var(--mint); color: var(--leaf); box-shadow: inset 0 2px 0 rgba(255,255,255,.75), 0 10px 16px -10px rgba(1,70,50,.45); }
 .m-tile:nth-child(4n+2) i { background: var(--peach); } .m-tile:nth-child(4n+3) i { background: var(--butter); } .m-tile:nth-child(4n+4) i { background: var(--sky); }
 .m-tile i .ic { width: 26px; height: 26px; }
 .m-home .task { min-height: 56px; align-items: center; }

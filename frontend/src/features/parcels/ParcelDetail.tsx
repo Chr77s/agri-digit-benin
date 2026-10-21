@@ -76,7 +76,7 @@ function Detail({ p, crumbs }: { p: Parcel; crumbs: { label: string; to?: string
             <div className="map" role="img" aria-label={t('parcels.outlineAlt', { area: fmtNum(p.area_ha, 2), n: pts.length })}>
               <MapContainer center={MAP_CENTER} zoom={15} className="map-canvas" scrollWheelZoom={false}>
                 <TileLayer attribution={osmAttribution()} url={OSM} />
-                <GeoJSON data={p.geometry} style={{ color: '#1F5A32', weight: 2.5, fillColor: '#6FA83A', fillOpacity: 0.35 }} />
+                <GeoJSON data={p.geometry} style={{ color: '#016648', weight: 2.5, fillColor: '#00A563', fillOpacity: 0.35 }} />
                 <FitBounds geometry={p.geometry} />
               </MapContainer>
               <div className="map-legend"><ul className="legend"><li><span className="sw sw--2" />{t('parcels.legendParcel')} · <span className="num">{t('parcels.ha', { n: fmtNum(p.area_ha, 2) })}</span></li></ul></div>

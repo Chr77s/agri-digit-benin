@@ -39,7 +39,7 @@
 .ind-def { font-size: var(--fs-sm); color: var(--ink-2); }
 /* Refonte : chaque question de suivi a sa teinte pastel et sa pastille ; chaque indicateur est une tuile en relief. */
 .sea-title { display: inline-flex; align-items: center; gap: 12px; }
-.sea-ic { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 14px; background: var(--mint); color: var(--leaf); box-shadow: inset 0 2px 0 rgba(255,255,255,.75), 0 8px 14px -10px rgba(34,72,52,.45); }
+.sea-ic { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 14px; background: var(--mint); color: var(--leaf); box-shadow: inset 0 2px 0 rgba(255,255,255,.75), 0 8px 14px -10px rgba(1,70,50,.45); }
 .sea-grid > .card:nth-child(4n+2) { --tile: var(--peach); } .sea-grid > .card:nth-child(4n+3) { --tile: var(--butter); } .sea-grid > .card:nth-child(4n+4) { --tile: var(--sky); } .sea-grid > .card:nth-child(4n+1) { --tile: var(--mint); }
 .sea-grid > .card .sea-ic { background: var(--tile); }
 .sea-grid > .card .ind { margin-top: 10px; padding: 14px 16px; border: 0; border-radius: var(--r-lg); background: var(--tile); }

@@ -8,17 +8,17 @@
 
 :root {
   /* Palette Bénin Vert (DESIGN.md) */
-  --canopy: #0E2F1C;
-  --canopy-deep: #0A2415;
-  --canopy-2: #12391F;
+  --canopy: #014D38;
+  --canopy-deep: #013D2C;
+  --canopy-2: #025A40;
   --leaf: rgb(var(--c-brand));
   --leaf-hover: rgb(var(--c-brandHover));
   --leaf-ink: rgb(var(--c-brandInk));
-  --maize: #6FA83A;
-  --maize-hover: #82BC4A;
+  --maize: #00A563;
+  --maize-hover: #14BE7B;
   --rain: rgb(var(--c-rain));
-  --rain-2: #DCE9D0;
-  --sun: #F3C54A;
+  --rain-2: #D3EBDD;
+  --sun: #F6732F;
   --laterite: #B4532D;
   --on-dark: #F1F6EC;
   --on-dark-2: #C3D6B9;
@@ -26,26 +26,26 @@
   /* Surfaces de travail */
   --bg: rgb(var(--c-bg));            /* fond de travail (app-bg) */
   --surface: rgb(var(--c-surface));  /* cartes, tableaux, champs */
-  --surface-2: #F8FBF4;     /* zones internes, survol de ligne */
+  --surface-2: #F7FBF8;     /* zones internes, survol de ligne */
   --layer: rgb(var(--c-layer));         /* second neutre : en-têtes de tableau, barres d'outils */
   --ink: rgb(var(--c-text));         /* texte principal (app-ink) */
   --ink-2: rgb(var(--c-muted));         /* texte secondaire (6,3:1 sur --bg) */
-  --ink-3: #5B6E5C;         /* indications, espaces réservés (≥ 4,5:1 sur blanc) */
+  --ink-3: #4F6B5E;         /* indications, espaces réservés (≥ 4,5:1 sur blanc) */
   --line: rgb(var(--c-border));      /* filets */
-  --line-strong: rgba(14, 47, 28, .16);
-  --line-input: #7D9275;    /* bord de champ (≥ 3:1) */
+  --line-strong: rgba(1, 77, 56, .16);
+  --line-input: #6F9582;    /* bord de champ (≥ 3:1) */
 
   /* États (jamais la couleur seule : toujours icône + texte) */
-  --ok-bg: #E0F0D3;     --ok-ink: #1F5A32;
+  --ok-bg: #DFF3E8;     --ok-ink: #016648;
   --wait-bg: #EEF1E9;   --wait-ink: #3F5244;
   --bad-bg: #F7E3D9;    --bad-ink: #8E3E1F;
-  --sun-bg: #FBEFC8;    --sun-ink: #6B4E00;
+  --sun-bg: #FDE8DA;    --sun-ink: #8A3B0C;
   --sim-bg: #FBEAE1;    --sim-ink: #8E3E1F;
-  --tint-ok: #F4FAEE;   --tint-warn: #FDF6EE;  --tint-bad: #FFFAF7;
-  --disabled-bg: #EEF2EA; --line-soft: #B9C8AF; --skel-a: #E3EBDB; --skel-b: #EEF4E8;
+  --tint-ok: #F2FAF5;   --tint-warn: #FEF5EC;  --tint-bad: #FFFAF7;
+  --disabled-bg: #E8F1EC; --line-soft: #B4D0C0; --skel-a: #DCEBE2; --skel-b: #E8F3EC;
 
   /* Séries de données : feuille, maïs, soleil, latérite, neutre */
-  --d1: #1F5A32; --d2: #6FA83A; --d3: #E2B132; --d4: #B4532D; --d5: #A9BBA0;
+  --d1: #016648; --d2: #00A563; --d3: #E5601A; --d4: #B4532D; --d5: #A9BBA0;
 
   /* Typographie : une linéale lisible pour le travail, la grotesque pour la marque et les titres de page */
   --font-ui: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
@@ -61,7 +61,7 @@
   --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
   --sh-card: 0 1px 0 rgba(14,47,28,.05), 0 10px 24px -20px rgba(14,47,28,.45);
   --sh-pop: 0 24px 60px -20px rgba(6,22,12,.45), 0 0 0 1px rgba(14,47,28,.08);
-  --sh-btn: 0 8px 20px -14px rgba(31,90,50,.9);
+  --sh-btn: 0 8px 20px -14px rgba(1,102,72,.9);
 
   /* Mouvement : une seule grammaire */
   --ease: cubic-bezier(.16, 1, .3, 1);
@@ -82,7 +82,7 @@
   --ok-bg: #163F27;   --ok-ink: #A8E6A1;
   --wait-bg: #1B3A27; --wait-ink: #C3D6B9;
   --bad-bg: #3D1714;  --bad-ink: #FF9B8F;
-  --sun-bg: #33290C;  --sun-ink: #F3C54A;
+  --sun-bg: #3A2112;  --sun-ink: #FFB27F;
   --sim-bg: #3A1E12;  --sim-ink: #F2B79B;
   --tint-ok: #143A24; --tint-warn: #33240F; --tint-bad: #3A1A12;
   --disabled-bg: #1F3B2A; --line-soft: #4C6E57; --skel-a: #173A26; --skel-b: #1F4730;
@@ -94,7 +94,7 @@
     --ok-bg: #163F27;   --ok-ink: #A8E6A1;
     --wait-bg: #1B3A27; --wait-ink: #C3D6B9;
     --bad-bg: #3D1714;  --bad-ink: #FF9B8F;
-    --sun-bg: #33290C;  --sun-ink: #F3C54A;
+    --sun-bg: #3A2112;  --sun-ink: #FFB27F;
     --sim-bg: #3A1E12;  --sim-ink: #F2B79B;
     --tint-ok: #143A24; --tint-warn: #33240F; --tint-bad: #3A1A12;
     --disabled-bg: #1F3B2A; --line-soft: #4C6E57; --skel-a: #173A26; --skel-b: #1F4730;
@@ -355,7 +355,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
 }
 .input:hover, .select:hover, .textarea:hover { border-color: var(--ink-2); }
-.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(31,90,50,.18); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(1,102,72,.18); }
 .input:focus-visible, .select:focus-visible, .textarea:focus-visible { outline: 2px solid var(--canopy); outline-offset: 2px; box-shadow: 0 0 0 6px var(--sun); }
 .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--laterite); background: var(--tint-bad); }
 .input:disabled, .select:disabled, .textarea:disabled { background: var(--disabled-bg); color: #66776A; border-color: #C3CFBB; cursor: not-allowed; }
@@ -402,7 +402,7 @@ fieldset.fieldset legend { padding: 0; margin-bottom: 4px; }
 /* Saisie OTP */
 .otp { display: flex; gap: 8px; }
 .otp input { width: 48px; height: 56px; padding: 0; text-align: center; border: 1.5px solid var(--line-input); border-radius: var(--r-md); background: var(--surface); font: 700 1.5rem/1 var(--font-ui); font-variant-numeric: tabular-nums; caret-color: var(--leaf); transition: border-color var(--t-fast) var(--ease); }
-.otp input:focus { outline: none; border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(31,90,50,.18); }
+.otp input:focus { outline: none; border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(1,102,72,.18); }
 .otp input:focus-visible { outline: 2px solid var(--canopy); outline-offset: 2px; box-shadow: 0 0 0 6px var(--sun); }
 .otp input:not(:placeholder-shown) { border-color: var(--leaf); background: var(--tint-ok); }
 .otp[data-invalid] input { border-color: var(--laterite); background: var(--tint-bad); }

@@ -23,8 +23,8 @@ const attribution = () => `&copy; ${i18n.t('parcels.mapContributors')} <a href="
 const gap = (n: number) => ({ '--gap': `${n}px` }) as React.CSSProperties;
 
 /** Couleur par couche, puis par type de site : la légende écrit chaque libellé, la couleur ne porte jamais le sens seule. */
-const LAYER_COLOR: Record<string, string> = { sites: '#1F5A32', schemes: '#0E7490', organisations: '#BE185D', cooperatives: '#4D7C0F', parcels: '#6B7280', pmea: '#B91C1C', equipment: '#A16207' };
-const SITE_COLOR: Record<string, string> = { magasin: '#1F5A32', unite_transformation: '#B45309', point_vente: '#1D4ED8', centre_semencier: '#7C3AED' };
+const LAYER_COLOR: Record<string, string> = { sites: '#016648', schemes: '#0E7490', organisations: '#BE185D', cooperatives: '#4D7C0F', parcels: '#6B7280', pmea: '#B91C1C', equipment: '#A16207' };
+const SITE_COLOR: Record<string, string> = { magasin: '#016648', unite_transformation: '#B45309', point_vente: '#1D4ED8', centre_semencier: '#7C3AED' };
 const colorOf = (f: ActorFeature) => (f.properties.layer === 'sites' ? SITE_COLOR[String(f.properties.kind)] : undefined) ?? LAYER_COLOR[f.properties.layer] ?? '#374151';
 const isCluster = (f: ActorFeature) => typeof f.properties.count === 'number';
 const radiusOf = (f: ActorFeature) => (isCluster(f) ? 9 + Math.min(10, Math.sqrt(Number(f.properties.count)) * 2) : f.properties.layer === 'parcels' ? 4 : 8);

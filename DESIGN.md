@@ -270,8 +270,8 @@ Courbe de page `cubic-bezier(.16,1,.3,1)` ; courbe du téléphone `cubic-bezier(
 
 Hors landing, l'application (connexion, accueils, pages de tous les rôles) livre un second monde, clair, décidé le 21 octobre 2026 d'après deux images de référence (`docs/REFONTE_FRONTEND.md`, décisions D1 à D18). Jetons dans `frontend/src/shared/ui/tokens.ts`, peau dans `shared/ui/skin.css` (chargé après `kit.css` et `mobile.css`).
 
-- **Surfaces** : crème `#F6F3E8` avec deux halos flous, cartes de verre dépoli (`rgba(255,255,255,.66)`, flou 18 px, bordure blanche, ombre portée + lumière intérieure). Sans `backdrop-filter` ou sous « réduire la transparence » : blanc presque opaque.
-- **Couleurs** : vert de marque `#1A6E43`, sarcelle `#0F7C82` (seconde extrémité du dégradé d'action), sauge `#CFE3D3` (barre latérale), corail `#C84B24` (appel à l'action d'accueil, alertes). Pastels menthe, pêche, beurre, ciel pour les cartes de chiffres, jamais seuls : libellé et icône les accompagnent.
+- **Surfaces** : blanc verdi `#F3F9F5` avec trois halos flous, cartes de verre dépoli (`rgba(255,255,255,.66)`, flou 18 px, bordure blanche, ombre portée + lumière intérieure). Sans `backdrop-filter` ou sous « réduire la transparence » : blanc presque opaque.
+- **Couleurs** : vert profond `#016648` (marque, liens, barre latérale), vert vif `#00A563` (graphiques, dégradé, fonds à texte sombre), orange `#F6732F` (appel à l'action, texte brun foncé dessus), palette « Sunny Farm » du 21 octobre 2026. Pastels menthe, pêche, beurre, ciel pour les cartes de chiffres, jamais seuls : libellé et icône les accompagnent.
 - **Typographie** : Bricolage Grotesque (titres, chiffres), Atkinson Hyperlegible Next (texte), auto-hébergées. Young Serif reste réservée à la landing.
 - **Formes** : rayons 10, 14, 22, 30 px ; boutons, pastilles et badges en pilule ; action principale en dégradé vert-sarcelle.
 - **Mobile** : barre d'onglets flottante de 5 entrées, cibles de 44 px, tableaux en cartes.
