@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Alert, Avatar, Badge, Button, Card, EmptyState, ErrorState, Icon, PageHeader, Skeleton, buttonCls, fmtDate, fmtNum, toast } from '../../shared/ui';
+import { Alert, Avatar, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, Skeleton, buttonCls, fmtDate, fmtNum, toast } from '../../shared/ui';
 import { api, list, rows } from '../../shared/api/client';
 import type { Contest, Paginated, Producer, SelectionRun } from '../../shared/api/types';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
@@ -70,12 +70,13 @@ export function AgentHome() {
 
   return (
     <>
-      <PageHeader title={t('ag.home.title')} crumbs={[{ label: t('nav.home') }]}
-        desc={t('ag.home.desc', { date: today, dep: place(user?.department) || t('ag.home.allScope') })}
+      <Hero title={t('ag.home.title')}
+        text={t('ag.home.desc', { date: today, dep: place(user?.department) || t('ag.home.allScope') })}
         actions={<>
+          <Link className={buttonCls({ variant: 'accent' })} to="/appuis"><Icon name="gift" />{t('ag.home.recordSupport')}</Link>
           <Link className={buttonCls({ variant: 'secondary' })} to="/alertes"><Icon name="megaphone" />{t('ag.home.writeAlert')}</Link>
-          <Link className={buttonCls()} to="/appuis"><Icon name="gift" />{t('ag.home.recordSupport')}</Link>
-        </>} />
+        </>}
+        aside={!loading && <div className="hero-count"><b className="num">{queue.reduce((a, q) => a + q.n, 0)}</b><small>{t('refonte.todo')}</small></div>} />
       <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
         {!online && <Alert tone="warn" icon="wifi-off" live>{t('ag.home.offline')}</Alert>}
         {pending.isError ? <ErrorState error={pending.error} onRetry={() => pending.refetch()} /> : loading ? <Skeleton lines={5} /> : nothing ? (

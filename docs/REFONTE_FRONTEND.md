@@ -1,0 +1,91 @@
+# Refonte du frontend : « Argile et verre »
+
+Journal de reprise. **Un agent qui reprend ce travail lit ce fichier en entier, puis continue à la première case non cochée de la section « Avancement ».** Chaque décision est notée ici *avant* d'être codée, chaque phase est commitée (`git log --oneline` raconte la même histoire).
+
+Demande de l'utilisateur (21 octobre 2026) : refondre le frontend d'après deux images de référence, fusionner leurs styles, s'appuyer sur le skill `ui-ux-pro-max` pour le design et les parcours globaux, pouvoir revoir toutes les pages et tous les composants, **ne pas toucher au backend**, consigner les choix pour qu'on puisse reprendre après une coupure.
+
+## 1. Les deux références
+
+| | Image 1 : « DentaCare » | Image 2 : tableau de bord musique |
+| --- | --- | --- |
+| Style | **Glassmorphism** : cartes de verre dépoli sur un dégradé bleu clair, reflets, bordure blanche fine, lueurs | **Claymorphism** : volumes « pâte à modeler », ombres doubles (portée douce + lumière intérieure), très arrondis |
+| Couleur | un seul ton (bleu), accent cyan, CTA en dégradé cyan | fond crème, **cartes pastel teintées** (menthe, pêche, beurre, ciel), CTA corail, barre latérale sauge |
+| Structure | accueil en tuiles d'icônes, bas de page à 4 onglets, héros avec illustration 3D, étapes de réservation en pastilles | barre latérale à gauche avec avatar et salutation, grande carte d'accueil, 4 cartes de chiffres, graphiques pastel, listes avec bouton lecture |
+| À retenir | translucidité, flou, halo, pilules, un héros qui salue | pastel par catégorie, volume, chaleur, ton humain (« Bonjour, Mia ! ») |
+
+**Fusion retenue** : un monde **crème et sauge** (le vert de la marque reste la couleur d'action) dont les surfaces sont du **verre dépoli clair** (`backdrop-filter`, bordure blanche, reflet) **avec le volume de l'argile** (ombre portée douce + lumière intérieure en haut + ombre intérieure en bas). Les chiffres clés prennent des **teintes pastel** par rang. Les actions principales sont des **pilules en dégradé vert-sarcelle** (cyan de l'image 1 ramené vers la marque), le **corail** de l'image 2 sert aux appels à l'action d'accueil et aux alertes.
+
+## 2. Décisions de design (skill ui-ux-pro-max)
+
+Sorties du skill (`search.py --design-system`, domaines `style` et `ux`) : style **Organic Biophilic** (coins 16 à 24 px, ombres naturelles), **Claymorphism** (doubles ombres, 16 à 24 px, bordures épaisses facultatives, pastel), **Glassmorphism** (flou 10 à 20 px, blanc 15 à 30 %, bordure 1 px), pré-livraison : pas d'emoji comme icône (sprite SVG), `cursor: pointer`, transitions 150 à 300 ms, contraste 4,5:1, focus visible, `prefers-reduced-motion`, essais à 375, 768, 1024 et 1440 px.
+
+| # | Décision | Raison |
+| --- | --- | --- |
+| D1 | Mode **clair par défaut** (le mode système n'est plus suivi sans choix explicite) ; le mode sombre reste (« verre sombre » vert profond) | Les deux références sont claires ; le public visé est en plein soleil sur téléphone |
+| D2 | Les couleurs restent **uniquement** dans `shared/ui/tokens.ts` → `tailwind.config.ts` → variables `--c-*` → `kit.css` | Une seule source ; les 40 fichiers de pages basculent sans être touchés |
+| D3 | Rayons : sm 10, md 14, lg 22, xl 30 px ; boutons, puces et badges en pilule | Argile : très arrondi ; skill : 16 à 24 px |
+| D4 | Surface « verre-argile » = `rgba(255,255,255,.66)` + flou 18 px + bordure blanche 1,5 px + ombre `--sh-card` (portée + lumière intérieure) ; repli sans `backdrop-filter` : blanc opaque 92 % | Lisibilité d'abord : le verre ne sert qu'au-dessus d'un fond doux, jamais sous du texte long sans contraste vérifié |
+| D5 | Pastel des chiffres : **menthe, pêche, beurre, ciel** appliqués par CSS (`:nth-child` dans `.grid-fit` et classe `stat--mint/peach/butter/sky`), jamais la couleur seule : chaque carte garde son libellé et son icône | Image 2 ; accessibilité |
+| D6 | Fond de page : crème `#F6F3E8` + deux halos flous (menthe en haut à gauche, ciel en bas à droite) posés sur `body` en `background-attachment: fixed` ; aucun halo en mode sombre sauf un vert profond | Donne au verre quelque chose à flouter (image 1) sans image ni requête externe |
+| D7 | Barre latérale = **panneau flottant sauge** (marge 14 px, rayon 30 px) avec avatar, « Bonjour, <prénom> », et lien actif en **pilule crème** à pastille d'icône (image 2) ; repliée : icônes seules | Reprend l'image 2 sans changer la navigation ni les routes |
+| D8 | Barre du haut : transparente, recherche en pilule de verre, cloche et profil en pastilles rondes | Images 1 et 2 |
+| D9 | Mobile (< 640 px) : barre d'onglets du bas **flottante en verre** (marge 12 px, rayon 26 px, cinq onglets au plus, pastille de l'onglet actif) ; garde le comportement actuel (`TABS` dans `Layout.tsx`) | Image 1 ; règle du skill : navigation du bas à 5 entrées au plus |
+| D10 | Accueil producteur et accueil agent = **tableau de bord** : carte d'accueil corail-crème (salutation, météo du jour, bouton), 4 cartes pastel de chiffres, tuiles d'icônes d'accès rapide (4), listes récentes | Image 2 + tuiles de l'image 1 ; les données restent celles de l'API actuelle |
+| D11 | Polices : on garde Bricolage Grotesque (titres) et Atkinson Hyperlegible Next (texte), auto-hébergées | Aucune requête externe (règle du projet) ; Atkinson est la plus lisible pour un public peu lettré |
+| D12 | Boutons : primaire = pilule en dégradé vert→sarcelle avec reflet intérieur ; secondaire = verre ; accent = corail ; danger = latérite | Images 1 et 2 |
+| D13 | Mouvement : ressorts doux 200 à 300 ms (`--ease`), apparition en cascade 40 ms des cartes d'accueil ; tout coupé sous `prefers-reduced-motion` | Skill |
+| D14 | Aucun changement de route, de rôle, de texte (i18n) ni d'appel d'API ; seuls les libellés des nouveaux éléments décoratifs s'ajoutent dans `i18n/fr/refonte.json` | « Ne pas toucher au backend » ; le test des clés doit rester vert |
+| D15 | Contrastes : texte ≥ 4,5:1 sur le verre (le fond est supposé crème ; on calcule sur le pire cas) ; `frontend/scripts/contrast.mjs` est mis à jour avec la nouvelle palette | Skill, accessibilité |
+
+## 3. Palette (clair ; le sombre est dans `tokens.ts`)
+
+| Jeton | Valeur | Usage |
+| --- | --- | --- |
+| `bg` | `#F6F3E8` | crème, fond |
+| `surface` | `#FFFFFF` | cartes (rendues en verre par `kit.css`) |
+| `text` | `#16301F` | texte |
+| `muted` | `#4B6354` | texte secondaire |
+| `border` | `#E3E8DA` | filets |
+| `brand` | `#1A6E43` | action, liens (blanc dessus : 6,3:1 ; 4,6:1 au moins sur les pastels) |
+| `brandHover` | `#135A37` | survol |
+| `sage` | `#CFE3D3` | barre latérale |
+| `mint` / `peach` / `butter` / `sky` | `#DDEFE3` / `#FBDDCD` / `#FBEBBF` / `#D8E8F6` | cartes pastel |
+| `coral` | `#C84B24` | appel à l'action d'accueil (`coralInk` dessus : blanc en clair, brun foncé en sombre) |
+| `teal` | `#0F7C82` | seconde extrémité du dégradé d'action (blanc dessus : 5:1) |
+
+## 4. Fichiers concernés (carte)
+
+- Jetons : `frontend/src/shared/ui/tokens.ts`, `frontend/tailwind.config.ts`
+- Kit : `frontend/src/shared/ui/kit.css` (composants), `mobile.css` (téléphone), `kit.tsx` et `index.tsx` (composants React), `Icon.tsx`
+- Coque : `frontend/src/app/Layout.tsx`
+- Fond et base : `frontend/src/index.css`
+- Pages : `frontend/src/features/*` (17 fichiers `.css` de pages ; les couleurs en dur sont à passer sur les variables)
+- Accueils : `features/producers/ProducerHome.tsx`, `AgentHome.tsx`, `features/dashboard/DashboardPage.tsx`
+- Accès et vitrine publique : `features/auth/*`, `features/landing/*`, `features/onboarding/*`
+- Garde-fous : `i18n/keys.test.ts`, `shared/ui/kit.test.tsx`, `app/MobileShell.test.tsx`, `frontend/scripts/contrast.mjs`
+
+## 5. Règles de travail (poste de 3,5 Go)
+
+Une seule commande lourde à la fois (`tsc`, `vitest`, `vite build`) ; si `tsc` plante : `NODE_OPTIONS=--max-old-space-size=1400` et relancer. Les fichiers existants sont en CRLF : modifier avec l'outil d'édition, jamais réécrire un fichier entier par script. Un script Python collé en heredoc se déforme avec des accents : l'écrire dans un fichier. Serveurs de prévisualisation arrêtés quand on ne s'en sert pas.
+
+## 6. Avancement (cocher au fil de l'eau)
+
+- [x] P0 : lecture du skill, des deux images, du kit ; ce journal
+- [x] P1 : jetons (`tokens.ts`, `tailwind.config.ts`), thème clair par défaut (`useTheme.ts` et son test)
+- [x] P2 : **`shared/ui/skin.css`** (nouveau, chargé après `kit.css` et `mobile.css` dans `main.tsx`) : toute la peau verre-argile ; `kit.css` garde la structure
+- [x] P3 : coque : barre latérale flottante sauge + avatar et « Bonjour », barre du haut en verre, onglets du bas flottants (dans `skin.css` ; `Layout.tsx` : bloc `sb-role`)
+- [x] P4 : accueils producteur et agent (`Hero`, `QuickTiles`, `Stat` avec `icon` et `tone` dans `kit.tsx`) ; le tableau de bord de pilotage hérite de la peau (cartes pastel par rang) : à revoir en P7
+- [x] P5 : CSS de pages : accueil téléphone, bulles de l'assistant, météo (`producteur.css`), file de l'agent (`agent.css`). Les objets sombres voulus restent (carte d'identité, aperçu SMS, illustrations de bienvenue, scène de la landing)
+- [x] P6 : connexion vérifiée (la peau suffit) ; **landing : D16, scène sombre conservée**
+- [ ] P7 : passe sur les pages des lots A à E (cartes pastel, tuiles) et pages restantes
+- [ ] P8 : contraste (`scripts/contrast.mjs`), tests, types, parcours navigateur à 375 / 768 / 1280, captures, correction
+
+## 7. Journal des décisions prises en cours de route
+
+- 2026-10-21 D16 : la **landing** garde sa scène 3D sombre (relief du Bénin et champ de maïs dessinés en canvas, c'est l'équivalent de la dent 3D de l'image 1) ; la connexion, l'inscription et les pages de l'application prennent la peau claire. Raison : refaire la scène en clair coûte un rendu entier et la scène sombre est le meilleur « héros » du site.
+- 2026-10-21 : `skin.css` est chargé **avant** les CSS des pages (ordre d'import) ; pour surcharger une règle d'une CSS de page, soit modifier cette CSS, soit préfixer par `.main`. Les accueils étaient en bloc vert foncé : passés en carte chaude.
+- 2026-10-21 : le vert de marque passe de `#1E7A4C` à `#1A6E43` (contraste sur les pastels) ; `scripts/contrast.mjs` couvre désormais les pastels, la sauge, la sarcelle et le corail (aucun échec).
+
+(une ligne par décision : date, quoi, pourquoi)
+
+- 2026-10-21 : refonte lancée ; décisions D1 à D15 ci-dessus.

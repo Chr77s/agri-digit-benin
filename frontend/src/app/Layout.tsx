@@ -241,7 +241,7 @@ function SideNav({ user, nav, collapsed, onToggle, onNavigate, inDrawer }: { use
           </RD.Close>
         )}
       </div>
-      <div className="sb-role"><b>{t(`roles.${user.role}`)}</b>{user.full_name}</div>
+      <div className="sb-role"><Avatar name={user.full_name} /><span><span className="sb-hello">{t('refonte.hello')}</span><b>{user.full_name}</b><small>{t(`roles.${user.role}`)}</small></span></div>
       <nav className="sb-nav" aria-label={t('app.mainNav')}>
         {groups.map((grp, i) => (
           <div key={i}>

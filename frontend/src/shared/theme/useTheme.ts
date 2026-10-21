@@ -7,8 +7,8 @@ const read = () => { try { return localStorage.getItem(KEY); } catch { return nu
 const write = (v: Theme) => { try { localStorage.setItem(KEY, v); } catch { /* stockage indisponible : le choix ne sera pas gardé */ } };
 
 const saved = read();
-// shortcut: sans choix enregistré, le mode système est lu au chargement seulement ; écouter matchMedia 'change' si on veut le suivre en direct.
-let theme: Theme = saved === 'dark' || saved === 'light' ? saved : window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+// Refonte (docs/REFONTE_FRONTEND.md D1) : clair par défaut, le mode système n'est plus suivi ; seul un choix explicite passe en sombre.
+let theme: Theme = saved === 'dark' ? 'dark' : 'light';
 const listeners = new Set<() => void>();
 document.documentElement.dataset.theme = theme;
 

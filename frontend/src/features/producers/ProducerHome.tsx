@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
+import { Alert, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, QuickTiles, Skeleton, Stat, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
 import type { Campaign, Notification } from '../../shared/api/types';
 import { useOfflineStatus } from '../outbox/offlineQueue';
@@ -16,7 +16,9 @@ const dayFmt = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'short' });
 const SHORTCUTS: { to: string; icon: IconName; key: string }[] = [
   { to: '/diagnostic', icon: 'leaf-scan', key: 'diagnosis' },
   { to: '/marche', icon: 'market', key: 'market' },
-  { to: '/meteo-prix', icon: 'coins', key: 'prices' },
+  { to: '/meteo-prix', icon: 'cloud-sun', key: 'weatherPrices' },
+  { to: '/revenu', icon: 'coins', key: 'revenue' },
+  { to: '/remboursements', icon: 'wallet', key: 'repayments' },
   { to: '/ma-carte', icon: 'id-card', key: 'card' },
 ];
 
@@ -31,6 +33,11 @@ export function ProducerHome() {
   const where = [place(user?.commune), place(user?.department)].filter(Boolean).join(', ');
   const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const alert = (notes.data ?? []).find((n) => !(n.is_read ?? n.read_at));
+  const unread = (notes.data ?? []).filter((n) => !(n.is_read ?? n.read_at)).length;
+  const supports = useSupports();
+  const toConfirm = (supports.data ?? []).filter((s) => s.status === 'remis').length;
+  const fc = useForecast(user?.commune ?? '', 5);
+  const wx = fc.days[0];
   const mobile = useIsMobile();
 
   if (mobile) {
@@ -43,16 +50,18 @@ export function ProducerHome() {
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">{t('home.hello', { name: firstName })}</h1>
-          <p className="page-desc">{t('home.desc', { date: today.charAt(0).toUpperCase() + today.slice(1), where: where || t('common.notAvailable') })}</p>
-        </div>
-        <div className="page-actions">
+      <Hero title={t('home.hello', { name: firstName })}
+        text={t('home.desc', { date: today.charAt(0).toUpperCase() + today.slice(1), where: where || t('common.notAvailable') })}
+        actions={<>
+          <Link className={buttonCls({ variant: 'accent' })} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
           <ListenGhost text={t('home.listenPage', { name: firstName })} label={t('home.listenBtn')} />
-          <Link className={buttonCls()} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
-        </div>
-      </div>
+        </>}
+        aside={wx && (
+          <Link className="hero-wx" to="/meteo-prix" aria-label={t('home.weatherTitle', { place: place(user?.commune) || where })}>
+            <span className="hero-wx-ic"><Icon name={wx.icon} /></span>
+            <span className="hero-wx-t"><b className="num">{wx.tmax} °C</b><small>{t('home.rainToday', { pct: wx.rainPct })}</small></span>
+          </Link>
+        )} />
 
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         {alert && (
@@ -65,6 +74,15 @@ export function ProducerHome() {
           </Alert>
         )}
 
+        <div className="grid-fit" style={{ ['--min' as string]: '200px' }}>
+          <Link className="stat-link" to="/parcelles"><Stat icon="parcel" label={t('refonte.stat.parcels')} value={parcels.data ? fmtNum(parcels.data.length) : '…'} foot={parcels.data ? t('refonte.stat.parcelsSub', { n: fmtNum(parcels.data.reduce((a, p) => a + p.area_ha, 0), 1) }) : undefined} /></Link>
+          <Link className="stat-link" to="/campagnes"><Stat icon="calendar" label={t('refonte.stat.campaigns')} value={campaigns.data ? fmtNum(campaigns.data.length) : '…'} foot={t('refonte.stat.campaignsSub')} /></Link>
+          <Link className="stat-link" to="/appuis"><Stat icon="gift" label={t('refonte.stat.supports')} value={supports.data ? fmtNum(toConfirm) : '…'} foot={toConfirm > 0 ? t('refonte.stat.supportsSub') : undefined} /></Link>
+          <Link className="stat-link" to="/messages"><Stat icon="mail" label={t('refonte.stat.messages')} value={notes.data ? fmtNum(unread) : '…'} /></Link>
+        </div>
+
+        <QuickTiles label={t('refonte.quick')} items={SHORTCUTS.map((s) => ({ to: s.to, icon: s.icon, label: t(`nav.${s.key}`) }))} />
+
         <div className="split">
           <div className="stack" style={{ ['--gap' as string]: '20px' }}>
             <WeatherCard commune={user?.commune ?? ''} name={place(user?.commune) || where} />
@@ -76,16 +94,6 @@ export function ProducerHome() {
           <div className="stack" style={{ ['--gap' as string]: '20px' }}>
             <TasksCard campaigns={campaigns.data ?? []} parcelName={(id) => parcels.data?.find((p) => p.id === id)?.name ?? ''} />
             <SupportCard />
-            <Card title={t('home.shortcuts')}>
-              <div className="shortcuts">
-                {SHORTCUTS.map((s) => (
-                  <Link key={s.to} className="shortcut" to={s.to}>
-                    <span className="sc-ic"><Icon name={s.icon} /></span>
-                    <span>{t(`home.sc.${s.key}`)}<small>{t(`home.sc.${s.key}Sub`)}</small></span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
           </div>
         </div>
       </div>

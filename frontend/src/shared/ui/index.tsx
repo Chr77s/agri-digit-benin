@@ -21,9 +21,9 @@ export function useMsg() {
 
 /* ---------- Boutons ---------- */
 // danger = contour latérite (action destructive secondaire, comme avant) ; dangerSolid = plein latérite.
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerSolid';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerSolid' | 'accent';
 const variants: Record<ButtonVariant, string> = {
-  primary: 'btn-primary', secondary: 'btn-secondary', ghost: 'btn-ghost', danger: 'btn-danger-ghost', dangerSolid: 'btn-danger',
+  primary: 'btn-primary', secondary: 'btn-secondary', ghost: 'btn-ghost', danger: 'btn-danger-ghost', dangerSolid: 'btn-danger', accent: 'btn-accent',
 };
 export interface ButtonLook { variant?: ButtonVariant; size?: 'sm'; block?: boolean; iconOnly?: boolean }
 /** Classes d'un bouton, pour styler un <Link> ou un <a> comme un bouton. */

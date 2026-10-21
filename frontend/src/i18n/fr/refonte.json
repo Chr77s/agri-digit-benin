@@ -1,0 +1,16 @@
+{
+  "refonte": {
+    "hello": "Bonjour,",
+    "todo": "à traiter aujourd'hui",
+    "quick": "Accès rapide",
+    "stat": {
+      "parcels": "Mes parcelles",
+      "parcelsSub": "{{n}} ha au total",
+      "campaigns": "Campagnes",
+      "campaignsSub": "suivies cette saison",
+      "supports": "Appuis à confirmer",
+      "supportsSub": "Confirmez la réception",
+      "messages": "Messages non lus"
+    }
+  }
+}

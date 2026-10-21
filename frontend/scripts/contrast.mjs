@@ -11,6 +11,10 @@ for (const [mode, c] of [['clair', tokens.color], ['sombre', tokens.dark]]) {
     ['succès', c.success, c.successBg, 4.5], ['avertissement', c.warn, c.warnBg, 4.5], ['erreur', c.error, c.errorBg, 4.5],
     ['erreur/surface', c.error, c.surface, 4.5], ['erreur/fond', c.error, c.bg, 4.5],
     ['bordure champ (muted)/surface', c.muted, c.surface, 3], ['focus (marque)/fond', c.brand, c.bg, 3],
+    // Refonte « Argile et verre » : texte sur les cartes pastel, barre latérale, dégradé et corail d'action
+    ...['mint', 'peach', 'butter', 'sky'].flatMap((p) => [[`texte/${p}`, c.text, c[p], 4.5], [`secondaire/${p}`, c.muted, c[p], 4.5], [`marque/${p}`, c.brand, c[p], 4.5]]),
+    ['texte/sauge (barre latérale)', c.text, c.sage, 4.5], ['marque/sauge', c.brand, c.sage, 4.5], ['encre/sarcelle (fin du dégradé)', c.brandInk, c.teal, 4.5],
+    ['encre/corail (accent)', c.coralInk, c.coral, 4.5],
   ]) pairs.push([`${mode} ${n}`, a, b, min]);
 }
 // Landing animée au scroll : jetons des deux modes (texte 4,5 ; composant d'interface 3).
