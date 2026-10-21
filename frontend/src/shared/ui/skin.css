@@ -428,3 +428,7 @@ main:focus { outline: none; }
   .topbar .tb-brand, .topbar .tb-lang-btn { display: none; } /* la langue reste dans le tiroir et sur l'écran de premier lancement */
 }
 .m-alert > span:not(.m-alert-ic) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Indicateurs sans source : repliés sous les indicateurs disponibles */
+.ind-missing { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
+.ind-missing summary { min-height: 36px; display: flex; align-items: center; cursor: pointer; color: var(--ink-2); font-weight: 600; font-size: var(--fs-sm); }

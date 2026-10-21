@@ -182,6 +182,8 @@
       "noteTitle": "Calculé sur les données fictives du prototype",
       "noteText": "La mention « non disponible » signifie qu'aucune source n'existe encore : ce n'est pas zéro.",
       "mfcfa": "M FCFA",
+      "missing": "Sans source ({{count}})",
+      "srcInfo": "Source et date",
       "q": {
         "coverage": "Qui et combien suit-on ?",
         "inclusion": "Les femmes et les jeunes participent-ils ?",
