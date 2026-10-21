@@ -95,7 +95,7 @@ function Form({ code, questions, chain }: { code: string; questions: string[]; c
       </div>
       {/* Champ piège : invisible et hors du parcours au clavier ; un robot le remplit, une personne jamais. */}
       <div aria-hidden style={{ position: 'absolute', left: -10000, width: 1, height: 1, overflow: 'hidden' }}>
-        <label>{t('mk.pub.trap')}<input name="website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} /></label>
+        <label className="trap" aria-hidden="true">{t('mk.pub.trap')}<input name="website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} /></label>
       </div>
       {err && <p className="field-error" role="alert">{err}</p>}
       {closedNow && <Alert tone="warn" live>{t('mk.pub.closedHelp')}</Alert>}

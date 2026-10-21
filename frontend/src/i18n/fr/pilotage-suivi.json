@@ -151,7 +151,7 @@
   },
   "mq": {
     "title": "Qualité des modèles",
-    "desc": "Ce que les données de la plateforme permettent de mesurer sur les modèles : diagnostic par photo, estimation du rendement, score de crédit. Cadre complet, seuils de réentraînement et gouvernance : docs/REENTRAINEMENT.md.",
+    "desc": "Ce que les données de la plateforme permettent de mesurer sur les modèles : diagnostic par photo, estimation du rendement, score de crédit.",
     "howTitle": "Comment lire ces chiffres",
     "how": "Chaque taux indique le nombre de cas sur lequel il repose (n). Sous {{min}} cas il n'y a pas de valeur (« non disponible », jamais 0) ; sous {{reliable}} cas la valeur est seulement indicative.",
     "n": "n = {{n}}",

@@ -435,3 +435,6 @@ main:focus { outline: none; }
 
 /* Cartes de tableau au téléphone : une cellule vide (ex. état « actif » non marqué) ne montre pas son libellé seul. */
 .table--cards td:empty { display: none; }
+
+/* Piège à robots de l'enquête publique : hors écran, ni lu ni atteint au clavier (tabIndex -1). */
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
