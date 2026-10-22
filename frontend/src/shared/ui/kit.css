@@ -178,7 +178,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   scrollbar-width: thin; scrollbar-color: var(--leaf) transparent;
 }
 .sidebar::-webkit-scrollbar-thumb { background: var(--leaf); border-color: var(--canopy); }
-.emblem { flex: none; width: auto; padding: 2px; border-radius: 8px; background: #fff; object-fit: contain; }
+.emblem { flex: none; width: auto; object-fit: contain; filter: drop-shadow(0 0 1px rgba(255,255,255,.95)) drop-shadow(0 0 1px rgba(255,255,255,.7)); } /* fine bordure claire : les cornes noires restent lisibles sur fond sombre */
+.logo { display: block; width: auto; }
+.logo-dark { display: none; }
+[data-theme='dark'] .logo-dark { display: block; } [data-theme='dark'] .logo-light { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .logo-dark { display: block; } :root:not([data-theme='light']) .logo-light { display: none; } }
 .sb-brand { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 8px; color: var(--on-dark); text-decoration: none; border-radius: var(--r-md); }
 .sb-brand:hover { color: var(--on-dark); }
 .sb-brand svg { width: 34px; height: 34px; flex: none; }

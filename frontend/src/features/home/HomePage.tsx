@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Emblem, Icon, ThemeToggle, Toaster, fmtNum, type IconName } from '../../shared/ui';
+import { Emblem, Icon, Logo, ThemeToggle, Toaster, fmtNum, type IconName } from '../../shared/ui';
 import { LangButton } from '../../app/LangButton';
 import relief from '../landing/relief.json';
 import { GALLERY } from '../landing/gallery';
@@ -55,7 +55,7 @@ export function HomePage() {
       <header className="hm-head">
         <div className="hm-head-in">
           <Link to="/" className="hm-brand" aria-label={t('app.name')}>
-            <img className="hm-lockup" src="/brand/logo.png" width="205" height="54" alt={`${t('app.name')} : ${t('vitrine.partners.maep.name')}, ${t('landing.badge').split(' · ')[0]}`} />
+            <span className="hm-lockup"><Logo height={54} /></span>
             <span className="hm-brand-s"><Emblem size={32} /><span>{t('app.name')}</span></span>
           </Link>
           <nav className="hm-nav" aria-label={t('vitrine.nav.label')}>

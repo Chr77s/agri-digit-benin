@@ -9,7 +9,7 @@ import { useTheme } from '../theme/useTheme';
 import { Icon, type IconName } from './Icon';
 
 // Composants du kit « Bénin Vert » : les classes viennent de ./kit.css (copie de maquettes/web/kit.css). Voir aussi ./kit.tsx.
-export { Emblem, Icon, spriteHref, type IconName } from './Icon';
+export { Emblem, Icon, Logo, spriteHref, type IconName } from './Icon';
 export * from './kit';
 
 const KEY_RE = /^[a-z][A-Za-z]*(\.[A-Za-z0-9_]+)+$/;

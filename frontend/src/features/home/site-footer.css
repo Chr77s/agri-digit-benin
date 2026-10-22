@@ -9,7 +9,6 @@
 .sf-brand { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
 .sf-brand p { margin: 0; max-width: 34ch; line-height: 1.5; }
 .sf .sf-logo { min-height: 0; }
-.sf-logo img { display: block; height: 52px; width: auto; border-radius: 12px; background: #fff; }
 .sf-name { font: 800 1.125rem/1.2 var(--font-display); color: #fff; }
 .sf-prefs { display: flex; gap: 8px; margin-top: 4px; }
 .sf-prefs .btn { background: rgba(255,255,255,.1); color: var(--on-dark); border-color: rgba(255,255,255,.28); }

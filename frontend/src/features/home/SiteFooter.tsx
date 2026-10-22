@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Icon, ThemeToggle } from '../../shared/ui';
+import { Icon, Logo, ThemeToggle } from '../../shared/ui';
 import { LangButton } from '../../app/LangButton';
 import './site-footer.css';
 
@@ -16,7 +16,7 @@ export function SiteFooter({ home = false }: { home?: boolean }) {
     <footer className="sf" aria-label={t('site.footer.label')}>
       <div className="sf-in">
         <div className="sf-brand">
-          <Link to="/" className="sf-logo" aria-label={t('app.name')}><img src="/brand/logo.png" width="168" height="44" alt="" /></Link>
+          <Link to="/" className="sf-logo" aria-label={t('app.name')}><Logo height={52} on="dark" /></Link>
           <strong className="sf-name">{t('app.name')}</strong>
           <p>{t('site.footer.tagline')}</p>
           <div className="sf-prefs" role="group" aria-label={t('site.footer.prefs')}>
