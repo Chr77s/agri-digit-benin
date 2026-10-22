@@ -5,49 +5,141 @@ import type { CSSProperties } from 'react';
 const fill = (v: string, opacity?: number): CSSProperties => ({ fill: `var(${v})`, opacity });
 const line = (v: string, w: number): CSSProperties => ({ fill: 'none', stroke: `var(${v})`, strokeWidth: w, strokeLinecap: 'round', strokeLinejoin: 'round' });
 
-/** Un pied de maïs : tige, quatre feuilles, épi. Posé en (x, y) au sol, hauteur h. */
-function Maize({ x, y, h, i }: { x: number; y: number; h: number; i: number }) {
-  const s = h / 60;
+const stop = (v: string, o = 1): CSSProperties => ({ stopColor: `var(${v})`, stopOpacity: o });
+
+/** Un plant de maïs : tige, feuilles qui retombent, épi et panicule. Posé en (x, y) au sol, hauteur 60 × s. */
+function Plant({ x, y, s, i, sway }: { x: number; y: number; s: number; i: number; sway: boolean }) {
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}><g className="hm-sway" style={{ "--i": i } as CSSProperties}>
-      <path d="M0 0V-58" style={line('--canopy', 3)} />
-      <path d="M0-14C-12-18-20-26-24-38M0-24C12-28 20-36 24-46M0-36C-10-40-16-46-18-54M0-44C8-48 14-52 16-58" style={line('--maize', 3)} />
-      <ellipse cx="4" cy="-30" rx="3.5" ry="8" style={fill('--sun')} />
-    </g></g>
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <g className={sway ? 'hm-sway' : undefined} style={{ '--i': i } as CSSProperties}>
+        <path d="M0 0C1-20-1-40 0-58" style={line('--canopy', 3)} />
+        <path d="M0-10C-8-24-26-26-36-12C-24-18-10-14 0-10z" style={fill('--leaf')} />
+        <path d="M0-18C8-32 26-34 36-20C24-26 10-22 0-18z" style={fill('--maize')} />
+        <path d="M0-28C-8-40-22-42-30-30C-20-34-10-30 0-28z" style={fill('--maize')} />
+        <path d="M0-36C6-48 20-50 26-40C18-42 8-40 0-36z" style={fill('--leaf')} />
+        <path d="M0-46C-4-56-2-62 2-68C4-60 4-52 0-46z" style={fill('--maize')} />
+        <ellipse cx="5" cy="-26" rx="4" ry="9" transform="rotate(14 5 -26)" style={fill('--sun')} />
+        <path d="M5-34c-5 4-6 14-2 22" style={line('--leaf', 2)} />
+        <path d="M0-58l-6-8M0-58l6-9M0-58V-70" style={line('--sun', 1.6)} />
+      </g>
+    </g>
   );
 }
 
-/** Paysage d'accueil : soleil, collines, champ de maïs et téléphone qui montre une parcelle tracée. */
+// Champ en perspective : les rangs partent d'un point de fuite et les plants grossissent en se rapprochant.
+const VP = { x: 262, y: 322 };
+const ROWS = [-170, -40, 90, 215, 340, 470, 600, 730];
+const DEPTHS = [0.1, 0.24, 0.42, 0.66, 0.96];
+const PLANTS = ROWS.flatMap((bx, r) => DEPTHS.map((t, d) => {
+  const jitter = ((r * 7 + d * 3) % 5 - 2) * 2.2;
+  return { x: VP.x + (bx - VP.x) * t + jitter, y: VP.y + (484 - VP.y) * t, s: 0.2 + t * 0.95 + ((r + d) % 3) * 0.03, i: r + d, sway: t > 0.4, key: `${r}-${d}` };
+})).filter((p) => p.x > -30 && p.x < 550).sort((a, b) => a.y - b.y);
+
+/** Acacia : tronc tordu et houppier plat en étages. */
+function Acacia({ x, y, k }: { x: number; y: number; k: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${k})`}>
+      <path d="M-2 0C0-14-6-24-14-32M-2-14C2-26 8-32 16-38" style={line('--laterite', 4)} />
+      <ellipse cx="-14" cy="-36" rx="26" ry="9" style={fill('--leaf')} />
+      <ellipse cx="16" cy="-42" rx="24" ry="8" style={fill('--maize')} />
+      <ellipse cx="0" cy="-48" rx="20" ry="7" style={fill('--leaf')} />
+    </g>
+  );
+}
+
+/** Palmier : tronc courbe et palmes. */
+function Palm({ x, y, k }: { x: number; y: number; k: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${k})`}>
+      <path d="M0 0C4-20 2-44 8-66" style={line('--laterite', 5)} />
+      <g transform="translate(8 -66)">
+        {[[-34, 6], [-26, -14], [-8, -22], [14, -22], [32, -12], [38, 8]].map(([dx, dy]) => <path key={`${dx}${dy}`} d={`M0 0C${dx * 0.3} ${dy - 10} ${dx * 0.8} ${dy - 8} ${dx} ${dy + 10}`} style={line('--canopy-2', 3.4)} />)}
+        <circle r="3.6" style={fill('--sun')} cx="-2" cy="4" />
+      </g>
+    </g>
+  );
+}
+
+/** Paysan à la houe, de dos, au milieu du champ. */
+function Farmer({ x, y, k }: { x: number; y: number; k: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${k})`}>
+      <path d="M-5 0L-6-22M5 0L6-22" style={line('--canopy-deep', 5)} />
+      <path d="M-9-22L-8-44C-8-50 8-50 8-44L9-22z" style={fill('--sun')} />
+      <path d="M8-42L22-18" style={line('--laterite', 2.6)} />
+      <path d="M18-18h10" style={line('--canopy-deep', 3)} />
+      <circle cx="0" cy="-54" r="6" style={{ fill: '#8A5A3C' }} />
+      <path d="M-13-55h26M-7-55C-6-64 6-64 7-55z" style={{ fill: '#E9C46A', stroke: '#E9C46A', strokeWidth: 2.4, strokeLinejoin: 'round' }} />
+    </g>
+  );
+}
+
+/** Paysage d'accueil : savane, champ de maïs en perspective et téléphone qui montre une parcelle tracée. */
 export function HeroScene() {
   return (
     <svg className="hm-ill" viewBox="0 0 520 480" role="presentation" aria-hidden="true" focusable="false">
-      <rect width="520" height="480" rx="36" style={fill('--sky')} />
-      <circle className="hm-sun" cx="408" cy="104" r="74" style={fill('--sun', 0.18)} />
-      <circle cx="408" cy="104" r="46" style={fill('--sun')} />
-      <path className="hm-cloud" d="M62 120c0-12 10-20 22-20 4-10 20-12 28-2 14-2 22 8 20 22z" style={fill('--surface', 0.85)} />
-      <path className="hm-cloud" d="M262 70c0-9 8-15 17-15 3-8 15-9 21-1 11-1 17 6 15 16z" style={fill('--surface', 0.7)} />
-      <path d="M0 270C80 210 150 214 230 250S400 280 520 220V480H0z" style={fill('--maize', 0.5)} />
-      <path d="M0 316C100 262 190 276 270 308S430 330 520 280V480H0z" style={fill('--leaf')} />
-      <path d="M0 372C120 330 230 346 330 372S470 384 520 356V480H0z" style={fill('--canopy-2')} />
-      <path d="M0 420C140 392 300 404 520 400V480H0z" style={fill('--laterite')} />
-      {[34, 82, 130, 396, 444, 492].map((x, i) => <Maize key={x} i={i} x={x} y={404 + (i % 2) * 14} h={54 + (i % 3) * 6} />)}
-      {/* le téléphone */}
-      <g transform="translate(168 108)">
-        <rect x="6" y="14" width="190" height="318" rx="34" style={fill('--canopy-deep')} opacity=".18" />
-        <rect width="190" height="318" rx="32" style={fill('--surface')} />
-        <rect width="190" height="318" rx="32" style={line('--canopy', 6)} />
-        <rect x="70" y="14" width="50" height="8" rx="4" style={fill('--canopy')} />
-        <rect x="18" y="40" width="154" height="26" rx="13" style={fill('--mint')} />
-        <circle cx="34" cy="53" r="6" style={fill('--leaf')} />
-        <rect x="48" y="49" width="72" height="8" rx="4" style={fill('--canopy')} opacity=".55" />
-        <rect x="18" y="78" width="154" height="124" rx="18" style={fill('--sage')} />
-        <path className="hm-draw" pathLength={1} d="M48 112l50-18 44 26-10 50-62 6z" style={{ ...fill('--maize', 0.4), stroke: 'var(--leaf)', strokeWidth: 3, strokeLinejoin: 'round' }} />
-        {[[48, 112], [98, 94], [142, 120], [132, 170], [70, 176]].map(([cx, cy], i) => <circle key={`${cx}-${cy}`} className="hm-pop" cx={cx} cy={cy} r="6" style={{ ...fill('--surface'), stroke: 'var(--sun)', strokeWidth: 3, "--i": i } as CSSProperties} />)}
-        <rect x="18" y="216" width="104" height="9" rx="4.5" style={fill('--canopy')} opacity=".6" />
-        <rect x="18" y="234" width="136" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
-        <rect x="18" y="252" width="82" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
-        <rect x="18" y="276" width="154" height="30" rx="15" style={fill('--leaf')} />
-        <rect x="62" y="287" width="66" height="8" rx="4" style={fill('--leaf-ink')} opacity=".9" />
+      <defs>
+        <clipPath id="hm-clip"><rect width="520" height="480" rx="36" /></clipPath>
+        <linearGradient id="hm-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--sky')} /><stop offset="1" style={stop('--mint')} /></linearGradient>
+        <radialGradient id="hm-glow"><stop offset="0" style={stop('--sun', 0.55)} /><stop offset="1" style={stop('--sun', 0)} /></radialGradient>
+        <linearGradient id="hm-soil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--laterite', 0.8)} /><stop offset="1" style={stop('--laterite')} /></linearGradient>
+        <linearGradient id="hm-haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--surface', 0)} /><stop offset="1" style={stop('--surface', 0.45)} /></linearGradient>
+      </defs>
+      <g clipPath="url(#hm-clip)">
+        <rect width="520" height="480" fill="url(#hm-sky)" />
+        <circle className="hm-sun" cx="408" cy="104" r="120" fill="url(#hm-glow)" />
+        <circle cx="408" cy="104" r="40" style={fill('--sun')} />
+        {/* nuages : plusieurs boules qui se chevauchent */}
+        <g className="hm-cloud" style={fill('--surface', 0.9)}>
+          <ellipse cx="82" cy="118" rx="34" ry="11" /><circle cx="70" cy="108" r="14" /><circle cx="94" cy="104" r="17" /><circle cx="112" cy="113" r="11" />
+        </g>
+        <g className="hm-cloud" style={fill('--surface', 0.75)}>
+          <ellipse cx="292" cy="64" rx="28" ry="9" /><circle cx="282" cy="56" r="11" /><circle cx="301" cy="53" r="14" />
+        </g>
+        {/* oiseaux */}
+        <g className="hm-cloud" style={line('--canopy', 2)}><path d="M180 88q6-7 12 0q6-7 12 0M222 70q5-6 10 0q5-6 10 0" /></g>
+        {/* chaîne lointaine, collines, brume */}
+        <path d="M0 292L40 262l30 18 46-40 44 36 38-22 50 30 48-34 52 30 40-20 38 28 38-14 50 22V330H0z" style={fill('--maize', 0.28)} />
+        <path d="M0 316C70 276 150 282 230 304S400 318 520 286V340H0z" style={fill('--maize', 0.55)} />
+        <path d="M0 330C90 300 190 312 290 326S440 332 520 312V350H0z" style={fill('--leaf', 0.9)} />
+        <rect y="296" width="520" height="40" fill="url(#hm-haze)" />
+        {/* arbres et case au loin */}
+        <Acacia x={64} y={330} k={0.8} />
+        <Acacia x={138} y={334} k={0.5} />
+        <Palm x={470} y={334} k={0.7} />
+        <g transform="translate(402 336)">
+          <rect x="-13" y="-16" width="26" height="16" rx="2" style={fill('--butter')} />
+          <path d="M-18-14L0-34L18-14z" style={fill('--laterite')} />
+          <rect x="-4" y="-11" width="8" height="11" rx="3" style={fill('--canopy-deep', 0.75)} />
+        </g>
+        {/* le champ */}
+        <rect y="322" width="520" height="160" fill="url(#hm-soil)" />
+        <path d="M0 322C100 314 200 318 300 322S440 318 520 320V332H0z" style={fill('--leaf')} />
+        {ROWS.map((bx) => <path key={bx} d={`M${VP.x} ${VP.y}L${bx} 490`} style={line('--canopy-deep', 1.6)} opacity=".28" />)}
+        {PLANTS.map(({ key, ...p }) => <Plant key={key} {...p} />)}
+        <Farmer x={464} y={398} k={0.78} />
+        {/* le téléphone, légèrement penché */}
+        <g transform="translate(168 108) rotate(-3 95 160)">
+          <rect x="8" y="16" width="190" height="318" rx="34" style={fill('--canopy-deep')} opacity=".28" />
+          <rect width="190" height="318" rx="32" style={fill('--surface')} />
+          <rect width="190" height="318" rx="32" style={line('--canopy', 6)} />
+          <rect x="70" y="14" width="50" height="8" rx="4" style={fill('--canopy')} />
+          <rect x="18" y="40" width="154" height="26" rx="13" style={fill('--mint')} />
+          <circle cx="34" cy="53" r="6" style={fill('--leaf')} />
+          <rect x="48" y="49" width="72" height="8" rx="4" style={fill('--canopy')} opacity=".55" />
+          <rect x="18" y="78" width="154" height="124" rx="18" style={fill('--sage')} />
+          <path className="hm-draw" pathLength={1} d="M48 112l50-18 44 26-10 50-62 6z" style={{ ...fill('--maize', 0.4), stroke: 'var(--leaf)', strokeWidth: 3, strokeLinejoin: 'round' }} />
+          {[[48, 112], [98, 94], [142, 120], [132, 170], [70, 176]].map(([cx, cy], i) => <circle key={`${cx}-${cy}`} className="hm-pop" cx={cx} cy={cy} r="6" style={{ ...fill('--surface'), stroke: 'var(--sun)', strokeWidth: 3, '--i': i } as CSSProperties} />)}
+          <rect x="18" y="216" width="104" height="9" rx="4.5" style={fill('--canopy')} opacity=".6" />
+          <rect x="18" y="234" width="136" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
+          <rect x="18" y="252" width="82" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
+          <rect x="18" y="276" width="154" height="30" rx="15" style={fill('--leaf')} />
+          <rect x="62" y="287" width="66" height="8" rx="4" style={fill('--leaf-ink')} opacity=".9" />
+        </g>
+        {/* herbes du premier plan */}
+        <path d="M-6 484C4 450 10 440 24 428C20 450 24 468 30 484z" style={fill('--canopy')} />
+        <path d="M14 484C20 456 34 446 46 440C42 458 44 472 48 484z" style={fill('--leaf')} />
+        <path d="M526 484C516 452 508 444 494 432C498 452 494 470 488 484z" style={fill('--canopy')} />
       </g>
     </svg>
   );
