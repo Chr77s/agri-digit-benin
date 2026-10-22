@@ -80,8 +80,8 @@ export function HeroScene() {
     <svg className="hm-ill" viewBox="0 0 520 480" role="presentation" aria-hidden="true" focusable="false">
       <defs>
         <clipPath id="hm-clip"><rect width="520" height="480" rx="36" /></clipPath>
-        <linearGradient id="hm-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--sky')} /><stop offset="1" style={stop('--mint')} /></linearGradient>
-        <radialGradient id="hm-glow"><stop offset="0" style={stop('--sun', 0.55)} /><stop offset="1" style={stop('--sun', 0)} /></radialGradient>
+        <linearGradient id="hm-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--hm-sky-a')} /><stop offset="1" style={stop('--hm-sky-b')} /></linearGradient>
+        <radialGradient id="hm-glow"><stop offset="0" style={stop('--sun', 0.3)} /><stop offset="1" style={stop('--sun', 0)} /></radialGradient>
         <linearGradient id="hm-soil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--laterite', 0.8)} /><stop offset="1" style={stop('--laterite')} /></linearGradient>
         <linearGradient id="hm-haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={stop('--surface', 0)} /><stop offset="1" style={stop('--surface', 0.45)} /></linearGradient>
       </defs>
@@ -90,10 +90,10 @@ export function HeroScene() {
         <circle className="hm-sun" cx="408" cy="104" r="120" fill="url(#hm-glow)" />
         <circle cx="408" cy="104" r="40" style={fill('--sun')} />
         {/* nuages : plusieurs boules qui se chevauchent */}
-        <g className="hm-cloud" style={fill('--surface', 0.9)}>
+        <g className="hm-cloud" style={{ fill: '#fff', opacity: 0.96 }}>
           <ellipse cx="82" cy="118" rx="34" ry="11" /><circle cx="70" cy="108" r="14" /><circle cx="94" cy="104" r="17" /><circle cx="112" cy="113" r="11" />
         </g>
-        <g className="hm-cloud" style={fill('--surface', 0.75)}>
+        <g className="hm-cloud" style={{ fill: '#fff', opacity: 0.85 }}>
           <ellipse cx="292" cy="64" rx="28" ry="9" /><circle cx="282" cy="56" r="11" /><circle cx="301" cy="53" r="14" />
         </g>
         {/* oiseaux */}
@@ -119,22 +119,22 @@ export function HeroScene() {
         {PLANTS.map(({ key, ...p }) => <Plant key={key} {...p} />)}
         <Farmer x={464} y={398} k={0.78} />
         {/* le téléphone, légèrement penché */}
-        <g transform="translate(168 108) rotate(-3 95 160)">
-          <rect x="8" y="16" width="190" height="318" rx="34" style={fill('--canopy-deep')} opacity=".28" />
-          <rect width="190" height="318" rx="32" style={fill('--surface')} />
-          <rect width="190" height="318" rx="32" style={line('--canopy', 6)} />
-          <rect x="70" y="14" width="50" height="8" rx="4" style={fill('--canopy')} />
-          <rect x="18" y="40" width="154" height="26" rx="13" style={fill('--mint')} />
+        <g transform="translate(183 108) rotate(-3 80 160)">
+          <rect x="8" y="16" width="160" height="318" rx="32" style={fill('--canopy-deep')} opacity=".28" />
+          <rect width="160" height="318" rx="30" style={fill('--surface')} />
+          <rect width="160" height="318" rx="30" style={line('--canopy', 6)} />
+          <rect x="55" y="14" width="50" height="8" rx="4" style={fill('--canopy')} />
+          <rect x="18" y="40" width="124" height="26" rx="13" style={fill('--mint')} />
           <circle cx="34" cy="53" r="6" style={fill('--leaf')} />
-          <rect x="48" y="49" width="72" height="8" rx="4" style={fill('--canopy')} opacity=".55" />
-          <rect x="18" y="78" width="154" height="124" rx="18" style={fill('--sage')} />
-          <path className="hm-draw" pathLength={1} d="M48 112l50-18 44 26-10 50-62 6z" style={{ ...fill('--maize', 0.4), stroke: 'var(--leaf)', strokeWidth: 3, strokeLinejoin: 'round' }} />
-          {[[48, 112], [98, 94], [142, 120], [132, 170], [70, 176]].map(([cx, cy], i) => <circle key={`${cx}-${cy}`} className="hm-pop" cx={cx} cy={cy} r="6" style={{ ...fill('--surface'), stroke: 'var(--sun)', strokeWidth: 3, '--i': i } as CSSProperties} />)}
-          <rect x="18" y="216" width="104" height="9" rx="4.5" style={fill('--canopy')} opacity=".6" />
-          <rect x="18" y="234" width="136" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
-          <rect x="18" y="252" width="82" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
-          <rect x="18" y="276" width="154" height="30" rx="15" style={fill('--leaf')} />
-          <rect x="62" y="287" width="66" height="8" rx="4" style={fill('--leaf-ink')} opacity=".9" />
+          <rect x="48" y="49" width="58" height="8" rx="4" style={fill('--canopy')} opacity=".55" />
+          <rect x="18" y="78" width="124" height="124" rx="18" style={fill('--sage')} />
+          <path className="hm-draw" pathLength={1} d="M42 112L82 94L118 120L110 170L60 176z" style={{ ...fill('--maize', 0.4), stroke: 'var(--leaf)', strokeWidth: 3, strokeLinejoin: 'round' }} />
+          {[[42, 112], [82, 94], [118, 120], [110, 170], [60, 176]].map(([cx, cy], i) => <circle key={i} className="hm-pop" cx={cx} cy={cy} r="6" style={{ ...fill('--surface'), stroke: 'var(--sun)', strokeWidth: 3, '--i': i } as CSSProperties} />)}
+          <rect x="18" y="216" width="84" height="9" rx="4.5" style={fill('--canopy')} opacity=".6" />
+          <rect x="18" y="234" width="110" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
+          <rect x="18" y="252" width="66" height="9" rx="4.5" style={fill('--canopy')} opacity=".25" />
+          <rect x="18" y="276" width="124" height="30" rx="15" style={fill('--leaf')} />
+          <rect x="53" y="287" width="54" height="8" rx="4" style={fill('--leaf-ink')} opacity=".9" />
         </g>
         {/* herbes du premier plan */}
         <path d="M-6 484C4 450 10 440 24 428C20 450 24 468 30 484z" style={fill('--canopy')} />
