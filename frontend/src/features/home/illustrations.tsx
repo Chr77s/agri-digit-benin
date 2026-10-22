@@ -103,3 +103,39 @@ export function StepHarvest() {
   );
 }
 
+/** Les quatre stades de la culture : semis, croissance, floraison, récolte. */
+export function StageIllustration({ stage }: { stage: 'semis' | 'croissance' | 'floraison' | 'recolte' }) {
+  return (
+    <svg className="hm-stage-ill" viewBox="0 0 120 120" role="presentation" aria-hidden="true" focusable="false">
+      <ellipse cx="60" cy="106" rx="50" ry="9" style={fill('--laterite')} />
+      {stage === 'semis' && <>
+        <ellipse cx="60" cy="98" rx="9" ry="6" style={fill('--sun')} />
+        <path d="M60 92c0-8 0-12 4-16" style={line('--maize', 3)} />
+        <path d="M64 76c6-1 9-4 10-8-6 0-10 3-10 8z" style={fill('--maize')} />
+      </>}
+      {stage === 'croissance' && <>
+        <path d="M60 104V54" style={line('--canopy', 4)} />
+        <path d="M60 86c-14-2-24-10-28-22 14 0 25 8 28 22zM60 70c14-2 24-10 28-22-14 0-25 8-28 22z" style={fill('--maize')} />
+        <path d="M60 56c-6-6-8-12-6-20 8 4 10 12 6 20z" style={fill('--leaf')} />
+      </>}
+      {stage === 'floraison' && <>
+        <path d="M60 104V28" style={line('--canopy', 4)} />
+        <path d="M60 92c-16-2-28-12-32-26 16 0 29 10 32 26zM60 74c16-2 28-12 32-26-16 0-29 10-32 26z" style={fill('--maize')} />
+        <path d="M60 28l-14-12M60 28V10M60 28l14-12M60 28l-8-16M60 28l8-16" style={line('--sun', 3)} />
+        <circle cx="60" cy="10" r="3.4" style={fill('--sun')} />
+      </>}
+      {stage === 'recolte' && <>
+        <path d="M60 104V34" style={line('--canopy', 4)} />
+        <path d="M60 94c-16-2-28-12-32-26 16 0 29 10 32 26z" style={fill('--maize')} />
+        <ellipse cx="72" cy="62" rx="12" ry="26" transform="rotate(10 72 62)" style={fill('--sun')} />
+        <path d="M66 42c6 6 12 20 14 40M76 40c-2 14-2 30 2 44" style={line('--laterite', 2)} />
+        <path d="M70 90c-8 0-16-10-18-22 8 2 15 10 18 22zM76 90c8 0 14-10 14-22-8 2-12 10-14 22z" style={fill('--leaf')} />
+      </>}
+    </svg>
+  );
+}
+
+/** Pastille d'un partenaire : sigle en lettres, en attendant les logos officiels. */
+export function PartnerMark({ code }: { code: string }) {
+  return <span className="hm-mark" aria-hidden="true">{code}</span>;
+}

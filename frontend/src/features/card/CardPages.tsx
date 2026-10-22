@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { api, ApiError } from '../../shared/api/client';
 import type { ProducerCard, ProducerStatus, VerifyResult } from '../../shared/api/types';
 import { usePlaceName } from '../../shared/api/ref';
-import { Alert, Button, EmptyState, ErrorState, Icon, PageHeader, Skeleton, fmtDate, fmtDateTime, spriteHref, toast, useMsg } from '../../shared/ui';
+import { Alert, Button, EmptyState, ErrorState, Emblem, Icon, PageHeader, Skeleton, fmtDate, fmtDateTime, toast, useMsg } from '../../shared/ui';
 import { StatusBadge } from '../producers/ProducersPages';
 import { useAuth } from '../auth/AuthContext';
 import '../auth/access.css';
@@ -67,7 +67,7 @@ export function CardPage() {
         <div className="card-zone">
           <div className="pcard" role="img" aria-label={t('card.aria', { name: c.full_name, code: c.code, date: fmtDate(c.issued_at) })}>
             <div className="pc-top">
-              <svg aria-hidden><use href={spriteHref('logo')} /></svg>
+              <Emblem size={26} />
               <span><b>{t('app.name')}</b>{t('card.cardOf')}</span>
               {c.status !== 'valide' && <span className="pc-status"><StatusBadge s={c.status} /></span>}
             </div>

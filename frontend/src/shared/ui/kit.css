@@ -178,6 +178,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   scrollbar-width: thin; scrollbar-color: var(--leaf) transparent;
 }
 .sidebar::-webkit-scrollbar-thumb { background: var(--leaf); border-color: var(--canopy); }
+.emblem { flex: none; width: auto; padding: 2px; border-radius: 8px; background: #fff; object-fit: contain; }
 .sb-brand { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 8px; color: var(--on-dark); text-decoration: none; border-radius: var(--r-md); }
 .sb-brand:hover { color: var(--on-dark); }
 .sb-brand svg { width: 34px; height: 34px; flex: none; }

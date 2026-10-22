@@ -24,3 +24,8 @@ export function Icon({ name, size, label, className = '' }: { name: IconName; si
     </svg>
   );
 }
+
+/** Armoiries du Bénin (logo du MAEP) sur pastille blanche : lisibles sur fond clair comme sombre. Décoratif, le nom est écrit à côté. */
+export function Emblem({ size = 32 }: { size?: number }) {
+  return <img className="emblem" src="/brand/emblem.png" alt="" height={size} style={{ height: size }} />;
+}

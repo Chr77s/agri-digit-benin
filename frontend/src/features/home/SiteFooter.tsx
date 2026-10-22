@@ -1,26 +1,39 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Icon, ThemeToggle, spriteHref } from '../../shared/ui';
+import { Icon, ThemeToggle } from '../../shared/ui';
 import { LangButton } from '../../app/LangButton';
 import './site-footer.css';
 
+// Rubriques de la page d'accueil que le pied de page sait atteindre (clés landing.footer.links.* ; partenaires : vitrine.partners.title).
+const PLATFORM = ['comment', 'qui', 'confiance', 'partenaires', 'faq'] as const;
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Pied de page des pages publiques : l'accueil et les pages ouvertes à tous. */
-export function SiteFooter() {
+/** Pied de page des pages publiques. `home` : on est sur l'accueil, les rubriques sont de simples ancres ; ailleurs, elles y ramènent. */
+export function SiteFooter({ home = false }: { home?: boolean }) {
   const { t } = useTranslation();
   const toTop = () => window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
   return (
     <footer className="sf" aria-label={t('site.footer.label')}>
       <div className="sf-in">
         <div className="sf-brand">
-          <Link to="/" className="sf-logo"><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span></Link>
+          <Link to="/" className="sf-logo" aria-label={t('app.name')}><img src="/brand/logo.png" width="168" height="44" alt="" /></Link>
+          <strong className="sf-name">{t('app.name')}</strong>
           <p>{t('site.footer.tagline')}</p>
           <div className="sf-prefs" role="group" aria-label={t('site.footer.prefs')}>
             <LangButton className="btn btn-icon btn-secondary" />
             <ThemeToggle />
           </div>
         </div>
+
+        <nav className="sf-col" aria-labelledby="sf-platform">
+          <h2 id="sf-platform">{t('site.footer.platform')}</h2>
+          <ul>
+            {PLATFORM.map((id) => {
+              const text = id === 'partenaires' ? t('vitrine.partners.title') : t(`landing.footer.links.${id}`);
+              return <li key={id}>{home ? <a href={`#${id}`}>{text}</a> : <Link to={{ pathname: '/', hash: id }}>{text}</Link>}</li>;
+            })}
+          </ul>
+        </nav>
 
         <nav className="sf-col" aria-labelledby="sf-space">
           <h2 id="sf-space">{t('site.footer.space')}</h2>

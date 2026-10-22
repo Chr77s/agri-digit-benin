@@ -13,7 +13,7 @@ import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
 import { MARKETS_NAV } from '../features/markets/nav';
 import { useNotifications } from '../features/alerts/api';
-import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, spriteHref, toast, type IconName } from '../shared/ui';
+import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, Emblem, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
 import type { Role, User } from '../shared/api/types';
 
@@ -225,7 +225,7 @@ function SideNav({ nav, collapsed, onToggle, onNavigate, inDrawer }: { nav: NavI
     <>
       <div className="sb-head">
         <Link className="sb-brand" to={nav[0]?.to ?? '/'} aria-label={t('app.spaceHome')} onClick={onNavigate}>
-          <svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span>
+          <Emblem size={34} /><span>{t('app.name')}</span>
         </Link>
         {inDrawer && (
           <RD.Close asChild>
@@ -346,7 +346,7 @@ function PublicShell({ children }: { children?: ReactNode }) {
       <SkipLink />
       <ProtoBand />
       <header className="topbar">
-        <Link to="/" className="tb-brand !inline-flex"><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span></Link>
+        <Link to="/" className="tb-brand !inline-flex"><Emblem size={30} /><span>{t('app.name')}</span></Link>
         <span className="tb-spacer" />
         <LangButton />
         <ThemeToggle />
@@ -417,7 +417,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
                 </RD.Content>
               </RD.Portal>
             </RD.Root>
-            <Link className="tb-brand" to={nav[0]?.to ?? '/'}><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>Agri-Digit</span></Link>
+            <Link className="tb-brand" to={nav[0]?.to ?? '/'}><Emblem size={30} /><span>Agri-Digit</span></Link>
             <SearchBox nav={nav} inputRef={searchRef} onDone={() => setSearching(false)} />
             <span className="tb-spacer" />
             <button type="button" className="btn btn-icon tb-search-toggle" aria-label={t('app.search')} aria-expanded={searching}

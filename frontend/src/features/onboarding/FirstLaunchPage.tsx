@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, Icon, spriteHref, speak, type IconName } from '../../shared/ui';
+import { Badge, Button, Emblem, Icon, speak, type IconName } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
 import { GALLERY } from '../landing/gallery';
 import './onboarding.css';
@@ -43,7 +43,7 @@ function LanguageStep({ heading, onNext }: H & { onNext: () => void }) {
     <>
       <div className="fl-scroll">
         <div className="fl-brand">
-          <svg aria-hidden><use href={spriteHref('logo')} /></svg>
+          <Emblem size={48} />
           <div><p className="fl-tiny">{t('app.name')}</p><h1 className="fl-title" ref={heading} tabIndex={-1}>{t('mobile.fl.langTitle')}</h1></div>
         </div>
         <p className="fl-lead">{t('mobile.fl.langLead')}</p>

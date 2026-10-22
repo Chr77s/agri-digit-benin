@@ -6,8 +6,43 @@
       "cardAlert": "Pluie annoncée demain",
       "cardAlertPlace": "Alibori",
       "cardStage": "Floraison",
-      "cardStageDay": "Jour 62",
-      "lead": "Inscrivez-vous en deux minutes, avec votre seul numéro de téléphone."
+      "lead": "Inscrivez-vous avec votre numéro.",
+      "title": "Votre champ dans votre téléphone.",
+      "stats": "Chiffres du programme",
+      "cardStageDay": "Jour 62"
+    },
+    "nav": {
+      "label": "Navigation de la page d'accueil"
+    },
+    "partners": {
+      "title": "Partenaires",
+      "maep": {
+        "name": "Ministère de l'Agriculture, de l'Élevage et de la Pêche"
+      },
+      "mtdi": {
+        "name": "Ministère du Numérique et de la Digitalisation"
+      },
+      "atda": {
+        "name": "Agences territoriales de développement agricole"
+      },
+      "inrab": {
+        "name": "Institut national des recherches agricoles du Bénin"
+      },
+      "sonama": {
+        "name": "Société nationale de mécanisation agricole"
+      },
+      "fnda": {
+        "name": "Fonds national de développement agricole"
+      }
+    },
+    "gallery": {
+      "credit": "Photo : {{author}}, {{license}}"
+    },
+    "cta": {
+      "title": "Votre espace vous attend."
+    },
+    "season": {
+      "title": "Du semis à la récolte"
     }
   },
   "site": {
@@ -26,7 +61,8 @@
       "prefs": "Préférences",
       "copyright": "© {{year}} Ministère de l'Agriculture, de l'Élevage et de la Pêche (MAEP), République du Bénin.",
       "proto": "Prototype de démonstration : les données affichées ne sont pas officielles.",
-      "top": "Retour en haut"
+      "top": "Retour en haut",
+      "platform": "La plateforme"
     }
   },
   "sitemap": {
