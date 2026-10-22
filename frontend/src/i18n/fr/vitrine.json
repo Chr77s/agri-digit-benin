@@ -1,29 +1,19 @@
 {
   "vitrine": {
-    "nav": { "label": "Navigation de la page d'accueil", "menu": "Sections de la page" },
     "hero": {
-      "points": ["Sans mot de passe", "Même sans réseau", "En cinq langues"],
-      "more": "Voir comment ça marche",
       "cardArea": "Surface",
       "cardAreaValue": "2,4 ha",
       "cardAlert": "Pluie annoncée demain",
       "cardAlertPlace": "Alibori",
       "cardStage": "Floraison",
-      "cardStageDay": "Jour 62"
-    },
-    "season": {
-      "title": "Du semis à la récolte, un fil continu.",
-      "lead": "À chaque stade de la culture, l'application sait où vous en êtes et vous dit quoi faire ensuite."
-    },
-    "gallery": { "credit": "Photo : {{author}}, {{license}}" },
-    "cta": { "title": "Votre espace vous attend.", "lead": "Producteur ou agent ATDA : quelques secondes avec votre téléphone suffisent pour commencer." }
+      "cardStageDay": "Jour 62",
+      "lead": "Inscrivez-vous en deux minutes, avec votre seul numéro de téléphone."
+    }
   },
   "site": {
     "footer": {
       "label": "Pied de page",
       "tagline": "La plateforme agricole du Bénin : parcelles, conseils, appuis et marché au même endroit.",
-      "help": "Besoin d'aide ? Rapprochez-vous de votre agent ATDA.",
-      "platform": "La plateforme",
       "space": "Mon espace",
       "assist": "Aide",
       "legal": "Informations légales",
@@ -61,11 +51,41 @@
       "title": "Déclaration d'accessibilité",
       "intro": "Agri-Digit Bénin doit pouvoir être utilisé par tous les producteurs, y compris les personnes handicapées et celles peu à l'aise avec le numérique. Cette page dit ce qui est fait, ce qui ne l'est pas encore et comment signaler une difficulté.",
       "sections": [
-        { "h": "État de conformité", "p": ["Le prototype n'a pas fait l'objet d'un audit d'accessibilité externe : son niveau de conformité aux WCAG 2.2 n'est donc pas attesté. L'objectif visé est le niveau AA ; l'audit et sa date sont à décider avec le comité de pilotage (CoPil)."] },
-        { "h": "Ce qui est en place", "p": ["Un lien « Aller au contenu » en tête de chaque page, et une navigation complète au clavier avec un repère de focus visible.", "Des contrastes de couleurs vérifiés par un script automatique (4,5 contre 1 pour le texte courant, 3 contre 1 pour les contours de champ), en mode clair comme en mode sombre.", "Des zones tactiles d'au moins 44 pixels et des champs de formulaire en 16 pixels, pour ne pas zoomer sur téléphone.", "Un mode sombre, et des animations réduites si votre appareil le demande."] },
-        { "h": "Limites connues", "p": ["Les cartes interactives (tracé d'une parcelle, carte des acteurs) ne sont pas conçues pour le clavier ni pour les lecteurs d'écran : demandez l'aide de votre agent ATDA.", "Les traductions en fon, bariba, yoruba et dendi sont en cours de validation ; le français sert de repli.", "Aucun test n'a été fait avec un lecteur d'écran, ni sur un téléphone réel."] },
-        { "h": "Signaler une difficulté", "p": ["Écrivez à votre agent ATDA ou passez par la page Contact, en indiquant la page concernée et l'appareil utilisé. Le délai de réponse est à décider avec le comité de pilotage (CoPil)."] },
-        { "h": "Voies de recours", "p": ["Si la réponse ne vous satisfait pas, vous pouvez saisir l'autorité béninoise compétente. Ses coordonnées sont à compléter par le MAEP."] }
+        {
+          "h": "État de conformité",
+          "p": [
+            "Le prototype n'a pas fait l'objet d'un audit d'accessibilité externe : son niveau de conformité aux WCAG 2.2 n'est donc pas attesté. L'objectif visé est le niveau AA ; l'audit et sa date sont à décider avec le comité de pilotage (CoPil)."
+          ]
+        },
+        {
+          "h": "Ce qui est en place",
+          "p": [
+            "Un lien « Aller au contenu » en tête de chaque page, et une navigation complète au clavier avec un repère de focus visible.",
+            "Des contrastes de couleurs vérifiés par un script automatique (4,5 contre 1 pour le texte courant, 3 contre 1 pour les contours de champ), en mode clair comme en mode sombre.",
+            "Des zones tactiles d'au moins 44 pixels et des champs de formulaire en 16 pixels, pour ne pas zoomer sur téléphone.",
+            "Un mode sombre, et des animations réduites si votre appareil le demande."
+          ]
+        },
+        {
+          "h": "Limites connues",
+          "p": [
+            "Les cartes interactives (tracé d'une parcelle, carte des acteurs) ne sont pas conçues pour le clavier ni pour les lecteurs d'écran : demandez l'aide de votre agent ATDA.",
+            "Les traductions en fon, bariba, yoruba et dendi sont en cours de validation ; le français sert de repli.",
+            "Aucun test n'a été fait avec un lecteur d'écran, ni sur un téléphone réel."
+          ]
+        },
+        {
+          "h": "Signaler une difficulté",
+          "p": [
+            "Écrivez à votre agent ATDA ou passez par la page Contact, en indiquant la page concernée et l'appareil utilisé. Le délai de réponse est à décider avec le comité de pilotage (CoPil)."
+          ]
+        },
+        {
+          "h": "Voies de recours",
+          "p": [
+            "Si la réponse ne vous satisfait pas, vous pouvez saisir l'autorité béninoise compétente. Ses coordonnées sont à compléter par le MAEP."
+          ]
+        }
       ]
     },
     "contact": {
@@ -73,10 +93,32 @@
       "title": "Contact et assistance",
       "intro": "Votre premier interlocuteur est l'agent ATDA de votre secteur. Voici à qui s'adresser selon votre question.",
       "sections": [
-        { "h": "Une question sur votre dossier", "p": ["Inscription, parcelle, campagne, appui, alerte : rapprochez-vous de votre agent ATDA, qui connaît votre fiche.", "L'assistant de l'application répond aux questions agricoles courantes en citant sa source. Pour tout dosage, il vous oriente vers votre agent."] },
-        { "h": "Un problème technique", "p": ["Pour signaler une panne ou une erreur d'affichage, indiquez la page, l'heure et ce que vous faisiez. Le point de contact technique du MAEP est à désigner ; en attendant, passez par votre agent ATDA."] },
-        { "h": "Vos données personnelles", "p": ["Vous pouvez retirer ou donner votre consentement à tout moment depuis « Mes consentements » dans votre espace.", "Pour demander l'accès, la rectification ou l'effacement de vos données, écrivez au délégué à la protection des données, à désigner par le MAEP."] },
-        { "h": "Contester une décision", "p": ["Une décision de sélection pour un programme d'appui peut être contestée pendant 15 jours depuis votre espace producteur."] }
+        {
+          "h": "Une question sur votre dossier",
+          "p": [
+            "Inscription, parcelle, campagne, appui, alerte : rapprochez-vous de votre agent ATDA, qui connaît votre fiche.",
+            "L'assistant de l'application répond aux questions agricoles courantes en citant sa source. Pour tout dosage, il vous oriente vers votre agent."
+          ]
+        },
+        {
+          "h": "Un problème technique",
+          "p": [
+            "Pour signaler une panne ou une erreur d'affichage, indiquez la page, l'heure et ce que vous faisiez. Le point de contact technique du MAEP est à désigner ; en attendant, passez par votre agent ATDA."
+          ]
+        },
+        {
+          "h": "Vos données personnelles",
+          "p": [
+            "Vous pouvez retirer ou donner votre consentement à tout moment depuis « Mes consentements » dans votre espace.",
+            "Pour demander l'accès, la rectification ou l'effacement de vos données, écrivez au délégué à la protection des données, à désigner par le MAEP."
+          ]
+        },
+        {
+          "h": "Contester une décision",
+          "p": [
+            "Une décision de sélection pour un programme d'appui peut être contestée pendant 15 jours depuis votre espace producteur."
+          ]
+        }
       ]
     }
   }

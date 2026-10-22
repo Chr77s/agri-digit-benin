@@ -4,15 +4,10 @@ import { Icon, ThemeToggle, spriteHref } from '../../shared/ui';
 import { LangButton } from '../../app/LangButton';
 import './site-footer.css';
 
-// Rubriques de la page d'accueil que le pied de page sait atteindre (clés landing.footer.links.*).
-const PLATFORM = ['comment', 'qui', 'confiance', 'galerie', 'faq'] as const;
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/**
- * Pied de page des pages publiques : l'accueil et les pages ouvertes à tous.
- * `home` : on est déjà sur l'accueil, les rubriques sont de simples ancres ; ailleurs, elles y ramènent.
- */
-export function SiteFooter({ home = false }: { home?: boolean }) {
+/** Pied de page des pages publiques : l'accueil et les pages ouvertes à tous. */
+export function SiteFooter() {
   const { t } = useTranslation();
   const toTop = () => window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
   return (
@@ -21,21 +16,11 @@ export function SiteFooter({ home = false }: { home?: boolean }) {
         <div className="sf-brand">
           <Link to="/" className="sf-logo"><svg aria-hidden><use href={spriteHref('logo')} /></svg><span>{t('app.name')}</span></Link>
           <p>{t('site.footer.tagline')}</p>
-          <p className="sf-help"><Icon name="help" />{t('site.footer.help')}</p>
           <div className="sf-prefs" role="group" aria-label={t('site.footer.prefs')}>
             <LangButton className="btn btn-icon btn-secondary" />
             <ThemeToggle />
           </div>
         </div>
-
-        <nav className="sf-col" aria-labelledby="sf-platform">
-          <h2 id="sf-platform">{t('site.footer.platform')}</h2>
-          <ul>
-            {PLATFORM.map((id) => (
-              <li key={id}>{home ? <a href={`#${id}`}>{t(`landing.footer.links.${id}`)}</a> : <Link to={{ pathname: '/', hash: id }}>{t(`landing.footer.links.${id}`)}</Link>}</li>
-            ))}
-          </ul>
-        </nav>
 
         <nav className="sf-col" aria-labelledby="sf-space">
           <h2 id="sf-space">{t('site.footer.space')}</h2>

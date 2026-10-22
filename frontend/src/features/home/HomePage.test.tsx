@@ -8,17 +8,13 @@ import { HomePage } from './HomePage';
 describe('Page d’accueil', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('présente la promesse, les chiffres, les étapes, les questions et mène à l’inscription', () => {
+  it('présente la promesse, trois étapes, et mène à l’inscription', () => {
     mockFetch(() => undefined);
     renderApp(<HomePage />);
     expect(screen.getByRole('heading', { level: 1, name: /tout tient dans votre téléphone/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Créer mon compte producteur/ })).toHaveAttribute('href', '/inscription');
     expect(screen.getAllByRole('link', { name: 'Se connecter' }).every((a) => a.getAttribute('href') === '/connexion')).toBe(true);
-    expect(screen.getByText('200 873')).toBeInTheDocument();
-    expect(screen.getAllByRole('listitem').length).toBeGreaterThan(20);
-    expect(screen.getAllByText(/Faut-il un smartphone/)).toHaveLength(1);
-    // les rubriques du menu existent bien sur la page
-    for (const id of ['comment', 'qui', 'confiance', 'faq']) expect(document.getElementById(id)).not.toBeNull();
+    expect(screen.getAllByRole('listitem').filter((li) => li.classList.contains('hm-step'))).toHaveLength(3);
   });
 
   it('pied de page : rubriques, espaces, aide et mentions légales, avec leurs adresses', () => {
@@ -26,7 +22,6 @@ describe('Page d’accueil', () => {
     renderApp(<HomePage />);
     const foot = screen.getByRole('contentinfo');
     const href = (name: RegExp | string) => within(foot).getByRole('link', { name }).getAttribute('href');
-    expect(href('Comment ça marche')).toBe('#comment');
     expect(href('Créer un compte producteur')).toBe('/inscription');
     expect(href('Vérifier une carte producteur')).toBe('/verification');
     expect(href('Contact et assistance')).toBe('/contact');
@@ -36,7 +31,7 @@ describe('Page d’accueil', () => {
     expect(href(/confidentialité/i)).toBe('/confidentialite');
     expect(href(/Conditions d.utilisation/)).toBe('/conditions-utilisation');
     expect(within(foot).getByRole('button', { name: 'Retour en haut' })).toBeInTheDocument();
-    expect(within(foot).getAllByRole('navigation')).toHaveLength(4);
+    expect(within(foot).getAllByRole('navigation')).toHaveLength(3);
   });
 
   it('plan du site, accessibilité et contact : pages publiques complètes', () => {
