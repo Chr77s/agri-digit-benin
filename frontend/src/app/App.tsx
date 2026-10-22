@@ -9,6 +9,7 @@ import { AgentHome } from '../features/producers/AgentHome';
 import { ProfilePage } from '../features/producers/ProfilePage';
 import { LEGAL_DOCS, LegalPage } from '../features/legal/LegalPage';
 import { ErrorPage, NotFoundPage } from '../features/legal/StatusPages';
+import { SiteMapPage } from '../features/legal/SiteMapPage';
 import { ApiError } from '../shared/api/client';
 import { Layout, NAV } from './Layout';
 import { Skeleton, useIsMobile } from '../shared/ui';
@@ -51,6 +52,8 @@ const ExportsPage = lazy(() => import('../features/admin/AdminPages').then((m) =
 const AuditPage = lazy(() => import('../features/audit/AuditPage').then((m) => ({ default: m.AuditPage })));
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 
+const HomePage = lazy(() => import('../features/home/HomePage').then((m) => ({ default: m.HomePage })));
+// ancienne page d'accueil en 3D, conservée telle quelle (voir docs/REFONTE_FRONTEND.md)
 const LandingPage = lazy(() => import('../features/landing/LandingPage').then((m) => ({ default: m.LandingPage })));
 const WeatherPricesPage = lazy(() => import('../features/weather/WeatherPricesPage').then((m) => ({ default: m.WeatherPricesPage })));
 const ForecastsPage = lazy(() => import('../features/forecasts/ForecastsPage').then((m) => ({ default: m.ForecastsPage })));
@@ -107,9 +110,10 @@ export function App() {
   const { pathname } = useLocation();
   const mobile = useIsMobile();
   // les visiteurs voient la landing plein écran (sur téléphone, le premier lancement d'abord) ; le reste du site garde sa mise en page
-  if (pathname === '/' && !user) {
+  if ((pathname === '/' || pathname === '/accueil-3d') && !user) {
     if (!ready) return <Skeleton />;
-    return mobile && !firstLaunchDone() ? <Navigate to="/bienvenue" replace /> : <Suspense fallback={<Skeleton />}><LandingPage /></Suspense>;
+    if (pathname === '/accueil-3d') return <Suspense fallback={<Skeleton />}><LandingPage /></Suspense>;
+    return mobile && !firstLaunchDone() ? <Navigate to="/bienvenue" replace /> : <Suspense fallback={<Skeleton />}><HomePage /></Suspense>;
   }
   return (
     <Routes>
@@ -118,6 +122,7 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/connexion" element={ready && user ? <Navigate to="/" replace /> : <LoginPage />} />
         <Route path="/inscription" element={<RegisterPage />} />
+        <Route path="/plan-du-site" element={<SiteMapPage />} />
         {LEGAL_DOCS.map(({ doc, to }) => <Route key={doc} path={to} element={<LegalPage doc={doc} />} />)}
         <Route path="/parcelles" element={<Guard roles={['producteur']}><ParcelsPage /></Guard>} />
         <Route path="/campagnes" element={<Guard roles={['producteur', 'agent_atda']}><CampaignsPage /></Guard>} />

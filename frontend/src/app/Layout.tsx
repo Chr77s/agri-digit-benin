@@ -3,6 +3,8 @@ import * as DM from '@radix-ui/react-dropdown-menu';
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './ErrorBoundary';
+import { LangButton } from './LangButton';
+import { SiteFooter } from '../features/home/SiteFooter';
 import { LEGAL_DOCS } from '../features/legal/LegalPage';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -97,28 +99,10 @@ function SystemNotifier() {
   return null;
 }
 
-const LANGS: [string, string][] = [['fr', 'Français'], ['fon', 'Fɔngbè'], ['bba', 'Baatɔnum'], ['yo', 'Yorùbá'], ['dnd', 'Dendi']];
 const SIDEBAR_KEY = 'adb-sidebar';
 const readCollapsed = () => { try { return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'; } catch { return false; } };
 const writeCollapsed = (on: boolean) => { try { localStorage.setItem(SIDEBAR_KEY, on ? 'collapsed' : 'open'); } catch { /* stockage indisponible : le choix ne sera pas gardé */ } };
 const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-
-/** Un seul bouton : le code de la langue courante ; un clic passe à la suivante (les langues nationales sont annoncées « à valider »). */
-function LangButton() {
-  const { t, i18n: inst } = useTranslation();
-  const idx = Math.max(0, LANGS.findIndex(([v]) => v === inst.language));
-  const [code, name] = LANGS[idx];
-  const [nextCode, nextName] = LANGS[(idx + 1) % LANGS.length];
-  const next = () => {
-    void inst.changeLanguage(nextCode);
-    if (nextCode !== 'fr') toast({ type: 'info', text: `${nextName} (${t('lang.toValidate')})` });
-  };
-  return (
-    <button type="button" className="btn btn-icon tb-lang-btn" aria-label={`${t('app.language')} : ${name}. ${nextName}`} title={`${name} → ${nextName}`} onClick={next}>
-      {code.toUpperCase()}
-    </button>
-  );
-}
 
 function ProtoBand() {
   const { t } = useTranslation();
@@ -370,7 +354,7 @@ function PublicShell({ children }: { children?: ReactNode }) {
       <OfflineBar />
       <ConflictsPanel />
       <Main>{children}</Main>
-      <Footer />
+      <SiteFooter />
       <Toaster />
     </div>
   );
