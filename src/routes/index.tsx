@@ -41,7 +41,7 @@ function Index() {
 
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-12 md:grid-cols-2 md:py-20">
         <div>
-          <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">Ministère de l'Agriculture · Bénin</span>
+          <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">Ministère de l'agriculture, de l'élevage et de la pêche</span>
           <h1 className="mt-5 text-5xl font-medium leading-[1.05] md:text-6xl">Votre champ dans votre <span className="text-primary">téléphone.</span></h1>
           <p className="mt-5 max-w-md text-muted-foreground">Inscrivez-vous avec votre numéro. Suivez vos cultures et vendez vos récoltes, simplement.</p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -57,9 +57,9 @@ function Index() {
       </section>
 
       <section className="border-y border-border bg-muted">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-6 py-8 text-center md:grid-cols-4">
-          {[["200 873","Fermes"],["12","Départements"],["77","Communes"],["13","Filières prioritaires"]].map(([n,l])=>(
-            <div key={l}><p className="font-display text-2xl text-primary">{n}</p><p className="text-sm text-muted-foreground">{l}</p></div>
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-6 py-8 md:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="grid h-16 place-items-center rounded-xl border border-dashed border-border bg-background font-display text-base tracking-[0.3em] text-muted-foreground">LOGO</div>
           ))}
         </div>
       </section>
