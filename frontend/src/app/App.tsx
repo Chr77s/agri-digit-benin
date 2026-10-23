@@ -9,9 +9,11 @@ import { AgentHome } from '../features/producers/AgentHome';
 import { ProfilePage } from '../features/producers/ProfilePage';
 import { LEGAL_DOCS, LegalPage } from '../features/legal/LegalPage';
 import { ErrorPage, NotFoundPage } from '../features/legal/StatusPages';
+import { SiteMapPage } from '../features/legal/SiteMapPage';
 import { ApiError } from '../shared/api/client';
 import { Layout, NAV } from './Layout';
-import { Skeleton } from '../shared/ui';
+import { Skeleton, useIsMobile } from '../shared/ui';
+import { FirstLaunchPage, firstLaunchDone } from '../features/onboarding/FirstLaunchPage';
 import type { Role } from '../shared/api/types';
 
 function Guard({ roles, children }: { roles?: Role[]; children: ReactNode }) {
@@ -50,6 +52,8 @@ const ExportsPage = lazy(() => import('../features/admin/AdminPages').then((m) =
 const AuditPage = lazy(() => import('../features/audit/AuditPage').then((m) => ({ default: m.AuditPage })));
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 
+const HomePage = lazy(() => import('../features/home/HomePage').then((m) => ({ default: m.HomePage })));
+// ancienne page d'accueil en 3D, conservée telle quelle (voir docs/REFONTE_FRONTEND.md)
 const LandingPage = lazy(() => import('../features/landing/LandingPage').then((m) => ({ default: m.LandingPage })));
 const WeatherPricesPage = lazy(() => import('../features/weather/WeatherPricesPage').then((m) => ({ default: m.WeatherPricesPage })));
 const ForecastsPage = lazy(() => import('../features/forecasts/ForecastsPage').then((m) => ({ default: m.ForecastsPage })));
@@ -64,27 +68,61 @@ const CooperativeDetailPage = lazy(() => import('../features/cooperatives/Cooper
 const MyCooperativesPage = lazy(() => import('../features/cooperatives/CooperativesPages').then((m) => ({ default: m.MyCooperativesPage })));
 const SupportsPage = lazy(() => import('../features/supports/SupportsPage').then((m) => ({ default: m.SupportsPage })));
 const FlaggedHarvestsPage = lazy(() => import('../features/harvests/HarvestPages').then((m) => ({ default: m.FlaggedHarvestsPage })));
+const OrganisationsPage = lazy(() => import('../features/governance/GovernancePages').then((m) => ({ default: m.OrganisationsPage })));
+const ServicesPage = lazy(() => import('../features/governance/GovernancePages').then((m) => ({ default: m.ServicesPage })));
+const TracePage = lazy(() => import('../features/trace/TracePage').then((m) => ({ default: m.TracePage })));
 const MarketPage = lazy(() => import('../features/market/MarketPage').then((m) => ({ default: m.MarketPage })));
 const DiagnosesPage = lazy(() => import('../features/diagnoses/DiagnosesPage').then((m) => ({ default: m.DiagnosesPage })));
 const SatellitePage = lazy(() => import('../features/satellite/SatellitePage').then((m) => ({ default: m.SatellitePage })));
 const TranslationsPage = lazy(() => import('../features/translations/TranslationsPage').then((m) => ({ default: m.TranslationsPage })));
 const SeaPage = lazy(() => import('../features/dashboard/SeaPage').then((m) => ({ default: m.SeaPage })));
 const ContestsPage = lazy(() => import('../features/contests/ContestsPage').then((m) => ({ default: m.ContestsPage })));
+const RepaymentsPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RepaymentsPage })));
+const RecoveryPage = lazy(() => import('../features/recovery/RecoveryPages').then((m) => ({ default: m.RecoveryPage })));
+const RevenuePage = lazy(() => import('../features/revenue/RevenuePage').then((m) => ({ default: m.RevenuePage })));
+const SchemesPage = lazy(() => import('../features/lands/SchemesPage').then((m) => ({ default: m.SchemesPage })));
+const LandsPage = lazy(() => import('../features/lands/LandsPage').then((m) => ({ default: m.LandsPage })));
+const ClimatePage = lazy(() => import('../features/lands/ClimatePage').then((m) => ({ default: m.ClimatePage })));
+const EquipmentPage = lazy(() => import('../features/farmservices/EquipmentPage').then((m) => ({ default: m.EquipmentPage })));
+const MechanizationPage = lazy(() => import('../features/farmservices/MechanizationPage').then((m) => ({ default: m.MechanizationPage })));
+const SeedsPage = lazy(() => import('../features/farmservices/SeedsPage').then((m) => ({ default: m.SeedsPage })));
+const PmeaPage = lazy(() => import('../features/farmservices/PmeaPage').then((m) => ({ default: m.PmeaPage })));
+const CoveragePage = lazy(() => import('../features/observatory/CoveragePage').then((m) => ({ default: m.CoveragePage })));
+const ActorsMapPage = lazy(() => import('../features/observatory/ActorsMapPage').then((m) => ({ default: m.ActorsMapPage })));
+const ModelQualityPage = lazy(() => import('../features/observatory/ModelQualityPage').then((m) => ({ default: m.ModelQualityPage })));
+const PricesPage = lazy(() => import('../features/markets/PricesPage').then((m) => ({ default: m.PricesPage })));
+const AnalysisPage = lazy(() => import('../features/markets/AnalysisPage').then((m) => ({ default: m.AnalysisPage })));
+const SurveysPage = lazy(() => import('../features/markets/SurveysPage').then((m) => ({ default: m.SurveysPage })));
+const SurveyPublicPage = lazy(() => import('../features/markets/SurveyPublicPage').then((m) => ({ default: m.SurveyPublicPage })));
+const TrainingsPage = lazy(() => import('../features/markets/TrainingsPage').then((m) => ({ default: m.TrainingsPage })));
+const ShowcasePage = lazy(() => import('../features/markets/ShowcasePage').then((m) => ({ default: m.ShowcasePage })));
+const StocksPage = lazy(() => import('../features/stocks/StocksPage').then((m) => ({ default: m.StocksPage })));
 
 const AGENT: Role[] = ['agent_atda', 'admin_maep'];
+const LAND: Role[] = ['producteur', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil'];
+const OWNERS: Role[] = ['producteur', 'gestionnaire_cooperative'];
 const MARKET: Role[] = ['producteur', 'transformateur', 'distributeur', 'gestionnaire_cooperative', 'admin_maep'];
+const MK_ACTORS: Role[] = ['producteur', 'gestionnaire_cooperative', 'transformateur', 'distributeur'];
+const MK_STAFF: Role[] = ['agent_atda', 'responsable_programme', 'admin_maep'];
 
 export function App() {
   const { user, ready } = useAuth();
   const { pathname } = useLocation();
-  // les visiteurs voient la landing plein écran ; le reste du site garde sa mise en page
-  if (pathname === '/' && !user) return ready ? <Suspense fallback={<Skeleton />}><LandingPage /></Suspense> : <Skeleton />;
+  const mobile = useIsMobile();
+  // les visiteurs voient la landing plein écran (sur téléphone, le premier lancement d'abord) ; le reste du site garde sa mise en page
+  if ((pathname === '/' || pathname === '/accueil-3d') && !user) {
+    if (!ready) return <Skeleton />;
+    if (pathname === '/accueil-3d') return <Suspense fallback={<Skeleton />}><LandingPage /></Suspense>;
+    return mobile && !firstLaunchDone() ? <Navigate to="/bienvenue" replace /> : <Suspense fallback={<Skeleton />}><HomePage /></Suspense>;
+  }
   return (
     <Routes>
+      <Route path="/bienvenue" element={<FirstLaunchPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/connexion" element={ready && user ? <Navigate to="/" replace /> : <LoginPage />} />
         <Route path="/inscription" element={<RegisterPage />} />
+        <Route path="/plan-du-site" element={<SiteMapPage />} />
         {LEGAL_DOCS.map(({ doc, to }) => <Route key={doc} path={to} element={<LegalPage doc={doc} />} />)}
         <Route path="/parcelles" element={<Guard roles={['producteur']}><ParcelsPage /></Guard>} />
         <Route path="/campagnes" element={<Guard roles={['producteur', 'agent_atda']}><CampaignsPage /></Guard>} />
@@ -105,11 +143,12 @@ export function App() {
         <Route path="/tableau-de-bord" element={<Guard roles={['agent_atda', 'responsable_programme', 'admin_maep']}><DashboardPage /></Guard>} />
         <Route path="/credit" element={<Guard roles={['agent_financier']}><CreditPage /></Guard>} />
         <Route path="/verification/:code?" element={<Suspense fallback={<Skeleton />}><VerifyPage /></Suspense>} />
-        <Route path="/profil" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
+        <Route path="/enquete/:code" element={<Suspense fallback={<Skeleton />}><SurveyPublicPage /></Suspense>} />
+        <Route path="/profil/:section?" element={<Guard roles={['producteur']}><ProfilePage /></Guard>} />
         <Route path="/ma-carte" element={<Guard roles={['producteur']}><CardPage /></Guard>} />
         <Route path="/producteurs/:id/carte" element={<Guard roles={AGENT}><CardPage /></Guard>} />
         <Route path="/cooperatives" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativesPage /></Guard>} />
-        <Route path="/cooperatives/:id" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative']}><CooperativeDetailPage /></Guard>} />
+        <Route path="/cooperatives/:id" element={<Guard roles={[...AGENT, 'gestionnaire_cooperative', 'producteur']}><CooperativeDetailPage /></Guard>} />
         <Route path="/mes-cooperatives" element={<Guard roles={['producteur']}><MyCooperativesPage /></Guard>} />
         <Route path="/appuis" element={<Guard roles={['producteur', ...AGENT]}><SupportsPage /></Guard>} />
         <Route path="/recoltes-signalees" element={<Guard roles={AGENT}><FlaggedHarvestsPage /></Guard>} />
@@ -124,6 +163,28 @@ export function App() {
         <Route path="/interoperabilite" element={<Guard roles={['admin_maep']}><InteropPage /></Guard>} />
         <Route path="/collecte" element={<Guard roles={['transformateur', 'distributeur', 'gestionnaire_cooperative']}><CollectionPage /></Guard>} />
         <Route path="/offres" element={<Guard roles={['distributeur', 'transformateur']}><OffersPage /></Guard>} />
+        <Route path="/tracabilite" element={<Guard roles={['producteur', 'gestionnaire_cooperative', 'transformateur', 'distributeur', 'agent_atda', 'admin_maep']}><TracePage /></Guard>} />
+        <Route path="/organisations" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil', 'gestionnaire_cooperative']}><OrganisationsPage /></Guard>} />
+        <Route path="/remboursements" element={<Guard roles={['producteur', 'transformateur']}><RepaymentsPage /></Guard>} />
+        <Route path="/recouvrement" element={<Guard roles={['agent_financier', 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><RecoveryPage /></Guard>} />
+        <Route path="/revenu" element={<Guard roles={['producteur']}><RevenuePage /></Guard>} />
+        <Route path="/amenagements" element={<Guard roles={LAND}><SchemesPage /></Guard>} />
+        <Route path="/sols" element={<Guard roles={LAND}><LandsPage /></Guard>} />
+        <Route path="/risques-climatiques" element={<Guard roles={LAND}><ClimatePage /></Guard>} />
+        <Route path="/materiels" element={<Guard roles={[...OWNERS, 'agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><EquipmentPage /></Guard>} />
+        <Route path="/mecanisation" element={<Guard roles={OWNERS}><MechanizationPage /></Guard>} />
+        <Route path="/semences" element={<Guard roles={['agent_atda', 'admin_maep', 'responsable_programme', 'auditeur_copil']}><SeedsPage /></Guard>} />
+        <Route path="/pmea" element={<Guard><PmeaPage /></Guard>} />
+        <Route path="/couverture" element={<Guard roles={['admin_maep', 'responsable_programme', 'auditeur_copil', 'agent_atda']}><CoveragePage /></Guard>} />
+        <Route path="/carte-acteurs" element={<Guard><ActorsMapPage /></Guard>} />
+        <Route path="/qualite-modeles" element={<Guard roles={['admin_maep', 'responsable_programme', 'agronome_inrab', 'auditeur_copil']}><ModelQualityPage /></Guard>} />
+        <Route path="/prix" element={<Guard roles={[...MK_STAFF, 'gestionnaire_cooperative', 'transformateur', 'distributeur']}><PricesPage /></Guard>} />
+        <Route path="/analyses-marches" element={<Guard roles={[...MK_STAFF, 'transformateur', 'distributeur']}><AnalysisPage /></Guard>} />
+        <Route path="/stocks" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><StocksPage /></Guard>} />
+        <Route path="/enquetes" element={<Guard roles={MK_STAFF}><SurveysPage /></Guard>} />
+        <Route path="/formations" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><TrainingsPage /></Guard>} />
+        <Route path="/vitrine" element={<Guard roles={[...MK_ACTORS, ...MK_STAFF]}><ShowcasePage /></Guard>} />
+        <Route path="/services" element={<Guard><ServicesPage /></Guard>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

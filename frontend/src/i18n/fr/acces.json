@@ -92,7 +92,8 @@
     "res": {
       "ok": { "title": "Carte valide", "text": "Délivrée par le MAEP après validation de l'agent ATDA." },
       "wait": { "title": "Carte pas encore délivrée", "text": "La fiche attend la validation de l'agent ATDA." },
-      "bad": { "title": "Carte non valide", "text": "Fiche rejetée par l'agent ATDA." }
+      "bad": { "title": "Carte non valide", "text": "Fiche rejetée par l'agent ATDA." },
+      "closed": { "title": "Carte non valide", "text": "Le compte de ce producteur est fermé." }
     },
     "fileStatus": "Statut de la fiche",
     "checkedAt": "Vérifiée le",

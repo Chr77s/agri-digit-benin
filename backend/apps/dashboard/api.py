@@ -4,7 +4,7 @@ from django.db.models import Count, Max, Q, Sum
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from apps.alerts.models import Alert, Outbox
+from apps.alerts.models import Alert
 from apps.assistant.models import AssistantLog
 from apps.core.permissions import ADMIN, AGENT, RESPONSABLE, roles
 from apps.farms.models import FarmPOC
@@ -68,6 +68,11 @@ def _sea(key, label, value, unit, source, upd=None, **extra):
     return {**_ind(key, label, value, unit, source, upd), **extra}
 
 
+def under_35_cutoff(today=None):
+    today = today or date.today()
+    return date(today.year - 35, today.month, min(today.day, 28))  # 29 février : le 28, sans lever d'erreur
+
+
 @api_view(["GET"])
 @permission_classes([roles(AGENT, ADMIN, RESPONSABLE, "repr_mtdi")])
 def sea(request):
@@ -79,9 +84,10 @@ def sea(request):
     apps_ = Application.objects.filter(producer__in=Producer.objects.filter(**f))
     supports = Support.objects.filter(producer__in=Producer.objects.filter(**f))
     harvests = Harvest.objects.filter(campaign__in=camps)
-    outbox = Outbox.objects.filter(**f)
+    # seuls les SMS des alertes comptent (la boîte d'envoi contient aussi codes, décisions, réponses USSD)
+    alert_stats = [a.stats for a in Alert.objects.filter(status="envoyee", **f)]
     logs = AssistantLog.objects.all()  # le journal de l'assistant ne porte aucune donnée de localisation
-    cutoff = date.today().replace(year=date.today().year - 35)
+    cutoff = under_35_cutoff()
     n = valid.count()
     decided = apps_.filter(status__in=("acceptee", "refusee")).count()
     sup = {r["status"]: r["v"] or 0 for r in supports.values("status").annotate(v=Sum("value_xof"))}
@@ -100,12 +106,14 @@ def sea(request):
             camps.aggregate(u=Max("created_at"))["u"], breakdown=_by(camps, "stage", Count("id"))),
         _sea("application_acceptance", "Taux d'acceptation des candidatures",
             _rate(apps_.filter(status="acceptee").count(), decided), "%", REGISTRY),
-        _sea("alert_delivery", "Taux de livraison des alertes", _rate(outbox.filter(status="livre").count(),
-                                                                       outbox.count()), "%", "Boîte d'envoi simulée"),
+        _sea("alert_delivery", "Taux de livraison des alertes", _rate(sum(s.get("delivered", 0) for s in alert_stats),
+                                                                       sum(s.get("sent", 0) for s in alert_stats)), "%",
+            "Boîte d'envoi simulée"),
         _sea("supports_value", "Appuis remis et confirmés", sum(sup.values()), "XOF", REGISTRY,
             breakdown=[{"label": "remis", "value": sup.get("remis", 0)},
                        {"label": "confirmé", "value": sup.get("confirme", 0)}]),
-        _sea("harvests_flagged", "Récoltes signalées", harvests.filter(flagged=True).count(), "récoltes", REGISTRY),
+        _sea("harvests_flagged", "Récoltes signalées à vérifier",
+            harvests.filter(flagged=True, check_status__in=("a_verifier", "visite")).count(), "récoltes", REGISTRY),
         _sea("assistant_questions", "Questions à l'assistant", logs.count(), "questions", "Journal de l'assistant"),
         _sea("assistant_escalation", "Taux d'escalade de l'assistant",
             _rate(logs.filter(status="escalated").count(), logs.count()), "%", "Journal de l'assistant"),

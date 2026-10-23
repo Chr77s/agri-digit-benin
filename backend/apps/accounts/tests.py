@@ -72,3 +72,35 @@ def test_admin_users_permissions(users):
 def test_unauthenticated_401():
     r = client_for().get("/api/v1/producers")
     assert r.status_code == 401 and r.json()["code"] == "not_authenticated"
+
+
+def test_phone_change_with_sms_code(users, producer):
+    from apps.audit.models import AuditLog
+
+    user = producer.user
+    c = client_for(user)
+    url = "/api/v1/auth/phone-change/"
+    # validation, numéro identique, numéro déjà pris
+    assert c.post(url + "request", {"new_phone": "97123"}, format="json").status_code == 400
+    assert c.post(url + "request", {"new_phone": "0197000099"}, format="json").json()["code"] == "same_phone"
+    assert c.post(url + "request", {"new_phone": "0197000002"}, format="json").status_code == 409
+    assert c.post(url + "confirm", {"code": "123456"}, format="json").json()["code"] == "no_pending_change"
+    # refus : le personnel passe par l'administrateur
+    assert client_for(users["agent"]).post(url + "request", {"new_phone": "0196000001"},
+                                           format="json").status_code == 403
+    assert client_for(users["agent"]).post(url + "confirm", {"code": "123456"}, format="json").status_code == 403
+    assert c.post(url + "request", {"new_phone": "0196123456"}, format="json").status_code == 200
+    code = _code("0196123456")
+    # le code du changement ne sert pas à se connecter avec l'ancien ni le nouveau numéro
+    for ph in ("0197000099", "0196123456"):
+        assert client_for().post("/api/v1/auth/otp/verify", {"phone": ph, "code": code},
+                                 format="json").status_code == 400
+    assert c.post(url + "confirm", {"code": "000000" if code != "000000" else "111111"},
+                  format="json").json()["code"] == "invalid_code"
+    r = c.post(url + "confirm", {"code": code}, format="json")
+    assert r.status_code == 200 and r.json()["user"]["phone"] == "0196123456" and r.json()["access"]
+    producer.refresh_from_db()
+    assert producer.phone == "0196123456"
+    assert producer.versions.order_by("-version").first().reason.startswith("changement de numéro")
+    assert AuditLog.objects.filter(action="user.phone_change", object_id=str(user.id)).exists()
+    assert Outbox.objects.filter(to="0197000099", body__contains="vient d'être changé").exists()

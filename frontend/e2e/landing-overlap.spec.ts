@@ -7,7 +7,7 @@ const SIZES = [[320, 568], [360, 640], [375, 812], [740, 360], [768, 1024], [102
 for (const [width, height] of SIZES) {
   test(`landing sans chevauchement de texte en ${width}×${height}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
-    await page.goto('/');
+    await page.goto('/accueil-3d');
     await page.locator('.lp-wrap').waitFor();
     const res = await page.evaluate(async () => {
   const op = (el) => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return 0; o *= +cs.opacity; } return o; };

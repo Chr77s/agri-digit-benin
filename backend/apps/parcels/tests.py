@@ -20,8 +20,9 @@ def test_parcel_area_overlap_and_campaign(users, producer):
     r = c.post("/api/v1/parcels", body({"type": "Point", "coordinates": [2, 11]}), format="json")
     assert r.status_code == 400
     cp = {"parcel": first, "value_chain": "mais", "season": "2026-pluie-1", "stage": "semis"}
-    r = c.post("/api/v1/campaigns", cp, format="json")
-    assert r.status_code == 201
+    r = c.post("/api/v1/campaigns", {**cp, "variety": "EVDT 97 STR", "sown_at": "2026-08-12"}, format="json")
+    assert r.status_code == 201 and r.json()["variety"] == "EVDT 97 STR" and r.json()["sown_at"] == "2026-08-12"
+    assert "estimated_kg" in c.get("/api/v1/campaigns").json()[0]
     assert c.post("/api/v1/campaigns", {**cp, "value_chain": "soja"}, format="json").json()["code"] == \
         "campaign_exists"
     r = c.patch(f"/api/v1/campaigns/{r.json()['id']}", {"stage": "floraison"}, format="json")

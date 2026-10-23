@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as DM from '@radix-ui/react-dropdown-menu';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +15,6 @@ export const ROLE_VALUES: Role[] = [
   'producteur', 'agent_atda', 'agronome_inrab', 'responsable_programme', 'admin_maep', 'auditeur_copil',
   'agent_financier', 'gestionnaire_cooperative', 'transformateur', 'distributeur', 'repr_mtdi',
 ];
-/** Rôles décrits dans « Ce que chaque rôle peut faire » (pilotage.accounts.roleRef.<clé>). */
-const ROLE_REF = ['agent_atda', 'agronome_inrab', 'responsable_programme', 'auditeur_copil', 'agent_financier', 'gestionnaire_cooperative', 'marche', 'repr_mtdi'];
 const fmtPhone = (p: string) => p.replace(/(\d{2})(?=\d)/g, '$1 ');
 
 export function AccountsPage() {
@@ -65,27 +64,27 @@ export function AccountsPage() {
                 { key: 'phone', label: t('register.phone'), num: true, render: (r) => fmtPhone(r.phone) },
                 { key: 'role', label: t('admin.role'), render: (r) => t(`roles.${r.role}`, r.role), csv: (r) => t(`roles.${r.role}`, r.role) },
                 { key: 'department', label: t('admin.scope'), render: (r) => [place(r.department), place(r.commune)].filter(Boolean).join(', ') || t('admin.national') },
-                { key: 'is_active', label: t('admin.state'), render: (r) => (r.is_active ? <Badge tone="ok">{t('admin.active')}</Badge> : <Badge tone="bad" icon="lock">{t('admin.suspended')}</Badge>), csv: (r) => (r.is_active ? t('admin.active') : t('admin.suspended')) },
-                { key: 'actions', label: t('admin.actions'), actions: true, render: (r) => (r.id === me?.id ? <span className="small muted">{t('pilotage.accounts.yours')}</span> : r.is_active ? (
-                  <div className="cluster" style={{ '--gap': '6px', justifyContent: 'flex-end' } as React.CSSProperties}>
-                    <Button size="sm" variant="secondary" onClick={() => { setDone(''); setForm(r); }}>{t('admin.reassign')}</Button>
-                    <Button size="sm" variant="danger" onClick={() => { setDone(''); setSuspend(r); }}>{t('admin.suspend')}</Button>
-                  </div>
-                ) : (
-                  <Button size="sm" variant="secondary" busy={patch.isPending && patch.variables?.id === r.id} onClick={() => { setDone(''); patch.mutate({ id: r.id, body: { is_active: true } }); }}>{t('admin.reactivate')}</Button>
+                { key: 'is_active', label: t('admin.state'), render: (r) => (r.is_active ? null : <Badge tone="bad" icon="lock">{t('admin.suspended')}</Badge>), csv: (r) => (r.is_active ? t('admin.active') : t('admin.suspended')) },
+                { key: 'actions', label: t('admin.actions'), actions: true, render: (r) => (r.id === me?.id ? <span className="small muted">{t('pilotage.accounts.yours')}</span> : (
+                  <DM.Root modal={false}>
+                    <DM.Trigger asChild><Button size="sm" variant="ghost" iconOnly icon="more" aria-label={`${t('admin.actions')} : ${r.full_name}`} /></DM.Trigger>
+                    <DM.Portal>
+                      <DM.Content align="end" sideOffset={4} className="menu is-open !static z-[1600]">
+                        {r.is_active ? (
+                          <>
+                            <DM.Item className="menu-item" onSelect={() => { setDone(''); setForm(r); }}><Icon name="edit" />{t('admin.reassign')}</DM.Item>
+                            <DM.Item className="menu-item menu-item--danger" onSelect={() => { setDone(''); setSuspend(r); }}><Icon name="lock" />{t('admin.suspend')}</DM.Item>
+                          </>
+                        ) : (
+                          <DM.Item className="menu-item" onSelect={() => { setDone(''); patch.mutate({ id: r.id, body: { is_active: true } }); }}><Icon name="check" />{t('admin.reactivate')}</DM.Item>
+                        )}
+                      </DM.Content>
+                    </DM.Portal>
+                  </DM.Root>
                 )) },
               ]} />
           )}
         </QueryState>
-        <Card title={t('pilotage.accounts.rolesTitle')}>
-          <ul className="list" style={{ columns: '2 260px', columnGap: 24 }}>
-            {ROLE_REF.map((r) => (
-              <li key={r} className="list-item" style={{ breakInside: 'avoid' }}>
-                <span className="li-main"><span className="li-title">{t(`pilotage.accounts.roleRef.${r}.t`)}</span><span className="li-meta">{t(`pilotage.accounts.roleRef.${r}.d`)}</span></span>
-              </li>
-            ))}
-          </ul>
-        </Card>
       </div>
       {form && <UserForm user={form === 'new' ? null : form} onClose={() => setForm(null)} onDone={(m) => { setForm(null); setDone(m); }} />}
       {suspend && (

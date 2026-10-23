@@ -12,6 +12,9 @@ export function Val({ v, unit, digits = 1 }: { v: number | null | undefined; uni
   return <>{fmtNum(v, digits)}{unit ? ` ${unit}` : ''}</>;
 }
 
+/** Unité accordée au nombre : « 1 producteur », « 2 producteurs » (les unités sans « s » final, comme ha ou %, ne bougent pas). */
+export const unitFor = (value: number | null | undefined, unit?: string) => (value === 1 && unit && /[a-zé]s$/.test(unit) ? unit.slice(0, -1) : unit);
+
 export interface Bar { label: string; value: number | null }
 /** Barres horizontales d'une seule série (pas de légende : le titre la nomme). Valeur toujours écrite à droite. */
 export function HBars({ data, label, unit = '', digits = 0, describedBy }: { data: Bar[]; label?: string; unit?: string; digits?: number; describedBy?: string }) {

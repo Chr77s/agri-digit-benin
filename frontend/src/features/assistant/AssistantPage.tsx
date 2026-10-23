@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../shared/api/client';
 import type { AssistantAnswer } from '../../shared/api/types';
 import { useVcName, useValueChains, vcSelect } from '../../shared/api/ref';
-import { Alert, Badge, Button, Chips, Field, Icon, PageHeader, Select, Textarea, buttonCls, speak } from '../../shared/ui';
+import { Alert, Badge, Button, Chips, Field, Icon, Input, PageHeader, Select, Textarea, buttonCls, speak } from '../../shared/ui';
 import '../producers/producteur.css';
 
 type Ask = { question: string; value_chain?: string; language?: string };
@@ -22,14 +22,29 @@ interface Turn { id: number; ask: Ask; at: Date; answer?: AssistantAnswer; error
 interface Convo { id: number; turns: Turn[] }
 const hhmm = (d: Date) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+// Historique gardé sur ce téléphone seulement (le serveur ne garde pas les questions avec leur auteur).
+const HIST_KEY = 'adb-assistant';
+const MAX_CONVOS = 30;
+function loadConvos(): Convo[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]') as Convo[];
+    const done = raw.filter((c) => c.turns?.length).map((c) => ({ ...c, turns: c.turns.filter((x) => x.answer).map((x) => ({ ...x, at: new Date(x.at) })) }));
+    return [{ id: Math.max(0, ...done.map((c) => c.id)) + 1, turns: [] }, ...done.filter((c) => c.turns.length)];
+  } catch { return [{ id: 1, turns: [] }]; }
+}
+const saveConvos = (cs: Convo[]) => {
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(cs.filter((c) => c.turns.some((x) => x.answer)).slice(0, MAX_CONVOS))); } catch { /* stockage plein ou refusé : l'historique reste le temps de la visite */ }
+};
+
 export function AssistantPage() {
   const { t } = useTranslation();
   const vcs = useValueChains();
   const vcName = useVcName();
   const ask = useAsk();
-  // Conversations gardées le temps de la visite : l'API ne conserve pas d'historique.
-  const [convos, setConvos] = useState<Convo[]>([{ id: 1, turns: [] }]);
-  const [cur, setCur] = useState(1);
+  const [convos, setConvos] = useState<Convo[]>(loadConvos);
+  const [cur, setCur] = useState(() => convos[0].id);
+  const [search, setSearch] = useState('');
+  useEffect(() => saveConvos(convos), [convos]);
   const [question, setQuestion] = useState('');
   const [vc, setVc] = useState('');
   const [lang, setLang] = useState('fr');
@@ -82,19 +97,25 @@ export function AssistantPage() {
     setCur(id); setQuestion(''); setErr('');
   };
 
-  const histItems = convos.filter((c) => c.turns.length > 0);
+  const s = search.trim().toLowerCase();
+  const histItems = convos.filter((c) => c.turns.length > 0 && (!s || c.turns.some((x) => `${x.ask.question} ${x.answer?.answer ?? ''}`.toLowerCase().includes(s))));
+  const clear = () => { setConvos([{ id: Math.max(...convos.map((c) => c.id)) + 1, turns: [] }]); setSearch(''); };
   const hist = (
+    <>
+    <div className="px-2.5 pb-2"><Input type="search" aria-label={t('assistant.histSearch')} placeholder={t('assistant.histSearch')} value={search} onChange={(e) => setSearch(e.target.value)} /></div>
     <ul className="hist-list">
       {histItems.map((c) => (
         <li key={c.id}>
           <button type="button" aria-current={c.id === convo.id ? 'page' : undefined} onClick={() => setCur(c.id)}>
             {title(c)}
-            <small>{[c.turns[0].ask.value_chain && vcName(c.turns[0].ask.value_chain), t('assistant.msgCount', { count: c.turns.length })].filter(Boolean).join(' · ')}</small>
+            <small>{[c.turns[0].ask.value_chain && vcName(c.turns[0].ask.value_chain), t('assistant.msgCount', { count: c.turns.length }), c.turns.some((x) => x.answer?.status === 'escalated') && t('assistant.waitAgent')].filter(Boolean).join(' · ')}</small>
           </button>
         </li>
       ))}
-      {histItems.length === 0 && <li className="small muted px-2.5">{t('assistant.histEmpty')}</li>}
+      {histItems.length === 0 && <li className="small muted px-2.5">{s ? t('assistant.histNoMatch') : t('assistant.histEmpty')}</li>}
     </ul>
+    {convos.some((c) => c.turns.length > 0) && <div className="px-2.5 pt-2"><Button variant="ghost" size="sm" icon="trash" onClick={clear}>{t('assistant.histClear')}</Button></div>}
+    </>
   );
 
   return (
@@ -166,9 +187,10 @@ function TurnView({ x, pending, onRetry }: { x: Turn; pending: boolean; onRetry:
           <div className="bubble">
             {pending && <p>{t('assistant.searching')}</p>}
             {x.error && <Alert tone="danger" actions={<Button variant="secondary" size="sm" icon="sync" onClick={onRetry}>{t('common.retry')}</Button>}>{x.error}</Alert>}
-            {a?.status === 'escalated' && <Alert tone="warn" icon="user" title={t('assistant.escalatedTitle')}>{t('assistant.escalatedText')}</Alert>}
+            {a?.status === 'escalated' && <Alert tone="warn" icon="user" title={t('assistant.escalatedTitle')}>{a.answer || t('assistant.escalatedText')}</Alert>}
+            {a?.language_notice && <Alert tone="info" icon="languages">{t('assistant.noNative')}</Alert>}
             {a?.status === 'unknown' && <Alert tone="info" title={t('assistant.unknownTitle')}>{t('assistant.unknownText')}</Alert>}
-            {a?.answer && <p className="whitespace-pre-line">{a.answer}</p>}
+            {a?.answer && a.status !== 'escalated' && <p className="whitespace-pre-line">{a.answer}</p>}
             {a && a.citations.length > 0 && (
               <div className="cites">
                 <p>{t('assistant.sources')}</p>

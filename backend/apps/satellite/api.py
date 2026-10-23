@@ -37,3 +37,29 @@ def satellite(request):
                 "soil_moisture_pct": round(10 + 30 * _unit(d.code + ":sm", when.date()), 1),
                 "acquired_at": when, "sensor": SENSOR} for d in qs]
     return Response({"source": SOURCE, "results": results})
+
+
+def place_of(producer=None, department=None):
+    """Point météo : centre de la première parcelle du producteur, sinon centre de son département (ou de celui
+    demandé). Renvoie (lat, lon, libellé, clé de démonstration)."""
+    from shapely.geometry import shape
+
+    from apps.parcels.models import Parcel
+
+    if producer and (p := Parcel.objects.filter(producer=producer).order_by("created_at").first()):
+        c = shape(p.geometry).centroid
+        return c.y, c.x, p.name, producer.commune
+    code = (producer.department if producer else None) or department or "alibori"
+    d = Department.objects.filter(code=code).first() or Department.objects.order_by("name").first()
+    return d.lat, d.lon, d.name, d.code
+
+
+@api_view(["GET"])
+def weather(request):
+    from integrations.market_data import weather as forecast7
+
+    u = request.user
+    producer = getattr(u, "producer", None) if u.role == PRODUCTEUR else None
+    dep = u.department if u.role == AGENT else request.query_params.get("department")
+    lat, lon, label, key = place_of(producer, dep)
+    return Response({**forecast7(lat, lon, key), "place": label})

@@ -57,8 +57,8 @@ def create(user, upload, value_chain):
     try:
         with transaction.atomic():
             d = Diagnosis.objects.create(owner=user, value_chain=value_chain, image=rel, pathology=res["pathology"],
-                                         pathology_label=res["label"], confidence=res["confidence"], status=status,
-                                         advice=res["advice"])
+                                         predicted_pathology=res["pathology"], pathology_label=res["label"],
+                                         confidence=res["confidence"], status=status, advice=res["advice"])
             record(user, "diagnosis.create", d, status=status, confidence=d.confidence)
     except Exception:
         dest.unlink(missing_ok=True)
@@ -79,6 +79,17 @@ def review(actor, d, pathology, comment):
     record(actor, "diagnosis.review", d, pathology=pathology)
     get_channel("in_app").send(d.owner.phone, f"Votre photo a été revue par un agronome : {d.pathology_label}. "
                                f"{comment}".strip(), user=d.owner, title="Diagnostic revu")
+    return d
+
+
+@transaction.atomic
+def ask_agronome(actor, d, note):
+    """« Pas sûr ? » : un diagnostic automatique passe chez l'agronome, avec le mot du producteur."""
+    if d.status != "auto":
+        raise ApiError("Ce diagnostic est déjà chez un agronome ou a été relu.", "invalid_status", 400)
+    d.status, d.producer_note = "transmis_agronome", note
+    d.save(update_fields=["status", "producer_note"])
+    record(actor, "diagnosis.ask_agronome", d)
     return d
 
 

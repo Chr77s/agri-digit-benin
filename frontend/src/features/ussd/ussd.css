@@ -1,0 +1,12 @@
+/* Simulateur de téléphone simple : écran monochrome à la manière de maquettes/mobile (fp). */
+.fp { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.fp-lcd {
+  min-height: 168px; padding: 12px 14px; border-radius: var(--r-md);
+  background: #c9d6b1; color: #1d2a12; border: 3px solid #3a4430;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 15px; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.fp-thread { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.fp-thread p { margin: 0; padding: 8px 10px; border-radius: var(--r-md); white-space: pre-wrap; font-size: var(--fs-sm); max-width: 90%; }
+.fp-out { margin-left: auto !important; background: var(--layer); }
+.fp-in { margin-top: 4px !important; background: var(--canopy-tint, var(--layer)); border: 1px solid var(--line); }

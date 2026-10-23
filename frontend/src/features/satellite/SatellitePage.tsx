@@ -30,10 +30,9 @@ export function SatellitePage() {
   const where = (r: SatelliteRow) => (r.commune ? `${place(r.commune)} (${place(r.department)})` : place(r.department));
   return (
     <>
-      <PageHeader title={t('nav.satellite')} desc={t('satellite.desc')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.satellite') }]} />
+      <PageHeader title={t('nav.satellite')} desc={t('satellite.desc')} listen={t('satellite.listen')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.satellite') }]} />
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         <Alert tone="demo" icon="satellite" title={t('satellite.banner')}>
-          <p>{t('satellite.bannerText')}</p>
           {q.data?.source && <p className="small">{q.data.source}</p>}
         </Alert>
         {canFilter && (

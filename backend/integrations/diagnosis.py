@@ -27,6 +27,12 @@ PATHOLOGIES = {
 }
 
 
+# Niveau de risque de la pathologie (propagation, pertes) : valeurs de DÉMONSTRATION, à faire valider par l'INRAB.
+RISK = {"chenille_legionnaire": "eleve", "striure_mais": "eleve", "mosaique_manioc": "eleve",
+        "fletrissure_tomate": "eleve", "newcastle_volaille": "eleve", "jasside_coton": "moyen", "thrips_niebe": "moyen",
+        "anthracnose_anacarde": "moyen", "pyriculariose_riz": "moyen", "mildiou_tomate": "moyen"}
+
+
 class DiagnosisBackend:
     def diagnose(self, image_bytes: bytes, value_chain: str) -> dict:
         raise NotImplementedError

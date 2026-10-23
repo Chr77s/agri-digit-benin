@@ -32,10 +32,10 @@ Limites :
 | Fiche validée et ancienneté | `producer.validated_at` | 0 si non validée, puis croissant jusqu'à 3 campagnes | 0,2 |
 | Superficie cultivée | somme `parcel.area_ha` (calculée serveur) | plafonnée, normalisée | 0,2 |
 | Campagnes suivies jusqu'à la récolte | `campaign.stage = recolte` | part des campagnes complètes | 0,25 |
-| Appuis remboursés | `input_support` à rembourser | part remboursée ; neutre (0,5) si aucun appui | 0,25 |
+| Appuis remboursés | échéances des créances `appui` et `pret` (`production.Installment`) | part des échéances **échues** déjà payées ; neutre (0,5) tant qu'aucune n'est échue | 0,25 |
 | Diversification | nombre de filières | 1 filière : 0 ; 2 ou plus : 1 | 0,1 |
 
-Score affiché sur 100 avec, pour chaque facteur : nom, poids, valeur (0 à 1), contribution (points sur 100). Mention renvoyée par l'API : "Aide à la décision. La décision de crédit revient à une personne (art. 401)." Implémentation : `backend/apps/credit/services.py`. Superficie plafonnée à 10 ha ; ancienneté = min(1, nombre de campagnes / 3) si la fiche est validée ; sans campagne, facteur récolte neutre (0,5). Le prototype n'a pas de module d'appuis (UC-10) : le facteur "Appuis remboursés" vaut toujours 0,5 (neutre).
+Score affiché sur 100 avec, pour chaque facteur : nom, poids, valeur (0 à 1), contribution (points sur 100). Mention renvoyée par l'API : "Aide à la décision. La décision de crédit revient à une personne (art. 401)." Implémentation : `backend/apps/credit/services.py`. Superficie plafonnée à 10 ha ; ancienneté = min(1, nombre de campagnes / 3) si la fiche est validée ; sans campagne, facteur récolte neutre (0,5). Depuis le lot « recouvrement » (20 octobre 2026), le facteur "Appuis remboursés" suit les échéances réellement payées ; sans échéance échue il reste neutre (0,5). Les poids n'ont pas changé.
 
 Données jamais utilisées : sexe, âge, langue, commune en tant que telle, données sensibles (art. 394), contenu des questions à l'assistant.
 
@@ -49,3 +49,33 @@ Limites : aucune calibration sur des remboursements réels ; peu de données pou
 ## 4. Évolution
 
 Calibration sur données réelles avec scikit-learn seulement après AIPD finale (art. 428), en gardant un modèle explicable (régression logistique) et un suivi des écarts par département et par sexe.
+
+## 5. Risques climatiques et lecture des analyses de sol
+
+Deux modèles **à règles**, sans apprentissage : leurs seuils sont des repères agronomiques généraux, **non validés**. Ils doivent être relus par l'INRAB avant tout usage opérationnel.
+
+- Risques climatiques (`apps/lands/climate.py`). Données : pluie et évapotranspiration de référence (ET0) des 14 derniers jours et prévision de 7 jours, Open-Meteo, au centre de la parcelle ; sans réseau, pluie de démonstration et ET0 fixe de 4,5 mm/jour, signalées `simulated`.
+  - Stress hydrique : pluie reçue ÷ (coefficient cultural du stade × ET0 cumulée). Coefficients : semis 0,4 ; croissance 0,8 ; floraison 1,15 ; récolte 0,6. Moins de 0,4 : élevé ; moins de 0,7 : moyen.
+  - Sécheresse : nombre de jours de suite sans 1 mm de pluie. 10 jours ou plus : élevé ; 6 : moyen. 10 mm ou plus annoncés dans les 3 jours retirent 3 jours à la série.
+  - Inondation : plus forte pluie cumulée sur 3 jours dans la prévision. Plateau : moyen à 50 mm, élevé à 80 ; périmètre irrigué : 45 et 70 ; bas-fond : 35 et 60.
+  - Limites : le point est le centre de la parcelle (maille d'environ 1 km), le stade est celui de la dernière campagne déclarée, la texture et le drainage du sol ne sont pas pris en compte, aucune confrontation à des sinistres observés.
+- Lecture des analyses de sol (`apps/lands/services.py`). pH eau : très acide sous 5,0 ; acide sous 5,5 ; légèrement alcalin au-dessus de 7,0 ; très alcalin au-dessus de 7,8. Matière organique : très faible sous 1 % ; faible sous 2 %. Phosphore assimilable (Bray 1) : faible sous 8 ppm ; moyen sous 15 ppm. Les textes sont qualitatifs et **ne donnent jamais de dose** : la recommandation chiffrée revient à l'agent ou à l'INRAB (même règle que l'assistant).
+- Mise à jour : quand l'INRAB fournit des seuils par culture et par zone, les remplacer dans `KC`, `FLOOD_MM` et `interpret`, puis compléter cette section.
+
+## 6. Qualité mesurée et réentraînement
+
+Le cadre de réentraînement (modèles concernés, étiquetage, jeux de validation, seuils proposés, dérive, gouvernance, versionnement, calendrier) est dans `docs/REENTRAINEMENT.md`. La qualité se lit sur la page « Qualité des modèles » (`GET /models/quality`, `apps/observatory/quality.py`) : diagnostic (renvoi à l'agronome, confirmation, tendance), estimation du rendement (écart à la récolte déclarée puis corrigée), score de crédit (taux d'échéances payées par tranche de score, calculé sans le facteur « Appuis remboursés », seulement à partir de 30 échéances échues). Les risques climatiques, la lecture des sols et la sélection des bénéficiaires ne sont pas mesurables avec les données de la plateforme ; la page le dit. Un jeu d'entraînement pseudonymisé s'exporte avec `manage.py export_training_set`. Rien de cela ne rend le diagnostic réel : il reste une simulation tant que le modèle de l'INRAB n'est pas branché.
+## 7. Analyses prospectives des marchés et anticipation des ruptures
+
+Trois calculs **statistiques simples, sans apprentissage** : aucun modèle n'est entraîné, aucune donnée personnelle n'entre dans le calcul. Ils donnent des indications, jamais une prévision garantie ; les textes affichés le disent (« indicatif »).
+
+- Tendance des prix (`apps/markets/analysis.py`). Entrée : les relevés de prix saisis (`PriceObservation`) des 8 dernières semaines, par marché, forme (brut ou transformé) et produit, puis tous marchés confondus. Sortie :
+  - moyenne mobile : moyenne des relevés des 28 derniers jours ;
+  - variation : (moyenne des 28 derniers jours − moyenne des 28 jours précédents) ÷ moyenne précédente, en % ; non calculable sans relevé dans les deux fenêtres ;
+  - tendance : `hausse` au-delà de +5 %, `baisse` en dessous de −5 %, sinon `stable` (5 % exactement est encore « stable ») ;
+  - fiabilité selon le nombre de relevés : moins de 6 relevés ou moins de 14 jours entre le premier et le dernier : `insuffisante` ; 6 à 9 : `faible` ; 10 à 19 : `moyenne` ; 20 ou plus : `bonne` ;
+  - projection à 4 semaines : **aucune sous 6 relevés répartis sur 14 jours** (l'écran le dit) ; au-delà, droite des moindres carrés prix = f(date) sur les relevés, lue à +28 jours, avec une fourchette de ± 2 écarts-types des résidus, bornée à zéro.
+  - Limites : les marchés ne sont pas relevés au même rythme, donc la ligne « tous marchés » mélange des échantillons différents ; aucune saisonnalité (la période de récolte fait baisser les prix chaque année) ; une droite ne prévoit pas un choc. Les seuils (±5 %, 6 relevés, 14 jours, 28 jours) sont des choix de prudence, à ajuster avec le MAEP quand des séries réelles existent.
+- Offre attendue (`expected_supply`). Pour la saison la plus récente de la filière : somme, par département, de (rendement de référence × superficie) des campagnes qui n'ont encore aucune récolte déclarée, plus la quantité déjà récoltée, comparée à la récolte de la saison précédente du même département. Les rendements de référence sont des valeurs de **démonstration** tant que l'INRAB ne les a pas validés (badge « Rendements de démonstration »). Hors du personnel, une cellule de moins de 5 producteurs est masquée.
+- Anticipation des ruptures (`apps/production/stocks.py`). Jours de couverture = stock actuel ÷ sortie moyenne par jour. Sorties : transferts (quantité remise) et transformations (quantité du lot consommé) des 30 derniers jours, divisées par la durée observée (30 jours, ou l'ancienneté du premier lot si elle est plus courte, 7 jours au moins). Niveaux : `rupture` (stock nul avec sorties), `critique` sous 7 jours, `bas` sous 15 jours, `ok`, `non_calculable` sans sortie observée. Limites : les ventes du marché non rattachées à un lot et les livraisons à venir ne sont pas connues ; seuils 7 et 15 jours choisis par nous.
+- Mise à jour : quand des séries de prix réelles (SIM, relevés sur plusieurs saisons) existent, ajouter une composante saisonnière et mesurer l'erreur des projections sur l'historique avant de les présenter comme autre chose qu'un indicatif.

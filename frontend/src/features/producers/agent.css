@@ -1,7 +1,6 @@
 /* Styles locaux de l'espace agent ATDA (repris des <style> des maquettes maquettes/web/agent/*, absents du kit). */
 .queue-nav { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
-.queue-nav a { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); color: var(--ink); text-decoration: none; box-shadow: var(--sh-card); transition: border-color var(--t-fast) var(--ease); }
-.queue-nav a:hover { border-color: var(--leaf); }
+.queue-nav a { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; color: var(--ink); text-decoration: none; transition: transform var(--t) var(--ease), border-color var(--t-fast) var(--ease); }
 .queue-nav .qn-n { font: 700 1.5rem/1 var(--font-ui); font-variant-numeric: tabular-nums; min-width: 2ch; }
 .queue-nav .qn-l { font-size: var(--fs-sm); font-weight: 600; line-height: 1.3; color: var(--ink-2); }
 .queue-nav a.is-hot .qn-n { color: var(--bad-ink); }
@@ -25,7 +24,7 @@
 
 .phone-prev { border-radius: 22px; background: var(--canopy); padding: 14px; color: var(--on-dark); }
 .phone-prev .pp-head { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--on-dark-2); margin-bottom: 10px; }
-.sms { position: relative; background: #F1F6EC; color: #1B2A1F; border-radius: 14px 14px 14px 4px; padding: 10px 12px 22px; font-size: .9375rem; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+.sms { display: block; position: relative; background: #F1F6EC; color: #1B2A1F; border-radius: 14px 14px 14px 4px; padding: 10px 12px 22px; font-size: .9375rem; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
 .sms + .sms { margin-top: 8px; }
 .sms .seg { position: absolute; right: 10px; bottom: 4px; font-size: .75rem; color: #4A5A4E; font-variant-numeric: tabular-nums; }
 .choice-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }

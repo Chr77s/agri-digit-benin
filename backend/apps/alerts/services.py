@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.audit.services import record
@@ -6,7 +7,7 @@ from apps.core.errors import ApiError
 from apps.producers.models import Producer
 from integrations.notifications import get_channel
 
-from .models import Alert
+from .models import Alert, ChatMessage
 
 
 @transaction.atomic
@@ -61,3 +62,38 @@ def send(actor, alert):
     alert.save(update_fields=["status", "sent_at", "stats"])
     record(actor, "alert.send", alert, **alert.stats)
     return alert.stats
+
+
+def sector_agents(producer):
+    """Agents ATDA actifs qui suivent ce producteur (même règle de périmètre que la liste des producteurs)."""
+    from apps.accounts.models import User
+
+    return User.objects.filter(role="agent_atda", is_active=True, department=producer.department).filter(
+        Q(commune="") | Q(commune=producer.commune))
+
+
+@transaction.atomic
+def post_chat(actor, producer, body):
+    from apps.producers.services import notify
+
+    body = (body or "").strip()
+    if not body or len(body) > 1000:
+        raise ApiError("Écrivez un message de 1 000 caractères au plus.", "validation_error", 400,
+                       fields={"body": ["1 à 1 000 caractères."]})
+    m = ChatMessage.objects.create(producer=producer, author=actor, body=body)
+    record(actor, "chat.post", m, producer=producer.code)  # le contenu du message n'est pas journalisé
+    if actor.role == "producteur":
+        for a in sector_agents(producer):
+            get_channel("in_app").send(a.phone, f"{producer.code} ({producer.commune}) vous a écrit.", user=a,
+                                       title="Message d'un producteur")
+    else:
+        notify(producer, "Message de votre agent", "Agri-Digit : votre agent ATDA vous a répondu. "
+                                                   "Ouvrez « Mes messages ».")
+    return m
+
+
+def read_chat(viewer, producer):
+    """Marque comme lus les messages écrits par l'autre partie."""
+    qs = ChatMessage.objects.filter(producer=producer, read_at__isnull=True)
+    qs = qs.exclude(author=viewer) if viewer.role == "producteur" else qs.filter(author__role="producteur")
+    qs.update(read_at=timezone.now())

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import Http404
 from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
@@ -22,7 +23,8 @@ class SupportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Support
         fields = ["id", "producer", "producer_code", "program", "program_name", "item", "quantity", "unit",
-                  "value_xof", "repayable", "status", "created_at", "confirmed_at"]
+                  "value_xof", "repayable", "repay_installments", "repay_first_due", "status", "created_at",
+                  "confirmed_at"]
         read_only_fields = ["status", "created_at", "confirmed_at"]
 
 
@@ -34,6 +36,8 @@ class SupportInSerializer(serializers.Serializer):
     unit = serializers.CharField(max_length=20)
     value_xof = serializers.IntegerField(min_value=0)
     repayable = serializers.BooleanField()
+    repay_installments = serializers.IntegerField(min_value=1, max_value=12, required=False)
+    repay_first_due = serializers.DateField(required=False, allow_null=True)
 
 
 class HarvestSerializer(serializers.ModelSerializer):
@@ -43,7 +47,8 @@ class HarvestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Harvest
         fields = ["id", "campaign", "value_chain", "producer_code", "harvested_at", "quantity_kg", "stored_kg",
-                  "sold_kg", "sale_price_xof_per_kg", "estimated_kg", "deviation_pct", "flagged", "created_at"]
+                  "sold_kg", "sale_price_xof_per_kg", "estimated_kg", "deviation_pct", "flagged", "check_status",
+                  "check_reason", "checked_at", "declared_kg", "created_at"]
 
 
 class HarvestInSerializer(serializers.Serializer):
@@ -90,6 +95,30 @@ def support_confirm(request, pk):
     return Response(SupportSerializer(services.confirm_support(request.user, s)).data)
 
 
+@api_view(["POST"])
+@permission_classes([roles(PRODUCTEUR)])
+def support_report(request, pk):
+    s = selectors.supports_for(request.user).filter(pk=pk).first()
+    if s is None:
+        raise Http404
+    return Response(SupportSerializer(services.report_support_issue(request.user, s, request.data.get("kind"))).data)
+
+
+@api_view(["POST"])
+@permission_classes([roles(AGENT, ADMIN)])
+def harvest_check(request, pk):
+    h = selectors.harvests_for(request.user).filter(pk=pk).first()
+    if h is None:
+        raise Http404
+    try:
+        qty = float(request.data["quantity_kg"]) if request.data.get("quantity_kg") not in (None, "") else None
+    except (TypeError, ValueError):
+        raise ApiError("Quantité invalide.", "validation_error", 400,
+                       fields={"quantity_kg": ["Nombre attendu."]}) from None
+    return Response(HarvestSerializer(services.check_harvest(
+        request.user, h, request.data.get("conclusion"), (request.data.get("reason") or "").strip(), qty)).data)
+
+
 @api_view(["GET", "POST"])
 @permission_classes([roles(PRODUCTEUR, AGENT, ADMIN)])
 def harvest_list(request):
@@ -99,6 +128,10 @@ def harvest_list(request):
             qs = qs.filter(campaign_id=cid)
         if (fl := request.query_params.get("flagged")) in ("true", "false"):
             qs = qs.filter(flagged=fl == "true")
+        # « à vérifier » : signalée et pas encore tranchée (une visite programmée reste à vérifier)
+        if (tc := request.query_params.get("to_check")) in ("true", "false"):
+            to_check = Q(flagged=True, check_status__in=("a_verifier", "visite"))
+            qs = qs.filter(to_check) if tc == "true" else qs.filter(check_status__in=("confirmee", "corrigee"))
         return _paginate(request, qs, HarvestSerializer)
     s = HarvestInSerializer(data=request.data)
     s.is_valid(raise_exception=True)

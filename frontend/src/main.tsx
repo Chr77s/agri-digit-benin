@@ -1,23 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import './shared/ui/kit.css'; // composants du kit avant Tailwind : les utilitaires l'emportent
+import './shared/ui/mobile.css'; // présentation sous 640 px (maquettes/mobile)
+import './shared/ui/skin.css'; // « Argile et verre » : l'aspect du kit (docs/REFONTE_FRONTEND.md)
 import './index.css';
 import './i18n';
 import { AuthProvider } from './features/auth/AuthContext';
 import { App } from './app/App';
-import { ApiError } from './shared/api/client';
+import { makeQueryClient } from './shared/api/queryClient';
 
-const qc = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: (n, e) => !(e instanceof ApiError && e.status >= 400 && e.status < 500) && n < 2,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const qc = makeQueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

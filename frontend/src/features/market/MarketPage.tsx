@@ -4,25 +4,28 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import {
   Alert, Badge, Button, Card, Chips, Dialog, EmptyState, ErrorState, Field, fieldError, fmtDate, fmtDateTime, fmtNum, Input,
-  PageHeader, PhoneInput, QueryState, Radio, Select, Table, Tabs, Textarea, toast, type Column,
+  PageHeader, PhoneInput, QueryState, Radio, Select, speak, Table, Tabs, Textarea, toast, type Column,
 } from '../../shared/ui';
 import { useDepartments, usePlaceName, useVcName, useVcSelect } from '../../shared/api/ref';
 import type { Match, Offer, OfferType, Payment } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
-import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, usePayment, useRefund, type OfferFilter } from './api';
+import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, useOfferStatus, usePayment, useRefund, type OfferFilter } from './api';
+import { usePriceRows } from '../markets/api';
 import { EXPECTED_HARVESTS } from './demo';
 import './market.css';
 
 const TYPES: OfferType[] = ['offre', 'demande'];
 const MAX_INT = 10_000_000; // bornes du serveur pour quantité et prix
 export const toInt = (s: string) => { const c = s.replace(/\s/g, ''); return /^\d+$/.test(c) ? Number(c) : 0; };
-const statusTone = { ouverte: 'neutral', en_relation: 'wait', conclue: 'ok', retiree: 'draft' } as const;
+const statusTone = { ouverte: 'neutral', en_relation: 'wait', conclue: 'ok', retiree: 'draft', suspendue: 'draft' } as const;
 const matchTone = { proposee: 'wait', acceptee: 'ok', refusee: 'bad' } as const;
 type Sort = 'price' | 'qty' | 'recent';
 
 /** Vendeur (producteur, coopérative), acheteur (transformateur, distributeur) ou administrateur (lecture et remboursement). */
 type Mode = 'seller' | 'buyer' | 'admin';
 const modeOf = (role?: string): Mode => (role === 'admin_maep' ? 'admin' : role === 'producteur' || role === 'gestionnaire_cooperative' ? 'seller' : 'buyer');
+// Sur une mise en relation, c'est l'annonce qui dit qui vend (propriétaire d'une offre, ou celui qui répond à une demande), pas le rôle.
+const sellsIn = (m: Match, fallback: boolean) => (m.offer_summary ? m.is_owner === (m.offer_summary.type === 'offre') : fallback);
 
 export function MarketPage() {
   const { t } = useTranslation();
@@ -96,7 +99,9 @@ function MineTable({ q, mine, onPublish, onBuyers }: { q: ReturnType<typeof useO
     { key: 'price_xof_per_kg', label: t('market.col.price'), num: true, render: (o) => fmtNum(o.price_xof_per_kg) },
     { key: 'commune', label: t('market.col.place'), render: (o) => `${place(o.commune)}, ${place(o.department)}` },
     { key: 'status', label: t('market.col.status'), render: (o) => <Badge tone={statusTone[o.status]}>{t(`market.offerStatus.${o.status}`)}</Badge> },
-    { key: 'actions', label: t('market.col.actions'), actions: true, render: (o) => (o.status === 'en_relation' ? <Button variant="ghost" size="sm" onClick={onBuyers}>{t('market.seeBuyers')}</Button> : null) },
+    { key: 'actions', label: t('market.col.actions'), actions: true, render: (o) => (
+      <>{o.status === 'en_relation' && <Button variant="ghost" size="sm" onClick={onBuyers}>{t('market.seeBuyers')}</Button>}<OwnerActions o={o} /></>
+    ) },
   ];
   return (
     <QueryState q={q} empty={() => mine.length === 0}
@@ -104,9 +109,33 @@ function MineTable({ q, mine, onPublish, onBuyers }: { q: ReturnType<typeof useO
       {() => (
         <Table columns={cols} data={rows} rowKey={(o) => o.id} caption={t('market.mineCaption')}
           toolbar={<Chips label={t('market.statusFilter')} value={st} onChange={setSt}
-            options={(['ouverte', 'en_relation', 'conclue'] as const).map((s) => ({ value: s, label: t(`market.offerStatus.${s}`), count: count(s) }))} />} />
+            options={(['ouverte', 'en_relation', 'suspendue', 'conclue', 'retiree'] as const).map((s) => ({ value: s, label: t(`market.offerStatus.${s}`), count: count(s) }))} />} />
       )}
     </QueryState>
+  );
+}
+
+/** L'auteur suspend, reprend, ferme (vendue) ou retire son annonce ; fermer et retirer demandent confirmation. */
+function OwnerActions({ o }: { o: Offer }) {
+  const { t } = useTranslation();
+  const m = useOfferStatus();
+  const [ask, setAsk] = useState<'conclue' | 'retiree' | null>(null);
+  const go = (status: Offer['status']) => m.mutate({ id: o.id, status }, { onSuccess: () => { setAsk(null); toast(t(`market.ownerAct.done.${status}`)); } });
+  const live = o.status === 'ouverte' || o.status === 'en_relation';
+  if (!live && o.status !== 'suspendue') return null;
+  return (
+    <>
+      {live
+        ? <Button variant="ghost" size="sm" disabled={m.isPending} onClick={() => go('suspendue')}>{t('market.ownerAct.suspendue')}</Button>
+        : <Button variant="ghost" size="sm" disabled={m.isPending} onClick={() => go('ouverte')}>{t('market.ownerAct.ouverte')}</Button>}
+      <Button variant="ghost" size="sm" onClick={() => { m.reset(); setAsk('conclue'); }}>{t('market.ownerAct.conclue')}</Button>
+      <Button variant="ghost" size="sm" onClick={() => { m.reset(); setAsk('retiree'); }}>{t('market.ownerAct.retiree')}</Button>
+      <Dialog open={!!ask} onClose={() => setAsk(null)} title={ask ? t(`market.ownerAct.confirm.${ask}.title`) : ''}
+        footer={<><Button variant="ghost" onClick={() => setAsk(null)}>{t('common.cancel')}</Button><Button busy={m.isPending} onClick={() => ask && go(ask)}>{ask ? t(`market.ownerAct.${ask}`) : ''}</Button></>}>
+        <p>{ask && t(`market.ownerAct.confirm.${ask}.text`)}</p>
+        {m.error && <ErrorState error={m.error} />}
+      </Dialog>
+    </>
   );
 }
 
@@ -180,10 +209,11 @@ function OfferItem({ o, canContact, waiting, onContact }: { o: Offer; canContact
         {o.description && <p className="small">{o.description}</p>}
       </div>
       <div className="offer-price"><b>{fmtNum(o.price_xof_per_kg)}</b><span className="small muted">{t('market.perKg')}</span></div>
-      {(canContact || waiting) && (
+      {(canContact || waiting || o.is_mine) && (
         <div className="offer-foot">
           {waiting && <span className="small muted">{t('market.pendingReply')}</span>}
           {canContact && <Button variant="secondary" size="sm" onClick={onContact}>{t('market.contact')}</Button>}
+          {o.is_mine && <OwnerActions o={o} />}
         </div>
       )}
     </li>
@@ -234,11 +264,22 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
   const { user } = useAuth();
   const vc = useVcSelect();
   const deps = useDepartments();
+  const place = usePlaceName();
   const m = useCreateOffer();
   const [v, setV] = useState({ type: 'offre' as OfferType, value_chain: '', qty: '', price: '', department: user?.department ?? '', commune: user?.commune ?? '', description: '' });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const communes = deps.data?.find((d) => d.code === v.department)?.communes ?? [];
   const err = (name: string) => errs[name] ?? fieldError(m.error, name);
+  // Rappel du prix du jour pour la filière choisie : derniers relevés (ceux du département de l'annonce d'abord), à défaut démonstration étiquetée.
+  const prices = usePriceRows(v.value_chain);
+  const priceHint = () => {
+    const raw = prices.latest.filter((r) => r.form === 'brut').sort((a, b) => Number(b.department === v.department) - Number(a.department === v.department));
+    // un prix d'un autre département que celui de l'annonce porte son département, pour ne pas passer pour un prix local
+    const seen = raw.slice(0, 2).map((r) => `${r.market.replace(/ \(.*\)/, '')}${r.department && r.department !== v.department ? ` (${place(r.department)})` : ''} ${fmtNum(r.price)} F`);
+    if (!seen.length) return undefined;
+    const dates = raw.map((r) => r.observed_on).filter((d): d is string => !!d).sort();
+    return t('mk.priceHint', { list: seen.join(' · '), source: prices.simulated ? t('mk.prices.sourceShortDemo') : t('mk.prices.sourceShortReal', { date: fmtDate(dates[dates.length - 1]) }) });
+  };
   return (
     <form noValidate aria-label={t('market.create')} onSubmit={(e) => {
       e.preventDefault();
@@ -270,7 +311,7 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
         <Field label={t('market.quantity')} error={err('quantity_kg')}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.qty} onChange={(e) => setV({ ...v, qty: e.target.value })} /><span className="addon addon--end">kg</span></div>
         )}</Field>
-        <Field label={t('market.price')} error={err('price_xof_per_kg')}>{(p) => (
+        <Field label={t(`market.priceFor.${v.type}`)} error={err('price_xof_per_kg')} hint={<>{t('market.priceNegotiable')} {priceHint()}</>}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.price} onChange={(e) => setV({ ...v, price: e.target.value })} /><span className="addon addon--end">FCFA/kg</span></div>
         )}</Field>
         <Field label={t('common.department')}>{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder={t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>
@@ -332,7 +373,7 @@ function MatchesPanel({ seller, onPay }: { seller?: boolean; onPay: (matchId: st
                             onClick={() => decide.mutate({ id: m.id, accept: true }, { onSuccess: () => toast(t('market.accepted')) })}>{t('market.accept')}</Button>
                         </>
                       )}
-                      {m.status === 'acceptee' && <Button variant="secondary" icon="wallet" onClick={() => onPay(m.id)}>{seller ? t('market.tab.payment') : t('market.pay')}</Button>}
+                      {m.status === 'acceptee' && <Button variant="secondary" icon="wallet" onClick={() => onPay(m.id)}>{sellsIn(m, !!seller) ? t('market.tab.payment') : t('market.pay')}</Button>}
                     </div>
                   </li>
                 );
@@ -359,14 +400,16 @@ function PaymentPanel({ mode, match, onMatch, paymentId, onPayment }: { mode: Mo
   );
 }
 
-function PayForm({ seller, match, onMatch, onCreated }: { seller: boolean; match: string; onMatch: (id: string) => void; onCreated: (id: string) => void }) {
+function PayForm({ seller: roleSeller, match, onMatch, onCreated }: { seller: boolean; match: string; onMatch: (id: string) => void; onCreated: (id: string) => void }) {
   const { t } = useTranslation();
   const vcName = useVcName();
   const matches = useMatches();
   const create = useCreatePayment();
   const accepted = (matches.data ?? []).filter((m) => m.status === 'acceptee');
   const selected = match || (accepted.length === 1 ? accepted[0].id : '');
-  const s = accepted.find((m) => m.id === selected)?.offer_summary;
+  const sel = accepted.find((m) => m.id === selected);
+  const s = sel?.offer_summary;
+  const seller = sel ? sellsIn(sel, roleSeller) : roleSeller;
   const [amount, setAmount] = useState<string | null>(null); // null : montant calculé depuis l'annonce
   const [phone, setPhone] = useState('');
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -426,9 +469,21 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
   const refund = useRefund();
   const [ask, setAsk] = useState(false);
   const status = q.data?.status;
+  const match = useMatches(mode !== 'admin').data?.find((m) => m.id === q.data?.match);
+  const seller = match ? sellsIn(match, mode === 'seller') : mode === 'seller';
   // Un paiement réussi conclut l'annonce : on recharge la liste.
   useEffect(() => { if (status === 'reussi') void qc.invalidateQueries({ queryKey: ['offers'] }); }, [status, qc]);
   const row = (label: string, value: ReactNode) => <div className="between"><span className="muted">{label}</span><b className="num">{value}</b></div>;
+  // Le reçu ne porte que des numéros masqués : on peut le lire à voix haute ou le partager sans exposer personne.
+  const receiptText = (p: Payment) => t('market.receiptText', { amount: fmtNum(p.receipt?.amount_xof ?? p.amount_xof), ref: p.reference, date: fmtDateTime(p.receipt?.paid_at) });
+  const shareReceipt = async (p: Payment) => {
+    try {
+      if (navigator.share) await navigator.share({ title: t('market.receiptTitle'), text: receiptText(p) });
+      else { await navigator.clipboard.writeText(receiptText(p)); toast(t('market.receiptCopied')); }
+    } catch (e) {
+      if ((e as { name?: string }).name !== 'AbortError') toast({ type: 'error', text: t('market.receiptFail') });
+    }
+  };
   return (
     <section aria-labelledby="pay-title" className={`card stack${status === 'reussi' ? ' pay-ok' : ''}`}>
       <QueryState q={q}>
@@ -445,7 +500,7 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
             </div>
             {p.status === 'echoue' && <div role="alert"><Alert tone="danger" title={t('market.failedTitle')}>{t('market.failedHelp')}</Alert></div>}
             <div className="pay-sum">
-              <span className="small muted">{t(mode === 'seller' ? 'market.youReceive' : 'market.amountLabel')}</span>
+              <span className="small muted">{t(seller ? 'market.youReceive' : 'market.amountLabel')}</span>
               <span className="pay-total">{fmtNum(p.receipt?.amount_xof ?? p.amount_xof)} FCFA</span>
               {row(t('market.payer'), p.receipt?.payer_masked ?? p.payer_masked)}
               {p.receipt && row(t('market.payee'), p.receipt.payee_masked)}
@@ -453,7 +508,13 @@ function PaymentView({ id, mode }: { id: string; mode: Mode }) {
               {row(t('market.reference'), `${p.reference} (${p.provider})`)}
             </div>
             {p.receipt && <p className="hint">{t('market.auditNote')}</p>}
-            {p.receipt && <Button variant="secondary" size="sm" icon="printer" className="self-start" onClick={() => window.print()}>{t('market.print')}</Button>}
+            {p.receipt && (
+              <div className="cluster">
+                <Button variant="secondary" size="sm" icon="megaphone" onClick={() => speak(receiptText(p))}>{t('common.listen')}</Button>
+                <Button variant="secondary" size="sm" icon="send" onClick={() => void shareReceipt(p)}>{t('market.shareReceipt')}</Button>
+                <Button variant="secondary" size="sm" icon="printer" onClick={() => window.print()}>{t('market.print')}</Button>
+              </div>
+            )}
             {mode === 'admin' && p.status === 'reussi' && (
               ask ? (
                 <div className="stack" style={{ ['--gap' as string]: '8px' }}>

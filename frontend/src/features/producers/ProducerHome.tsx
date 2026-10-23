@@ -1,23 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, EmptyState, ErrorState, Icon, Skeleton, buttonCls, fmtDate, fmtNum, type IconName } from '../../shared/ui';
+import { Alert, Badge, Button, Card, EmptyState, ErrorState, Hero, Icon, Skeleton, Stat, buttonCls, fmtDate, fmtNum, speak, useIsMobile, type IconName } from '../../shared/ui';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
-import type { Campaign } from '../../shared/api/types';
+import type { Campaign, Notification } from '../../shared/api/types';
+import { useOfflineStatus } from '../outbox/offlineQueue';
 import { useAuth } from '../auth/AuthContext';
 import { useCampaigns, useParcels } from '../parcels/api';
 import { useNotifications } from '../alerts/api';
 import { useSupportActions, useSupports } from '../supports/SupportsPage';
-import { demoForecast } from '../weather/demo';
-import { ListenGhost, StageBar } from './producerKit';
+import { useForecast } from '../weather/api';
+import { StageBar } from './producerKit';
 
-const dayFmt = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'short' });
-const SHORTCUTS: { to: string; icon: IconName; key: string }[] = [
-  { to: '/diagnostic', icon: 'leaf-scan', key: 'diagnosis' },
-  { to: '/marche', icon: 'market', key: 'market' },
-  { to: '/meteo-prix', icon: 'coins', key: 'prices' },
-  { to: '/ma-carte', icon: 'id-card', key: 'card' },
-];
 
 export function ProducerHome() {
   const { t } = useTranslation();
@@ -28,21 +21,34 @@ export function ProducerHome() {
   const notes = useNotifications();
   const firstName = (user?.full_name ?? '').split(/\s+/)[0] ?? '';
   const where = [place(user?.commune), place(user?.department)].filter(Boolean).join(', ');
-  const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const alert = (notes.data ?? []).find((n) => !(n.is_read ?? n.read_at));
+  const unread = (notes.data ?? []).filter((n) => !(n.is_read ?? n.read_at)).length;
+  const supports = useSupports();
+  const toConfirm = (supports.data ?? []).filter((s) => s.status === 'remis').length;
+  const fc = useForecast(user?.commune ?? '', 5);
+  const wx = fc.days[0];
+  const mobile = useIsMobile();
+
+  if (mobile) {
+    return (
+      <MobileHome firstName={firstName} place={place(user?.commune) || where} commune={user?.commune ?? ''} where={where}
+        alert={alert}
+        campaigns={campaigns} parcels={parcels} />
+    );
+  }
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">{t('home.hello', { name: firstName })}</h1>
-          <p className="page-desc">{t('home.desc', { date: today.charAt(0).toUpperCase() + today.slice(1), where: where || t('common.notAvailable') })}</p>
-        </div>
-        <div className="page-actions">
-          <ListenGhost text={t('home.listenPage', { name: firstName })} label={t('home.listenBtn')} />
-          <Link className={buttonCls()} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
-        </div>
-      </div>
+      <Hero title={t('home.hello', { name: firstName })}
+        actions={<>
+          <Link className={buttonCls({ variant: 'accent' })} to="/assistant"><Icon name="chat" />{t('nav.assistant')}</Link>
+        </>}
+        aside={wx && (
+          <Link className="hero-wx" to="/meteo-prix" aria-label={t('home.weatherTitle', { place: place(user?.commune) || where })}>
+            <span className="hero-wx-ic"><Icon name={wx.icon} /></span>
+            <span className="hero-wx-t"><b className="num">{wx.tmax} °C</b><small>{t('home.rainToday', { pct: wx.rainPct })}</small></span>
+          </Link>
+        )} />
 
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         {alert && (
@@ -55,9 +61,15 @@ export function ProducerHome() {
           </Alert>
         )}
 
+        <div className="grid-fit" style={{ ['--min' as string]: '200px' }}>
+          <Link className="stat-link" to="/parcelles"><Stat icon="parcel" label={t('refonte.stat.parcels')} value={parcels.data ? fmtNum(parcels.data.length) : '…'} foot={parcels.data ? t('refonte.stat.parcelsSub', { n: fmtNum(parcels.data.reduce((a, p) => a + p.area_ha, 0), 1) }) : undefined} /></Link>
+          <Link className="stat-link" to="/campagnes"><Stat icon="calendar" label={t('refonte.stat.campaigns')} value={campaigns.data ? fmtNum(campaigns.data.length) : '…'} foot={t('refonte.stat.campaignsSub')} /></Link>
+          <Link className="stat-link" to="/appuis"><Stat icon="gift" tone={toConfirm > 0 ? 'butter' : undefined} label={t('refonte.stat.supports')} value={supports.data ? fmtNum(toConfirm) : '…'} foot={toConfirm > 0 ? t('refonte.stat.supportsSub') : undefined} /></Link>
+          <Link className="stat-link" to="/messages"><Stat icon="mail" label={t('refonte.stat.messages')} value={notes.data ? fmtNum(unread) : '…'} /></Link>
+        </div>
+
         <div className="split">
           <div className="stack" style={{ ['--gap' as string]: '20px' }}>
-            <WeatherCard commune={user?.commune ?? ''} name={place(user?.commune) || where} />
             <Card title={t('home.stagesTitle')} sub={campaigns.data ? t('home.stagesSub', { count: campaigns.data.length }) : undefined}
               actions={<Link className={buttonCls({ variant: 'ghost', size: 'sm' })} to="/campagnes">{t('nav.campaigns')}<Icon name="chevron-right" /></Link>}>
               <ParcelStages campaigns={campaigns} parcels={parcels} />
@@ -66,16 +78,6 @@ export function ProducerHome() {
           <div className="stack" style={{ ['--gap' as string]: '20px' }}>
             <TasksCard campaigns={campaigns.data ?? []} parcelName={(id) => parcels.data?.find((p) => p.id === id)?.name ?? ''} />
             <SupportCard />
-            <Card title={t('home.shortcuts')}>
-              <div className="shortcuts">
-                {SHORTCUTS.map((s) => (
-                  <Link key={s.to} className="shortcut" to={s.to}>
-                    <span className="sc-ic"><Icon name={s.icon} /></span>
-                    <span>{t(`home.sc.${s.key}`)}<small>{t(`home.sc.${s.key}Sub`)}</small></span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
           </div>
         </div>
       </div>
@@ -83,34 +85,101 @@ export function ProducerHome() {
   );
 }
 
-function WeatherCard({ commune, name }: { commune: string; name: string }) {
+/* ---------- Accueil sous 640 px (maquettes/mobile : accueil, accueil-hors-ligne) ---------- */
+const TILES: { to: string; icon: IconName; key: string }[] = [
+  { to: '/appuis', icon: 'gift', key: 'supports' }, { to: '/mes-cooperatives', icon: 'users', key: 'coop' },
+  { to: '/ma-carte', icon: 'id-card', key: 'card' }, { to: '/meteo-prix', icon: 'coins', key: 'prices' },
+];
+
+function MobileHome({ firstName, place, commune, where, alert, campaigns, parcels }: {
+  firstName: string; place: string; commune: string; where: string; alert?: Notification;
+  campaigns: Q<Campaign[]>; parcels: Q<{ id: string; name: string; area_ha: number; overlap_warning: boolean }[]>;
+}) {
   const { t } = useTranslation();
-  const [now, ...next] = demoForecast(commune || 'benin', new Date(), 5);
+  const vcName = useVcName();
+  const { online, pending } = useOfflineStatus();
+  const fc = useForecast(commune, 5);
+  const [now, ...next] = fc.days;
   const heavy = next.find((d) => d.rainMm >= 30);
+  const c = campaigns.data?.[0];
+  const p = c && parcels.data?.find((x) => x.id === c.parcel);
   return (
-    <Card title={t('home.weatherTitle', { place: name })} sub={t('home.weatherSub')} actions={<Badge tone="sim">{t('weather.simulated')}</Badge>}>
-      <div className="wx-now">
-        <span className="wx-ic"><Icon name={now.icon} /></span>
-        <div>
-          <p className="wx-temp num">{now.tmax} °C</p>
-          <p className="muted">{t('home.rainToday', { pct: now.rainPct })}</p>
+    <div className="m-home">
+      <section className="m-hero" aria-labelledby="m-hello">
+        <div className="m-hello">
+          <div>
+            <h1 id="m-hello">{t('home.hello', { name: firstName })}</h1>
+            <p><Icon name="map-pin" size="sm" />{where || t('common.notAvailable')}</p>
+          </div>
+          {/* La cloche des messages reste dans l'en-tête compact de la coque, au-dessus. */}
+          {'speechSynthesis' in window && (
+            <button type="button" className="m-hero-btn m-hero-btn--listen" aria-label={t('home.listenBtn')} onClick={() => speak(t('home.listenPage', { name: firstName }))}><Icon name="megaphone" /></button>
+          )}
         </div>
-        <Link className={buttonCls({ variant: 'ghost', size: 'sm' })} style={{ marginLeft: 'auto' }} to="/meteo-prix">{t('home.week')}<Icon name="chevron-right" /></Link>
-      </div>
-      <ul className="wx-days" aria-label={t('home.nextDays')}>
-        {next.map((d) => (
-          <li key={d.date.toISOString()} className={d.rainMm >= 10 ? 'is-rain' : undefined}>
-            <span>{dayFmt(d.date)}</span><Icon name={d.icon} /><b className="num">{d.tmax}°</b>
-            <span className={`num${d.rainMm ? '' : ' muted'}`}>{t('weather.mm', { n: d.rainMm })}</span>
-          </li>
-        ))}
-      </ul>
-      {heavy && (
-        <div className="mt-3.5">
-          <Alert tone="info" icon="drop" title={t('home.heavyRain', { day: heavy.date.toLocaleDateString('fr-FR', { weekday: 'long' }) })}>{t('home.heavyRainTip')}</Alert>
+        <Link className="m-wx" to="/meteo-prix">
+          <Icon name={now.icon} className="m-wx-ic" />
+          <span className="m-wx-deg num">{now.tmax}°</span>
+          <span className="m-wx-t">
+            <b>{heavy ? t('home.heavyRain', { day: heavy.date.toLocaleDateString('fr-FR', { weekday: 'long' }) }) : t('home.rainToday', { pct: now.rainPct })}</b>
+            {t('mobile.home.wxWhere', { place: place || t('common.notAvailable') })} · {fc.simulated ? t('weather.simulated') : t('weather.live')}
+          </span>
+        </Link>
+      </section>
+
+      {!online && (
+        <div className="m-offline" role="status">
+          <Icon name="wifi-off" />
+          <span><b>{t('mobile.home.offline')}</b>{pending.length ? t('mobile.home.offlinePending', { count: pending.length }) : t('mobile.home.offlineNone')}</span>
+          {pending.length > 0 && <Link to="/profil/envoi">{t('mobile.home.see')}</Link>}
         </div>
       )}
-    </Card>
+
+      <div className="m-home-body">
+        {alert && (
+          <Link className="m-alert" to="/messages">
+            <span className="m-alert-ic"><Icon name="alert" /></span>
+            <span><b>{alert.title ?? t('notifications.message')}</b>{alert.body ?? alert.message}</span>
+            <Icon name="chevron-right" />
+          </Link>
+        )}
+
+        {campaigns.isLoading || parcels.isLoading ? <Skeleton lines={2} />
+          : c && p ? (
+            <Link className="card m-stage" to="/campagnes">
+              <span className="m-row">
+                <span className="m-ico"><Icon name="sprout" /></span>
+                <span className="m-grow"><b>{vcName(c.value_chain)} · {p.name}</b><small className="num">{t('parcels.ha', { n: fmtNum(p.area_ha, 2) })}</small></span>
+                <Icon name="chevron-right" />
+              </span>
+              <StageBar stage={c.stage} />
+            </Link>
+          ) : (
+            <Card><EmptyState icon="parcel" title={t('home.emptyTitle')} action={<Link className={buttonCls()} to="/parcelles"><Icon name="plus" />{t('home.emptyAction')}</Link>}>{t('home.emptyText')}</EmptyState></Card>
+          )}
+
+        {!online && pending.length > 0 && (
+          <section aria-labelledby="m-pending">
+            <h2 className="m-sec" id="m-pending">{t('mobile.home.pendingTitle')}</h2>
+            <ul className="list card">
+              {pending.slice(0, 3).map((w) => (
+                <li key={w.id} className="list-item">
+                  <span className="li-icon"><Icon name="cloud-upload" /></span>
+                  <span className="li-main"><span className="li-title">{w.label}</span><span className="li-meta num">{new Date(w.created_at).toLocaleString('fr-FR')}</span></span>
+                  <Badge tone="wait">{t('mobile.home.waiting')}</Badge>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <TasksCard campaigns={campaigns.data ?? []} parcelName={(id) => parcels.data?.find((x) => x.id === id)?.name ?? ''} />
+        <SupportCard />
+
+        <nav className="m-tiles" aria-label={t('home.shortcuts')}>
+          {TILES.map((s) => <Link key={s.to} className="m-tile" to={s.to}><i><Icon name={s.icon} /></i>{t(`mobile.home.tile.${s.key}`)}</Link>)}
+        </nav>
+      </div>
+    </div>
   );
 }
 
@@ -151,26 +220,23 @@ function ParcelStages({ campaigns, parcels }: { campaigns: Q<Campaign[]>; parcel
   );
 }
 
-/** Repères selon le stade de chaque campagne ; cocher ne les enregistre pas (pas d'API de tâches). */
+/** Repères selon le stade de chaque campagne : chaque ligne ouvre la campagne (il n'y a pas d'API de tâches, donc pas de case à cocher qui n'enregistrerait rien). */
 function TasksCard({ campaigns, parcelName }: { campaigns: Campaign[]; parcelName: (id: string) => string }) {
   const { t } = useTranslation();
   const vcName = useVcName();
-  const [done, setDone] = useState<string[]>([]);
   return (
-    <Card title={t('home.tasksTitle')} actions={campaigns.length > 0 ? <span className="small muted num">{t('home.tasksDone', { n: done.length, total: campaigns.length })}</span> : undefined}>
+    <Card title={t('home.tasksTitle')}>
       {campaigns.length === 0
         ? <p className="muted">{t('home.tasksEmpty')}</p>
         : campaigns.map((c) => (
-          <div key={c.id} className="task">
-            <input className="cb" type="checkbox" id={`tk-${c.id}`} checked={done.includes(c.id)}
-              onChange={(e) => setDone((d) => (e.target.checked ? [...d, c.id] : d.filter((x) => x !== c.id)))} />
-            <label htmlFor={`tk-${c.id}`}>
+          <Link key={c.id} to="/campagnes" className="task task-link">
+            <span className="t-body">
               <span className="t-title">{t(`home.task.${c.stage}`, { crop: vcName(c.value_chain) })}</span>
               <span className="t-meta">{parcelName(c.parcel)} · {t(`stage.${c.stage}`)}</span>
-            </label>
-          </div>
+            </span>
+            <Icon name="chevron-right" />
+          </Link>
         ))}
-      <p className="hint mt-2">{t('home.tasksHint')}</p>
     </Card>
   );
 }

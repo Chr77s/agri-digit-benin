@@ -126,6 +126,22 @@ def offer_contact(request, pk):
     return Response(MatchSerializer(m, context={"user": request.user}).data, status=201)
 
 
+@api_view(["POST"])
+@permission_classes([roles(*MARKET_ROLES)])
+def offer_status(request, pk):
+    o = selectors.offer_for_contact(pk)
+    if o is None or o.owner_id != request.user.id:
+        raise Http404
+    s = StatusIn(data=request.data)
+    s.is_valid(raise_exception=True)
+    o = services.set_offer_status(request.user, o, s.validated_data["status"])
+    return Response(OfferSerializer(o, context={"user": request.user}).data)
+
+
+class StatusIn(serializers.Serializer):
+    status = serializers.ChoiceField(choices=list(services.OFFER_MOVES))
+
+
 @api_view(["GET"])
 @permission_classes([roles(*MARKET_ROLES)])
 def matches_mine(request):

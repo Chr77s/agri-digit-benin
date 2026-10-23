@@ -93,3 +93,52 @@ def update_user(actor, user, data):
     user.save()
     record(actor, "user.update", user, fields=sorted(data))
     return user
+
+
+def _phone_taken(phone):
+    from apps.producers.models import Producer
+
+    return User.objects.filter(phone=phone).exists() or Producer.objects.filter(phone=phone).exists()
+
+
+def request_phone_change(user, new_phone):
+    if new_phone == user.phone:
+        raise ApiError("C'est déjà votre numéro.", "same_phone", 400, fields={"new_phone": ["Numéro identique."]})
+    if _phone_taken(new_phone):
+        raise ApiError("Ce numéro est déjà utilisé par un compte.", "duplicate", 409)
+    _check_lock(user)
+    code = f"{secrets.randbelow(10**6):06d}"
+    user.pending_phone = new_phone
+    user.otp_hash = _hash(new_phone, code)
+    user.otp_expires_at = timezone.now() + OTP_TTL
+    user.save(update_fields=["pending_phone", "otp_hash", "otp_expires_at"])
+    get_channel("sms").send(new_phone, f"Agri-Digit : votre code de confirmation du nouveau numéro est {code}. "
+                                       "Il expire dans 10 minutes.")
+    record(user, "user.phone_change_request", user)
+
+
+def confirm_phone_change(user, code):
+    # même règle que la connexion : un échec reste enregistré (5 échecs = blocage)
+    _check_lock(user)
+    new_phone = user.pending_phone
+    if not new_phone or not user.otp_hash:
+        raise ApiError("Aucun changement de numéro en cours.", "no_pending_change", 400)
+    if user.otp_expires_at is None or user.otp_expires_at < timezone.now():
+        raise ApiError("Code expiré, demandez-en un nouveau.", "code_expired", 400)
+    if not hmac.compare_digest(user.otp_hash, _hash(new_phone, code or "")):
+        _fail(user, "Code incorrect.", "invalid_code")
+    with transaction.atomic():
+        if _phone_taken(new_phone):  # pris entre la demande et la confirmation
+            raise ApiError("Ce numéro est déjà utilisé par un compte.", "duplicate", 409)
+        old = user.phone
+        user.phone, user.pending_phone, user.otp_hash, user.otp_failures = new_phone, "", "", 0
+        user.save(update_fields=["phone", "pending_phone", "otp_hash", "otp_failures"])
+        p = getattr(user, "producer", None)
+        if p is not None:
+            from apps.producers.services import change_phone
+
+            change_phone(user, p, new_phone)
+        record(user, "user.phone_change", user, producer=p.code if p else None)
+    get_channel("sms").send(old, "Agri-Digit : le numéro de votre compte vient d'être changé. "
+                                 "Si ce n'est pas vous, contactez votre agent ATDA.")
+    return user

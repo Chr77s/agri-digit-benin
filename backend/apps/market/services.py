@@ -31,6 +31,32 @@ def create_offer(actor, data):
     return o
 
 
+# statut visé -> statuts de départ permis ; « ouverte » = reprendre une annonce suspendue
+OFFER_MOVES = {"suspendue": ("ouverte", "en_relation"), "ouverte": ("suspendue",),
+               "retiree": ("ouverte", "en_relation", "suspendue"), "conclue": ("ouverte", "en_relation", "suspendue")}
+
+
+@transaction.atomic
+def set_offer_status(actor, offer, status):
+    """L'auteur suspend, reprend, retire ou ferme son annonce. Les demandes de contact en attente sont refusées
+    à la fermeture ou au retrait, et leurs auteurs prévenus."""
+    if offer.owner_id != actor.id:
+        raise ApiError("Seul l'auteur de l'annonce peut la modifier.", "forbidden", 403)
+    if offer.status not in OFFER_MOVES.get(status, ()):
+        raise ApiError("Ce changement n'est pas possible pour cette annonce.", "invalid_status", 400)
+    if status == "ouverte" and offer.matches.filter(status="acceptee").exists():
+        status = "en_relation"
+    offer.status = status
+    offer.save(update_fields=["status"])
+    if status in ("retiree", "conclue"):
+        for m in offer.matches.filter(status="proposee").select_related("requester"):
+            m.status, m.decided_at = "refusee", timezone.now()
+            m.save(update_fields=["status", "decided_at"])
+            _notify(m.requester, "Annonce fermée", "L'annonce que vous aviez contactée n'est plus disponible.")
+    record(actor, "market.offer_status", offer, status=status)
+    return offer
+
+
 @transaction.atomic
 def contact(actor, offer, message):
     if offer.owner_id == actor.id:

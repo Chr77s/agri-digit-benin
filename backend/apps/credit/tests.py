@@ -17,6 +17,7 @@ def test_credit_consent_score_and_audit(users, producer):
     assert {"name", "weight", "value", "contribution"} <= set(d["factors"][0])
     assert AuditLog.objects.filter(action="credit.score_view", object_id=str(producer.id)).count() == 1
     lst = fin.get("/api/v1/credit/consented-producers").json()["results"]
+    assert lst[0].pop("consented_at")
     assert lst == [{"id": str(producer.id), "code": producer.code, "first_name": "Awa", "last_name": "SABI",
                     "commune": "banikoara"}]
     for role in ("agent", "admin", "auditeur", "resp"):

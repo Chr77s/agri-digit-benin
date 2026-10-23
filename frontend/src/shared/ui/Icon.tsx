@@ -24,3 +24,14 @@ export function Icon({ name, size, label, className = '' }: { name: IconName; si
     </svg>
   );
 }
+
+/** Armoiries du Bénin (logo du MAEP) sur pastille blanche : lisibles sur fond clair comme sombre. Décoratif, le nom est écrit à côté. */
+export function Emblem({ size = 32 }: { size?: number }) {
+  return <img className="emblem" src="/brand/emblem.png" alt="" height={size} style={{ height: size }} />;
+}
+
+/** Logo du MAEP, PNG sans fond. `on` : 'dark' pour un fond toujours sombre (texte blanc) ; sinon la variante suit le thème. Le nom est donné par le lien parent. */
+export function Logo({ height, on, className = '' }: { height: number; on?: 'dark'; className?: string }) {
+  const img = (src: string, cls: string) => <img className={`logo ${cls} ${className}`} src={src} height={height} style={{ height }} alt="" />;
+  return on === 'dark' ? img('/brand/logo-dark.png', '') : <>{img('/brand/logo.png', 'logo-light')}{img('/brand/logo-dark.png', 'logo-dark')}</>;
+}

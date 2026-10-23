@@ -5,11 +5,13 @@ import { Button } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
 import '../auth/access.css';
 
-// les trois documents légaux : même gabarit, texte dans fr.json (legal.<doc>)
+// les documents d'information (légaux, accessibilité, contact) : même gabarit, texte dans fr.json (legal.<doc>)
 export const LEGAL_DOCS = [
   { doc: 'notice', to: '/mentions-legales' },
   { doc: 'privacy', to: '/confidentialite' },
   { doc: 'terms', to: '/conditions-utilisation' },
+  { doc: 'accessibility', to: '/accessibilite' },
+  { doc: 'contact', to: '/contact' },
 ] as const;
 export type LegalDoc = (typeof LEGAL_DOCS)[number]['doc'];
 

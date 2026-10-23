@@ -19,7 +19,7 @@ export interface ApiErrorBody {
 export interface ValueChain { code: string; name: string; reserve?: boolean }
 export interface Department { code: string; name: string; communes: { code: string; name: string }[] }
 
-export type ProducerStatus = 'en_attente' | 'valide' | 'rejete';
+export type ProducerStatus = 'en_attente' | 'valide' | 'rejete' | 'ferme' | 'efface';
 export interface Producer {
   id: string; code: string; npi: string; first_name: string; last_name: string; sex: 'F' | 'M';
   birth_date: string; department: string; commune: string; phone: string; language: Lang;
@@ -41,31 +41,33 @@ export interface AdminUser extends User { is_active: boolean }
 
 export interface AuditLog {
   id: string; at: string; actor_phone: string; actor_role: string; action: string;
-  object_type: string; object_id: string; details: unknown;
+  object_type: string; object_id: string; details: unknown; seq?: number | null; prev_hash?: string; hash?: string;
 }
+export interface AuditChainCheck { ok: boolean; count: number; broken_seq: number | null; checked_at: string }
 
 export type LandType = 'pluvial_plateau' | 'bas_fond' | 'irrigue';
 export type Tenure = 'propriete' | 'location' | 'pret' | 'coutumier' | 'autre';
 export interface GeoPolygon { type: 'Polygon'; coordinates: number[][][] }
 export interface Parcel {
   id: string; producer?: string; name: string; geometry: GeoPolygon; land_type: LandType; tenure: Tenure;
-  area_ha: number; overlap_warning: boolean; overlap_with: string[];
+  area_ha: number; arable_ha?: number | null; overlap_warning: boolean; overlap_with: string[];
 }
 export interface ParcelCreate { producer?: string; name: string; geometry: GeoPolygon; land_type: LandType; tenure: Tenure }
 export type Stage = 'semis' | 'croissance' | 'floraison' | 'recolte';
-export interface Campaign { id: string; parcel: string; value_chain: string; season: string; stage: Stage; version?: number }
-export interface CampaignCreate { parcel: string; value_chain: string; season: string; stage: Stage }
+export interface Campaign { id: string; parcel: string; value_chain: string; season: string; stage: Stage; version?: number; variety?: string; sown_at?: string | null; estimated_kg?: number | null }
+export interface CampaignCreate { parcel: string; value_chain: string; season: string; stage: Stage; variety?: string; sown_at?: string | null }
 
 export interface Citation { doc_id: string; title: string; source: string; version: number | string }
 export interface AssistantAnswer {
   status: 'answered' | 'unknown' | 'escalated'; answer: string; citations: Citation[];
-  disclaimer: string; backend: string;
+  disclaimer: string; backend: string; language?: string; language_notice?: 'no_validated_answer';
 }
 
 export type KnowledgeStatus = 'brouillon' | 'relu' | 'publie';
 export interface KnowledgeDoc {
   id: string; value_chain: string; title: string; body: string; source: string; version: number;
   status: KnowledgeStatus; language: Lang; language_validation: 'valide' | 'non_valide'; updated_at: string;
+  reviewed_by_name?: string | null; reviewed_at?: string | null;
 }
 
 export type Severity = 'info' | 'avertissement' | 'urgent';
@@ -85,14 +87,18 @@ export interface OutboxMessage {
   encoding: string; status: 'livre' | 'echoue' | 'lu'; created_at: string;
 }
 
+export type ProgramState = 'brouillon' | 'a_venir' | 'ouvert' | 'clos';
 export interface Program {
   id: string; name: string; description: string; conditions: string; value_chains: string[];
   closes_at: string; is_open?: boolean; is_closed?: boolean;
+  status?: 'brouillon' | 'publie'; state?: ProgramState; opens_at?: string | null; committee_at?: string | null;
+  departments?: string[]; max_area_ha?: number | null; planned_beneficiaries?: number | null; require_campaign?: boolean;
 }
 export type ApplicationStatus = 'deposee' | 'en_instruction' | 'acceptee' | 'refusee';
 export interface Application {
   id: string; program: string; program_name?: string; producer: string; producer_name?: string; producer_code?: string;
   status: ApplicationStatus; reason?: string | null; created_at: string;
+  decided_at?: string | null; contest_reason?: string; contested_at?: string | null;
 }
 export interface Weights { confidence: number; road_distance: number; area: number }
 export interface SelectionRun {
@@ -117,15 +123,31 @@ export interface Membership { id: string; producer_id: string; producer_code: st
 export interface ProducerCard { code: string; full_name: string; commune: string; department: string; status: ProducerStatus; verification_code: string; verify_url: string; issued_at: string }
 export interface VerifyResult { status: ProducerStatus; full_name: string }
 // quantity : décimal que DRF sérialise en chaîne ("50.00") ; producer_code et program_name viennent du serveur (pas de nom de producteur).
-export interface Support { id: string; producer: string; producer_code?: string; program?: string | null; program_name?: string | null; item: string; quantity: string; unit: string; value_xof: number; repayable: boolean; status: 'remis' | 'confirme'; created_at?: string; confirmed_at?: string | null }
-export interface Harvest { id: string; campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number | null; estimated_kg: number | null; deviation_pct: number | null; flagged: boolean; producer_code?: string; value_chain?: string }
-export interface Diagnosis { id: string; pathology: string; pathology_label: string; confidence: number; status: 'auto' | 'transmis_agronome' | 'revu'; advice: string; simulation: boolean; value_chain?: string; created_at?: string; review_comment?: string | null; reviewed_at?: string | null; image_url?: string; help?: string }
+export interface Support { id: string; producer: string; producer_code?: string; program?: string | null; program_name?: string | null; item: string; quantity: string; unit: string; value_xof: number; repayable: boolean; repay_installments?: number; repay_first_due?: string | null; status: 'remis' | 'confirme'; created_at?: string; confirmed_at?: string | null }
+export type ClaimKind = 'appui' | 'pret' | 'plateau';
+export interface ClaimInstallment { rank: number; due_on: string; amount_xof: number; paid_xof: number; status: 'payee' | 'en_retard' | 'partielle' | 'a_venir' }
+export interface ClaimPayment { id: string; claim: string; amount_xof: number; status: 'en_attente' | 'reussi' | 'echoue'; provider: string; reference: string; created_at: string; paid_at: string | null }
+export interface Claim {
+  id: string; kind: ClaimKind; label: string; amount_xof: number; paid_xof: number; outstanding_xof: number; overdue_xof: number; status: 'solde' | 'en_retard' | 'en_cours';
+  debtor: string; department: string; next_due_on: string | null; next_amount_xof: number; created_at: string; installments: ClaimInstallment[]; payments?: ClaimPayment[];
+}
+export interface ClaimTotals { count: number; amount_xof: number; paid_xof: number; outstanding_xof: number; overdue_xof: number; overdue_count: number; recovery_rate: number | null }
+export interface ClaimPortfolio { total: ClaimTotals; by_kind: Partial<Record<ClaimKind, ClaimTotals>>; by_department: Record<string, ClaimTotals> }
+export interface Revenue {
+  season: string | null; seasons: string[]; sales_xof: number; unpriced_harvests: number; expenses_xof: number; repayments_xof: number; net_xof: number; area_ha: number; net_per_ha_xof: number | null;
+  free_supports_xof: number; market_received_xof: number;
+  by_campaign: { campaign: string; value_chain: string; season: string; parcel: string; area_ha: number; sold_kg: number; sales_xof: number; expenses_xof: number; net_xof: number }[];
+}
+export interface Expense { id: string; campaign: string | null; category: string; label: string; amount_xof: number; spent_on: string }
+export interface Harvest { id: string; campaign: string; harvested_at: string; quantity_kg: number; stored_kg: number; sold_kg: number; sale_price_xof_per_kg?: number | null; estimated_kg: number | null; deviation_pct: number | null; flagged: boolean; producer_code?: string; value_chain?: string;
+  check_status?: 'a_verifier' | 'visite' | 'confirmee' | 'corrigee'; check_reason?: string; checked_at?: string | null; declared_kg?: number | null }
+export interface Diagnosis { id: string; pathology: string; pathology_label: string; confidence: number; status: 'auto' | 'transmis_agronome' | 'revu'; advice: string; simulation: boolean; risk?: 'eleve' | 'moyen' | null; value_chain?: string; created_at?: string; review_comment?: string | null; reviewed_at?: string | null; producer_note?: string; image_url?: string; help?: string }
 export type TrLang = 'fon' | 'bba' | 'yo' | 'dnd';
 export type TrStatus = 'a_traduire' | 'propose' | 'valide' | 'rejete';
 export interface TranslationEntry { id: string; key: string; language: TrLang; source_text: string; text: string; status: TrStatus; average_score: number | null; reviews_count: number; updated_at?: string }
 export interface TranslationSummary { language: TrLang; total: number; valide: number; average_score: number | null; open_to_producers: boolean }
 export type OfferType = 'offre' | 'demande';
-export interface Offer { id: string; type: OfferType; value_chain: string; quantity_kg: number; price_xof_per_kg: number; department: string; commune: string; description: string; status: 'ouverte' | 'en_relation' | 'conclue' | 'retiree'; owner?: string; owner_name?: string; created_at?: string; owner_role?: string; owner_phone_masked?: string; is_mine?: boolean }
+export interface Offer { id: string; type: OfferType; value_chain: string; quantity_kg: number; price_xof_per_kg: number; department: string; commune: string; description: string; status: 'ouverte' | 'en_relation' | 'conclue' | 'retiree' | 'suspendue'; owner?: string; owner_name?: string; created_at?: string; owner_role?: string; owner_phone_masked?: string; is_mine?: boolean }
 export interface Match { id: string; offer: string | Offer; requester: string; requester_name?: string; status: 'proposee' | 'acceptee' | 'refusee'; message?: string; other_phone?: string | null; is_owner?: boolean; created_at?: string; decided_at?: string | null; counterpart_phone?: string; offer_summary?: Pick<Offer, 'type' | 'value_chain' | 'quantity_kg' | 'price_xof_per_kg' | 'status'> }
 export type PaymentStatus = 'en_attente' | 'reussi' | 'echoue' | 'rembourse';
 export interface Receipt { reference: string; amount_xof: number; payer_masked: string; payee_masked: string; paid_at: string }
@@ -134,3 +156,17 @@ export interface SatelliteRow { department: string; commune: string | null; ndvi
 export interface SatelliteData { source: string; results: SatelliteRow[] }
 export interface SeaIndicator extends Indicator { breakdown?: { label: string; value: number | null }[] }
 export interface SeaDashboard { scope: Dashboard['scope']; indicators: SeaIndicator[] }
+export interface Works { id: string; scheme: string; type: 'rehabilitation' | 'nouvel_amenagement' | 'entretien'; title: string; status: 'planifie' | 'en_cours' | 'termine' | 'abandonne'; planned_on: string | null; started_on: string | null; finished_on: string | null; cost_xof: number | null; contractor: string; progress_pct: number; notes: string; created_at: string }
+export interface Scheme { id: string; name: string; kind: 'bas_fond' | 'irrigue' | 'plateau'; department: string; commune: string; lat: number | null; lon: number | null; area_available_ha: number; area_arable_ha: number; area_used_ha: number; status: 'projet' | 'operationnel' | 'a_rehabiliter' | 'en_travaux'; works: Works[]; created_at: string }
+export interface SoilFinding { code: string; level: 'ok' | 'attention' | 'alerte'; text: string }
+export interface SoilAnalysis { id: string; parcel: string; parcel_name: string; sampled_on: string; laboratory: string; ph: number; organic_matter_pct: number; phosphorus_ppm: number | null; texture: string; findings: SoilFinding[]; reference: string }
+export interface SoilSummary { department: string; analyses: number; ph_mean: number; acid_share: number; low_organic_share: number; low_phosphorus_share: number | null }
+export interface LandUseRow { department: string; land_type: string; count: number; available_ha: number; arable_ha: number; used_ha: number }
+export interface LandUse { season: string | null; seasons: string[]; parcels: LandUseRow[]; schemes: { kind: string; count: number; available_ha: number; arable_ha: number; used_ha: number }[] }
+export type RiskLevel = 'faible' | 'moyen' | 'eleve';
+export interface ClimateRisks {
+  stage: string; land_type: string; source: string; simulated: boolean; advice: string[];
+  risks: { stress_hydrique: { level: RiskLevel; coverage: number; rain_mm: number; need_mm: number }; secheresse: { level: RiskLevel; dry_days: number; rain_next_3d_mm: number }; inondation: { level: RiskLevel; max_3d_mm: number } };
+}
+export interface ParcelClimate extends ClimateRisks { parcel: string; name: string; value_chain: string | null; updated_at: string }
+export interface DepartmentClimate extends ClimateRisks { department: string; parcels: number; lowland_parcels: number }

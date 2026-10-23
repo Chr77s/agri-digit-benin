@@ -101,9 +101,9 @@ const dark = ramp([[0, '#164A2F'], [0.35, '#2A7A47'], [0.7, '#58B04A'], [1, '#B9
 const light = ramp([[0, '#CFE3D0'], [0.35, '#8DBB9A'], [0.7, '#3F8B5C'], [1, '#1F5B3A']]);
 export const PALETTES: Record<Theme, Palette> = {
   dark: {
-    bgTop: '#06170E', bgBottom: '#0F3A22', label: '#EFEBD8', ring: '#C6F432',
+    bgTop: '#06170E', bgBottom: '#0F3A22', label: '#EFEBD8', ring: '#2BD891',
     top: dark.map(css), front: dark.map((c) => css(shade(c, 0.58))), side: dark.map((c) => css(shade(c, 0.78))),
-    peak: ['#C6F432', css(shade(hex('#C6F432'), 0.6)), css(shade(hex('#C6F432'), 0.8))],
+    peak: ['#2BD891', css(shade(hex('#2BD891'), 0.6)), css(shade(hex('#2BD891'), 0.8))],
   },
   light: {
     bgTop: '#EEF4E9', bgBottom: '#D6E6CF', label: '#10261A', ring: '#1F5B3A',

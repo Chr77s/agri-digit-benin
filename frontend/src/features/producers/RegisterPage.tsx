@@ -79,6 +79,7 @@ export function RegisterPage() {
   const place = usePlaceName();
   const reg = useRegisterProducer();
   const [done, setDone] = useState<Producer | null>(null);
+  const [queued, setQueued] = useState(false); // pas de réseau : la fiche part au retour de la connexion
   const [step, setStep] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
@@ -94,10 +95,10 @@ export function RegisterPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   // Changement d'étape : le titre de l'étape reçoit le focus (lecteur d'écran, clavier).
-  useEffect(() => { if (first.current) { first.current = false; return; } heading.current?.focus(); }, [step, done]);
+  useEffect(() => { if (first.current) { first.current = false; return; } heading.current?.focus(); }, [step, done, queued]);
 
   const go = (n: number) => { reg.reset(); setStep(n); };
-  const next = async () => { if (await trigger(STEP_FIELDS[step])) go(step + 1); };
+  const next = async () => { if (await trigger(STEP_FIELDS[step], { shouldFocus: true })) go(step + 1); };
 
   const onSubmit = handleSubmit(async (v) => {
     try {
@@ -107,7 +108,8 @@ export function RegisterPage() {
         consent_text_version: 'v1' as const,
         ...(minor ? {} : { guardian_name: undefined, guardian_npi: undefined, guardian_consent: undefined }),
       };
-      setDone(await reg.mutateAsync(body));
+      const r = await reg.mutateAsync(body);
+      if (r === 'queued') setQueued(true); else setDone(r);
     } catch (e) {
       if (e instanceof ApiError) {
         const code = e.code ?? '';
@@ -120,12 +122,27 @@ export function RegisterPage() {
     }
   }, (errs) => setStep(Math.min(...Object.keys(errs).map(stepOf))));
 
+  if (queued) {
+    return (
+      <div className="reg">
+        <section className="card reg-step" role="status" aria-labelledby="reg-queued">
+          <div className="done-head">
+            <span className="done-icon"><Icon name="wifi-off" size="lg" /></span>
+            <h2 className="section-title" id="reg-queued" ref={heading} tabIndex={-1}>{t('register.queuedTitle')}</h2>
+          </div>
+          <p>{t('register.queuedText')}</p>
+          <div className="cluster"><Link className={buttonCls()} to={user ? '/' : '/connexion'}>{user ? t('register.backHome') : t('register.toLogin')}</Link></div>
+        </section>
+      </div>
+    );
+  }
+
   if (done) {
     return (
       <div className="reg">
         <section className="card reg-step" role="status" aria-labelledby="reg-done">
           <div className="done-head">
-            <span className="done-icon"><Icon name="check-circle" size="lg" /></span>
+            <span className="done-icon"><Icon name="check-circle" size="lg" className="d-only" /><Icon name="clock" size="lg" className="m-only" /></span>
             <h2 className="section-title" id="reg-done" ref={heading} tabIndex={-1}>{t('register.doneTitle')}</h2>
           </div>
           <div className="code-box"><span className="small muted">{t('register.yourCode')}</span><span className="code">{done.code}</span></div>
@@ -150,12 +167,13 @@ export function RegisterPage() {
   const steps = [t('register.s1'), t('register.s2'), t('register.s3'), t('register.s4'), t('register.s5')];
   const titles = [t('register.identity'), t('register.contact'), t('register.language'), t('register.consentTitle'), t('register.recapTitle')];
   const subs = [t('register.identityHelp'), t('register.contactHelp'), t('register.languageHelp'), t('register.consentHelp'), t('register.recapHelp')];
+  // Clés distinctes : sinon React réutilise le même <button>, qui devient « submit » pendant le clic et envoie la fiche sans passer par le récapitulatif.
   const nav = (
     <div className="step-nav">
       {step > 0 && <Button variant="ghost" icon="arrow-left" onClick={() => go(step - 1)}>{t('register.back')}</Button>}
       {step < 4
-        ? <Button onClick={() => void next()}>{step === 3 ? t('register.toRecap') : t('register.next')}<Icon name="arrow-right" /></Button>
-        : <Button type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
+        ? <Button key="next" onClick={() => void next()}>{step === 3 ? t('register.toRecap') : t('register.next')}<Icon name="arrow-right" /></Button>
+        : <Button key="send" type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
     </div>
   );
   const edit = (n: number) => <Button variant="ghost" size="sm" icon="edit" onClick={() => go(n)}>{t('register.edit')}</Button>;

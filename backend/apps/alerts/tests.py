@@ -29,3 +29,23 @@ def test_sms_segmentation():
     assert sms_segments("a" * 306) == ("GSM-7", 2)
     assert sms_segments("a" * 307) == ("GSM-7", 3)
     assert sms_segments("ɛ" * 134) == ("UCS-2", 2)
+
+
+def test_producer_writes_to_the_sector_agent_and_gets_an_answer(users, producer):
+    p, agent = client_for(producer.user), client_for(users["agent"])
+    assert p.post("/api/v1/chat", {"body": " "}, format="json").status_code == 400
+    r = p.post("/api/v1/chat", {"body": "Mes plants de maïs jaunissent, pouvez-vous passer ?"}, format="json")
+    assert r.status_code == 201 and r.json()["results"][0]["mine"] is True
+    assert any(n["title"] == "Message d'un producteur" for n in agent.get("/api/v1/notifications").json()["results"])
+    threads = agent.get("/api/v1/chat/threads").json()["results"]
+    assert threads[0]["code"] == producer.code and threads[0]["unread"] == 1
+    assert client_for(users["agent_zou"]).get("/api/v1/chat/threads").json()["results"] == []  # hors secteur
+    assert client_for(users["agent_zou"]).get(f"/api/v1/chat/{producer.id}").status_code == 404
+    thread = agent.get(f"/api/v1/chat/{producer.id}").json()["results"]
+    assert thread[0]["from_producer"] is True and thread[0]["mine"] is False
+    assert agent.get("/api/v1/chat/threads").json()["results"][0]["unread"] == 0  # ouvert : lu
+    agent.post(f"/api/v1/chat/{producer.id}", {"body": "Je passe jeudi matin."}, format="json")
+    mine = p.get("/api/v1/chat").json()["results"]
+    assert [m["body"] for m in mine] == ["Mes plants de maïs jaunissent, pouvez-vous passer ?", "Je passe jeudi matin."]
+    assert any(n["title"] == "Message de votre agent" for n in p.get("/api/v1/notifications").json()["results"])
+    assert client_for(users["transf"]).get("/api/v1/chat").status_code == 403

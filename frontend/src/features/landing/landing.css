@@ -1,7 +1,7 @@
 /* Landing : jetons (sombre uniquement) et scène. Les sections du bas de page sont dans landing-sections.css. */
 .landing {
   --lp-serif: 'Young Serif', Georgia, 'Times New Roman', serif;
-  --lp-lime: #c6f432;
+  --lp-lime: #12be78;
   --lp-lime-ink: #0a2417;
   position: relative;
   min-height: 100vh;
@@ -17,10 +17,10 @@
   --lp-line: rgba(239, 235, 216, 0.18);
   --lp-glass: rgba(14, 46, 29, 0.8);
   --lp-glass-line: rgba(239, 235, 216, 0.22);
-  --lp-accent: #c6f432;
+  --lp-accent: #12be78;
   --lp-accent-ink: #0a2417;
-  --lp-ochre: #e39a55;
-  --lp-focus: #c6f432;
+  --lp-ochre: #f8793a;
+  --lp-focus: #12be78;
   --lp-scrim: rgba(10, 36, 23, 0.94);
   --lp-scrim-0: rgba(10, 36, 23, 0);
   color-scheme: dark;
@@ -75,7 +75,7 @@
 .lp-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .lp-scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, var(--lp-scrim) 0%, var(--lp-scrim) 24%, var(--lp-scrim-0) 62%); }
 @media (max-width: 859px) {
-  .lp-scrim { background: linear-gradient(0deg, var(--lp-scrim) 0%, var(--lp-scrim) 34%, var(--lp-scrim-0) 66%); }
+  .lp-scrim { background: linear-gradient(180deg, var(--lp-scrim) 0%, var(--lp-scrim) 62%, var(--lp-scrim-0) 100%); } /* le texte est en haut au téléphone : voile vertical qui le couvre (chapeau mesuré à 1,61:1 sur le relief avant) */
 }
 .lp-fieldrail { position: absolute; left: max(16px, 5vw); bottom: 28px; width: min(30rem, calc(100% - 32px)); margin: 0; }
 .landing:not(.landing--calm) .lp-fieldrail { opacity: 0; }
@@ -94,6 +94,8 @@
 .act-text { max-width: 34rem; }
 .act-text p, .act-1 > p { max-width: 34rem; }
 .act p { margin: 0 0 12px; }
+/* La landing est sombre dans les deux thèmes : les titres reprennent sa couleur de texte, pas l'encre du thème clair. */
+.landing :is(h1, h2, h3, h4) { color: inherit; }
 .lp-h1, .lp-h2 { margin: 0 0 20px; font-family: var(--lp-serif); font-weight: 400; letter-spacing: -0.01em; }
 .lp-h1 { max-width: 40rem; font-size: clamp(2rem, 4.6vw, 3.6rem); line-height: 1.06; }
 .lp-h2 { font-size: clamp(1.7rem, 3.4vw, 2.7rem); line-height: 1.1; }

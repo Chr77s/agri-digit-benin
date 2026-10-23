@@ -117,6 +117,33 @@
   .st-art img { aspect-ratio: 16 / 7; object-position: 60% 80%; }
   .st-art figcaption { display: none; }
 }
+
+/* Téléphone (maquettes/mobile : numero, otp, inscription-*, attente-validation, etat-erreur) : un seul champ à l'écran, gros bouton, pas d'image décorative */
+@media (max-width: 640px) {
+  .auth-art, .st-art { display: none; }
+  .auth-inner { gap: 16px; margin-top: 0; }
+  .auth-inner .page-title { font: 800 1.625rem/1.15 var(--font-ui); letter-spacing: -.02em; }
+  .auth-inner .page-desc { font-size: 1rem; }
+  .auth-inner .card, .reg-step { padding: 0; background: none; box-shadow: none; border: 0; }
+  .auth .btn-block, .step-nav .btn { min-height: 56px; border-radius: var(--r-pill); font-size: 1.0625rem; }
+  .auth .btn-ghost.btn-block { min-height: 48px; }
+  .otp input { height: 60px; font-size: 1.5rem; }
+  .step-nav { flex-direction: column-reverse; border-top: 0; padding-top: 4px; }
+  .step-nav .btn { width: 100%; margin: 0; }
+  .reg .page-head .page-actions { display: none; }
+  /* Inscription envoyée : marque d'attente au centre, comme attente-validation */
+  .done-head { flex-direction: column; text-align: center; gap: 16px; }
+  .done-icon { width: 88px; height: 88px; margin-top: 12px; background: var(--sun); color: var(--canopy); box-shadow: 0 0 0 12px rgba(243,197,74,.22); }
+  .done-icon .ic { width: 46px; height: 46px; }
+  .done-head .section-title { font-size: 1.625rem; font-weight: 800; }
+  .reg-step > .cluster { flex-direction: column; align-items: stretch; }
+  .reg-step > .cluster .btn { min-height: 56px; border-radius: var(--r-pill); }
+  .st { padding-top: 8px; }
+  .st-title { font: 800 1.375rem/1.2 var(--font-ui); }
+  .st-lead { font-size: 1rem; }
+  .st-text > .cluster { flex-direction: column; align-items: stretch; }
+  .st-text > .cluster .btn { min-height: 56px; border-radius: var(--r-pill); }
+}
 .lg-tabs .tab[aria-current="page"] { color: var(--leaf); }
 .lg-tabs .tab[aria-current="page"]::after { transform: scaleX(1); }
 .todo { background: var(--sun-bg); color: var(--sun-ink); padding: 0 4px; border-radius: 4px; font-weight: 700; }

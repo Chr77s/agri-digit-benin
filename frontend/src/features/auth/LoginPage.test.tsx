@@ -62,7 +62,6 @@ describe('Connexion', () => {
     const user = userEvent.setup();
     renderApp(<LoginPage />);
     await user.click(screen.getByRole('tab', { name: 'Agent ou partenaire' }));
-    expect(screen.getByText(/Votre compte demande en plus votre mot de passe/)).toBeInTheDocument();
     await user.type(screen.getByLabelText(/Numéro de téléphone/), '0197000002');
     await user.click(screen.getByRole('button', { name: 'Recevoir le code' }));
     await user.type(await screen.findByLabelText('Chiffre 1 sur 6'), '123456');

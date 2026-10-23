@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table, Tabs, Textarea, buttonCls, fmtDate, toast } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Checkbox, Chips, Dialog, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Table, Tabs, Textarea, buttonCls, fmtDate, toast } from '../../shared/ui';
 import { useDepartments, usePlaceName, useValueChains, useVcName } from '../../shared/api/ref';
 import type { Cooperative, MemberRole, Membership } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
 import { useProducers } from '../producers/api';
-import { useCooperative, useCooperatives, useCreateCooperative, useMembers, useMembershipActions, useMyMemberships } from './api';
+import { useCooperative, useCooperatives, useCreateCooperative, useDecideJoinRequest, useJoinCooperative, useJoinRequests, useMembers, useMembershipActions, useMyMemberships, useNearbyCooperatives, type JoinRequest, type NearbyCoop } from './api';
 import '../producers/agent.css';
 
 const MEMBER_ROLES: MemberRole[] = ['membre', 'president', 'tresorier', 'secretaire'];
+/** Les membres du bureau gèrent leur coopérative (mêmes droits que le gestionnaire, vérifiés par le serveur). */
+const BUREAU: MemberRole[] = ['president', 'tresorier', 'secretaire'];
 
 function useRoleOptions() {
   const { t } = useTranslation();
@@ -107,12 +109,13 @@ export function CooperativeDetailPage() {
   const place = usePlaceName();
   const vcName = useVcName();
   const [addOpen, setAddOpen] = useState(false);
-  const canEdit = ['agent_atda', 'admin_maep', 'gestionnaire_cooperative'].includes(user?.role ?? '');
+  const canEdit = ['agent_atda', 'admin_maep', 'gestionnaire_cooperative', 'producteur'].includes(user?.role ?? ''); // producteur : seul le bureau atteint cette page
+  const pending = useJoinRequests({ cooperative: id, status: 'en_attente' });
   return (
     <QueryState q={q}>
       {(c) => (
         <>
-          <PageHeader title={c.name} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('coop.title'), to: '/cooperatives' }, { label: c.name }]}
+          <PageHeader title={c.name} crumbs={[{ label: t('nav.home'), to: '/' }, user?.role === 'producteur' ? { label: t('nav.myCoops'), to: '/mes-cooperatives' } : { label: t('coop.title'), to: '/cooperatives' }, { label: c.name }]}
             desc={c.manager_phone ? t('ag.coop.manager', { phone: c.manager_phone }) : undefined}
             actions={canEdit && <Button icon="plus" onClick={() => setAddOpen(true)}>{t('coop.addMember')}</Button>} />
           <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
@@ -127,6 +130,7 @@ export function CooperativeDetailPage() {
             <section className="card" aria-label={t('coop.members')}>
               <Tabs label={t('coop.title')} tabs={[
                 { id: 'active', label: t('coop.activeMembers'), count: c.members_count, content: <MembersTable coopId={id} active canEdit={canEdit} /> },
+                { id: 'requests', label: t('ag.coop.requests'), count: pending.data?.length, content: <JoinRequests coopId={id} canEdit={canEdit} /> },
                 { id: 'history', label: t('coop.history'), content: <MembersTable coopId={id} active={false} canEdit={false} /> },
               ]} />
             </section>
@@ -136,6 +140,94 @@ export function CooperativeDetailPage() {
         </>
       )}
     </QueryState>
+  );
+}
+
+/** Demandes d'adhésion de la coopérative : le gestionnaire ou l'agent accepte (l'adhésion est créée) ou refuse avec un motif. */
+function JoinRequests({ coopId, canEdit }: { coopId: string; canEdit: boolean }) {
+  const { t } = useTranslation();
+  const place = usePlaceName();
+  const q = useJoinRequests({ cooperative: coopId });
+  const decide = useDecideJoinRequest();
+  const [refusing, setRefusing] = useState<JoinRequest | null>(null);
+  const [reason, setReason] = useState('');
+  const [err, setErr] = useState('');
+  const tone = { en_attente: 'wait', acceptee: 'ok', refusee: 'bad' } as const;
+  return (
+    <>
+      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<EmptyState title={t('ag.coop.noRequests')} icon="users">{t('ag.coop.noRequestsHelp')}</EmptyState>}>
+        {(d) => (
+          <Table<JoinRequest> caption={t('ag.coop.requests')} rowKey={(r) => r.id} data={d} columns={[
+            { key: 'producer_name', label: t('ag.coop.member'), render: (r) => <><span className="cell-main">{r.producer_name}</span><span className="cell-sub num">{r.producer_code} · {place(r.producer_commune)}</span></> },
+            { key: 'message', label: t('ag.coop.requestMessage'), render: (r) => r.message || '—' },
+            { key: 'created_at', label: t('common.date'), num: true, render: (r) => fmtDate(r.created_at) },
+            { key: 'status', label: t('common.status'), render: (r) => <><Badge tone={tone[r.status]}>{t(`ag.coop.reqStatus.${r.status}`)}</Badge>{r.decision_reason && <span className="cell-sub">{r.decision_reason}</span>}</> },
+            ...(canEdit ? [{ key: 'act', label: t('common.action'), actions: true, render: (r: JoinRequest) => r.status === 'en_attente' ? (
+              <span className="cluster">
+                <Button size="sm" busy={decide.isPending && decide.variables?.id === r.id && decide.variables.status === 'acceptee'} onClick={() => decide.mutate({ id: r.id, status: 'acceptee' }, { onSuccess: () => toast(t('ag.coop.accepted')) })}>{t('ag.coop.accept')}</Button>
+                <Button size="sm" variant="danger" onClick={() => { decide.reset(); setReason(''); setErr(''); setRefusing(r); }}>{t('ag.coop.refuse')}</Button>
+              </span>
+            ) : null }] : []),
+          ]} />
+        )}
+      </QueryState>
+      {decide.error && !refusing && <Alert tone="danger" live>{decide.error.message}</Alert>}
+      <Dialog open={!!refusing} onClose={() => setRefusing(null)} title={t('ag.coop.refuseTitle', { name: refusing?.producer_name ?? '' })}
+        footer={<><Button variant="ghost" onClick={() => setRefusing(null)}>{t('common.cancel')}</Button><Button type="submit" form="f-refuse" variant="dangerSolid" busy={decide.isPending}>{t('ag.coop.refuseConfirm')}</Button></>}>
+        <form id="f-refuse" noValidate className="stack" onSubmit={(e) => {
+          e.preventDefault();
+          if (reason.trim().length < 5) { setErr(t('common.errReason')); return; }
+          if (refusing) decide.mutate({ id: refusing.id, status: 'refusee', reason: reason.trim() }, { onSuccess: () => { setRefusing(null); toast(t('ag.coop.refused')); } });
+        }}>
+          <Field label={t('ag.coop.refuseReason')} hint={t('ag.coop.refuseHint')} error={err}>{(p) => <Textarea {...p} rows={3} value={reason} onChange={(e) => { setReason(e.target.value); setErr(''); }} />}</Field>
+          {decide.error && <Alert tone="danger" live>{decide.error.message}</Alert>}
+        </form>
+      </Dialog>
+    </>
+  );
+}
+
+/** Producteur : coopératives de son département où demander à adhérer ; la coopérative ne voit que nom, code et commune. */
+function NearbyCooperatives() {
+  const { t } = useTranslation();
+  const q = useNearbyCooperatives();
+  const place = usePlaceName();
+  const vcName = useVcName();
+  const join = useJoinCooperative();
+  const [target, setTarget] = useState<NearbyCoop | null>(null);
+  const [message, setMessage] = useState('');
+  const [agree, setAgree] = useState(false);
+  return (
+    <Card title={t('ag.coop.nearbyTitle')} sub={t('ag.coop.nearbySub')}>
+      <QueryState q={q} empty={(d) => d.length === 0} emptyText={<p className="muted">{t('ag.coop.nearbyNone')}</p>}>
+        {(d) => (
+          <ul className="list">
+            {d.map((c) => (
+              <li key={c.id} className="list-item"><span className="li-icon"><Icon name="building" /></span>
+                <span className="li-main"><span className="li-title">{c.name}</span>
+                  <span className="li-meta">{[c.value_chains.map(vcName).join(', '), t('ag.coop.membersN', { count: c.members_count }), place(c.commune)].filter(Boolean).join(' · ')}</span>
+                  {c.request_status === 'refusee' && <span className="li-meta">{t('ag.coop.refusedLine', { reason: c.request_reason })}</span>}</span>
+                <span className="li-end">{c.request_status === 'en_attente'
+                  ? <Badge tone="wait">{t('ag.coop.requestSent')}</Badge>
+                  : <Button variant="secondary" size="sm" onClick={() => { join.reset(); setMessage(''); setAgree(false); setTarget(c); }}>{t('ag.coop.requestBtn')}</Button>}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryState>
+      <Dialog open={!!target} onClose={() => setTarget(null)} title={t('ag.coop.joinTitle', { name: target?.name ?? '' })}
+        footer={<><Button variant="ghost" onClick={() => setTarget(null)}>{t('common.cancel')}</Button><Button type="submit" form="f-join" disabled={!agree} busy={join.isPending}>{t('ag.coop.joinSend')}</Button></>}>
+        <form id="f-join" noValidate className="stack" onSubmit={(e) => {
+          e.preventDefault();
+          if (target) join.mutate({ id: target.id, message: message.trim() }, { onSuccess: () => { setTarget(null); toast(t('ag.coop.joinSent')); } });
+        }}>
+          <Field label={t('ag.coop.requestMessage')} optional>{(p) => <Textarea {...p} rows={3} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />}</Field>
+          <Checkbox label={t('ag.coop.joinConsent')} checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+          <Alert tone="info" icon="info">{t('ag.coop.joinInfo')}</Alert>
+          {join.error && <Alert tone="danger" live>{join.error.message}</Alert>}
+        </form>
+      </Dialog>
+    </Card>
   );
 }
 
@@ -184,17 +276,18 @@ function AddMemberDialog({ coopId, onClose, onDone }: { coopId: string; onClose:
   const a = useMembershipActions(coopId);
   const roles = useRoleOptions();
   const { user } = useAuth();
-  // Le gestionnaire n'a pas accès au registre (/producers répond 403) : pas d'appel pour lui, saisie de l'identifiant ou du code à la place.
-  const producers = useProducers({ status: 'valide' }, user?.role !== 'gestionnaire_cooperative');
+  // Seul le personnel (agent, administrateur) lit le registre : le gestionnaire (403) et le président producteur (ne verrait que lui-même) saisissent le code du producteur.
+  const staff = user?.role === 'agent_atda' || user?.role === 'admin_maep';
+  const producers = useProducers({ status: 'valide' }, staff);
   const [producer, setProducer] = useState('');
   const [role, setRole] = useState<MemberRole>('membre');
   const [err, setErr] = useState('');
-  const canList = producers.isSuccess && producers.data.length > 0;
+  const canList = staff && producers.isSuccess && producers.data.length > 0;
   return (
     <Dialog open onClose={onClose} title={t('coop.addMember')}
       footer={<><Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button><Button type="submit" form="f-add" busy={a.add.isPending}>{t('coop.addConfirm')}</Button></>}>
       <form id="f-add" noValidate className="stack" onSubmit={(e) => { e.preventDefault(); if (!producer) { setErr(t('coop.errProducer')); return; } a.add.mutate({ producer, role }, { onSuccess: onDone }); }}>
-        <Field label={t('common.producer')} error={err} hint={canList ? t('ag.coop.validOnly') : t('coop.producerIdHint')}>
+        <Field label={canList ? t('common.producer') : t('coop.producerCode')} error={err} hint={canList ? t('ag.coop.validOnly') : t('coop.producerIdHint')}>
           {(p) => canList
             ? <Select {...p} value={producer} onChange={(e) => { setProducer(e.target.value); setErr(''); }} placeholder={t('common.choose')} options={producers.data!.map((x) => ({ value: x.id, label: `${x.code} ${x.first_name} ${x.last_name}` }))} />
             : <Input {...p} value={producer} onChange={(e) => { setProducer(e.target.value.trim()); setErr(''); }} />}
@@ -229,6 +322,9 @@ export function MyCooperativesPage() {
                         <dt>{t('ag.coop.myRole')}</dt><dd>{roleLabel(m.role)}</dd>
                         <dt>{t('ag.coop.memberLabel')}</dt><dd className="num">{t('coop.since', { date: fmtDate(m.joined_at) })}</dd>
                       </dl>
+                      {BUREAU.includes(m.role) && m.cooperative && (
+                        <Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to={`/cooperatives/${m.cooperative}`}>{t('coop.manage')}</Link>
+                      )}
                     </Card>
                   ))}
                 </div>
@@ -250,6 +346,7 @@ export function MyCooperativesPage() {
           );
         }}
       </QueryState>
+      <div className="mt-5"><NearbyCooperatives /></div>
     </>
   );
 }

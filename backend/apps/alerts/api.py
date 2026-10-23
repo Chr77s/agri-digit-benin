@@ -1,3 +1,4 @@
+from django.db.models import Count, Max, Q
 from django.http import Http404
 from django.utils import timezone
 from rest_framework import serializers
@@ -5,7 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from apps.core.pagination import Cursor
-from apps.core.permissions import ADMIN, AGENT, roles
+from apps.core.permissions import ADMIN, AGENT, PRODUCTEUR, roles
+from apps.producers.selectors import producers_for
 from apps.referentiel.data import ALL_VALUE_CHAIN_CODES
 
 from . import services
@@ -114,3 +116,62 @@ def outbox_list(request):
         qs = qs.filter(channel=ch)
     pg = Cursor()
     return pg.get_paginated_response(OutboxSerializer(pg.paginate_queryset(qs, request), many=True).data)
+
+
+# ---- Messagerie producteur <-> agent ATDA ----
+
+class ChatSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    body = serializers.CharField()
+    created_at = serializers.DateTimeField()
+    read_at = serializers.DateTimeField()
+    from_producer = serializers.SerializerMethodField()
+    mine = serializers.SerializerMethodField()
+
+    def get_from_producer(self, m):
+        return m.author.role == PRODUCTEUR
+
+    def get_mine(self, m):
+        return m.author_id == self.context["user"].id
+
+
+def _thread(request, producer):
+    if request.method == "POST":
+        services.post_chat(request.user, producer, request.data.get("body"))
+    else:
+        services.read_chat(request.user, producer)
+    qs = producer.chat.select_related("author")
+    return Response({"producer": {"id": str(producer.id), "code": producer.code,
+                                  "name": f"{producer.first_name} {producer.last_name}"},
+                     "results": ChatSerializer(qs, many=True, context={"user": request.user}).data},
+                    status=201 if request.method == "POST" else 200)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([roles(PRODUCTEUR)])
+def chat_mine(request):
+    producer = getattr(request.user, "producer", None)
+    if producer is None or producer.status != "valide":
+        return Response({"detail": "La messagerie s'ouvre quand votre fiche est validée.", "code": "not_validated"},
+                        status=400)
+    return _thread(request, producer)
+
+
+@api_view(["GET"])
+@permission_classes([roles(AGENT)])
+def chat_threads(request):
+    """Fils du secteur de l'agent, les plus récents d'abord, avec le nombre de messages non lus du producteur."""
+    qs = producers_for(request.user).filter(chat__isnull=False).annotate(
+        last_at=Max("chat__created_at"),
+        unread=Count("chat", filter=Q(chat__author__role=PRODUCTEUR, chat__read_at__isnull=True))).order_by("-last_at")
+    return Response({"results": [{"producer_id": str(p.id), "code": p.code, "name": f"{p.first_name} {p.last_name}",
+                                  "commune": p.commune, "last_at": p.last_at, "unread": p.unread} for p in qs]})
+
+
+@api_view(["GET", "POST"])
+@permission_classes([roles(AGENT)])
+def chat_thread(request, producer_id):
+    producer = producers_for(request.user).filter(pk=producer_id).first()
+    if producer is None:
+        raise Http404
+    return _thread(request, producer)

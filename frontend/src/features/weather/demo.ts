@@ -1,5 +1,6 @@
-// shortcut: aucune API météo ni relevé de prix côté serveur ; ces valeurs sont des données de DÉMONSTRATION,
-// toujours affichées avec un badge « Prévision simulée » ou « Démonstration ». À remplacer par un service (Météo-Bénin, SIM) quand il existe.
+// Repli de DÉMONSTRATION, toujours affiché avec un badge « Prévision simulée » ou « Démonstration » : la météo vient d'Open-Meteo et les
+// prix des relevés saisis (GET /prices) ; ces valeurs ne servent que sans réseau ou pour une filière sans aucun relevé récent.
+// shortcut: Météo-Bénin et le SIM ne sont pas raccordés, voir docs/MOCKS.md.
 import type { IconName } from '../../shared/ui';
 
 export interface DayForecast { date: Date; tmax: number; tmin: number; rainMm: number; rainPct: number; icon: IconName }
@@ -15,7 +16,8 @@ export function unit(key: string) {
 export function demoForecast(place: string, today = new Date(), days = 7): DayForecast[] {
   return Array.from({ length: days }, (_, i) => {
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    const k = `${place}:${date.toISOString().slice(0, 10)}`;
+    // date locale (AAAA-MM-JJ) : toISOString passerait en UTC, soit la veille au Bénin ; même clé que integrations/market_data.py
+    const k = `${place}:${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const r = unit(`${k}:rain`);
     const rainMm = r > 0.72 ? Math.round(15 + (r - 0.72) * 180) : r > 0.5 ? Math.round((r - 0.5) * 20) : 0;
     const rainPct = Math.min(95, Math.round(5 + r * 90));

@@ -53,7 +53,7 @@ describe('FieldRenderer (faux contexte 2D)', () => {
         }
       }
     }
-  });
+  }, 30_000); // 56 rendus complets : plus de 5 s (délai par défaut) sur le poste de développement à 3,5 Go
 
   it('dessine des faces 3D dans le budget (2 000, 700 en lite)', () => {
     for (const lite of [false, true]) {
