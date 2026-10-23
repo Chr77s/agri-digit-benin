@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../shared/api/client';
-import { useDepartments, useValueChains, useVcName } from '../../shared/api/ref';
+import { useDepartments, usePlaceName, useValueChains, useVcName } from '../../shared/api/ref';
 import {
   Badge, Button, Card, Chips, Dialog, EmptyState, ErrorState, Field, Input, PageHeader, QueryState, Select, Textarea, fmtDate, fmtNum, toast,
 } from '../../shared/ui';
@@ -34,6 +34,7 @@ export function OrganisationsPage() {
   const { t } = useTranslation();
   const role = useAuth().user?.role ?? '';
   const vcName = useVcName();
+  const place = usePlaceName();
   const q = useQuery({ queryKey: ['orgs'], queryFn: () => api<{ results: Org[] }>('/organisations') });
   const [create, setCreate] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export function OrganisationsPage() {
           <div className="grid-fit" style={{ '--min': '320px' } as React.CSSProperties}>
             {d.results.map((o) => (
               <Card key={o.id} as="article" title={o.name} actions={<Badge>{t(`org.kind.${o.kind}`)}</Badge>}>
-                <p className="small muted">{o.department || t('org.national')} · {o.value_chains.map(vcName).join(', ') || '—'}</p>
+                <p className="small muted">{place(o.department) || t('org.national')} · {o.value_chains.map(vcName).join(', ') || '—'}</p>
                 <p>{t('org.headcount', { coops: o.headcount.cooperatives, producers: o.headcount.producers, women: o.headcount.women })}</p>
                 <Button variant="secondary" size="sm" onClick={() => setOpen(o.id)}>{t('org.open')}</Button>
               </Card>
@@ -86,6 +87,7 @@ function OrgForm({ onClose }: { onClose: () => void }) {
 
 function OrgDialog({ id, canWrite, onClose }: { id: string; canWrite: boolean; onClose: () => void }) {
   const { t } = useTranslation();
+  const place = usePlaceName();
   const q = useQuery({ queryKey: ['orgs', id], queryFn: () => api<OrgDetail>(`/organisations/${id}`) });
   const coops = useQuery({ queryKey: ['cooperatives', {}], queryFn: () => api<{ results: { id: string; name: string }[] }>('/cooperatives'), enabled: canWrite });
   const [coop, setCoop] = useState('');
@@ -100,7 +102,7 @@ function OrgDialog({ id, canWrite, onClose }: { id: string; canWrite: boolean; o
             <p>{t('org.headcount', { coops: d.headcount.cooperatives, producers: d.headcount.producers, women: d.headcount.women })}</p>
             <section>
               <h3 className="card-title">{t('org.coops')}</h3>
-              {d.cooperatives.length ? <ul>{d.cooperatives.map((c) => <li key={c.id}>{c.name} ({c.department})</li>)}</ul> : <p className="muted">{t('org.noCoops')}</p>}
+              {d.cooperatives.length ? <ul>{d.cooperatives.map((c) => <li key={c.id}>{c.name} ({place(c.department)})</li>)}</ul> : <p className="muted">{t('org.noCoops')}</p>}
               {canWrite && (
                 <div className="cluster mt-2">
                   <Select aria-label={t('org.addCoop')} value={coop} onChange={(e) => setCoop(e.target.value)} placeholder={t('common.choose')}

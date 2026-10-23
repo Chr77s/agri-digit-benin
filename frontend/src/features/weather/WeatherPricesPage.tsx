@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Card, Chips, Field, Icon, PageHeader, Select, Switch, Table, fmtNum } from '../../shared/ui';
-import { useDepartments, usePlaceName, useVcName } from '../../shared/api/ref';
+import { Alert, Badge, Card, Field, Icon, PageHeader, Select, Skeleton, Switch, Table, fmtDate, fmtNum } from '../../shared/ui';
+import { useDepartments, usePlaceName, useVcName, useVcSelect } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import '../producers/producteur.css';
-import { PRICE_CHAINS, demoPriceHistory, demoPrices, type MarketPrice } from './demo';
+import { priceCurve, usePriceRows, type PriceRow } from '../markets/api';
+import { Change } from '../markets/PricesPage';
 import { useForecast } from './api';
 
-/** /meteo-prix (producteur, agent ATDA) : aucune API météo ni prix côté serveur, toutes les valeurs sont simulées et étiquetées. */
+/** /meteo-prix (producteur, agent ATDA) : prévision réelle (Open-Meteo) et derniers relevés de prix saisis ; sans relevé, démonstration étiquetée. */
 export function WeatherPricesPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -15,8 +16,8 @@ export function WeatherPricesPage() {
   const place = usePlaceName();
   const vcName = useVcName();
   const [commune, setCommune] = useState(user?.commune ?? '');
-  const [chain, setChain] = useState(['mais']);
-  const rows = demoPrices(chain[0]);
+  const [chain, setChain] = useState('mais');
+  const o = usePriceRows(chain);
   const communes = (deps.data ?? []).filter((d) => !user?.department || d.code === user.department || user.role === 'producteur')
     .map((d) => ({ label: d.name, options: d.communes.map((c) => ({ value: c.code, label: `${c.name} (${d.name})` })) }));
   const name = place(commune) || t('weather.benin');
@@ -32,9 +33,9 @@ export function WeatherPricesPage() {
         } />
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         <Forecast commune={commune} name={name} />
-        <Prices chain={chain} setChain={setChain} rows={rows} />
+        <Prices chain={chain} setChain={setChain} o={o} />
         <div className="grid-fit" style={{ ['--min' as string]: '320px' }}>
-          <PriceChart chain={chain[0]} name={vcName(chain[0])} market={rows[0].market} />
+          <PriceChart o={o} name={vcName(chain)} />
           <Subscriptions />
         </div>
       </div>
@@ -84,33 +85,48 @@ function Forecast({ commune, name }: { commune: string; name: string }) {
   );
 }
 
-type PriceRow = MarketPrice & { id: string };
+type Row = PriceRow & { id: string };
+type PriceData = ReturnType<typeof usePriceRows>;
 
-function Prices({ chain, setChain, rows }: { chain: string[]; setChain: (v: string[]) => void; rows: MarketPrice[] }) {
+/** Derniers prix par marché : relevés saisis par les agents et les acteurs ; sans relevé de la filière, démonstration étiquetée. */
+function Prices({ chain, setChain, o }: { chain: string; setChain: (v: string) => void; o: PriceData }) {
   const { t } = useTranslation();
   const vcName = useVcName();
+  const vc = useVcSelect();
+  const place = usePlaceName();
+  const latest = o.latest.reduce<string | null>((m, r) => (r.observed_on && (!m || r.observed_on > m) ? r.observed_on : m), null);
   return (
       <div className="stack" style={{ ['--gap' as string]: '8px' }}>
-        <Table<PriceRow> title={t('weather.pricesTitle')} caption={t('weather.pricesCaption', { crop: vcName(chain[0]) })} rowKey={(r) => r.id} data={rows.map((r) => ({ ...r, id: r.market }))}
-          toolbar={<Chips single label={t('common.valueChain')} value={chain} onChange={setChain} options={PRICE_CHAINS.map((c) => ({ value: c.code, label: vcName(c.code) }))} />}
+        <Table<Row> title={t('weather.pricesTitle')} caption={t('weather.pricesCaption', { crop: vcName(chain) })} rowKey={(r) => r.id} data={o.latest.map((r) => ({ ...r, id: `${r.market}|${r.form}|${r.product}` }))}
+          toolbar={<div className="w-full sm:w-64"><Field label={t('common.valueChain')}>{(p) => <Select {...p} value={chain} onChange={(e) => setChain(e.target.value)} options={vc.options} groups={vc.groups} />}</Field></div>}
           columns={[
-            { key: 'market', label: t('weather.market'), render: (r) => <span className="cell-main">{r.market}</span> },
-            { key: 'department', label: t('common.department') },
+            { key: 'market', label: t('weather.market'), render: (r) => <><span className="cell-main">{r.market}</span><span className="cell-sub">{t(`mk.form.${r.form}`)}{r.form === 'transforme' ? ` · ${r.product}` : ''}</span></>, csv: (r) => r.market },
+            { key: 'department', label: t('common.department'), render: (r) => place(r.department), csv: (r) => r.department },
             { key: 'price', label: t('weather.price'), num: true, render: (r) => <b>{fmtNum(r.price)}</b> },
-            {
-              key: 'change', label: t('weather.change'), num: true,
-              render: (r) => (r.change === 0 ? <span className="muted">{t('weather.stable')}</span>
-                : <span className={r.change > 0 ? 'up' : 'down'}><Icon name={r.change > 0 ? 'arrow-up' : 'arrow-down'} />{r.change > 0 ? '+' : '−'}{Math.abs(r.change)} %</span>),
-            },
+            { key: 'change', label: t('weather.change'), num: true, render: (r) => <Change value={r.change} />, csv: (r) => r.change },
           ]} />
-        <div className="cluster"><Badge tone="demo">{t('pr.demo')}</Badge><span className="small muted">{t('weather.pricesSource')}</span></div>
+        {o.loading && <Skeleton lines={1} />}
+        {!o.loading && o.latest.length === 0 && <p className="muted small">{t('mk.prices.none', { crop: vcName(chain) })}</p>}
+        <div className="cluster">
+          {o.simulated ? <Badge tone="demo">{t('pr.demo')}</Badge> : <Badge tone="ok">{t('mk.prices.real')}</Badge>}
+          <span className="small muted">{o.simulated ? t(o.offline ? 'mk.prices.sourceOffline' : 'mk.prices.sourceDemo') : t('mk.prices.sourceReal', { date: fmtDate(latest) })}</span>
+        </div>
       </div>
   );
 }
 
-function PriceChart({ chain, name, market }: { chain: string; name: string; market: string }) {
+function PriceChart({ o, name }: { o: PriceData; name: string }) {
   const { t } = useTranslation();
-  const pts = demoPriceHistory(chain);
+  const pts = priceCurve(o);
+  const market = o.simulated ? o.latest[0]?.market ?? '' : t('mk.curve.allMarkets');
+  if (pts.length < 2) {
+    return (
+      <figure className="card chart">
+        <div className="card-head" style={{ margin: 0 }}><h3 className="card-title">{t('mk.curve.title', { crop: name })}</h3></div>
+        <p className="muted">{o.loading ? t('common.loadingDots') : t('mk.curve.notEnough')}</p>
+      </figure>
+    );
+  }
   const vals = pts.map((p) => p.price);
   const lo = Math.min(...vals) * 0.95, hi = Math.max(...vals) * 1.05;
   const x = (i: number) => 50 + (i * 290) / (pts.length - 1);
@@ -120,7 +136,10 @@ function PriceChart({ chain, name, market }: { chain: string; name: string; mark
   const last = pts[pts.length - 1];
   return (
     <figure className="card chart">
-      <div className="card-head" style={{ margin: 0 }}><h3 className="card-title">{t('weather.chartTitle', { crop: name, market })}</h3><Badge tone="demo">{t('pr.demo')}</Badge></div>
+      <div className="card-head" style={{ margin: 0 }}>
+        <h3 className="card-title">{o.simulated ? t('weather.chartTitle', { crop: name, market }) : t('mk.curve.titleReal', { crop: name, n: pts.length })}</h3>
+        {o.simulated && <Badge tone="demo">{t('pr.demo')}</Badge>}
+      </div>
       <svg viewBox="0 0 360 190" role="img" aria-label={t('weather.chartAlt', { crop: name, market, from: pts[0].price, to: last.price })}>
         <g>{[20, 70, 120, 160].map((yy) => <line key={yy} className="gridline" x1="40" x2="352" y1={yy} y2={yy} />)}</g>
         <g className="tick" textAnchor="end">{[20, 90, 160].map((yy) => <text key={yy} x="34" y={yy + 4}>{Math.round(lo + ((160 - yy) / 140) * (hi - lo))}</text>)}</g>
@@ -128,9 +147,9 @@ function PriceChart({ chain, name, market }: { chain: string; name: string; mark
         <path className="line" d={line} />
         <circle className="point" cx={x(pts.length - 1)} cy={y(last.price)} r="4" />
         <text className="val" x={x(pts.length - 1)} y={y(last.price) - 12} textAnchor="middle">{last.price}</text>
-        <g className="tick" textAnchor="middle"><text x="50" y="180">{d(pts[0].date)}</text><text x="195" y="180">{d(pts[4].date)}</text><text x="335" y="180">{d(last.date)}</text></g>
+        <g className="tick" textAnchor="middle"><text x="50" y="180">{d(pts[0].date)}</text><text x="195" y="180">{d(pts[Math.floor(pts.length / 2)].date)}</text><text x="335" y="180">{d(last.date)}</text></g>
       </svg>
-      <figcaption>{t('weather.chartCaption')}</figcaption>
+      <figcaption>{o.simulated ? t('weather.chartCaption') : t('mk.curve.caption')}</figcaption>
     </figure>
   );
 }

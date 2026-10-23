@@ -32,6 +32,13 @@ export default {
       laterite: c('laterite'),
       rain: c('rain'),
       layer: c('layer'),
+      sage: c('sage'),
+      mint: c('mint'),
+      peach: c('peach'),
+      butter: c('butter'),
+      sky: c('sky'),
+      coral: c('coral'),
+      teal: c('teal'),
     },
     fontSize: {
       xs: [t.fontSize.xs, '18px'],

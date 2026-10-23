@@ -55,6 +55,17 @@ def create_parcel(actor, producer, d):
 
 
 @transaction.atomic
+def set_arable(actor, parcel, arable_ha):
+    if arable_ha is not None and not 0 <= arable_ha <= parcel.area_ha:
+        raise ApiError(f"La superficie exploitable doit être comprise entre 0 et {parcel.area_ha} ha.",
+                       "validation_error", 400, fields={"arable_ha": ["Entre 0 et la superficie mesurée."]})
+    parcel.arable_ha = arable_ha
+    parcel.save(update_fields=["arable_ha"])
+    record(actor, "parcel.arable", parcel, arable_ha=arable_ha)
+    return parcel
+
+
+@transaction.atomic
 def create_campaign(actor, parcel, d):
     if Campaign.objects.filter(parcel=parcel, season=d["season"]).exists():
         raise ApiError("Une culture principale existe déjà pour cette parcelle et cette saison.", "campaign_exists",

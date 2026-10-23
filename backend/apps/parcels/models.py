@@ -12,7 +12,8 @@ class Parcel(models.Model):
     geometry = models.JSONField()  # GeoJSON Polygon (WGS84)
     land_type = models.CharField(max_length=20)
     tenure = models.CharField(max_length=20)
-    area_ha = models.FloatField()
+    area_ha = models.FloatField()  # disponible : mesurée par le serveur sur le tracé
+    arable_ha = models.FloatField(null=True, blank=True)  # exploitable, déclarée ; vide = toute la surface
     overlap_warning = models.BooleanField(default=False)
     overlap_with = models.JSONField(default=list, blank=True)
     department = models.CharField(max_length=40, db_index=True)

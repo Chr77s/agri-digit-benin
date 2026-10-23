@@ -512,7 +512,7 @@
     "noThreadsHelp": "Les producteurs de votre secteur vous écrivent depuis « Mes messages ».",
     "unread_one": "{{count}} non lu",
     "unread_other": "{{count}} non lus",
-    "pick": "Choisissez une conversation à gauche."
+    "pick": "Choisissez une conversation dans la liste."
   },
   "notifications": {
     "listen": "Mes messages. Vos alertes et les nouvelles de votre inscription.",
@@ -1356,7 +1356,8 @@
     "endReason": "Motif de fin d'adhésion",
     "endConfirm": "Confirmer la fin d'adhésion",
     "errProducer": "Choisissez un producteur validé.",
-    "producerIdHint": "Identifiant du producteur (fourni par l'agent ATDA)",
+    "producerCode": "Code du producteur",
+    "producerIdHint": "Code du producteur validé, par exemple BJ-AGR-2026-000021 (visible sur sa carte).",
     "addConfirm": "Ajouter à la coopérative",
     "mineListen": "Mes coopératives. Voici les coopératives dont vous êtes membre.",
     "mineEmpty": "Vous n'êtes membre d'aucune coopérative.",

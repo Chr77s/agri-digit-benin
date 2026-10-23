@@ -10,7 +10,7 @@ import { useDepartments, usePlaceName, useVcName, useVcSelect } from '../../shar
 import type { Match, Offer, OfferType, Payment } from '../../shared/api/types';
 import { useAuth } from '../auth/AuthContext';
 import { useContact, useCreateOffer, useCreatePayment, useDecide, useMatches, useOffers, useOfferStatus, usePayment, useRefund, type OfferFilter } from './api';
-import { PRICE_CHAINS, demoPrices } from '../weather/demo';
+import { usePriceRows } from '../markets/api';
 import { EXPECTED_HARVESTS } from './demo';
 import './market.css';
 
@@ -264,16 +264,21 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
   const { user } = useAuth();
   const vc = useVcSelect();
   const deps = useDepartments();
+  const place = usePlaceName();
   const m = useCreateOffer();
   const [v, setV] = useState({ type: 'offre' as OfferType, value_chain: '', qty: '', price: '', department: user?.department ?? '', commune: user?.commune ?? '', description: '' });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const communes = deps.data?.find((d) => d.code === v.department)?.communes ?? [];
   const err = (name: string) => errs[name] ?? fieldError(m.error, name);
-  // Repère pour fixer son prix : relevés de démonstration de Banikoara et de Parakou pour la filière choisie.
-  const priceHint = (chain: string) => {
-    if (!PRICE_CHAINS.some((c) => c.code === chain)) return undefined; // pas de relevé pour cette filière
-    const seen = demoPrices(chain).filter((r) => /^(Banikoara|Parakou)/.test(r.market)).map((r) => `${r.market.replace(/ \(.*\)/, '')} ${fmtNum(r.price)} F`);
-    return seen.length ? t('market.priceHint', { list: seen.join(' · ') }) : undefined;
+  // Rappel du prix du jour pour la filière choisie : derniers relevés (ceux du département de l'annonce d'abord), à défaut démonstration étiquetée.
+  const prices = usePriceRows(v.value_chain);
+  const priceHint = () => {
+    const raw = prices.latest.filter((r) => r.form === 'brut').sort((a, b) => Number(b.department === v.department) - Number(a.department === v.department));
+    // un prix d'un autre département que celui de l'annonce porte son département, pour ne pas passer pour un prix local
+    const seen = raw.slice(0, 2).map((r) => `${r.market.replace(/ \(.*\)/, '')}${r.department && r.department !== v.department ? ` (${place(r.department)})` : ''} ${fmtNum(r.price)} F`);
+    if (!seen.length) return undefined;
+    const dates = raw.map((r) => r.observed_on).filter((d): d is string => !!d).sort();
+    return t('mk.priceHint', { list: seen.join(' · '), source: prices.simulated ? t('mk.prices.sourceShortDemo') : t('mk.prices.sourceShortReal', { date: fmtDate(dates[dates.length - 1]) }) });
   };
   return (
     <form noValidate aria-label={t('market.create')} onSubmit={(e) => {
@@ -306,7 +311,7 @@ function OfferForm({ coop, onDone }: { coop?: boolean; onDone: () => void }) {
         <Field label={t('market.quantity')} error={err('quantity_kg')}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.qty} onChange={(e) => setV({ ...v, qty: e.target.value })} /><span className="addon addon--end">kg</span></div>
         )}</Field>
-        <Field label={t(`market.priceFor.${v.type}`)} error={err('price_xof_per_kg')} hint={<>{t('market.priceNegotiable')} {priceHint(v.value_chain)}</>}>{(p) => (
+        <Field label={t(`market.priceFor.${v.type}`)} error={err('price_xof_per_kg')} hint={<>{t('market.priceNegotiable')} {priceHint()}</>}>{(p) => (
           <div className="input-group"><Input {...p} className="input-num" inputMode="numeric" autoComplete="off" value={v.price} onChange={(e) => setV({ ...v, price: e.target.value })} /><span className="addon addon--end">FCFA/kg</span></div>
         )}</Field>
         <Field label={t('common.department')}>{(p) => <Select {...p} value={v.department} onChange={(e) => setV({ ...v, department: e.target.value, commune: '' })} placeholder={t('common.choose')} options={(deps.data ?? []).map((d) => ({ value: d.code, label: d.name }))} />}</Field>

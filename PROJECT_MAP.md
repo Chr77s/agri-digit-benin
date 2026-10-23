@@ -17,18 +17,22 @@ Chaque module : `models`, `services` (règles métier), `selectors` (lectures), 
 | `apps/programs` | Programmes (brouillon, critères, calendrier), candidatures et contestation d'un refus, sélection des bénéficiaires, contestations | 17, 18 |
 | `apps/credit` | Consentement crédit, score explicable, consultation journalisée | 19, 20 |
 | `apps/farms` | Fermes du POC (import en flux), agrégats | 22, 23 |
-| `apps/dashboard` | Indicateurs avec source et date | 22 |
+| `apps/dashboard` | Indicateurs avec source et date ; `sea_detail` : production par filière et saison, effectifs par sexe et âge, impact des appuis (cellules de moins de 5 masquées) | 22 |
 | `apps/exports` | Export CSV avec motif | 24 |
 | `apps/cooperatives` | Coopératives, adhésions avec historique, demandes d'adhésion du producteur | 06 |
-| `apps/production` | Appuis remis, confirmés ou signalés incomplets, récoltes et écart au rendement de référence | 10, 11 |
+| `apps/production` | Appuis remis, confirmés ou signalés incomplets, récoltes et écart au rendement de référence ; sites et lots (`lots`) ; créances à échéances et remboursement en un clic (`recovery`, `recovery_api`) ; dépenses et revenu du producteur (`revenue`) | 10, 11 |
 | `apps/diagnosis` | Diagnostic par photo simulé, EXIF retiré, « Pas sûr ? » vers l'agronome, relecture, purge | 13 |
 | `apps/translations` | Entrées fon/bariba à valider, notes, ouverture à 80 % | 15 |
 | `apps/market` | Offres, mise en relation, paiement FakePay | 21 |
 | `apps/satellite` | NDVI et humidité de démonstration | 23 |
 | `apps/interop` | Agrégats pseudonymisés pour X-Road, SONAMA, FNDA | 24 |
+| `apps/lands` | Aménagements et travaux (réhabilitation, nouvel aménagement, entretien), analyses de sol et leur lecture, utilisation des terres (disponible, exploitable, exploitée), risques climatiques (`climate`) | |
+| `apps/farmservices` | Matériel agricole des producteurs, mécanisation (demandes, acceptation, réalisation, dépense), lots de semences certifiées distribués en appuis, annuaire des PMEA vérifiés | |
+| `apps/observatory` | Statistiques nationales avec source (couverture de la consommation, importations, veille), carte des acteurs à registre de couches GeoJSON (`actors_map`), qualité mesurée des modèles (`quality`), jeux d'entraînement pseudonymisés (`export_training_set`, cadre dans `docs/REENTRAINEMENT.md`) | |
+| `apps/markets` | Relevés de prix brut et transformé, écart brut / transformé (`prices`), analyses prospectives des prix et de l'offre attendue (`analysis`), enquêtes de satisfaction publiques et anonymes (`surveys`, `surveys_api`), formations et vitrine des produits (`trainings`, `showcase`, `trainings_api`) ; les stocks et ruptures sont dans `apps/production/stocks.py` | |
 | `apps/ussd` | Téléphone simple : menus USSD sans état (météo, prix, conseil, appuis, langue) et commandes SMS | |
 | `apps/core` | Erreurs, pagination, permissions, périmètre | |
-| `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad`, `market_data` (météo et prix de démonstration partagés avec l'USSD) | |
+| `integrations/` | `anip`, `payment` (FakePay), `notifications` (SMS/vocal simulés), `llm`, `diagnosis`, `xroad`, `market_data` (météo réelle, prix : derniers relevés saisis, à défaut démonstration étiquetée, partagés avec l'USSD) | |
 | `tests/e2e_backend.py` | Scénario de démonstration rejoué par l'API | |
 
 ## Frontend (`frontend/`, Vite + React + TypeScript, PWA)

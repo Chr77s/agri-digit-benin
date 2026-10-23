@@ -70,6 +70,7 @@ export async function loadRemoteDictionary(lng: string): Promise<void> {
 }
 
 i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng; // les lecteurs d'écran choisissent la voix d'après <html lang>
   void loadRemoteDictionary(lng);
   try { localStorage.setItem(LANG_KEY, lng); } catch { /* stockage indisponible : la langue revient au français au prochain lancement */ }
 });

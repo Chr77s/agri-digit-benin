@@ -98,7 +98,7 @@ export function RegisterPage() {
   useEffect(() => { if (first.current) { first.current = false; return; } heading.current?.focus(); }, [step, done, queued]);
 
   const go = (n: number) => { reg.reset(); setStep(n); };
-  const next = async () => { if (await trigger(STEP_FIELDS[step])) go(step + 1); };
+  const next = async () => { if (await trigger(STEP_FIELDS[step], { shouldFocus: true })) go(step + 1); };
 
   const onSubmit = handleSubmit(async (v) => {
     try {

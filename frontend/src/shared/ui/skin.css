@@ -1,0 +1,440 @@
+/* ==========================================================================
+   « Argile et verre » : la peau du kit (docs/REFONTE_FRONTEND.md, décisions D1 à D15).
+   kit.css garde la structure des composants ; ce fichier, chargé après kit.css et mobile.css, en change l'aspect :
+   crème et sauge, verre dépoli (image 1), volumes d'argile et pastel par rang (image 2).
+   Les couleurs viennent de tokens.ts (variables --c-*) ; rien n'est codé en dur ici sauf les reflets et les halos.
+   ========================================================================== */
+
+:root {
+  --sage: rgb(var(--c-sage)); --mint: rgb(var(--c-mint)); --peach: rgb(var(--c-peach)); --butter: rgb(var(--c-butter)); --sky: rgb(var(--c-sky));
+  --coral: rgb(var(--c-coral)); --teal: rgb(var(--c-teal));
+
+  /* Formes : très arrondi (argile) */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 22px; --r-xl: 30px;
+
+  /* Verre : surface translucide, bordure blanche, flou ; l'argile : portée douce + lumière en haut + ombre en bas */
+  --glass: rgba(255,255,255,.66);
+  --glass-strong: rgba(255,255,255,.86);
+  --glass-line: rgba(255,255,255,.92);
+  --blur: 18px;
+  --sh-card: 0 12px 28px -14px rgba(1,70,50,.28), inset 0 2px 0 rgba(255,255,255,.85), inset 0 -3px 8px rgba(88,128,104,.10);
+  --sh-pop: 0 30px 70px -24px rgba(16,44,30,.45), 0 0 0 1px rgba(255,255,255,.6);
+  --sh-btn: 0 10px 22px -10px rgba(0,131,90,.65), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 6px rgba(8,60,50,.22);
+  --sh-in: inset 0 2px 5px rgba(70,100,80,.14);
+  --grad-action: linear-gradient(135deg, #016648 0%, #00835A 100%);
+  --grad-accent: linear-gradient(135deg, #F88A4E 0%, #F6732F 100%);
+
+  /* Barre latérale sauge */
+  --sb-bg: linear-gradient(180deg, #016648 0%, #014D38 100%);
+  --sb-ink: #FFFFFF; --sb-ink-2: #C4E6D5; --sb-icon: #8FDDB8; --sb-line: rgba(255,255,255,.18);
+  --sb-hover: rgba(255,255,255,.12); --sb-active-bg: #FFFFFF; --sb-active-ink: #016648;
+
+  --tabbar-h: 96px;
+}
+[data-theme='dark'] {
+  --glass: rgba(255,255,255,.07);
+  --glass-strong: rgba(18,48,40,.90);
+  --glass-line: rgba(255,255,255,.14);
+  --sh-card: 0 14px 30px -16px rgba(0,0,0,.7), inset 0 1.5px 0 rgba(255,255,255,.10), inset 0 -3px 8px rgba(0,0,0,.22);
+  --sh-pop: 0 30px 70px -24px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.10);
+  --sh-btn: 0 10px 22px -10px rgba(60,185,191,.5), inset 0 2px 0 rgba(255,255,255,.3), inset 0 -3px 6px rgba(0,40,35,.3);
+  --sh-in: inset 0 2px 6px rgba(0,0,0,.35);
+  --grad-action: linear-gradient(135deg, #3DDC97 0%, #00A563 100%);
+  --grad-accent: linear-gradient(135deg, #F99A68 0%, #F78A4F 100%);
+  --sb-bg: linear-gradient(180deg, #013D2C 0%, #012E22 100%);
+  --sb-ink: #E4F1E8; --sb-ink-2: #B6CABD; --sb-icon: #8FC9A8; --sb-line: rgba(255,255,255,.14);
+  --sb-hover: rgba(255,255,255,.08); --sb-active-bg: rgba(127,211,160,.20); --sb-active-ink: #FFFFFF;
+  --line-input: #6F9885; --surface-2: #1B3B30;
+}
+
+/* Sans flou possible, ou si la personne réduit la transparence : le verre devient opaque (lisibilité d'abord) */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { :root { --glass: rgba(255,255,255,.94); } [data-theme='dark'] { --glass: rgba(24,58,48,.96); } }
+@media (prefers-reduced-transparency: reduce) { :root { --glass: rgba(255,255,255,.96); --blur: 0px; } [data-theme='dark'] { --glass: rgba(24,58,48,.97); } }
+@media (max-width: 640px) { :root { --blur: 12px; } }
+
+/* ---------- Fond : crème et trois halos doux (de quoi flouter pour le verre) ---------- */
+body {
+  background:
+    radial-gradient(900px 620px at 6% -6%, rgba(0,165,99,.16), transparent 62%),
+    radial-gradient(760px 560px at 100% 4%, rgba(246,115,47,.14), transparent 62%),
+    radial-gradient(900px 640px at 94% 104%, rgba(1,102,72,.12), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+[data-theme='dark'] body {
+  background:
+    radial-gradient(900px 620px at 6% -6%, rgba(46,140,104,.28), transparent 62%),
+    radial-gradient(760px 560px at 100% 4%, rgba(60,185,191,.14), transparent 62%),
+    radial-gradient(900px 640px at 94% 104%, rgba(80,120,200,.16), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+::-webkit-scrollbar-thumb { background: #B7C9B5; }
+[data-theme='dark'] ::-webkit-scrollbar-thumb { background: #3F6A58; }
+::selection { background: rgba(243,197,74,.7); }
+
+/* Titres : la grotesque arrondie partout où l'on dit « bonjour » */
+.page-title { font: 750 clamp(1.75rem, 1.35rem + 1.2vw, 2.25rem)/1.1 var(--font-display); letter-spacing: -.025em; }
+.section-title, .card-title { font-family: var(--font-display); letter-spacing: -.01em; }
+.section-title { font-weight: 700; }
+
+/* ---------- Bandeau prototype : beurre doux plutôt que bloc sombre ---------- */
+.proto-band { background: rgba(251,235,191,.85); color: #5A4600; }
+.proto-band strong { color: #3F3000; }
+.proto-band .ic { color: #8A6400; }
+.proto-band a { color: #3F3000; }
+[data-theme='dark'] .proto-band { background: rgba(243,197,74,.14); color: #F1D88A; }
+[data-theme='dark'] .proto-band strong, [data-theme='dark'] .proto-band a { color: #FFF1C2; }
+[data-theme='dark'] .proto-band .ic { color: var(--sun); }
+
+/* ==========================================================================
+   Coque : panneau latéral flottant, barre du haut en verre
+   ========================================================================== */
+.shell { padding: 14px 14px 0 14px; gap: 14px; }
+.sidebar {
+  top: 14px; height: calc(100vh - 28px); padding: 16px 12px 12px;
+  background: var(--sb-bg); color: var(--sb-ink-2);
+  border: 1.5px solid var(--glass-line); border-radius: var(--r-xl);
+  box-shadow: var(--sh-card);
+  scrollbar-color: var(--sb-icon) transparent;
+}
+.sidebar::-webkit-scrollbar-thumb { background: var(--sb-icon); border-color: transparent; }
+.sb-brand, .sb-brand:hover { color: var(--sb-ink); }
+.sb-brand span { font-weight: 750; }
+.sb-role {
+  display: flex; align-items: center; gap: 10px; margin: 6px 4px 12px; padding: 10px 12px;
+  border-radius: var(--r-lg); background: rgba(255,255,255,.10); color: var(--sb-ink-2);
+  border: 1.5px solid var(--glass-line);
+}
+[data-theme='dark'] .sb-role { background: rgba(255,255,255,.06); }
+.sb-role b { color: var(--sb-ink); font-family: var(--font-display); font-size: 1rem; line-height: 1.2; }
+.sb-role small { display: block; color: var(--sb-ink-2); font-size: .75rem; }
+.sb-role .sb-hello { display: block; font-size: .75rem; font-weight: 600; color: var(--sb-ink-2); }
+.sb-group { color: var(--sb-ink-2); text-transform: none; letter-spacing: .03em; }
+.sb-link { color: var(--sb-ink); border-radius: var(--r-pill); min-height: 46px; font-weight: 650; }
+.sb-link .ic { color: var(--sb-icon); }
+.sb-link:hover { background: var(--sb-hover); color: var(--sb-ink); }
+.sb-link:hover .ic { color: var(--sb-active-ink); }
+.sb-link[aria-current="page"] { background: var(--sb-active-bg); color: var(--sb-active-ink); font-weight: 750; box-shadow: var(--sh-card); }
+.sb-link[aria-current="page"] .ic { color: var(--sb-active-ink); }
+.sb-count { background: var(--coral); color: rgb(var(--c-coralInk)); }
+.sb-foot { border-top-color: var(--sb-line); }
+.sidebar :focus-visible { outline: 3px solid #fff; outline-offset: 2px; box-shadow: none; }
+.sidebar .btn-icon, .sidebar .btn-icon:hover { color: var(--sb-ink); }
+.sidebar .btn-icon:hover { background: var(--sb-hover); }
+.shell.is-collapsed .sb-group { background: var(--sb-line); }
+
+.topbar { background: rgb(var(--c-bg) / .42); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); border-bottom: 0; border-radius: var(--r-lg); margin-top: 0; }
+@media (prefers-reduced-transparency: reduce) { .topbar { background: rgb(var(--c-bg) / .96); } } /* sans flou, le contenu qui défile ne doit pas se lire à travers */
+.tb-search .input { background: var(--glass-strong); border-color: var(--line-input); }
+.tb-notif, .btn.tb-menu, .btn.tb-search-toggle, .topbar .btn-icon { border-radius: 50%; }
+.topbar .btn-icon { background: var(--glass-strong); border: 1.5px solid var(--glass-line); }
+.tb-notif .dot { background: var(--coral); color: rgb(var(--c-coralInk)); border-color: transparent; }
+.profile-btn { background: var(--glass-strong); border: 1.5px solid var(--glass-line); }
+.profile-btn:hover { background: #fff; }
+[data-theme='dark'] .profile-btn:hover { background: rgba(255,255,255,.12); }
+.select.tb-lang { background-color: var(--glass-strong); border-color: var(--line-input); border-radius: var(--r-pill); }
+.sync { background: var(--glass-strong); border: 1.5px solid var(--glass-line); }
+.sync[data-state="offline"] { background: var(--canopy); }
+.menu { background: var(--glass-strong); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); border: 1.5px solid var(--glass-line); border-radius: var(--r-lg); }
+.menu-item { border-radius: var(--r-md); }
+.menu-item:hover, .menu-item:focus-visible { background: rgba(1,102,72,.10); }
+.app-foot { border-top-color: transparent; }
+
+@media (max-width: 1023.98px) {
+  .shell, .shell.is-collapsed { padding: 8px 8px 0; }
+  .sidebar { top: 8px; bottom: 8px; height: auto; border-radius: var(--r-xl); }
+}
+
+/* ==========================================================================
+   Boutons : pilules, volume d'argile
+   ========================================================================== */
+.btn { min-height: 46px; padding: 0 20px; border-width: 1.5px; font-weight: 750; letter-spacing: .005em; }
+.btn-primary { background: var(--grad-action); color: var(--leaf-ink); border-color: rgba(255,255,255,.35); box-shadow: var(--sh-btn); }
+.btn-primary:hover { background: var(--grad-action); color: var(--leaf-ink); filter: brightness(1.07) saturate(1.05); transform: translateY(-1px); }
+.btn-secondary { background: var(--glass-strong); color: var(--leaf); border-color: rgba(1,102,72,.75); }
+.btn-secondary:hover { background: #fff; color: var(--leaf-hover); border-color: var(--leaf); transform: translateY(-1px); }
+[data-theme='dark'] .btn-secondary { border-color: rgba(127,211,160,.6); }
+[data-theme='dark'] .btn-secondary:hover { background: rgba(255,255,255,.12); }
+.btn-accent { background: var(--grad-accent); color: rgb(var(--c-coralInk)); border-color: rgba(255,255,255,.35); box-shadow: 0 10px 22px -10px rgba(200,75,36,.7), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 6px rgba(120,30,10,.25); }
+.btn-accent:hover { color: rgb(var(--c-coralInk)); filter: brightness(1.06); transform: translateY(-1px); }
+.btn-sm { min-height: 38px; padding: 0 16px; }
+.btn-icon, .btn-sm.btn-icon { padding: 0; }
+.btn-icon { width: 46px; min-width: 46px; }
+.btn-sm.btn-icon { width: 38px; min-width: 38px; }
+.btn-ghost:hover, .btn-icon:hover { background: rgba(1,102,72,.10); }
+.btn-danger { background: var(--grad-accent); color: #fff; }
+.btn-danger:hover { color: #fff; filter: brightness(.95); }
+.btn:disabled, .btn[aria-disabled="true"] { background: var(--disabled-bg); box-shadow: none; filter: none; transform: none; }
+.btn:active:not(:disabled):not([aria-disabled="true"]) { transform: translateY(1px) scale(.985); box-shadow: var(--sh-in); }
+.btn-listen { background: var(--glass-strong); }
+
+/* ==========================================================================
+   Champs : creux d'argile
+   ========================================================================== */
+.input, .select, .textarea { min-height: 48px; border-radius: var(--r-md); background-color: var(--glass-strong); box-shadow: var(--sh-in); border-color: var(--line-input); }
+.input:hover, .select:hover, .textarea:hover { border-color: var(--leaf); }
+.input:focus, .select:focus, .textarea:focus { box-shadow: var(--sh-in), 0 0 0 4px rgba(1,102,72,.20); }
+.search .input { border-radius: var(--r-pill); }
+.input-group .addon { background: var(--mint); border-color: var(--line-input); }
+.cb { border-radius: 7px; }
+.cb:checked, .cb:indeterminate { background-color: var(--leaf); }
+.radio:checked { background: var(--leaf); }
+.switch { background: #A9B9A4; box-shadow: var(--sh-in); }
+.switch::before { box-shadow: 0 2px 5px rgba(6,22,12,.35), inset 0 -2px 3px rgba(0,0,0,.08); }
+.switch:checked { background: var(--grad-action); }
+.choice-card { background: var(--glass); border: 1.5px solid var(--glass-line); border-radius: var(--r-lg); box-shadow: var(--sh-card); }
+.choice-card:has(input:checked) { background: var(--mint); border-color: var(--leaf); }
+.otp input { border-radius: var(--r-md); background: var(--glass-strong); box-shadow: var(--sh-in); }
+.dropzone { background: var(--glass); border-radius: var(--r-lg); }
+
+/* ==========================================================================
+   Cartes : verre-argile
+   ========================================================================== */
+.card, .stat, .table-card, .alert--info {
+  background: var(--glass); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.25); backdrop-filter: blur(var(--blur)) saturate(1.25);
+  border: 1.5px solid var(--glass-line); border-radius: var(--r-lg); box-shadow: var(--sh-card);
+}
+.card { padding: 22px; }
+.card--tint { background: var(--mint); backdrop-filter: none; }
+.card--dark { background: linear-gradient(160deg, #016648, #0E4F4F); color: #F1F6EC; border-color: rgba(255,255,255,.25); }
+.card--dark h2, .card--dark h3 { color: #fff; }
+a.card-link:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -18px rgba(1,70,50,.45), inset 0 2px 0 rgba(255,255,255,.85); border-color: #fff; }
+.card-head { margin-bottom: 16px; }
+.list-item .li-icon { background: var(--mint); border-radius: var(--r-md); box-shadow: inset 0 2px 0 rgba(255,255,255,.7); }
+a.list-item:hover { background: rgba(255,255,255,.55); }
+
+/* Pastel par rang (image 2) : le rang suit l'ordre d'affichage, jamais un sens. L'icône et le libellé portent l'information. */
+.stat { position: relative; overflow: hidden; gap: 6px; padding: 18px 20px; background: var(--stat-bg, var(--glass)); }
+.stat::before { content: ""; position: absolute; inset: 0 0 45% 0; background: linear-gradient(180deg, rgba(255,255,255,.45), transparent); pointer-events: none; }
+.stat > * { position: relative; }
+[data-theme='dark'] .stat::before { background: linear-gradient(180deg, rgba(255,255,255,.08), transparent); }
+/* Le pastel porte un sens : menthe = chiffre courant ; pêche = échec ou retard ; beurre = en attente ; ciel = information. Jamais par rang. */
+.stat, .stat--mint { --stat-bg: var(--mint); backdrop-filter: none; }
+.stat--peach { --stat-bg: var(--peach); backdrop-filter: none; }
+.stat--butter { --stat-bg: var(--butter); backdrop-filter: none; }
+.stat--sky { --stat-bg: var(--sky); backdrop-filter: none; }
+.stat-label { color: var(--ink); opacity: .78; font-weight: 650; }
+.stat-value { font: 800 clamp(1.5rem, 1.2rem + 1vw, 2rem)/1.1 var(--font-display); letter-spacing: -.02em; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+.stat-value small { margin-left: 0; } /* l'unité passe sous le nombre au lieu d'être coupée par overflow: hidden */
+.stat-ic { display: inline-grid; place-items: center; width: 40px; height: 40px; margin-bottom: 4px; border-radius: 13px; background: rgba(255,255,255,.7); color: var(--leaf); box-shadow: var(--sh-card); }
+[data-theme='dark'] .stat-ic { background: rgba(255,255,255,.12); color: var(--ink); }
+.stat-delta { color: var(--success, var(--leaf)); }
+
+/* Badges : pilules douces */
+.badge { padding: 3px 11px; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.badge--ok { background: var(--mint); }
+.badge--wait { background: var(--butter); color: #5A4600; border-color: transparent; }
+[data-theme='dark'] .badge--wait { color: #F1D88A; }
+.badge--bad { background: var(--peach); }
+.badge--neutral { background: var(--sky); color: #1F4468; }
+[data-theme='dark'] .badge--neutral { color: #BBD8F2; }
+
+/* Alertes */
+.alert { border-radius: var(--r-lg); border-width: 1.5px; box-shadow: var(--sh-card); }
+.alert--ok { background: var(--mint); border-color: rgba(1,102,72,.25); }
+.alert--warn { background: var(--butter); border-color: rgba(138,75,18,.25); }
+.alert--warn > .ic { color: #8A4B12; }
+.alert--danger { background: var(--peach); border-color: rgba(154,58,28,.3); }
+.alert--demo { background: var(--butter); }
+
+/* ==========================================================================
+   Navigation secondaire : onglets en pilule, filtres
+   ========================================================================== */
+.tabs { gap: 4px; padding: 5px; border: 1.5px solid var(--glass-line); border-radius: var(--r-pill); background: var(--glass); box-shadow: var(--sh-card); width: fit-content; max-width: 100%; -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); }
+.tab { min-height: 42px; padding: 0 18px; border-radius: var(--r-pill); }
+.tab::after { display: none; }
+.tab:hover { background: rgba(1,102,72,.10); }
+.tab[aria-selected="true"] { background: var(--grad-action); color: var(--leaf-ink); box-shadow: var(--sh-btn); }
+.tab[aria-selected="true"] .count { background: rgba(255,255,255,.28); color: inherit; }
+.chip { background: var(--glass-strong); border: 1.5px solid var(--line-input); min-height: 38px; }
+.chip:hover { border-color: var(--leaf); }
+.chip[aria-pressed="true"], .chip[aria-checked="true"] { background: var(--mint); border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(1,102,72,.15); }
+.progress { height: 10px; background: rgba(75,99,84,.14); box-shadow: var(--sh-in); }
+.progress > span { background: var(--grad-action); box-shadow: inset 0 2px 0 rgba(255,255,255,.35); }
+.step::before { height: 6px; }
+.step[aria-current="step"]::before { background: linear-gradient(90deg, var(--leaf) 50%, var(--rain-2) 50%); }
+
+/* ==========================================================================
+   Tableaux
+   ========================================================================== */
+.table-toolbar { border-bottom-color: rgba(75,99,84,.12); }
+.data-table th { background: rgba(255,255,255,.5); }
+[data-theme='dark'] .data-table th { background: rgba(255,255,255,.05); }
+.data-table td { border-bottom-color: rgba(75,99,84,.10); }
+.data-table tbody tr:hover { background: rgba(1,102,72,.07); }
+.page-btn { border-radius: var(--r-pill); }
+.page-btn[aria-current="page"] { background: var(--grad-action); box-shadow: var(--sh-btn); }
+.pagination { border-top-color: rgba(75,99,84,.12); }
+
+/* ==========================================================================
+   Fenêtres, toasts, états
+   ========================================================================== */
+.modal { background: var(--glass-strong); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); border: 1.5px solid var(--glass-line); border-radius: var(--r-xl); box-shadow: var(--sh-pop); }
+.modal-foot { background: rgba(255,255,255,.4); border-top-color: rgba(75,99,84,.12); }
+[data-theme='dark'] .modal-foot { background: rgba(255,255,255,.04); }
+.modal-backdrop, .scrim, .modal::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(14,47,28,.38); }
+.modal--sheet { border-radius: var(--r-xl) 0 0 var(--r-xl); }
+.toast { background: #17382A; border-radius: var(--r-lg); border: 1.5px solid rgba(255,255,255,.14); }
+.empty .empty-icon, .dropzone .dz-icon { background: var(--mint); box-shadow: var(--sh-card); }
+.state-error .se-icon { background: var(--peach); }
+.skel { border-radius: var(--r-md); }
+.avatar { background: var(--butter); color: #5A4600; border: 2px solid rgba(255,255,255,.9); box-shadow: var(--sh-card); font-weight: 750; }
+[data-theme='dark'] .avatar:not(.avatar--dark) { color: #F6E3A6; } /* le brun clair sur beurre sombre tombait à 1,14:1 */
+.avatar--dark { background: var(--grad-action); color: #fff; }
+.avatar .presence { border-color: #fff; }
+.map { border-radius: var(--r-lg); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card); }
+.tl-now .tl-dot::after { background: var(--teal); }
+.chart .area { fill: rgba(1,102,72,.14); }
+.okmark { background: var(--grad-action); box-shadow: 0 0 0 12px rgba(1,102,72,.16), var(--sh-btn); }
+
+/* ==========================================================================
+   Téléphone (< 640 px) : barre d'onglets flottante en verre
+   ========================================================================== */
+@media (max-width: 640px) {
+  .shell, .shell.is-collapsed { padding: 0; gap: 0; }
+  .topbar { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+  .page { padding: 14px 16px 24px; }
+  .tabbar {
+    left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    height: 68px; padding-bottom: 0; border-radius: 26px;
+    background: var(--glass-strong); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3);
+    border: 1.5px solid var(--glass-line); box-shadow: var(--sh-pop);
+  }
+  .tabbar-link { font-size: .8125rem; padding: 6px 0; }
+  .tabbar-link[aria-current='page'] .tabbar-pill { background: var(--grad-action); color: var(--leaf-ink); box-shadow: var(--sh-btn); }
+  .tabbar-link[aria-current='page'] { color: var(--leaf); }
+  .shell.has-tabs { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px)); }
+  .card { border-radius: var(--r-lg); padding: 18px; }
+  .empty .empty-icon, .state-error .se-icon { background: var(--mint); }
+  .btn-listen { background: var(--mint); padding: 0; } /* .btn (plus haut dans ce fichier) remettait 20 px de marge à ce disque de 44 px */
+}
+
+/* Reliefs au toucher : léger soulèvement, coupé si l'on réduit le mouvement (voir kit.css) */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover, a.card-link:hover { transform: none !important; }
+}
+
+/* ==========================================================================
+   Accueils : carte de bienvenue, tuiles d'accès rapide, chiffres cliquables
+   ========================================================================== */
+.hero {
+  position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 32px; overflow: hidden;
+  padding: clamp(22px, 3vw, 34px); margin-bottom: 22px; border-radius: var(--r-xl); border: 1.5px solid var(--glass-line);
+  background: linear-gradient(135deg, #FCE2D2 0%, #FDEBD6 48%, #F6EFC6 100%); box-shadow: var(--sh-card);
+}
+.hero::before { content: ""; position: absolute; right: -70px; top: -90px; width: 300px; height: 300px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.9), rgba(251,214,160,.55) 45%, transparent 70%); }
+.hero::after { content: ""; position: absolute; left: -50px; bottom: -70px; width: 240px; height: 190px; border-radius: 60% 40% 55% 45%; pointer-events: none; background: radial-gradient(circle, rgba(168,218,190,.6), transparent 70%); }
+.hero > * { position: relative; z-index: 1; }
+[data-theme='dark'] .hero { background: linear-gradient(135deg, #3B2D2B 0%, #34402F 55%, #2C4037 100%); }
+[data-theme='dark'] .hero::before { background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.14), rgba(243,197,74,.12) 45%, transparent 70%); }
+[data-theme='dark'] .hero::after { background: radial-gradient(circle, rgba(60,185,191,.2), transparent 70%); }
+.hero-body { flex: 1 1 360px; min-width: 0; }
+.hero-text { margin-top: 8px; max-width: 56ch; color: var(--ink); opacity: .82; }
+.hero-actions { margin-top: 18px; }
+.hero-aside { flex: none; }
+.hero-wx { display: flex; align-items: center; gap: 14px; padding: 12px 22px 12px 12px; border-radius: var(--r-pill); background: rgba(255,255,255,.74); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card); color: var(--ink); text-decoration: none; transition: transform var(--t) var(--ease); }
+.hero-wx:hover { color: var(--ink); transform: translateY(-2px); }
+[data-theme='dark'] .hero-wx, [data-theme='dark'] .hero-count { background: rgba(255,255,255,.1); }
+.hero-wx-ic { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: var(--butter); color: #8A5A00; box-shadow: var(--sh-card); }
+[data-theme='dark'] .hero-wx-ic { color: var(--sun); }
+.hero-wx-ic .ic { width: 32px; height: 32px; }
+.hero-wx-t b { display: block; font: 800 1.75rem/1 var(--font-display); letter-spacing: -.02em; }
+.hero-wx-t small { color: var(--ink-2); }
+.hero-count { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 132px; height: 132px; border-radius: 50%; background: rgba(255,255,255,.76); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card); text-align: center; }
+.hero-count b { font: 800 2.75rem/1 var(--font-display); letter-spacing: -.03em; }
+.hero-count small { max-width: 10ch; font-size: .75rem; line-height: 1.2; color: var(--ink-2); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.tile {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 10px 16px; text-align: center; text-decoration: none; color: var(--ink); font-weight: 700; line-height: 1.25;
+  border-radius: var(--r-lg); background: var(--glass); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card);
+  -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur));
+  transition: transform var(--t) var(--ease), background-color var(--t) var(--ease);
+}
+.tile:hover { color: var(--ink); transform: translateY(-3px); background: var(--glass-strong); }
+.tile:active { transform: translateY(0) scale(.98); box-shadow: var(--sh-in); }
+.tile-ic { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 19px; background: var(--tile-bg, var(--mint)); color: var(--leaf); box-shadow: inset 0 2px 0 rgba(255,255,255,.75), 0 10px 16px -10px rgba(1,70,50,.45); }
+.tile-ic .ic { width: 28px; height: 28px; }
+.tile--mint { --tile-bg: var(--mint); } .tile--peach { --tile-bg: var(--peach); } .tile--butter { --tile-bg: var(--butter); } .tile--sky { --tile-bg: var(--sky); }
+.tile-t small { display: block; margin-top: 2px; font-weight: 400; font-size: var(--fs-sm); color: var(--ink-2); }
+
+.stat-link { display: block; color: inherit; text-decoration: none; border-radius: var(--r-lg); transition: transform var(--t) var(--ease); }
+.stat-link:hover { color: inherit; transform: translateY(-3px); }
+.stat-link .stat { height: 100%; }
+.stat-link .stat { backdrop-filter: none; }
+
+/* File de travail de l'agent : pastel par rang, comme les chiffres */
+.queue-nav a { border-radius: var(--r-lg); border: 1.5px solid var(--glass-line); box-shadow: var(--sh-card); background: var(--mint); }
+.queue-nav a:nth-child(4n+2) { background: var(--peach); } .queue-nav a:nth-child(4n+3) { background: var(--butter); } .queue-nav a:nth-child(4n+4) { background: var(--sky); }
+.queue-nav a:hover { transform: translateY(-2px); border-color: #fff; }
+.queue-nav .qn-n { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; }
+.queue-nav .qn-l { color: var(--ink); opacity: .8; }
+.queue-nav a.is-hot .qn-n { color: var(--bad-ink); }
+@media (prefers-reduced-motion: reduce) { .tile:hover, .stat-link:hover, .hero-wx:hover, .queue-nav a:hover { transform: none; } }
+
+/* Sous-ligne d'une cellule de tableau : alignée comme son titre, même quand ses chiffres sont tabulaires. */
+.cell-sub.num { text-align: inherit; }
+
+/* Tableau en colonne principale d'une page à deux colonnes : cellules plus serrées, codes sur une ligne. */
+.split > * .data-table th, .split > * .data-table td { padding-inline: 10px; }
+.split > * .data-table td > .num:not(.cell-sub) { white-space: nowrap; }
+.split { grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); }
+@media (max-width: 1100px) { .split { grid-template-columns: minmax(0, 1fr); } } /* même seuil que kit.css, redit ici car cette règle l'écrasait */
+
+/* Focus donné à <main> à chaque changement de page (Layout.tsx) : pas d'anneau autour de toute la page. */
+main:focus { outline: none; }
+
+/* Cibles tactiles de 44 px (PRODUCT.md) au téléphone et sur écran tactile ; le bureau garde les 38 px denses. */
+@media (max-width: 640px), (pointer: coarse) {
+  .chip, .btn-sm, .tab { min-height: 44px; }
+}
+
+/* Rubriques repliables du menu (Layout.tsx) */
+.sb-group-btn { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 20px); min-height: 36px; border: 0; background: none; cursor: pointer; font-family: inherit; text-align: left; border-radius: var(--r-md); }
+.sb-group-btn:hover { color: var(--sb-ink); }
+.sb-group-btn .ic { width: 16px; height: 16px; transition: transform var(--t-fast) var(--ease); }
+.sb-group-btn[aria-expanded="true"] .ic { transform: rotate(180deg); }
+.sb-nav ul[hidden] { display: none; }
+
+/* ==========================================================================
+   Minimalisme : coque réduite à l'essentiel (icônes seules, une recherche qui s'ouvre, pas de fil d'Ariane)
+   ========================================================================== */
+.tb-search { display: none; }
+.topbar.is-searching .tb-search { display: block; position: absolute; left: 8px; right: 8px; top: 8px; max-width: none; z-index: 2; }
+.btn.tb-search-toggle { display: inline-flex; }
+.sync { padding: 0; width: 44px; justify-content: center; border-radius: 50%; }
+.sync .sync-label { display: none; }
+.tb-lang-btn { font-size: .8125rem; font-weight: 800; letter-spacing: .02em; }
+.profile-btn { padding: 4px; }
+.crumbs { display: none; }
+/* La description de page reste lue par les lecteurs d'écran, sans alourdir l'écran. */
+.page-head .page-desc { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.app-foot { justify-content: flex-end; }
+
+/* Chiffre : la source et les détails tiennent derrière une icône, au lieu d'un paragraphe sous chaque carte. */
+.stat-src { margin-top: 2px; }
+.stat-src summary { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; margin-left: -6px; border-radius: 50%; cursor: pointer; list-style: none; color: var(--ink-2); }
+.stat-src summary::-webkit-details-marker { display: none; }
+.stat-src summary::after { content: ""; position: absolute; inset: -8px; } /* zone tactile de 44 px */
+.stat-src summary .ic { width: 16px; height: 16px; }
+.stat-src[open] summary { color: var(--leaf); }
+.stat-src .stat-foot { margin-top: 2px; }
+
+/* Sous-titres de carte : lus par les lecteurs d'écran, pas affichés. */
+.card-head .card-sub, .card-sub { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .topbar .tb-brand, .topbar .tb-lang-btn { display: none; } /* la langue reste dans le tiroir et sur l'écran de premier lancement */
+}
+.m-alert > span:not(.m-alert-ic) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Indicateurs sans source : repliés sous les indicateurs disponibles */
+.ind-missing { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
+.ind-missing summary { min-height: 36px; display: flex; align-items: center; cursor: pointer; color: var(--ink-2); font-weight: 600; font-size: var(--fs-sm); }
+
+/* Cartes de tableau au téléphone : une cellule vide (ex. état « actif » non marqué) ne montre pas son libellé seul. */
+.table--cards td:empty { display: none; }
+
+/* Piège à robots de l'enquête publique : hors écran, ni lu ni atteint au clavier (tabIndex -1). */
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

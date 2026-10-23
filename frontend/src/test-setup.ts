@@ -12,3 +12,6 @@ if (!Blob.prototype.text) {
     return new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result)); r.onerror = () => reject(r.error); r.readAsText(this); });
   };
 }
+
+// jsdom n'implémente pas window.scrollTo (appelé à chaque changement de page par Layout.tsx)
+window.scrollTo = () => {};

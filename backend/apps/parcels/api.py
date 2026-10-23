@@ -19,8 +19,8 @@ STAGES = ["semis", "croissance", "floraison", "recolte"]
 class ParcelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parcel
-        fields = ["id", "producer", "name", "geometry", "land_type", "tenure", "area_ha", "overlap_warning",
-                  "overlap_with", "created_at"]
+        fields = ["id", "producer", "name", "geometry", "land_type", "tenure", "area_ha", "arable_ha",
+                  "overlap_warning", "overlap_with", "created_at"]
 
 
 class ParcelInSerializer(serializers.Serializer):
@@ -85,6 +85,21 @@ def parcel_list(request):
                            fields={"producer": ["Obligatoire."]})
         producer = get_producer(request.user, d["producer"])
     return Response(ParcelSerializer(services.create_parcel(request.user, producer, d)).data, status=201)
+
+
+@api_view(["PATCH"])
+def parcel_detail(request, pk):
+    """Superficie exploitable (≤ superficie mesurée) ; vide = toute la surface. Producteur (la sienne) ou agent."""
+    p = parcels_for(request.user).filter(pk=pk).first()
+    if p is None:
+        raise Http404
+    try:
+        arable = request.data["arable_ha"]
+        arable = None if arable in (None, "") else float(arable)
+    except (KeyError, TypeError, ValueError):
+        raise ApiError("Superficie exploitable invalide.", "validation_error", 400,
+                       fields={"arable_ha": ["Nombre attendu."]}) from None
+    return Response(ParcelSerializer(services.set_arable(request.user, p, arable)).data)
 
 
 @api_view(["GET", "POST"])

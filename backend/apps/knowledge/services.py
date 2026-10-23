@@ -14,8 +14,11 @@ from .models import KnowledgeDoc, KnowledgeDocVersion
 _stem = snowballstemmer.stemmer("french")
 STOP = set("le la les un une des de du d l a à au aux et ou en est que qui quoi quand comment pour par sur dans "
            "ce cet cette ces mon ma mes je tu il elle on nous vous ils elles ne pas plus se sa son ses y faut "
-           "dois doit peut quel quelle quels quelles avec sans".split())
-_index = {"bm25": None, "docs": []}
+           "dois doit peut quel quelle quels quelles avec sans "
+           # mots d'action sans contenu, en ASCII comme tokens() les compare : « contre » et « lutter » suffisaient à faire
+           # remonter la fiche sur le Striga pour une question sur la chenille
+           "contre lutte lutter proteger protege proteges combattre traiter faire faut".split())
+_index = {"bm25": None, "docs": [], "sets": []}
 
 
 def tokens(text):
@@ -28,6 +31,7 @@ def rebuild_index():
                                                                     "version"))
     corpus = [tokens(d["title"] + " " + d["title"] + " " + d["body"]) for d in docs]
     _index["docs"] = docs
+    _index["sets"] = [set(c) for c in corpus]
     _index["bm25"] = BM25Okapi(corpus) if corpus else None
 
 
@@ -36,8 +40,11 @@ def search(question, value_chain=None, k=3):
         rebuild_index()
     if _index["bm25"] is None:
         return []
-    scores = _index["bm25"].get_scores(tokens(question))
-    ranked = sorted(zip(scores, _index["docs"], strict=True), key=lambda x: -x[0])
+    q = set(tokens(question))
+    scores = _index["bm25"].get_scores(list(q))
+    ranked = sorted(zip(scores, _index["docs"], _index["sets"], strict=True), key=lambda x: -x[0])
+    # une fiche doit porter plus de la moitié des mots de la question : « maïs » seul ne suffit pas pour « chenille du maïs »
+    ranked = [(s, d) for s, d, ts in ranked if len(q) < 2 or len(q & ts) / len(q) > 0.5]
     if value_chain:
         ranked = [r for r in ranked if r[1]["value_chain"] == value_chain]
     return [(float(s), d) for s, d in ranked[:k]]

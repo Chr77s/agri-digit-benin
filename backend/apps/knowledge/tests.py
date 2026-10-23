@@ -57,3 +57,22 @@ def test_dosage_guard_variants():
     assert is_dosage_question("Combien de ml de pesticide par pulvérisateur ?")
     assert is_dosage_question("Posologie du vermifuge pour mes chèvres")
     assert not is_dosage_question("Quand semer le maïs ?")
+
+
+def test_generic_words_do_not_pull_an_unrelated_sheet(users, producer):
+    # « contre » et « protéger » ne suffisent pas à citer la fiche Striga pour une question sur la chenille
+    from apps.knowledge.models import KnowledgeDoc
+    from apps.knowledge.services import rebuild_index
+
+    KnowledgeDoc.objects.create(value_chain="mais", title="Lutte contre le Striga dans le maïs",
+                                body="Striga : plante parasite du maïs. Rotation des cultures, arrachage avant floraison.",
+                                source="INRAB", status="publie")
+    for vc, t in [("riz", "Repiquage du riz en bas-fond"), ("coton", "Démariage du coton"), ("soja", "Récolte du soja")]:
+        KnowledgeDoc.objects.create(value_chain=vc, title=t, body=t + " fiche.", source="s", status="publie")
+    rebuild_index()
+    p = client_for(producer.user)
+    for q in ("Comment protéger mon maïs contre la chenille ?", "Comment lutter contre la chenille légionnaire du maïs ?"):
+        r = p.post("/api/v1/assistant/ask", {"question": q}, format="json").json()
+        assert r["status"] == "unknown" and not r["citations"], q
+    r = p.post("/api/v1/assistant/ask", {"question": "Comment traiter le Striga du maïs ?"}, format="json").json()
+    assert r["status"] == "answered" and r["citations"][0]["title"].startswith("Lutte contre le Striga")

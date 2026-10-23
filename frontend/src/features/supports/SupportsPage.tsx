@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { api, list, qs } from '../../shared/api/client';
 import type { Program, Support } from '../../shared/api/types';
-import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Radio, Select, Stat, Switch, Table, Timeline, fmtDate, fmtNum, toast } from '../../shared/ui';
+import { Alert, Badge, Button, Card, Chips, buttonCls, Dialog, EmptyState, Field, Input, PageHeader, QueryState, Radio, Select, Stat, Switch, Table, Timeline, fmtDate, fmtNum, toast } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
 import i18n from '../../i18n';
 import { postOrQueue } from '../outbox/offlineQueue';
@@ -11,7 +12,7 @@ import { useProducers } from '../producers/api';
 import { daysSince } from '../producers/AgentHome';
 import '../producers/agent.css';
 
-export interface SupportCreate { producer: string; program?: string; item: string; quantity: number; unit: string; value_xof: number; repayable: boolean }
+export interface SupportCreate { producer: string; program?: string; item: string; quantity: number; unit: string; value_xof: number; repayable: boolean; repay_installments?: number; repay_first_due?: string }
 
 export const useSupports = (producer?: string) => useQuery({ queryKey: ['supports', producer], queryFn: () => list<Support>(`/supports${qs({ producer })}`) });
 const usePrograms = () => useQuery({ queryKey: ['programs'], queryFn: () => list<Program>('/programs') });
@@ -53,6 +54,7 @@ function ProducerSupports() {
           return (
             <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
               {a.confirm.error && <Alert tone="danger" live>{a.confirm.error.message}</Alert>}
+              {d.some((s) => s.repayable && s.status === 'confirme') && <Alert tone="info" icon="coins" actions={<Link className={buttonCls({ variant: 'secondary' })} to="/remboursements">{t('rec.seeRepayments')}</Link>}>{t('rec.supportsLink')}</Alert>}
               <section className="stack" style={{ '--gap': '12px' } as React.CSSProperties} aria-labelledby="t-conf">
                 <div className="between"><h2 className="section-title" id="t-conf">{t('ag.sup.toConfirm')}</h2>
                   {todo.length > 0 ? <Badge tone="wait">{t('ag.sup.waiting', { count: todo.length })}</Badge> : <Badge tone="ok">{t('ag.sup.allConfirmed')}</Badge>}</div>
@@ -137,7 +139,7 @@ function AgentSupports() {
               ]} />
             </Card>
             <div className="grid-fit" style={{ '--min': '150px' } as React.CSSProperties}>
-              <Stat label={t('ag.sup.toConfirm')} value={q.data ? fmtNum(q.data.filter((s) => s.status === 'remis').length) : '…'} />
+              <Stat tone="butter" label={t('ag.sup.toConfirm')} value={q.data ? fmtNum(q.data.filter((s) => s.status === 'remis').length) : '…'} />
               <Stat label={t('ag.sup.toRepay')} value={q.data ? fmtNum(q.data.filter((s) => s.repayable).length) : '…'} />
             </div>
           </aside>
@@ -170,7 +172,7 @@ function SupportForm() {
   const producers = useProducers({ status: 'valide' });
   const programs = usePrograms();
   const { create } = useSupportActions();
-  const empty = { producer: '', program: '', item: '', quantity: '', unit: 'sac', value_xof: '', repayable: false };
+  const empty = { producer: '', program: '', item: '', quantity: '', unit: 'sac', value_xof: '', repayable: false, installments: '3', first_due: '' };
   const [v, setV] = useState(empty);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const errCount = Object.keys(errs).length;
@@ -184,7 +186,8 @@ function SupportForm() {
       if (!(Number(v.value_xof) >= 0) || v.value_xof === '') er.value_xof = t('supports.errValue');
       setErrs(er);
       if (Object.keys(er).length) return;
-      create.mutate({ producer: v.producer, program: v.program || undefined, item: v.item.trim(), quantity: Number(v.quantity), unit: v.unit, value_xof: Math.round(Number(v.value_xof)), repayable: v.repayable },
+      create.mutate({ producer: v.producer, program: v.program || undefined, item: v.item.trim(), quantity: Number(v.quantity), unit: v.unit, value_xof: Math.round(Number(v.value_xof)), repayable: v.repayable,
+        ...(v.repayable ? { repay_installments: Number(v.installments), ...(v.first_due ? { repay_first_due: v.first_due } : {}) } : {}) },
         { onSuccess: (r) => { setV(empty); toast(r === 'queued' ? t('supports.queuedOffline') : t('supports.saved')); } });
     }}>
       <div className="card-head m-0"><h2 className="card-title" id="h-form">{t('supports.formTitle')}</h2></div>
@@ -206,6 +209,12 @@ function SupportForm() {
       <fieldset className="fieldset"><legend className="label">{t('ag.sup.repayLegend')}</legend>
         <Switch label={t('supports.repayableLabel')} checked={v.repayable} onChange={(e) => setV({ ...v, repayable: e.target.checked })} />
       </fieldset>
+      {v.repayable && (
+        <div className="form-grid">
+          <Field label={t('rec.installmentsCount')}>{(p) => <Select {...p} value={v.installments} onChange={(e) => setV({ ...v, installments: e.target.value })} options={Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }))} />}</Field>
+          <Field label={t('rec.firstDue')} optional hint={t('rec.firstDueHint')}>{(p) => <Input {...p} type="date" min={new Date().toISOString().slice(0, 10)} value={v.first_due} onChange={(e) => setV({ ...v, first_due: e.target.value })} />}</Field>
+        </div>
+      )}
       {create.error && <Alert tone="danger" live>{create.error.message}</Alert>}
       <div className="cluster justify-end"><Button type="submit" busy={create.isPending}>{t('supports.submit')}</Button></div>
     </form>

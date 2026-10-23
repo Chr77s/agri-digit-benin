@@ -187,7 +187,7 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
           <MapContainer center={MAP_CENTER} zoom={14} className="map-canvas">
             <TileLayer attribution={osmAttribution()} url={OSM} />
             <DrawControl onDrawn={onDrawn} />
-            {parcels.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#B4532D' : '#1F5A32', weight: 2, dashArray: p.overlap_warning ? '5 4' : undefined }} />)}
+            {parcels.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#B4532D' : '#016648', weight: 2, dashArray: p.overlap_warning ? '5 4' : undefined }} />)}
           </MapContainer>
           <div className="map-legend">
             <ul className="legend">

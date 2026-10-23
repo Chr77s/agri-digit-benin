@@ -10,17 +10,23 @@ from apps.cooperatives import api as coop
 from apps.cooperatives import organisations as orgs
 from apps.credit import api as credit
 from apps.dashboard import api as dashboard
+from apps.dashboard import sea_detail
 from apps.diagnosis import api as diag
 from apps.exports import api as exports
 from apps.farms import api as farms
+from apps.farmservices import api as fs
 from apps.interop import api as interop
 from apps.knowledge import api as kn
 from apps.knowledge import publications as pubs
+from apps.lands import api as lands
 from apps.market import api as market
+from apps.markets import api as markets
+from apps.markets import surveys_api, trainings_api
+from apps.observatory import api as observatory
 from apps.parcels import api as parcels
 from apps.producers import api as prod
 from apps.production import api as prodn
-from apps.production import lots_api
+from apps.production import lots_api, recovery_api, revenue, stocks_api
 from apps.programs import api as prog
 from apps.referentiel import api as ref
 from apps.satellite import api as sat
@@ -52,6 +58,7 @@ v1 = [
     path("consents/mine", prod.consents_mine),
     path("consents/<uuid:pk>/withdraw", prod.consent_withdraw),
     path("parcels", parcels.parcel_list),
+    path("parcels/<uuid:pk>", parcels.parcel_detail),
     path("campaigns", parcels.campaign_list),
     path("campaigns/<uuid:pk>", parcels.campaign_detail),
     path("assistant/ask", assistant.ask),
@@ -101,6 +108,35 @@ v1 = [
     path("supports/<uuid:pk>/report", prodn.support_report),
     path("harvests/<uuid:pk>/check", prodn.harvest_check),
     path("harvests", prodn.harvest_list),
+    path("schemes", lands.scheme_list),
+    path("schemes/<uuid:pk>", lands.scheme_detail),
+    path("schemes/<uuid:pk>/works", lands.scheme_works),
+    path("works/<uuid:pk>", lands.works_detail),
+    path("soil-analyses", lands.soil_list),
+    path("soil-analyses/summary", lands.soil_summary),
+    path("land-use", lands.land_use),
+    path("climate-risks", lands.climate_risks),
+    path("climate-risks/departments", lands.climate_departments),
+    path("equipment", fs.equipment_list),
+    path("equipment/summary", fs.equipment_summary),
+    path("equipment/<uuid:pk>", fs.equipment_detail),
+    path("mechanization/providers", fs.mech_providers),
+    path("mechanization/requests", fs.mech_requests),
+    path("mechanization/requests/<uuid:pk>/decide", fs.mech_decide),
+    path("mechanization/requests/<uuid:pk>/complete", fs.mech_complete),
+    path("mechanization/requests/<uuid:pk>/cancel", fs.mech_cancel),
+    path("seed-lots", fs.seed_lot_list),
+    path("seed-lots/<uuid:pk>/distribute", fs.seed_lot_distribute),
+    path("pmea", fs.pmea_list),
+    path("pmea/<uuid:pk>/verify", fs.pmea_verify),
+    path("claims", recovery_api.claim_list),
+    path("claims/portfolio", recovery_api.claim_portfolio),
+    path("claims/<uuid:pk>", recovery_api.claim_detail),
+    path("claims/<uuid:pk>/pay", recovery_api.claim_pay),
+    path("claim-payments/<uuid:pk>", recovery_api.claim_payment_detail),
+    path("expenses", revenue.expense_list),
+    path("expenses/<uuid:pk>", revenue.expense_delete),
+    path("revenue", revenue.revenue_summary),
     path("organisations", orgs.organisation_list),
     path("organisations/<uuid:pk>", orgs.organisation_detail),
     path("organisations/<uuid:pk>/cooperatives", orgs.organisation_add_cooperative),
@@ -118,6 +154,22 @@ v1 = [
     path("lots/transform", lots_api.lot_transform),
     path("lots/<uuid:pk>/transfer", lots_api.lot_transfer),
     path("lots/<str:ref>/trace", lots_api.lot_trace),
+    path("stocks/outlook", stocks_api.outlook),
+    path("prices", markets.price_list),
+    path("prices/margins", markets.price_margins),
+    path("market-analysis", markets.market_analysis),
+    path("surveys", surveys_api.survey_list),
+    path("surveys/<uuid:pk>/close", surveys_api.survey_close),
+    path("surveys/<uuid:pk>/results", surveys_api.survey_results),
+    path("public/surveys/<str:code>", surveys_api.public_survey),
+    path("public/surveys/<str:code>/respond", surveys_api.public_respond),
+    path("trainings", trainings_api.training_list),
+    path("trainings/report", trainings_api.training_report),
+    path("trainings/<uuid:pk>/register", trainings_api.training_register),
+    path("trainings/<uuid:pk>/registrations", trainings_api.training_registrations),
+    path("trainings/<uuid:pk>/attendance", trainings_api.training_attendance),
+    path("showcase", trainings_api.showcase_list),
+    path("showcase/<uuid:pk>/withdraw", trainings_api.showcase_withdraw),
     path("diagnoses", diag.diagnosis_list),
     path("diagnoses/<uuid:pk>/review", diag.diagnosis_review),
     path("diagnoses/<uuid:pk>/ask-agronome", diag.diagnosis_ask_agronome),
@@ -144,6 +196,14 @@ v1 = [
     path("interop/keys/<str:partner>/revoke", interop.key_revoke),
     path("interop/<str:partner>/aggregates", interop.aggregates),
     path("dashboard/sea", dashboard.sea),
+    path("dashboard/sea/production", sea_detail.production),
+    path("dashboard/sea/workforce", sea_detail.workforce),
+    path("dashboard/sea/impact", sea_detail.impact),
+    path("national-coverage", observatory.national_coverage),
+    path("national-coverage/import", observatory.national_import),
+    path("national-coverage/<uuid:pk>", observatory.national_stat_delete),
+    path("map/actors", observatory.map_actors),
+    path("models/quality", observatory.models_quality),
     path("farms/aggregates", farms.farm_aggregates),
     path("farms", farms.farm_list),
     path("dashboard", dashboard.dashboard),

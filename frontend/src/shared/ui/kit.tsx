@@ -10,7 +10,7 @@
 // - Une page dont la structure change sur mobile (pas seulement le style) lit useIsMobile() ; sinon, préférer une règle dans mobile.css.
 // - Bouton d'action collé en bas d'écran : envelopper les boutons dans <div className="m-cta"> (sans effet au-dessus de 640 px).
 import { forwardRef, useId, useRef, useState, useSyncExternalStore, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from './Icon';
 
@@ -97,9 +97,14 @@ export function OtpInput({ value, onChange, length = 6, label, invalid, id, auto
     <div className="otp" role="group" aria-label={label} data-invalid={invalid || undefined}>
       {digits.map((d, i) => (
         <input key={i} ref={(el) => { refs.current[i] = el; }} id={i === 0 ? id : undefined} value={d} placeholder=" "
-          inputMode="numeric" autoComplete={i === 0 ? 'one-time-code' : 'off'} maxLength={1} autoFocus={autoFocus && i === 0}
+          inputMode="numeric" autoComplete={i === 0 ? 'one-time-code' : 'off'} maxLength={i === 0 ? length : 1} autoFocus={autoFocus && i === 0}
           aria-label={t('ui.otpDigit', { n: i + 1, total: length })} aria-invalid={invalid || undefined}
-          onChange={(e) => { const c = e.target.value.replace(/\D/g, '').slice(-1); set(i, c); if (c) focus(i + 1); }}
+          onChange={(e) => {
+            const all = e.target.value.replace(/\D/g, '');
+            // saisie automatique du SMS (« one-time-code ») : le code entier arrive dans la première case
+            if (all.length > 1 && i === 0) { onChange(all.slice(0, length)); focus(all.length); return; }
+            const c = all.slice(-1); set(i, c); if (c) focus(i + 1);
+          }}
           onKeyDown={onKey(i)}
           onPaste={(e) => {
             const p = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length);
@@ -224,14 +229,42 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
 }
 
 /* ---------- Tuile de chiffre (avec parcimonie : un chiffre qui sert une décision) ---------- */
-export function Stat({ label, value, unit, delta, foot }: { label: ReactNode; value: ReactNode; unit?: ReactNode; delta?: { text: ReactNode; down?: boolean }; foot?: ReactNode }) {
+export function Stat({ label, value, unit, delta, foot, tone }: { label: ReactNode; value: ReactNode; unit?: ReactNode; delta?: { text: ReactNode; down?: boolean }; foot?: ReactNode; icon?: IconName; tone?: 'mint' | 'peach' | 'butter' | 'sky' }) {
+  const { t } = useTranslation();
   return (
-    <div className="stat">
+    <div className={`stat${tone ? ` stat--${tone}` : ''}`}>
       <span className="stat-label">{label}</span>
       <span className="stat-value num">{value}{unit && <small>{unit}</small>}</span>
       {delta && <span className={`stat-delta${delta.down ? ' stat-delta--down' : ''}`}><Icon name={delta.down ? 'arrow-down' : 'arrow-up'} />{delta.text}</span>}
-      {foot && <span className="stat-foot">{foot}</span>}
+      {foot && <details className="stat-src"><summary aria-label={t('refonte.statInfo')} title={t('refonte.statInfo')}><Icon name="info" /></summary><span className="stat-foot">{foot}</span></details>}
     </div>
+  );
+}
+
+/* ---------- Carte d'accueil (image 2 : « Bonjour, Mia ! ») et tuiles d'accès rapide (image 1) ---------- */
+export function Hero({ title, text, actions, aside }: { title: ReactNode; text?: ReactNode; actions?: ReactNode; aside?: ReactNode }) {
+  return (
+    <section className="hero">
+      <div className="hero-body">
+        <h1 className="page-title">{title}</h1>
+        {text && <p className="hero-text">{text}</p>}
+        {actions && <div className="cluster hero-actions" style={{ ['--gap' as string]: '10px' }}>{actions}</div>}
+      </div>
+      {aside && <div className="hero-aside">{aside}</div>}
+    </section>
+  );
+}
+
+export function QuickTiles({ label, items }: { label: string; items: { to: string; icon: IconName; label: string; sub?: string }[] }) {
+  return (
+    <nav className="tiles" aria-label={label}>
+      {items.map((it, i) => (
+        <Link key={it.to} className={`tile tile--${['mint', 'peach', 'butter', 'sky'][i % 4]}`} to={it.to}>
+          <span className="tile-ic"><Icon name={it.icon} /></span>
+          <span className="tile-t">{it.label}{it.sub && <small>{it.sub}</small>}</span>
+        </Link>
+      ))}
+    </nav>
   );
 }
 

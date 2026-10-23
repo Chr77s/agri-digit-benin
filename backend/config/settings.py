@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     "apps.production",
     "apps.ussd",
     "apps.interop",
+    "apps.lands",
+    "apps.farmservices",
+    "apps.observatory",
+    "apps.markets",
 ]
 
 MIDDLEWARE = [
@@ -140,6 +144,9 @@ PRODUCER_RETENTION_DAYS = env.int("PRODUCER_RETENTION_DAYS", default=365)
 # UC-24 : clés des partenaires d'interopérabilité (vide = partenaire désactivé)
 INTEROP_KEYS = {p: env(f"INTEROP_KEY_{p.upper()}", default="") for p in ("xroad", "sonama", "fnda")}
 VERIFY_THROTTLE_RATE = env("VERIFY_THROTTLE_RATE", default="30/min")
+# Réponses publiques aux enquêtes de satisfaction : par adresse (celle d'un opérateur est partagée par des téléphones)
+SURVEY_THROTTLE_RATE = env("SURVEY_THROTTLE_RATE", default="30/hour")
+SURVEY_READ_THROTTLE_RATE = env("SURVEY_READ_THROTTLE_RATE", default="120/hour")
 # P1/P2 : diagnostic, langues, marché (agent B)
 MEDIA_ROOT = Path(env("MEDIA_ROOT", default=str(BASE_DIR / "media")))
 DIAGNOSIS_THRESHOLD = env.float("DIAGNOSIS_THRESHOLD", default=0.6)

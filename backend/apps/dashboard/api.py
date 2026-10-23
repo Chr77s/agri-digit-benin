@@ -68,6 +68,11 @@ def _sea(key, label, value, unit, source, upd=None, **extra):
     return {**_ind(key, label, value, unit, source, upd), **extra}
 
 
+def under_35_cutoff(today=None):
+    today = today or date.today()
+    return date(today.year - 35, today.month, min(today.day, 28))  # 29 février : le 28, sans lever d'erreur
+
+
 @api_view(["GET"])
 @permission_classes([roles(AGENT, ADMIN, RESPONSABLE, "repr_mtdi")])
 def sea(request):
@@ -82,7 +87,7 @@ def sea(request):
     # seuls les SMS des alertes comptent (la boîte d'envoi contient aussi codes, décisions, réponses USSD)
     alert_stats = [a.stats for a in Alert.objects.filter(status="envoyee", **f)]
     logs = AssistantLog.objects.all()  # le journal de l'assistant ne porte aucune donnée de localisation
-    cutoff = date.today().replace(year=date.today().year - 35)
+    cutoff = under_35_cutoff()
     n = valid.count()
     decided = apps_.filter(status__in=("acceptee", "refusee")).count()
     sup = {r["status"]: r["v"] or 0 for r in supports.values("status").annotate(v=Sum("value_xof"))}

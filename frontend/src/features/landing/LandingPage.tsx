@@ -138,7 +138,7 @@ export function LandingPage() {
           const f = { W, H, theme: th, seed: 0, grow: 0, light: 0, time: 0, ...place, lite: coarse };
           if (gl) { gl.draw(f); glOn = true; clip = `circle(${R.toFixed(1)}px at ${x.toFixed(1)}px ${y.toFixed(1)}px)`; }
           else { ctx.save(); ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.clip(); fieldR.draw(f); ctx.restore(); }
-          ctx.strokeStyle = '#C6F432';
+          ctx.strokeStyle = '#2BD891';
           ctx.globalAlpha = 1 - iris;
           ctx.lineWidth = 3;
           ctx.beginPath();

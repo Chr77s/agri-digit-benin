@@ -171,7 +171,8 @@ export function TranslationsPage() {
   const { user } = useAuth();
   const canEdit = user?.role === 'repr_mtdi';
   const [language, setLanguage] = useState('');
-  const [status, setStatus] = useState('');
+  // Par défaut : les textes proposés qui attendent une note, pas les 1 155 textes à traduire (filtre « À traduire » en un clic).
+  const [status, setStatus] = useState('propose');
   const [proposing, setProposing] = useState<TranslationEntry | null>(null);
   const [reviewing, setReviewing] = useState<TranslationEntry | null>(null);
   const [msg, setMsg] = useState('');
