@@ -1,10 +1,13 @@
 from django.utils.dateparse import parse_date
 from rest_framework import generics, serializers
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 
 from apps.core.pagination import Cursor
 from apps.core.permissions import ADMIN, AUDITEUR, roles
 
 from .models import AuditLog
+from .services import verify_chain
 
 
 def _date(v):
@@ -17,7 +20,8 @@ def _date(v):
 class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditLog
-        fields = ["id", "at", "actor_phone", "actor_role", "action", "object_type", "object_id", "details"]
+        fields = ["id", "seq", "at", "actor_phone", "actor_role", "action", "object_type", "object_id", "details",
+                  "prev_hash", "hash"]
 
 
 class AuditPagination(Cursor):
@@ -43,3 +47,10 @@ class AuditLogList(generics.ListAPIView):
         if (a := _date(self.request.query_params.get("to"))):
             qs = qs.filter(at__date__lte=a)
         return qs
+
+
+@api_view(["GET"])
+@permission_classes([roles(AUDITEUR, ADMIN)])
+def verify(request):
+    """Recalcule toute la chaîne d'empreintes : {ok, count, broken_seq, checked_at}."""
+    return Response(verify_chain())

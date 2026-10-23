@@ -14,6 +14,8 @@ DEBUG = env.bool("DEBUG", default=False)
 SECRET_KEY = env("SECRET_KEY", default="dev-insecure-key-change-me")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost", "testserver"])
 DEMO_MODE = env.bool("DEMO_MODE", default=False)
+# passerelle USSD/SMS de l'opérateur (vide = fermée hors DEMO_MODE)
+USSD_GATEWAY_KEY = env("USSD_GATEWAY_KEY", default="")
 NPI_REGEX = env("NPI_REGEX", default=r"^\d{10}$")
 PHONE_REGEX = r"^01\d{8}$"
 
@@ -48,7 +50,12 @@ INSTALLED_APPS = [
     "apps.satellite",
     "apps.cooperatives",
     "apps.production",
+    "apps.ussd",
     "apps.interop",
+    "apps.lands",
+    "apps.farmservices",
+    "apps.observatory",
+    "apps.markets",
 ]
 
 MIDDLEWARE = [
@@ -120,15 +127,26 @@ SPECTACULAR_SETTINGS = {"TITLE": "Agri-Digit Bénin API", "VERSION": "1.0.0", "S
 ANIP_BACKEND = env("ANIP_BACKEND", default="mock")
 PAYMENT_BACKEND = env("PAYMENT_BACKEND", default="fakepay")
 LLM_BACKEND = env("LLM_BACKEND", default="auto")
+WEATHER_BACKEND = env("WEATHER_BACKEND", default="open-meteo")  # "demo" : valeurs simulées
+WEATHER_URL = env("WEATHER_URL", default="https://api.open-meteo.com/v1/forecast")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")
 OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
+OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="http://glm-gateway.tail577250.ts.net:4000/v1")
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")  # renseignée : l'assistant passe par la passerelle
+OPENAI_MODEL = env("OPENAI_MODEL", default="")  # vide : premier modèle annoncé par la passerelle
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+ANTHROPIC_BASE_URL = env("ANTHROPIC_BASE_URL", default="https://api.anthropic.com")  # serveur Claude du réseau local
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
 ASSISTANT_MIN_SCORE = env.float("ASSISTANT_MIN_SCORE", default=1.0)
 AUDIT_RETENTION_DAYS = env.int("AUDIT_RETENTION_DAYS", default=1825)
+# compte fermé (consentement « données personnelles » retiré) : délai avant effacement, à fixer avec le DPO
+PRODUCER_RETENTION_DAYS = env.int("PRODUCER_RETENTION_DAYS", default=365)
 # UC-24 : clés des partenaires d'interopérabilité (vide = partenaire désactivé)
 INTEROP_KEYS = {p: env(f"INTEROP_KEY_{p.upper()}", default="") for p in ("xroad", "sonama", "fnda")}
 VERIFY_THROTTLE_RATE = env("VERIFY_THROTTLE_RATE", default="30/min")
+# Réponses publiques aux enquêtes de satisfaction : par adresse (celle d'un opérateur est partagée par des téléphones)
+SURVEY_THROTTLE_RATE = env("SURVEY_THROTTLE_RATE", default="30/hour")
+SURVEY_READ_THROTTLE_RATE = env("SURVEY_READ_THROTTLE_RATE", default="120/hour")
 # P1/P2 : diagnostic, langues, marché (agent B)
 MEDIA_ROOT = Path(env("MEDIA_ROOT", default=str(BASE_DIR / "media")))
 DIAGNOSIS_THRESHOLD = env.float("DIAGNOSIS_THRESHOLD", default=0.6)

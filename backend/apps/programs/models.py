@@ -12,7 +12,15 @@ class Program(models.Model):
     description = models.TextField(blank=True)
     conditions = models.TextField(blank=True)
     value_chains = models.JSONField(default=list, blank=True)
-    closes_at = models.DateField()
+    status = models.CharField(max_length=12, default="publie", db_index=True)  # brouillon | publie
+    opens_at = models.DateField(null=True, blank=True)
+    closes_at = models.DateField(null=True, blank=True)  # obligatoire à la publication
+    committee_at = models.DateField(null=True, blank=True)
+    # critères d'éligibilité, vérifiés à la candidature (vides = pas de restriction)
+    departments = models.JSONField(default=list, blank=True)
+    max_area_ha = models.FloatField(null=True, blank=True)
+    planned_beneficiaries = models.PositiveIntegerField(null=True, blank=True)
+    require_campaign = models.BooleanField(default=False)  # une campagne d'une des filières du programme
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -24,6 +32,9 @@ class Application(models.Model):
     status = models.CharField(max_length=20, default="deposee")
     reason = models.TextField(blank=True)
     decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    decided_at = models.DateTimeField(null=True, blank=True)
+    contest_reason = models.TextField(blank=True)  # le producteur conteste un refus (une seule fois, sous 15 jours)
+    contested_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

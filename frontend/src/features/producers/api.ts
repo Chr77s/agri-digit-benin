@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, qs, rows } from '../../shared/api/client';
 import type { Paginated, Producer, ProducerRegister, ProducerVersion } from '../../shared/api/types';
-import { sendOrQueue } from '../outbox/offlineQueue';
+import { postOrQueue, sendOrQueue } from '../outbox/offlineQueue';
 import i18n from '../../i18n';
 
 export const useRegisterProducer = () =>
-  useMutation({ mutationFn: (b: ProducerRegister) => api<Producer>('/producers/register', { method: 'POST', body: b }) });
+  useMutation({ mutationFn: (b: ProducerRegister) => postOrQueue<Producer>('/producers/register', b, i18n.t('offline.label.register', { name: `${b.first_name} ${b.last_name}` })) });
 
 export const useProducers = (f: { status?: string; search?: string }, enabled = true) =>
   useQuery({

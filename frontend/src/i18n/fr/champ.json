@@ -1,0 +1,108 @@
+{
+  "gps": {
+    "title": "Nouvelle parcelle",
+    "desc": "Marchez le long de la limite du champ, le téléphone à la main.",
+    "closedTitle": "Contour fermé",
+    "savedTitle": "Parcelle enregistrée",
+    "backList": "Voir mes parcelles",
+    "deniedTitle": "Position refusée",
+    "denied": "Autorisez la position pour Agri-Digit dans les réglages du téléphone, puis revenez ici. Vous pouvez aussi dessiner le champ sur la carte depuis un ordinateur.",
+    "unavailableTitle": "Position indisponible",
+    "unavailable": "Le téléphone ne trouve pas sa position. Sortez à découvert, loin des arbres et des murs, puis attendez un instant.",
+    "shapeLabel_one": "Contour du champ : {{count}} point relevé",
+    "shapeLabel_other": "Contour du champ : {{count}} points relevés",
+    "recording": "Enregistrement",
+    "paused": "En pause",
+    "area": "Surface",
+    "distance": "Distance",
+    "perimeter": "Périmètre",
+    "accuracy": "Précision",
+    "waitAccuracy": "Position encore imprécise : attendez qu'elle passe sous ± {{m}} m avant d'avancer.",
+    "walkBack": "Revenez au point de départ pour fermer le contour.",
+    "nearStart": "Vous êtes revenu au départ : touchez « Terminer ».",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "finish": "Terminer",
+    "restart": "Recommencer le tracé",
+    "minPoints": "Trois points au moins. Un point n'est gardé que si la position est précise et que vous avez avancé.",
+    "closedOk": "Contour fermé et mesuré. Il reste à nommer le champ et à dire à qui est la terre.",
+    "continue": "Continuer le tracé",
+    "listSub_one": "{{count}} parcelle · {{area}} ha",
+    "listSub_other": "{{count}} parcelles · {{area}} ha",
+    "howTo": "Pour mesurer, faites le tour du champ à pied, le téléphone à la main.",
+    "measure": "Mesurer une nouvelle parcelle",
+    "desktopHint": "Sur le terrain, avec un téléphone :"
+  },
+  "cycle": {
+    "variety": "Variété",
+    "varietyHint": "Celle conseillée par votre agent ATDA, par exemple EVDT 97 STR pour le maïs.",
+    "sownAt": "Date de semis",
+    "sownAtHint": "Elle sert à estimer les dates des stades et des tâches.",
+    "next": "Passer au stade suivant ({{stage}})",
+    "noSowing": "Indiquez la date de semis en ouvrant la campagne pour voir son calendrier et ses tâches.",
+    "calendar": "Calendrier · jour {{day}}",
+    "emergence": "Levée",
+    "until": "jusque vers le {{date}}",
+    "around": "vers le {{date}}",
+    "estimated": "Dates estimées pour {{crop}} ({{variety}}), données de démonstration en attendant les fiches INRAB par variété.",
+    "noVariety": "variété non précisée",
+    "tasks": "Tâches",
+    "group": {
+      "week": "Cette semaine",
+      "later": "Plus tard",
+      "done": "Faites"
+    },
+    "due": "avant le {{date}}",
+    "task": {
+      "emergence": "Vérifier la levée : {{crop}}",
+      "weeding1": "Premier sarclage",
+      "weeding2": "Deuxième sarclage et buttage",
+      "scout": "Inspecter 20 plants (ravageurs, maladies)",
+      "prepareHarvest": "Préparer la récolte : sacs, aire de séchage",
+      "declareHarvest": "Déclarer la récolte"
+    },
+    "tasksHint": "Repères généraux, sans dosage : pour un traitement, voyez votre agent ATDA. Cocher une tâche ne l'enregistre pas."
+  },
+  "harvest": {
+    "sacks": "Soit {{n}} sacs de 100 kg",
+    "expected": "Estimé : {{low}} à {{high}} kg.",
+    "refDemo": "Rendement de référence de démonstration"
+  },
+  "diagnosis": {
+    "tipsBtn": "Conseils de cadrage",
+    "tipsTitle": "Pour une bonne photo",
+    "tipsOk": "J'ai compris",
+    "tip": {
+      "light": {
+        "t": "À la lumière du jour",
+        "d": "Pas de flash, pas de contre-jour."
+      },
+      "frame": {
+        "t": "La partie abîmée remplit le cadre",
+        "d": "Approchez-vous à une main de la feuille."
+      },
+      "still": {
+        "t": "Tenez le téléphone immobile",
+        "d": "Attendez que l'image soit nette."
+      },
+      "under": {
+        "t": "Faites aussi le dessous",
+        "d": "Les œufs et les chenilles s'y cachent."
+      }
+    },
+    "ask": "Pas sûr ? Demander un agronome",
+    "askTitle": "Demander un agronome",
+    "askNote": "Ce que vous voyez",
+    "askInfo": "Un agronome de l'ATDA ou de l'INRAB relit la photo et vous répond par message, en général sous 48 h.",
+    "askSend": "Envoyer la demande",
+    "asked": "Demande envoyée. Un agronome va relire votre photo.",
+    "yourNote": "Votre message :",
+    "producerSays": "Ce que dit le producteur :"
+  },
+  "weather": {
+    "listen": "Météo et prix. Les prévisions montrent la pluie attendue chaque jour, en millimètres. Les jours de forte pluie, reportez l'épandage d'engrais. Les prix sont donnés en francs par kilo, à titre d'exemple."
+  },
+  "satellite": {
+    "listen": "Suivi satellite. Le chiffre NDVI mesure la vigueur de vos cultures vue du ciel : proche de zéro, peu de plantes vertes ; proche de un, une végétation dense. Ces données sont des exemples."
+  }
+}

@@ -1,5 +1,5 @@
 import sys
-from datetime import date
+from datetime import date, timedelta
 
 import numpy as np
 from django.db import IntegrityError, transaction
@@ -8,6 +8,7 @@ from django.utils import timezone
 from apps.audit.services import record
 from apps.core.errors import ApiError
 from apps.farms.models import FarmPOC
+from apps.producers.models import Producer
 from apps.producers.services import notify
 
 from .models import Application, Contest, Program, SelectionCandidate, SelectionRun
@@ -15,22 +16,80 @@ from .models import Application, Contest, Program, SelectionCandidate, Selection
 NON_SELECTED_SAMPLE = 2000  # non retenus conservés (les mieux classés) pour consultation et contestation
 
 
+MIN_OPEN_DAYS = 14  # durée minimale de candidature (maquette pilotage/programmes)
+
+
+def check_publishable(d):
+    """Champs exigés pour publier ; un brouillon peut être incomplet."""
+    errors = {}
+    if not d.get("value_chains"):
+        errors["value_chains"] = ["Choisissez au moins une filière."]
+    closes, opens = d.get("closes_at"), d.get("opens_at") or date.today()
+    if not closes:
+        errors["closes_at"] = ["Fixez la date de clôture."]
+    elif closes < opens + timedelta(days=MIN_OPEN_DAYS):
+        errors["closes_at"] = [f"Fixez la date de clôture, au moins {MIN_OPEN_DAYS} jours après l'ouverture."]
+    if errors:
+        raise ApiError("Le programme ne peut pas être publié.", "validation_error", 400, fields=errors)
+
+
+def eligible(criteria):
+    """Producteurs validés qui remplissent les critères (sert à l'estimation et à la candidature)."""
+    from django.db.models import Sum
+
+    qs = Producer.objects.filter(status="valide")
+    if criteria.get("departments"):
+        qs = qs.filter(department__in=criteria["departments"])
+    if criteria.get("require_campaign") and criteria.get("value_chains"):
+        qs = qs.filter(parcels__campaigns__value_chain__in=criteria["value_chains"])
+    if criteria.get("max_area_ha") is not None:
+        qs = qs.annotate(total_ha=Sum("parcels__area_ha")).filter(total_ha__lte=criteria["max_area_ha"])
+    return qs.distinct()
+
+
+def _criteria(program):
+    return {"departments": program.departments, "require_campaign": program.require_campaign,
+            "value_chains": program.value_chains, "max_area_ha": program.max_area_ha}
+
+
 @transaction.atomic
 def create_program(actor, d):
+    if d.get("status", "publie") == "publie":
+        check_publishable(d)
     p = Program.objects.create(created_by=actor, **d)
-    record(actor, "program.create", p)
+    record(actor, "program.create", p, status=p.status)
     return p
+
+
+@transaction.atomic
+def update_draft(actor, program, d):
+    if program.status != "brouillon":
+        raise ApiError("Un programme publié ne se modifie plus : ses critères ont été annoncés.", "published", 409)
+    for k, v in d.items():
+        setattr(program, k, v)
+    if program.status == "publie":
+        check_publishable({f: getattr(program, f) for f in ("value_chains", "closes_at", "opens_at")})
+    program.save()
+    record(actor, "program.publish" if program.status == "publie" else "program.update", program)
+    return program
 
 
 def apply(actor, program):
     producer = getattr(actor, "producer", None)
     if producer is None:
         raise ApiError("Aucune fiche producteur associée à ce compte.", "no_producer", 400)
+    if program.status != "publie":
+        raise ApiError("Ce programme n'est pas encore publié.", "not_published", 400)
+    if program.opens_at and program.opens_at > date.today():
+        raise ApiError(f"Les candidatures ouvrent le {program.opens_at:%d/%m/%Y}.", "not_open_yet", 400)
     if program.closes_at < date.today():
         raise ApiError(f"Ce programme est clos depuis le {program.closes_at:%d/%m/%Y}. Les candidatures ne sont plus "
                        f"acceptées.", "program_closed", 400)
     if producer.status != "valide":
         raise ApiError("Votre inscription doit être validée avant de candidater.", "producer_not_validated", 400)
+    if not eligible(_criteria(program)).filter(pk=producer.pk).exists():
+        raise ApiError("Vous ne remplissez pas les critères de ce programme : voyez les conditions affichées, ou "
+                       "demandez à votre agent ATDA.", "not_eligible", 400)
     try:
         with transaction.atomic():
             a = Application.objects.create(program=program, producer=producer)
@@ -45,9 +104,11 @@ def decide(actor, app, status, reason):
     if status == "refusee" and not reason:
         raise ApiError("Le motif est obligatoire pour un refus.", "reason_required", 400)
     app.status, app.reason, app.decided_by = status, reason, actor
-    app.save(update_fields=["status", "reason", "decided_by"])
+    app.decided_at = None if status == "en_instruction" else timezone.now()
+    app.save(update_fields=["status", "reason", "decided_by", "decided_at"])
     record(actor, "application.decide", app, status=status, reason=reason)
-    notify(app.producer, "Candidature", f"Agri-Digit : votre candidature « {app.program.name} » est {status}.")
+    label = {"en_instruction": "en instruction", "acceptee": "acceptée", "refusee": "refusée"}.get(status, status)
+    notify(app.producer, "Candidature", f"Agri-Digit : votre candidature « {app.program.name} » est {label}.")
     return app
 
 
@@ -110,6 +171,34 @@ def validate_run(actor, run, reason):
     run.save(update_fields=["status", "validated_by", "validation_reason", "validated_at"])
     record(actor, "selection.validate", run, reason=reason)
     return run
+
+
+CONTEST_DAYS = 15  # délai pour contester un refus (art. 401, comme la contestation d'une sélection)
+
+
+@transaction.atomic
+def contest_application(actor, app, reason):
+    """Le producteur conteste un refus : la candidature repasse en instruction avec son motif, les agents du secteur
+    sont prévenus. Une seule fois, sous 15 jours ; sans date de décision connue (anciens refus), pas de délai."""
+    if not reason:
+        raise ApiError("Dites en une phrase pourquoi vous contestez.", "reason_required", 400,
+                       fields={"reason": ["Obligatoire."]})
+    if app.status != "refusee":
+        raise ApiError("Seul un refus peut être contesté.", "invalid_status", 400)
+    if app.contested_at:
+        raise ApiError("Ce refus a déjà été contesté.", "already_contested", 400)
+    if app.decided_at and timezone.now() - app.decided_at > timedelta(days=CONTEST_DAYS):
+        raise ApiError(f"Le délai de {CONTEST_DAYS} jours pour contester est dépassé.", "contest_window_closed", 400)
+    app.status, app.contest_reason, app.contested_at, app.decided_at = "en_instruction", reason, timezone.now(), None
+    app.save(update_fields=["status", "contest_reason", "contested_at", "decided_at"])
+    record(actor, "application.contest", app, reason=reason)
+    from apps.accounts.models import User
+    from integrations.notifications import get_channel
+
+    body = f"{app.producer.code} conteste le refus de « {app.program.name} » : « {reason[:300]} »."
+    for agent in User.objects.filter(role="agent_atda", is_active=True, department=app.producer.department):
+        get_channel("in_app").send(agent.phone, body, user=agent, title="Refus contesté")
+    return app
 
 
 @transaction.atomic

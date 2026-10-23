@@ -10,7 +10,11 @@ def test_workflow_and_assistant(users, producer):
     doc = r.json()["id"]
     assert client_for(users["agent"]).post("/api/v1/knowledge", {}, format="json").status_code == 403
     assert ag.post(f"/api/v1/knowledge/{doc}/publish").json()["code"] == "invalid_status"
-    assert ag.post(f"/api/v1/knowledge/{doc}/review").json()["status"] == "relu"
+    # relecture par une autre personne que l'auteur de la version
+    assert ag.post(f"/api/v1/knowledge/{doc}/review").json()["code"] == "same_author"
+    adm = client_for(users["admin"])
+    r = adm.post(f"/api/v1/knowledge/{doc}/review").json()
+    assert r["status"] == "relu" and r["reviewed_by_name"] == users["admin"].full_name and r["reviewed_at"]
     assert ag.post(f"/api/v1/knowledge/{doc}/publish").json()["status"] == "publie"
     assert client_for(users["auditeur"]).get("/api/v1/knowledge").status_code == 403
     p = client_for(producer.user)
@@ -19,15 +23,24 @@ def test_workflow_and_assistant(users, producer):
     from apps.knowledge.services import rebuild_index
 
     for i, (vc, t) in enumerate([("riz", "Repiquage du riz en bas-fond"), ("coton", "Démariage du coton"),
-                                 ("manioc", "Bouturage du manioc"), ("soja", "Récolte du soja")]):
+                                 ("manioc", "Bouturage du manioc"), ("soja", "Récolte du soja"),
+                                 ("coton", "Quand semer le coton à Banikoara")]):
         KnowledgeDoc.objects.create(value_chain=vc, title=t, body=t + f" fiche {i}.", source="s", status="publie")
     rebuild_index()
     r = p.post("/api/v1/assistant/ask", {"question": "Quand semer le maïs à Banikoara ?"}, format="json").json()
     assert r["status"] == "answered" and r["citations"][0]["doc_id"] == doc and r["backend"]
+    assert [c["doc_id"] for c in r["citations"]] == [doc]  # la fiche coton proche n'est pas citée pour le maïs
     assert r["disclaimer"] == "Conseil indicatif, vérifiez avec votre agent ATDA"
     r = p.post("/api/v1/assistant/ask", {"question": "Quelle dose d'insecticide pour la chenille ?"},
                format="json").json()
     assert r["status"] == "escalated" and not r["citations"]
+    # la question est réellement transmise à l'agent du secteur (Alibori), avec de quoi rappeler le producteur
+    from apps.alerts.models import Notification
+
+    n = Notification.objects.get(user=users["agent"], title="Question de dosage à traiter")
+    assert producer.code in n.body and producer.phone in n.body and "chenille" in n.body
+    assert not Notification.objects.filter(user=users["agent_zou"]).exists()
+    assert "transmise à l'agent ATDA de votre secteur" in r["answer"]
     r = p.post("/api/v1/assistant/ask", {"question": "Prix du ciment à Lagos"}, format="json").json()
     assert r["status"] == "unknown"
     r = ag.patch(f"/api/v1/knowledge/{doc}", {"body": "Nouveau texte."}, format="json")
@@ -44,3 +57,22 @@ def test_dosage_guard_variants():
     assert is_dosage_question("Combien de ml de pesticide par pulvérisateur ?")
     assert is_dosage_question("Posologie du vermifuge pour mes chèvres")
     assert not is_dosage_question("Quand semer le maïs ?")
+
+
+def test_generic_words_do_not_pull_an_unrelated_sheet(users, producer):
+    # « contre » et « protéger » ne suffisent pas à citer la fiche Striga pour une question sur la chenille
+    from apps.knowledge.models import KnowledgeDoc
+    from apps.knowledge.services import rebuild_index
+
+    KnowledgeDoc.objects.create(value_chain="mais", title="Lutte contre le Striga dans le maïs",
+                                body="Striga : plante parasite du maïs. Rotation des cultures, arrachage avant floraison.",
+                                source="INRAB", status="publie")
+    for vc, t in [("riz", "Repiquage du riz en bas-fond"), ("coton", "Démariage du coton"), ("soja", "Récolte du soja")]:
+        KnowledgeDoc.objects.create(value_chain=vc, title=t, body=t + " fiche.", source="s", status="publie")
+    rebuild_index()
+    p = client_for(producer.user)
+    for q in ("Comment protéger mon maïs contre la chenille ?", "Comment lutter contre la chenille légionnaire du maïs ?"):
+        r = p.post("/api/v1/assistant/ask", {"question": q}, format="json").json()
+        assert r["status"] == "unknown" and not r["citations"], q
+    r = p.post("/api/v1/assistant/ask", {"question": "Comment traiter le Striga du maïs ?"}, format="json").json()
+    assert r["status"] == "answered" and r["citations"][0]["title"].startswith("Lutte contre le Striga")

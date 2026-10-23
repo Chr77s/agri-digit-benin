@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { api, ApiError } from '../../shared/api/client';
 import type { ProducerCard, ProducerStatus, VerifyResult } from '../../shared/api/types';
 import { usePlaceName } from '../../shared/api/ref';
-import { Alert, Button, EmptyState, ErrorState, Icon, PageHeader, Skeleton, fmtDate, fmtDateTime, spriteHref, useMsg } from '../../shared/ui';
+import { Alert, Button, EmptyState, ErrorState, Emblem, Icon, PageHeader, Skeleton, fmtDate, fmtDateTime, toast, useMsg } from '../../shared/ui';
 import { StatusBadge } from '../producers/ProducersPages';
 import { useAuth } from '../auth/AuthContext';
 import '../auth/access.css';
@@ -35,6 +35,17 @@ export function CardPage() {
     <PageHeader title={title} crumbs={crumbs} desc={agent ? undefined : t('card.desc')} listen={agent ? undefined : t('card.listen')} actions={actions} />
   );
 
+  // Partage du lien public de vérification (feuille de partage du téléphone, sinon copie) : nom, code et commune seulement.
+  const share = async (code: string, name: string) => {
+    const url = verifyPage(code);
+    try {
+      if (navigator.share) await navigator.share({ title: t('card.shareTitle'), text: t('card.shareText', { name }), url });
+      else { await navigator.clipboard.writeText(url); toast(t('card.linkCopied')); }
+    } catch (e) {
+      if ((e as { name?: string }).name !== 'AbortError') toast({ type: 'error', text: t('card.shareFail') });
+    }
+  };
+
   if (!id && !user?.producer_id) {
     return <>{head()}<Alert tone="warn">{t('card.noProducerHelp')}</Alert></>;
   }
@@ -48,12 +59,15 @@ export function CardPage() {
   const where = `${place(c.commune)}, ${place(c.department)}`;
   return (
     <>
-      {head(<Button icon="printer" onClick={() => window.print()}>{t('card.print')}</Button>)}
+      {head(<>
+        <Button variant="secondary" icon="send" onClick={() => void share(c.verification_code, c.full_name)}>{t('card.share')}</Button>
+        <Button icon="printer" onClick={() => window.print()}>{t('card.print')}</Button>
+      </>)}
       <div className="split">
         <div className="card-zone">
           <div className="pcard" role="img" aria-label={t('card.aria', { name: c.full_name, code: c.code, date: fmtDate(c.issued_at) })}>
             <div className="pc-top">
-              <svg aria-hidden><use href={spriteHref('logo')} /></svg>
+              <Emblem size={26} />
               <span><b>{t('app.name')}</b>{t('card.cardOf')}</span>
               {c.status !== 'valide' && <span className="pc-status"><StatusBadge s={c.status} /></span>}
             </div>
@@ -99,6 +113,8 @@ const RESULT: Record<ProducerStatus, { cls: string; icon: 'check' | 'clock' | 'x
   valide: { cls: 'res--ok', icon: 'check', key: 'ok' },
   en_attente: { cls: 'res--wait', icon: 'clock', key: 'wait' },
   rejete: { cls: 'res--bad', icon: 'x', key: 'bad' },
+  ferme: { cls: 'res--bad', icon: 'x', key: 'closed' },
+  efface: { cls: 'res--bad', icon: 'x', key: 'closed' },
 };
 const asList = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
 const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/; // alphabet des cartes : sans 0, O, 1 ni I

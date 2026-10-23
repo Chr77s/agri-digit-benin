@@ -11,6 +11,8 @@ const vars = (p: Record<Key, string>) =>
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  // Classes du kit (kit.css) qui portent le nom d'un utilitaire Tailwind : sans cela, l'utilitaire (display: list-item) les écrase.
+  blocklist: ['list-item'],
   theme: {
     colors: {
       transparent: 'transparent',
@@ -30,6 +32,13 @@ export default {
       laterite: c('laterite'),
       rain: c('rain'),
       layer: c('layer'),
+      sage: c('sage'),
+      mint: c('mint'),
+      peach: c('peach'),
+      butter: c('butter'),
+      sky: c('sky'),
+      coral: c('coral'),
+      teal: c('teal'),
     },
     fontSize: {
       xs: [t.fontSize.xs, '18px'],

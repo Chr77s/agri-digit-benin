@@ -38,6 +38,6 @@ describe('Accueil de l’agent ATDA', () => {
     expect(await screen.findByText('Bawa Orou')).toBeInTheDocument();
     expect(screen.getByText('Délai dépassé')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ouvrir' })).toHaveAttribute('href', '/producteurs/p1');
-    expect(screen.getByText('fiche à valider')).toBeInTheDocument();
+    expect(screen.getByText("à traiter aujourd'hui")).toBeInTheDocument();
   });
 });

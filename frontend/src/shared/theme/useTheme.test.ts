@@ -15,12 +15,12 @@ describe('useTheme', () => {
     expect(localStorage.getItem('agri-theme')).toBe('light');
   });
 
-  it('sans choix enregistré, suit le système sans rien enregistrer', async () => {
+  it('sans choix enregistré, reste clair même si le système est sombre, sans rien enregistrer', async () => {
     localStorage.clear();
     window.matchMedia = ((q: string) => ({ matches: q.includes('dark') })) as unknown as typeof window.matchMedia;
     vi.resetModules();
     const { useTheme } = await import('./useTheme');
-    expect(renderHook(() => useTheme()).result.current.theme).toBe('dark');
+    expect(renderHook(() => useTheme()).result.current.theme).toBe('light');
     expect(localStorage.getItem('agri-theme')).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Badge, Button, Field, Icon, ListenButton, OtpInput, PhoneInput, Steps, Tabs, fmtDateTime, useMsg } from '../../shared/ui';
+import { Alert, Badge, Button, Field, Icon, ListenButton, OtpInput, PhoneInput, Tabs, fmtDateTime, useMsg } from '../../shared/ui';
 import { ApiError } from '../../shared/api/client';
 import { useOtpInbox, useRequestOtp, useVerifyOtp } from './api';
 import { useAuth } from './AuthContext';
@@ -154,8 +154,6 @@ export function LoginPage() {
 
   const flow = (
     <div className="stack" style={{ ['--gap' as string]: '18px' }}>
-      {kind === 'agent' && <Alert tone="info" icon="shield-check" title={t('login.agentTitle')}>{t('login.agentText')}</Alert>}
-      <Steps steps={[t('login.stepPhone'), t('login.stepCode')]} current={phone ? 1 : 0} />
       {phone ? stepCode : stepPhone}
     </div>
   );
@@ -173,17 +171,12 @@ export function LoginPage() {
         <Tabs label={t('login.accountType')} value={kind} onChange={(k) => setKind(k as Kind)}
           tabs={[{ id: 'prod', label: t('login.tabProducer'), content: flow }, { id: 'agent', label: t('login.tabAgent'), content: flow }]} />
         <nav className="aside-links" aria-label={t('login.otherAccess')}>
-          <span>{t('login.noAccount')}</span>
           <Link to="/inscription">{t('login.registerLink')}<Icon name="arrow-right" /></Link>
           <Link to="/verification"><Icon name="qr" />{t('login.verifyLink')}</Link>
         </nav>
       </div>
       <figure className="auth-art">
         <picture><source media="(max-width: 1023px)" srcSet={artSm} /><img src={art} alt="" width={1440} height={900} /></picture>
-        <figcaption>
-          <p className="art-line">{t('login.artLine')}</p>
-          <p className="art-credit">{t('login.artCredit')}</p>
-        </figcaption>
       </figure>
     </div>
   );

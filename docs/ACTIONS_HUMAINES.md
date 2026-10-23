@@ -14,6 +14,8 @@ Ces points ne bloquent pas le prototype : chacun est remplacé par une simulatio
 | 8 | Confirmation de la liste officielle des filières prioritaires (le MAEP parle de 13 filières) et de la source des données du POC (`DONNEES.md`). | MAEP | 10 filières, données POC marquées non officielles |
 | 9 | Choix de l'hébergement final avec le CoPil et le CoTech (contrainte art. 391 sur les transferts hors du Bénin). | CoPil, CoTech | exécution locale, `docker-compose.yml` fourni |
 | 10 | Contrat de sous-traitance entre le MAEP (responsable du traitement) et le prestataire. | MAEP, prestataire | non couvert par le code |
+| 11 | Obtenir un code court USSD et une passerelle USSD et SMS entrants auprès d'un opérateur (MTN, Moov), avec la clé de passerelle (`USSD_GATEWAY_KEY`). | MAEP, opérateur | passerelles simulées, ouvertes en `DEMO_MODE` ; code d'exemple `*000#` |
+| 12 | Raccorder une source de météo (Météo-Bénin) et de prix de marché (SIM) pour remplacer les valeurs de démonstration. | MAEP | `integrations/market_data.py` et `features/weather/demo.ts` |
 
 ## Avertissement : licence des modèles Meta MMS
 
@@ -25,6 +27,9 @@ Sur le PC de développement, la protection contre les rançongiciels de Windows 
 
 ## Autres points constatés
 
-- Docker est installé mais son démon était arrêté : le prototype tourne sur SQLite. Démarrer Docker Desktop pour tester `infra/docker-compose.yml`.
+- Le prototype n'utilise pas Docker : il tourne sur SQLite. Les fichiers de `infra/` sont gardés pour un déploiement ultérieur et n'ont pas été testés.
 - Le fichier POC fait 77,5 Mo (et non 17,8 Mo) ; l'import doit se faire en flux sur un poste à faible mémoire.
 - Le passage "quand semer le maïs à Banikoara" s'appuie sur un extrait WOCAT non ouvert directement : à confirmer par l'ATDA Alibori.
+- La photo de démonstration `docs/demo/photo-feuille-douteuse.jpg` (et sa copie dans `backend/media/diagnoses/`) porte un filigrane « iStock » : à remplacer par une image libre et créditée (CC BY-SA, comme les vignettes de la landing) avant toute présentation. Je n'ai pas pu en fournir une depuis ce poste.
+- Pages d'information ajoutées le 22 octobre 2026 (accessibilité, contact) : à renseigner par le MAEP avant la mise en service : le point de contact technique, le délégué à la protection des données, le délai de réponse aux signalements d'accessibilité, les coordonnées de l'autorité de recours, et la décision d'un audit d'accessibilité externe (WCAG 2.2 AA). Ces mentions sont surlignées dans les pages tant qu'elles sont ouvertes.
+- Logo et partenaires (22 octobre 2026) : le logo du MAEP vient d'une image de 474 × 152 pixels, trop petite pour l'impression ; fournir le fichier vectoriel ou en haute définition (les icônes du navigateur sont générées à partir de l'emblème et seront à refaire). La section « Partenaires » de l'accueil reprend les institutions citées dans les TDR sous forme de sigles : confirmer la liste et fournir leurs logos officiels.

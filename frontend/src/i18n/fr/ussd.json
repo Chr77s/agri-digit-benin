@@ -1,0 +1,20 @@
+{
+  "ussd": {
+    "title": "Téléphone simple : USSD et SMS",
+    "sub": "Ce que voit un producteur sans smartphone ni internet : menus numérotés par le code {{code}} (exemple) et commandes par SMS.",
+    "phone": "Numéro du téléphone simulé",
+    "phoneHint": "Un numéro de producteur validé ouvre le conseil et les appuis (démo : 0197000001).",
+    "closed": "Les passerelles USSD et SMS sont fermées sur ce serveur (mode démonstration désactivé et aucune passerelle d'opérateur).",
+    "ussd": "USSD",
+    "idle": "Composez {{code}}\npuis appelez.",
+    "call": "Appeler {{code}}",
+    "answer": "Votre réponse",
+    "reply": "Répondre",
+    "hangUp": "Raccrocher",
+    "close": "Fermer",
+    "sms": "SMS",
+    "smsHelp": "Envoyez METEO, ou PRIX suivi de la filière (PRIX MAIS). La réponse arrive aussi dans la boîte d'envoi.",
+    "smsText": "Texte du SMS",
+    "send": "Envoyer"
+  }
+}

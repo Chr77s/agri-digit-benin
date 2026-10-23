@@ -1,0 +1,16 @@
+/* Tracé GPS et vignettes de parcelles (maquettes/mobile : parcelles, trace-gps, trace-fin). */
+.gps-wrap { position: relative; border-radius: var(--r-lg); overflow: hidden; background: var(--layer); border: 1px solid var(--line); }
+.gps-field { display: block; width: 100%; height: auto; }
+.gps-poly { fill: none; stroke: var(--leaf); stroke-width: 3; stroke-linejoin: round; }
+.gps-poly.is-closed { fill: color-mix(in srgb, var(--leaf) 22%, transparent); }
+.gps-ghost { stroke: var(--leaf); stroke-width: 2; stroke-dasharray: 6 5; opacity: .6; }
+.gps-vertex { fill: var(--surface, #fff); stroke: var(--leaf); stroke-width: 2; }
+.gps-start { fill: var(--leaf); }
+.gps-me { fill: color-mix(in srgb, var(--rain, #2a6fdb) 30%, transparent); stroke: var(--rain, #2a6fdb); stroke-width: 3; }
+.gps-rec { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--surface, #fff); font-size: var(--fs-sm); font-weight: 700; }
+.gps-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.gps-stats div { padding: 10px; border-radius: var(--r-md); background: var(--layer); }
+.gps-stats dt { font-size: var(--fs-sm); color: var(--ink-2); }
+.gps-stats dd { margin: 2px 0 0; font-weight: 700; font-size: 1.15rem; }
+.parcel-thumb { width: 56px; height: 56px; flex: none; border-radius: var(--r-md); background: var(--layer); }
+.parcel-thumb path { fill: color-mix(in srgb, var(--leaf) 25%, transparent); stroke: var(--leaf); stroke-width: 2; }

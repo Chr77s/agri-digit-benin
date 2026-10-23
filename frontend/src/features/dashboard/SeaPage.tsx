@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, qs } from '../../shared/api/client';
 import type { SeaDashboard, SeaIndicator } from '../../shared/api/types';
-import { Alert, Badge, Button, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, buttonCls, fmtNum } from '../../shared/ui';
+import { Button, Card, EmptyState, Field, Icon, PageHeader, QueryState, Select, buttonCls, fmtNum, type IconName } from '../../shared/ui';
 import { useDepartments, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { HBars, Meter, OfflineNote, Src, StackBar, TableView, Val } from './viz';
+import { SeaDetail } from './SeaDetail';
 
 /** Indicateurs regroupés par question de suivi (maquette suivi-evaluation). `na:` = indicateur des TDR sans source : affiché « non disponible ». */
 const GROUPS: { id: string; keys: string[] }[] = [
@@ -18,6 +19,7 @@ const GROUPS: { id: string; keys: string[] }[] = [
   { id: 'advice', keys: ['assistant_questions', 'assistant_escalation', 'na:adoption'] },
   { id: 'alerts', keys: ['alert_delivery'] },
 ];
+const GROUP_ICON: Record<string, IconName> = { coverage: 'map-pin', inclusion: 'users', production: 'sprout', access: 'coins', advice: 'chat', alerts: 'bell' };
 const STAGES = ['semis', 'croissance', 'floraison', 'recolte', 'terminee'];
 
 export function SeaPage() {
@@ -40,7 +42,6 @@ export function SeaPage() {
         </>}
       />
       <div className="stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-        <Alert tone="warn" title={t('pilotage.sea.noteTitle')}>{t('pilotage.sea.noteText')}</Alert>
         <OfflineNote at={q.dataUpdatedAt} />
         <div className="cluster" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
           {canFilter && (
@@ -53,7 +54,6 @@ export function SeaPage() {
           {q.data && (
             <p className="cluster" aria-live="polite">
               <b>{t('sea.scope', { name: typeof q.data.scope === 'string' ? q.data.scope : q.data.scope?.name ?? '' })}</b>
-              <Badge tone="demo">{t('pilotage.demo')}</Badge>
             </p>
           )}
         </div>
@@ -65,17 +65,22 @@ export function SeaPage() {
             return (
               <div className="sea-grid">
                 {GROUPS.map((g) => (
-                  <Card key={g.id} title={t(`pilotage.sea.q.${g.id}`)}>
-                    {g.keys.map((k) => (k.startsWith('na:')
-                      ? <Missing key={k} id={k.slice(3)} />
-                      : byKey.has(k) ? <Ind key={k} ind={byKey.get(k)!} /> : null))}
+                  <Card key={g.id} title={<span className="sea-title"><span className="sea-ic"><Icon name={GROUP_ICON[g.id] ?? 'chart-bar'} /></span>{t(`pilotage.sea.q.${g.id}`)}</span>}>
+                    {g.keys.filter((k) => !k.startsWith('na:') && byKey.has(k)).map((k) => <Ind key={k} ind={byKey.get(k)!} />)}
+                    {g.keys.some((k) => k.startsWith('na:')) && (
+                      <details className="ind-missing">
+                        <summary>{t('pilotage.sea.missing', { count: g.keys.filter((k) => k.startsWith('na:')).length })}</summary>
+                        {g.keys.filter((k) => k.startsWith('na:')).map((k) => <Missing key={k} id={k.slice(3)} />)}
+                      </details>
+                    )}
                   </Card>
                 ))}
-                {others.length > 0 && <Card title={t('pilotage.sea.q.others')}>{others.map((i) => <Ind key={i.key} ind={i} />)}</Card>}
+                {others.length > 0 && <Card title={<span className="sea-title"><span className="sea-ic"><Icon name="layers" /></span>{t('pilotage.sea.q.others')}</span>}>{others.map((i) => <Ind key={i.key} ind={i} />)}</Card>}
               </div>
             );
           }}
         </QueryState>
+        <SeaDetail department={canFilter ? dep : ''} />
       </div>
     </div>
   );
@@ -112,7 +117,6 @@ function Ind({ ind }: { ind: SeaIndicator }) {
       )}
       {ind.key === 'area_by_chain' && bd.length > 0 && (
         <>
-          <span className="ind-def">{bd.map((b) => `${vcName(b.label)} ${fmtNum(b.value, 1)} ha`).join(' · ')}</span>
           <TableView caption={ind.label} head={[t('common.valueChain'), t('pilotage.dash.areaHa')]} rows={bd.map((b) => [vcName(b.label), <Val key="v" v={b.value} />])} />
         </>
       )}
@@ -122,7 +126,9 @@ function Ind({ ind }: { ind: SeaIndicator }) {
       {ind.key === 'supports_value' && bd.length > 0 && (
         <span className="ind-def">{bd.map((b) => `${b.label} : ${fmtNum((b.value ?? 0) / 1e6, 1)} ${t('pilotage.sea.mfcfa')}`).join(' · ')}</span>
       )}
-      {ind.value === null ? <span className="src">{t('pilotage.noSource')}</span> : <span className="full"><Src source={ind.source} at={ind.updated_at} /></span>}
+      {ind.value === null ? <span className="src">{t('pilotage.noSource')}</span> : (
+        <details className="stat-src full"><summary aria-label={t('pilotage.sea.srcInfo')} title={t('pilotage.sea.srcInfo')}><Icon name="info" /></summary><Src source={ind.source} at={ind.updated_at} /></details>
+      )}
     </div>
   );
 }

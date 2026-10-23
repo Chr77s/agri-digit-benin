@@ -33,7 +33,7 @@ const PAL: Record<Theme, Pal> = {
   dark: {
     skyTop: ['#0B2230', '#0A2417'], skyLow: ['#6E5A6E', '#B8742A'], sun: ['#F4C9BE', '#F7C14A'],
     field: '#24432A', furrow: '#14281A', soil: ['#3A2A1C', '#4B3725', '#5C4632'], under: '#06170E', pebble: '#76604A', shadow: 'rgba(0,0,0,0.3)',
-    stem: '#3E8E3A', leaf: '#58B04A', rib: '#C6F432', tassel: '#E6D9A0', silk: '#E8B4A0', husk: '#7DBA4F', kernel: '#F2C230', root: '#EFEBD8', straw: '#C9A85A',
+    stem: '#3E8E3A', leaf: '#58B04A', rib: '#2BD891', tassel: '#E6D9A0', silk: '#E8B4A0', husk: '#7DBA4F', kernel: '#F2C230', root: '#EFEBD8', straw: '#C9A85A',
   },
   light: {
     skyTop: ['#DCE8F0', '#F3EBD3'], skyLow: ['#F6E1DC', '#F2C26B'], sun: ['#FBE3DA', '#F6B73C'],

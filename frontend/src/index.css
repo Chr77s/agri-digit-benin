@@ -24,7 +24,5 @@
 /* Outils de dessin en sprite de 30 px : on agrandit tout le contrôle (boutons et actions) jusqu'à 44 px. */
 .leaflet-draw { zoom: 1.4667; }
 .leaflet-container .leaflet-draw .leaflet-draw-actions a { display: block; height: 30px; line-height: 30px; }
-/* Sur téléphone, la barre « Terminer / Effacer / Annuler » sortait à gauche de la carte : on l'empile. */
-@media (max-width: 639px) {
-  .leaflet-draw .leaflet-draw-actions li { display: block; }
-}
+/* La barre « Terminer / Effacer / Annuler » sortait de la carte (téléphone, mais aussi carte étroite sur ordinateur) : on l'empile partout. */
+.leaflet-draw .leaflet-draw-actions li { display: block; }

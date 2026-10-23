@@ -110,7 +110,15 @@
     },
     "audit": {
       "desc": "Lecture seule. Le journal n'est pas modifiable : qui, quoi, quand, sur quelle donnée.",
-      "appendTitle": "Journal en ajout seul",
+      "chainOk": "Chaîne intègre",
+      "chainOkText_one": "{{n}} entrée vérifiée le {{date}}. Aucune rupture d'empreinte.",
+      "chainOkText_other": "{{n}} entrées vérifiées le {{date}}. Aucune rupture d'empreinte.",
+      "chainBroken": "Rupture de chaîne détectée",
+      "chainBrokenText": "Entrée n° {{seq}} : l'empreinte ne correspond pas. Prévenez le comité de pilotage et le DPO.",
+      "chainUnknown": "Vérification de la chaîne indisponible",
+      "hash": "Empreinte",
+      "hashPrev": "précédente",
+      "hashThis": "cette entrée",
       "appendText": "Une entrée ne peut être ni modifiée ni supprimée, y compris par un administrateur. Les corrections se font par une nouvelle entrée.",
       "filters": "Filtrer le journal",
       "actionPh": "ex. export.csv",
@@ -174,6 +182,8 @@
       "noteTitle": "Calculé sur les données fictives du prototype",
       "noteText": "La mention « non disponible » signifie qu'aucune source n'existe encore : ce n'est pas zéro.",
       "mfcfa": "M FCFA",
+      "missing": "Sans source ({{count}})",
+      "srcInfo": "Source et date",
       "q": {
         "coverage": "Qui et combien suit-on ?",
         "inclusion": "Les femmes et les jeunes participent-ils ?",
@@ -186,7 +196,7 @@
       "na": {
         "maize_yield": {
           "label": "Rendement moyen, maïs",
-          "why": "Aucune pesée de récolte n'est encore reliée. Les prévisions simulées sont dans « Prévisions »."
+          "why": "Aucune pesée de récolte n'est encore reliée. Le rendement déclaré par les producteurs est dans « Production par filière et par saison », plus bas ; les prévisions simulées sont dans « Prévisions »."
         },
         "credits_granted": {
           "label": "Crédits accordés",
@@ -267,6 +277,73 @@
       "filterStatus": "Filtrer par statut",
       "shown_one": "{{count}} texte affiché",
       "shown_other": "{{count}} textes affichés"
+    },
+    "interop": {
+      "desc": "Échanges avec l'administration et les partenaires. Seuls des agrégats pseudonymisés sortent (département, filière, producteurs, hectares, campagnes) ; aucune donnée personnelle, aucune donnée hors du Bénin.",
+      "simTitle": "Connecteurs simulés",
+      "simText": "Aucun échange réel n'a lieu avec X-Road, la SONAMA ou le FNDA dans ce prototype. Les cellules de moins de 5 producteurs sont masquées, pour qu'aucun agrégat ne désigne une personne.",
+      "connectors": "Connecteurs",
+      "role": {
+        "xroad": "Plateforme d'échange de l'administration",
+        "sonama": "Mécanisation agricole",
+        "fnda": "Fonds national de développement agricole"
+      },
+      "dataOf": {
+        "xroad": "Agrégats par département et filière",
+        "sonama": "Surfaces par département et filière, pour planifier les tracteurs",
+        "fnda": "Agrégats pour le financement ; aucun score individuel"
+      },
+      "active": "Actif",
+      "degraded": "Dégradé",
+      "noKey": "Sans clé",
+      "last": "Dernier échange",
+      "never": "Aucun",
+      "calls": "Appels sur 24 h",
+      "failures_one": "{{count}} échec",
+      "failures_other": "{{count}} échecs",
+      "time": "Temps de réponse",
+      "na": "non disponible",
+      "data": "Données",
+      "test": "Tester le connecteur",
+      "testOk_one": "Réponse reçue : {{n}} ligne d'agrégats.",
+      "testOk_other": "Réponse reçue : {{n}} lignes d'agrégats.",
+      "log": "Journal des échanges",
+      "logCaption": "Échanges : date, partenaire, accès, lignes, état",
+      "filter": "Filtrer les échanges",
+      "failed": "Échecs",
+      "partner": "Partenaire",
+      "unknown": "inconnu",
+      "request": "Requête",
+      "access": "Accès",
+      "rows": "Lignes",
+      "via": {
+        "api_key": "Clé d'API",
+        "admin": "Test administrateur"
+      },
+      "badKey": "Clé invalide · {{ip}}",
+      "okStatus": "{{code}} · réussi",
+      "refused": "{{code}} · refusé",
+      "emptyLog": "Aucun échange pour ce filtre",
+      "emptyLogText": "Aucun partenaire n'a appelé l'API sur la période.",
+      "rate": "Limite : 60 appels par minute et par adresse, pour empêcher de deviner une clé.",
+      "keys": "Clés d'API",
+      "keysCaption": "Clés d'API des partenaires",
+      "key": "Clé",
+      "created": "Créée le",
+      "used": "Dernier usage",
+      "envKey": "Clé de configuration du serveur",
+      "renewAdvice": "Renouvellement conseillé : plus de 180 jours",
+      "renew": "Renouveler",
+      "create": "Créer une clé",
+      "revoke": "Révoquer",
+      "renewTitle": "Nouvelle clé pour {{name}}",
+      "renewText": "Une nouvelle clé est créée et la clé actuelle cesse de fonctionner aussitôt. Transmettez la nouvelle au partenaire par un canal sûr.",
+      "revokeTitle": "Révoquer la clé de {{name}}",
+      "revokeText": "Le partenaire ne pourra plus appeler l'API tant qu'une nouvelle clé n'est pas créée. L'action est journalisée.",
+      "newKeyTitle": "Clé de {{name}}",
+      "newKeyText": "Copiez cette clé maintenant : elle ne sera plus jamais affichée en entier.",
+      "newKeyDone": "J'ai copié la clé",
+      "keyOnce": "Une clé n'est affichée en entier qu'une fois, au moment de sa création."
     }
   }
 }

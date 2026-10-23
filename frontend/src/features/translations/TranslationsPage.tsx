@@ -5,6 +5,7 @@ import { api, ApiError, list, qs } from '../../shared/api/client';
 import type { Paginated, TrLang, TrStatus, TranslationEntry, TranslationSummary } from '../../shared/api/types';
 import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Notice, PageHeader, QueryState, Select, fmtNum, inputCls } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
+import { CorpusSection } from './Corpus';
 import '../dashboard/pilotage.css';
 import './translations.css';
 
@@ -170,7 +171,8 @@ export function TranslationsPage() {
   const { user } = useAuth();
   const canEdit = user?.role === 'repr_mtdi';
   const [language, setLanguage] = useState('');
-  const [status, setStatus] = useState('');
+  // Par défaut : les textes proposés qui attendent une note, pas les 1 155 textes à traduire (filtre « À traduire » en un clic).
+  const [status, setStatus] = useState('propose');
   const [proposing, setProposing] = useState<TranslationEntry | null>(null);
   const [reviewing, setReviewing] = useState<TranslationEntry | null>(null);
   const [msg, setMsg] = useState('');
@@ -191,6 +193,8 @@ export function TranslationsPage() {
           </QueryState>
           <p className="hint mt-2.5">{t('translations.threshold', { pct: OPEN_THRESHOLD_PCT })}</p>
         </section>
+
+        <CorpusSection canEdit={canEdit} />
 
         <Card title={t('translations.entriesTitle')}>
           <div className="cluster mb-2" style={{ alignItems: 'flex-end' }}>

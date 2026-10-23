@@ -33,6 +33,15 @@ export function useContact() {
   });
 }
 
+export function useOfferStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Offer['status'] }) =>
+      api<Offer>(`/offers/${id}/status`, { method: 'POST', body: { status } }),
+    onSuccess: () => Promise.all([qc.invalidateQueries({ queryKey: ['offers'] }), qc.invalidateQueries({ queryKey: ['matches'] })]),
+  });
+}
+
 export function useDecide() {
   const qc = useQueryClient();
   return useMutation({

@@ -1,0 +1,61 @@
+{
+  "offline": {
+    "label": {
+      "register": "Inscription de {{name}}",
+      "support": "Remise : {{item}}"
+    }
+  },
+  "register": {
+    "queuedTitle": "Fiche gardée sur ce téléphone",
+    "queuedText": "Pas de réseau : l'inscription part dès le retour de la connexion, et l'ANIP (simulée) vérifie l'identité à ce moment. Si elle est refusée, elle reste dans la file d'envoi avec le motif."
+  },
+  "supports": {
+    "queuedOffline": "Remise gardée sur ce téléphone : elle part au retour du réseau, et le producteur est prévenu à ce moment."
+  },
+  "mobile": {
+    "tab": {
+      "producers": "Producteurs",
+      "register": "Inscrire",
+      "supports": "Remises",
+      "alerts": "Alertes"
+    }
+  },
+  "harvest": {
+    "estimatesTitle": "Estimations simulées",
+    "estimatesText": "L'estimation vient de la surface de la parcelle et du rendement de référence de la filière (valeurs de démonstration). Seuil de signalement : écart de plus de 50 %.",
+    "flaggedEmptyHelp": "Les déclarations du secteur sont cohérentes avec les estimations.",
+    "toCheck": "À vérifier",
+    "verified": "Vérifiées",
+    "viewLabel": "Afficher",
+    "toCheckTitle": "Récoltes à vérifier, par écart",
+    "checkedTitle": "Récoltes vérifiées",
+    "noneChecked": "Aucune récolte vérifiée pour l'instant.",
+    "allChains": "Toutes les filières",
+    "wasDeclared": "déclarée : {{q}} kg",
+    "conclusionCol": "Conclusion",
+    "visitBadge": "Visite à programmer",
+    "checkBtn": "Vérifier",
+    "checkTitle": "Vérifier la récolte de {{code}}",
+    "conclusionLegend": "Conclusion",
+    "concl": {
+      "confirmee": {
+        "t": "Déclaration confirmée",
+        "d": "Vérifiée avec le producteur ou sur place."
+      },
+      "corrigee": {
+        "t": "Quantité corrigée",
+        "d": "La quantité déclarée à l'origine reste visible."
+      },
+      "visite": {
+        "t": "Visite à programmer",
+        "d": "La récolte reste à vérifier."
+      }
+    },
+    "correctedQty": "Quantité corrigée",
+    "reasonLabel": "Motif (obligatoire)",
+    "checkSend": "Enregistrer la vérification",
+    "checked": "Vérification enregistrée.",
+    "confirmedByAgent": "Un agent a vérifié cette récolte : votre déclaration est confirmée.",
+    "correctedByAgent": "Un agent a corrigé la quantité (vous aviez déclaré {{q}} kg). Motif : {{reason}}"
+  }
+}

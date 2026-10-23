@@ -150,7 +150,9 @@
   "status": {
     "en_attente": "En attente de validation",
     "valide": "Validé",
-    "rejete": "Rejeté"
+    "rejete": "Rejeté",
+    "ferme": "Compte fermé",
+    "efface": "Compte effacé"
   },
   "login": {
     "title": "Connexion",
@@ -491,6 +493,27 @@
       "lu": "Lu"
     }
   },
+  "chat": {
+    "title": "Conversation",
+    "titleProducer": "Écrire à mon agent ATDA",
+    "tabProducer": "Mon agent ATDA",
+    "tabAgent": "Messages des producteurs",
+    "tabNotifications": "Notifications",
+    "list": "Messages de la conversation",
+    "me": "Vous",
+    "agent": "Votre agent ATDA",
+    "write": "Votre message",
+    "hint": "1 000 caractères au plus. L'agent qui suit votre commune reçoit le message et vous répond ici (et par SMS).",
+    "send": "Envoyer",
+    "emptyProducer": "Pas encore de message. Posez votre question ou décrivez votre problème : votre agent vous répond ici.",
+    "emptyAgent": "Pas encore de message dans cette conversation.",
+    "threads": "Conversations avec les producteurs du secteur",
+    "noThreads": "Aucun message de producteur.",
+    "noThreadsHelp": "Les producteurs de votre secteur vous écrivent depuis « Mes messages ».",
+    "unread_one": "{{count}} non lu",
+    "unread_other": "{{count}} non lus",
+    "pick": "Choisissez une conversation dans la liste."
+  },
   "notifications": {
     "listen": "Mes messages. Vos alertes et les nouvelles de votre inscription.",
     "empty": "Aucun message pour le moment.",
@@ -539,6 +562,7 @@
     "listen": "Mes consentements. Vous pouvez retirer votre accord à tout moment en touchant le bouton Retirer.",
     "intro": "Vous pouvez retirer chaque consentement à tout moment, en un clic (loi n° 2017-20, art. 389 et 390).",
     "withdrawn": "Consentement retiré. Le retrait est enregistré avec sa date.",
+    "closed": "Consentement retiré : votre compte est fermé. Vos données sont conservées le temps légal, puis effacées.",
     "empty": "Aucun consentement enregistré.",
     "purpose": {
       "donnees_personnelles": "Données personnelles (inscription et services agricoles)",
@@ -552,7 +576,22 @@
     "withdraw": "Retirer ce consentement"
   },
   "credit": {
-    "notice": "Le score est une aide. La décision de crédit revient à une personne et se prend hors de la plateforme. Chaque consultation est enregistrée dans le journal d'audit.",
+    "title": "Score de crédit indicatif",
+    "desc": "Vous ne voyez que les producteurs qui ont accepté le partage, et seulement tant que leur accord tient. Le score explique ; il ne décide pas.",
+    "aidTitle": "Le score est une aide",
+    "notice": "La décision de crédit revient à une personne et se prend hors de la plateforme. Chaque consultation est enregistrée dans le journal d'audit.",
+    "consentedCount": "Producteurs ayant consenti au partage · {{n}}",
+    "since": "Accord depuis",
+    "shown": "Score affiché",
+    "leaves": "Un producteur qui retire son accord disparaît de cette liste immédiatement.",
+    "pick": "Choisissez un producteur",
+    "pickText": "Le score s'affiche ici avec ses facteurs. La consultation est inscrite au journal d'audit.",
+    "computedAt": "Calculé le {{date}}",
+    "sim": "Calcul simulé",
+    "barLabel": "{{name}} : {{v}} sur {{max}}",
+    "asTable": "Voir le calcul en tableau",
+    "explain": "Le producteur peut demander l'explication de ce calcul.",
+    "logged": "Consultation inscrite au journal d'audit.",
     "consented": "Producteurs ayant consenti au partage",
     "empty": "Aucun producteur n'a donné son consentement.",
     "emptyHelp": "Le producteur l'accorde dans « Mes consentements ».",
@@ -624,7 +663,28 @@
   },
   "knowledge": {
     "write": "Rédiger une fiche",
-    "intro": "Seules les fiches publiées alimentent l'assistant. Circuit : brouillon, relecture, publication.",
+    "intro": "Seules les fiches publiées alimentent l'assistant. Circuit : brouillon, relecture par une autre personne, publication.",
+    "listTitle": "Fiches · {{n}}",
+    "updated": "mise à jour le {{date}}",
+    "pick": "Choisissez une fiche",
+    "pickText": "Elle s'ouvre ici pour être relue, modifiée ou publiée. « Rédiger une fiche » en crée une nouvelle.",
+    "newSub": "Enregistrée en brouillon : elle n'alimente l'assistant qu'après relecture et publication.",
+    "subDraft": "Version {{n}} · brouillon en attente de relecture",
+    "subReviewed": "Version {{n}} · relue le {{date}} par {{name}} · toute modification crée la version {{next}} et la renvoie en relecture",
+    "subPublished": "Version {{n}} · publiée, relue le {{date}} par {{name}} · toute modification crée la version {{next}} et la renvoie en relecture",
+    "bodyHint": "20 caractères minimum. Phrases courtes : le texte est aussi lu à voix haute par l'assistant.",
+    "sources": "Sources",
+    "sourceN": "Source {{n}}",
+    "removeSource": "Retirer la source {{n}}",
+    "addSource": "Ajouter une source",
+    "versionsN": "Versions ({{n}})",
+    "saveVersion": "Enregistrer (nouvelle version)",
+    "secondReader": "La relecture revient à une autre personne que l'auteur de cette version.",
+    "errVc": "Choisissez la filière.",
+    "errTitle": "Donnez un titre d'au moins 3 caractères.",
+    "errBody": "Le texte compte au moins 20 caractères.",
+    "errSource": "Indiquez au moins une source.",
+    "errSourceLong": "Les sources dépassent 500 caractères : raccourcissez-les.",
     "status": {
       "brouillon": "Brouillon",
       "relu": "Relu",
@@ -1090,7 +1150,30 @@
       "ouverte": "Ouverte",
       "en_relation": "En relation",
       "conclue": "Conclue",
-      "retiree": "Retirée"
+      "retiree": "Retirée",
+      "suspendue": "Suspendue"
+    },
+    "ownerAct": {
+      "suspendue": "Suspendre",
+      "ouverte": "Reprendre",
+      "conclue": "Marquer vendue",
+      "retiree": "Retirer",
+      "done": {
+        "suspendue": "Annonce suspendue : elle n'est plus visible des acheteurs.",
+        "ouverte": "Annonce de nouveau visible.",
+        "conclue": "Annonce fermée.",
+        "retiree": "Annonce retirée."
+      },
+      "confirm": {
+        "conclue": {
+          "title": "Marquer l'annonce comme vendue ?",
+          "text": "Elle sort du marché. Les demandes de contact encore en attente sont refusées et leurs auteurs prévenus."
+        },
+        "retiree": {
+          "title": "Retirer l'annonce ?",
+          "text": "Elle disparaît du marché et ne pourra pas être remise en ligne. Les demandes de contact en attente sont refusées."
+        }
+      }
     },
     "matchStatus": {
       "proposee": "En attente de réponse",
@@ -1118,7 +1201,11 @@
     "send": "Envoyer la demande",
     "contactSent": "Demande envoyée. Vous la retrouverez dans « Mes mises en relation ».",
     "quantity": "Quantité (kg)",
-    "price": "Prix proposé (FCFA par kg)",
+    "priceFor": {
+      "offre": "Prix de vente proposé (FCFA par kg)",
+      "demande": "Prix d'achat proposé (FCFA par kg)"
+    },
+    "priceNegotiable": "Prix indicatif : le prix final se fixe avec l'autre partie, le montant reste modifiable au moment du paiement.",
     "description": "Description (facultatif)",
     "errVc": "Choisissez la filière.",
     "errQty": "Saisissez une quantité entière en kg, de 1 à 10 000 000.",
@@ -1239,6 +1326,7 @@
   "coop": {
     "title": "Coopératives",
     "myTitle": "Ma coopérative",
+    "manage": "Gérer la coopérative",
     "create": "Créer une coopérative",
     "searchName": "Nom de la coopérative",
     "empty": "Aucune coopérative pour ce filtre.",
@@ -1268,11 +1356,12 @@
     "endReason": "Motif de fin d'adhésion",
     "endConfirm": "Confirmer la fin d'adhésion",
     "errProducer": "Choisissez un producteur validé.",
-    "producerIdHint": "Identifiant du producteur (fourni par l'agent ATDA)",
+    "producerCode": "Code du producteur",
+    "producerIdHint": "Code du producteur validé, par exemple BJ-AGR-2026-000021 (visible sur sa carte).",
     "addConfirm": "Ajouter à la coopérative",
     "mineListen": "Mes coopératives. Voici les coopératives dont vous êtes membre.",
     "mineEmpty": "Vous n'êtes membre d'aucune coopérative.",
-    "mineEmptyHelp": "Demandez à votre agent ATDA ou au gestionnaire de la coopérative de vous inscrire.",
+    "mineEmptyHelp": "Demandez à adhérer à une coopérative de votre département ci-dessous, ou à votre agent ATDA de vous inscrire.",
     "since": "depuis le {{date}}",
     "endedOn": "Terminée le {{date}}",
     "role": {

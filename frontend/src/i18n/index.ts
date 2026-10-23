@@ -17,10 +17,14 @@ const merge = (into: Dict, from: Dict): Dict => {
 const frParts = import.meta.glob<Dict>('./fr/*.json', { eager: true, import: 'default' });
 const frAll = Object.values(frParts).reduce((acc, part) => merge(acc, part), merge({}, fr as unknown as Dict));
 
+// Langue choisie au premier lancement ou dans le profil, gardée sur le téléphone.
+const LANG_KEY = 'adb-lang';
+const savedLang = (() => { try { return localStorage.getItem(LANG_KEY) ?? 'fr'; } catch { return 'fr'; } })();
+
 // fon et bba : textes non validés par des locuteurs natifs (voir docs/LANGUES_A_VALIDER.md). Repli sur fr.
 void i18n.use(initReactI18next).init({
   resources: { fr: { translation: frAll }, fon: { translation: fon }, bba: { translation: bba }, yo: { translation: yo }, dnd: { translation: dnd } },
-  lng: 'fr',
+  lng: savedLang,
   fallbackLng: 'fr',
   returnEmptyString: false,
   interpolation: { escapeValue: false },
@@ -65,6 +69,11 @@ export async function loadRemoteDictionary(lng: string): Promise<void> {
   }
 }
 
-i18n.on('languageChanged', (lng) => { void loadRemoteDictionary(lng); });
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng; // les lecteurs d'écran choisissent la voix d'après <html lang>
+  void loadRemoteDictionary(lng);
+  try { localStorage.setItem(LANG_KEY, lng); } catch { /* stockage indisponible : la langue revient au français au prochain lancement */ }
+});
+if (savedLang !== 'fr') void loadRemoteDictionary(savedLang);
 
 export default i18n;

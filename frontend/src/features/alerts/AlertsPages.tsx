@@ -7,6 +7,7 @@ import { useDepartments, usePlaceName, useValueChains, useVcName } from '../../s
 import { useAuth } from '../auth/AuthContext';
 import { useAlertActions, useAlerts, useOutbox } from './api';
 import '../producers/agent.css';
+import { PhoneSimulator } from '../ussd/PhoneSimulator';
 
 // Alphabet GSM 03.38 (base + extension). Un seul caractère hors alphabet fait passer tout le SMS en UCS-2.
 const GSM = /^[@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà^{}\\[~\]|€]*$/;
@@ -71,6 +72,8 @@ export function AlertsPage() {
       onSuccess: (r) => {
         setV({ ...v, title: '', message: '' });
         toast(r.status === 'en_attente_validation' ? { title: t('ag.alerts.urgentSavedTitle'), text: t('ag.alerts.urgentSavedText') } : t('alerts.saved'));
+        // l'alerte enregistrée et son bouton « Envoyer » sont en bas de page : on y amène la personne
+        requestAnimationFrame(() => document.getElementById('al-list')?.scrollIntoView?.({ block: 'start' }));
       },
     });
   };
@@ -145,7 +148,7 @@ export function AlertsPage() {
           </aside>
         </div>
 
-        <section className="card" aria-labelledby="h-hist">
+        <section className="card" id="al-list" aria-labelledby="h-hist">
           <div className="card-head">
             <h2 className="card-title" id="h-hist">{t('ag.alerts.histTitle')}</h2>
             <Chips label={t('ag.alerts.filterLabel')} value={filter} onChange={setFilter} options={(['pending', 'ready', 'sent'] as const).map((b) => ({ value: b, label: t(`ag.alerts.bucket.${b}`), count: (q.data ?? []).filter((x) => bucket(x) === b).length }))} />
@@ -230,7 +233,7 @@ export function OutboxPage() {
               <>
                 <div className="grid-fit" style={{ '--min': '180px' } as React.CSSProperties}>
                   <Stat label={t('ag.out.delivered')} value={fmtNum(count('livre') + count('lu'))} foot={<Badge tone="sim">{t('ag.sim')}</Badge>} />
-                  <Stat label={t('ag.out.failed')} value={fmtNum(count('echoue'))} foot={t('ag.out.failedFoot')} />
+                  <Stat tone="peach" label={t('ag.out.failed')} value={fmtNum(count('echoue'))} foot={t('ag.out.failedFoot')} />
                   <Stat label={t('ag.out.billed')} value={fmtNum(all.reduce((s, m) => s + (m.segments ?? 0), 0))} foot={t('ag.out.billedFoot', { count: all.length })} />
                 </div>
                 {all.length === 0 ? (
@@ -254,6 +257,7 @@ export function OutboxPage() {
             );
           }}
         </QueryState>
+        <PhoneSimulator />
       </div>
     </>
   );

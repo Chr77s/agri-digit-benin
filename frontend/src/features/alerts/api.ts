@@ -15,8 +15,8 @@ export function useAlertActions() {
   };
 }
 
-export const useNotifications = () =>
-  useQuery({ queryKey: ['notifications'], queryFn: async () => rows(await api<Paginated<Notification> | Notification[]>('/notifications')) });
+export const useNotifications = (opts?: { refetchInterval?: number; refetchIntervalInBackground?: boolean }) =>
+  useQuery({ ...opts, queryKey: ['notifications'], queryFn: async () => rows(await api<Paginated<Notification> | Notification[]>('/notifications')) });
 
 export function useMarkRead() {
   const qc = useQueryClient();

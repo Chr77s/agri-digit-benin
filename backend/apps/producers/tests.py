@@ -75,3 +75,41 @@ def test_consents(producer):
     assert cons[0]["type"] == "donnees_personnelles"
     r = c.post(f"/api/v1/consents/{cons[0]['id']}/withdraw")
     assert r.status_code == 200 and r.json()["withdrawn_at"]
+
+
+def test_withdraw_personal_data_closes_then_erases(users, producer):
+    from datetime import timedelta
+
+    from django.core.management import call_command
+    from django.utils import timezone
+    from rest_framework_simplejwt.tokens import RefreshToken
+
+    from apps.audit.models import AuditLog
+    from apps.market.models import Offer
+    from apps.producers.services import erase_closed
+
+    user = producer.user
+    offer = Offer.objects.create(owner=user, type="offre", value_chain="mais", quantity_kg=100, price_xof_per_kg=200,
+                                 department="alibori", commune="banikoara")
+    cookie = str(RefreshToken.for_user(user))
+    c = client_for(user)
+    dp = next(x for x in c.get("/api/v1/consents/mine").json() if x["type"] == "donnees_personnelles")
+    assert c.post(f"/api/v1/consents/{dp['id']}/withdraw").status_code == 200
+    producer.refresh_from_db()
+    user.refresh_from_db()
+    offer.refresh_from_db()
+    assert producer.status == "ferme" and not user.is_active and offer.status == "retiree"
+    assert AuditLog.objects.filter(action="producer.close", object_id=str(producer.id)).exists()
+    # le cookie de session encore valide ne rouvre pas l'accès
+    anon = client_for()
+    anon.cookies["refresh"] = cookie
+    assert anon.post("/api/v1/auth/refresh").status_code == 401
+    # l'identité reste pendant le délai de conservation, puis est effacée
+    assert erase_closed(365) == 0
+    assert erase_closed(365, now=timezone.now() + timedelta(days=366)) == 1
+    producer.refresh_from_db()
+    user.refresh_from_db()
+    assert producer.status == "efface" and producer.npi != REG["npi"] and producer.phone != REG["phone"]
+    assert producer.first_name == "Compte" and producer.versions.count() == 0 and user.full_name == "Compte effacé"
+    assert erase_closed(365, now=timezone.now() + timedelta(days=366)) == 0  # déjà effacé
+    call_command("purge_retention")  # la commande planifiée appelle l'effacement

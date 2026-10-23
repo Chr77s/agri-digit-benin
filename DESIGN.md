@@ -125,7 +125,7 @@ components:
     height: "44px"
 ---
 
-<!-- Établi à partir du code livré : maquettes/landing/ (page.css, phone.css, fonts.css, page.js, phone.js, field3d.js). Le frontend React (frontend/src) n'a PAS encore adopté ce monde ; ce fichier décrit la cible, pas l'état de l'application. -->
+<!-- Établi à partir du code livré : maquettes/landing/ (page.css, phone.css, fonts.css, page.js, phone.js, field3d.js). Ce monde est celui de la landing publique (frontend/src/features/landing) ; le reste du frontend React livre « Argile et verre », décrit en fin de fichier. -->
 
 # Design System: Agri-Digit Bénin
 
@@ -265,3 +265,15 @@ Courbe de page `cubic-bezier(.16,1,.3,1)` ; courbe du téléphone `cubic-bezier(
 - **Don't** utiliser la latérite comme couleur dominante d'une section.
 - **Don't** inventer de traduction fon, bariba ou autre : montrer la bascule et la mention de validation.
 - **Don't** utiliser Figtree ou VT323 hors du téléphone simulé.
+
+## Application : « Argile et verre »
+
+Hors landing, l'application (connexion, accueils, pages de tous les rôles) livre un second monde, clair, décidé le 21 octobre 2026 d'après deux images de référence (`docs/REFONTE_FRONTEND.md`, décisions D1 à D18). Jetons dans `frontend/src/shared/ui/tokens.ts`, peau dans `shared/ui/skin.css` (chargé après `kit.css` et `mobile.css`).
+
+- **Surfaces** : blanc verdi `#F3F9F5` avec trois halos flous, cartes de verre dépoli (`rgba(255,255,255,.66)`, flou 18 px, bordure blanche, ombre portée + lumière intérieure). Sans `backdrop-filter` ou sous « réduire la transparence » : blanc presque opaque.
+- **Couleurs** : vert profond `#016648` (marque, liens, barre latérale), vert vif `#00A563` (graphiques, dégradé, fonds à texte sombre), orange `#F6732F` (appel à l'action, texte brun foncé dessus), palette « Sunny Farm » du 21 octobre 2026. Pastels menthe, pêche, beurre, ciel pour les cartes de chiffres, jamais seuls : libellé et icône les accompagnent.
+- **Typographie** : Bricolage Grotesque (titres, chiffres), Atkinson Hyperlegible Next (texte), auto-hébergées. Young Serif reste réservée à la landing.
+- **Formes** : rayons 10, 14, 22, 30 px ; boutons, pastilles et badges en pilule ; action principale en dégradé vert-sarcelle.
+- **Mobile** : barre d'onglets flottante de 5 entrées, cibles de 44 px, tableaux en cartes.
+- **Règle de cascade** : `skin.css` vient après `kit.css` et `mobile.css` ; une règle qui y redit une règle de `kit.css` ou `mobile.css` reprend aussi son `@media` (cause du repli de `.split` et du bouton « Écouter » cassés).
+- **Contraste** : texte 4,5:1, bords de contrôles et icônes 3:1 (`--line-input` pour les champs) ; `frontend/scripts/contrast.mjs` vérifie les paires de jetons.

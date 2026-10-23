@@ -40,6 +40,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     otp_expires_at = models.DateTimeField(null=True, blank=True)
     otp_failures = models.PositiveSmallIntegerField(default=0)
     locked_until = models.DateTimeField(null=True, blank=True)
+    # changement de numéro en cours : le code est haché avec ce numéro (inutilisable pour se connecter)
+    pending_phone = models.CharField(max_length=10, blank=True)
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
