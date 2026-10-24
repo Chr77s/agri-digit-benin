@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sprout, Users, Building2, Landmark, WifiOff, Languages, ShieldCheck, Eye } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import step1 from "@/assets/step1.jpg";
@@ -35,7 +35,7 @@ function Index() {
         </nav>
         <div className="flex gap-2">
           <a href="#" className={`${btnGhost} hidden sm:inline-flex !py-2`}>Se connecter</a>
-          <a href="#" className={`${btnPrimary} !py-2`}>S'inscrire</a>
+          <Link to="/inscription" className={`${btnPrimary} !py-2`}>S'inscrire</Link>
         </div>
       </header>
 
@@ -45,7 +45,7 @@ function Index() {
           <h1 className="mt-5 text-5xl font-medium leading-[1.05] md:text-6xl">Votre champ dans votre <span className="text-primary">téléphone.</span></h1>
           <p className="mt-5 max-w-md text-muted-foreground">Inscrivez-vous avec votre numéro. Suivez vos cultures et vendez vos récoltes, simplement.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#" className={btnPrimary}>Créer mon compte producteur <ArrowRight className="h-4 w-4" /></a>
+            <Link to="/inscription" className={btnPrimary}>Créer mon compte producteur <ArrowRight className="h-4 w-4" /></Link>
             <a href="#" className={btnGhost}>Se connecter</a>
           </div>
           <div className="mt-10 grid max-w-md grid-cols-2 divide-x divide-border border-t border-border pt-6">
@@ -70,7 +70,7 @@ function Index() {
             <h2 className="text-4xl font-medium">Trois étapes, et votre exploitation est en ligne.</h2>
             <p className="mt-3 text-muted-foreground">Pas besoin d'être expert. Votre agent vous accompagne.</p>
           </div>
-          <a href="#" className={btnPrimary}>Commencer</a>
+          <Link to="/inscription" className={btnPrimary}>Commencer</Link>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {[
