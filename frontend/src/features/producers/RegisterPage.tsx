@@ -10,6 +10,7 @@ import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import type { Producer } from '../../shared/api/types';
 import { useRegisterProducer } from './api';
 import { useAuth } from '../auth/AuthContext';
+import { DEMO_REGISTRATION } from '../auth/demoAccounts';
 import '../auth/access.css';
 
 export function ageOn(birth: string, ref = new Date()) {
@@ -176,6 +177,19 @@ export function RegisterPage() {
         : <Button key="send" type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
     </div>
   );
+  // Démonstration : remplit la fiche ANIP simulée libre et s'arrête au consentement, qui reste à cocher soi-même.
+  const demo = () => {
+    const d = DEMO_REGISTRATION;
+    const depCode = deps.data?.find((x) => x.name === d.department_name);
+    const opts = { shouldValidate: true, shouldDirty: true };
+    (['npi', 'first_name', 'last_name', 'sex', 'birth_date', 'phone', 'language'] as const).forEach((k) => f.setValue(k, d[k], opts));
+    if (depCode) {
+      f.setValue('department', depCode.code, opts);
+      const com = depCode.communes.find((c) => c.name === d.commune_name);
+      if (com) f.setValue('commune', com.code, opts);
+    }
+    go(depCode ? 3 : 1);
+  };
   const edit = (n: number) => <Button variant="ghost" size="sm" icon="edit" onClick={() => go(n)}>{t('register.edit')}</Button>;
   const depName = deps.data?.find((d) => d.code === v.department)?.name ?? v.department;
 
@@ -335,6 +349,12 @@ export function RegisterPage() {
             )}
           </>}
           {nav}
+          {step < 4 && (
+            <div className="demo-fill stack" style={{ ['--gap' as string]: '6px' }}>
+              <Button variant="secondary" icon="user" onClick={demo} disabled={deps.isLoading}>{t('demoAccess.button')}</Button>
+              <span className="hint">{t('demoAccess.registerHint')} <Badge tone="sim">{t('common.simulation')}</Badge></span>
+            </div>
+          )}
         </section>
       </form>
     </div>

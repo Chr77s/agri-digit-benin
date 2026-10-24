@@ -147,3 +147,6 @@
 .lg-tabs .tab[aria-current="page"] { color: var(--leaf); }
 .lg-tabs .tab[aria-current="page"]::after { transform: scaleX(1); }
 .todo { background: var(--sun-bg); color: var(--sun-ink); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+
+/* Bouton « Démo » : remplit un compte de test, séparé du formulaire principal */
+.demo-fill { border-top: 1px dashed var(--line, #d0d7d0); padding-top: 14px; margin-top: 4px; }
