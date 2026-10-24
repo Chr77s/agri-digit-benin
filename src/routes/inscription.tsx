@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Languages, Sprout, Volume2 } from "lucide-react";
-import illu from "@/assets/signup.png";
+import illu from "@/assets/signup.jpg";
 
 export const Route = createFileRoute("/inscription")({
   head: () => ({
