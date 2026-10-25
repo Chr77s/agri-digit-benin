@@ -26,7 +26,7 @@ const DEMOS = [
 function Connexion() {
   const [role, setRole] = useState<"prod" | "agent">("prod");
   const [tel, setTel] = useState("");
-  const [demo, setDemo] = useState(DEMOS[0].tel);
+  const [demo, setDemo] = useState("0197000002");
   const valid = /^01\d{8}$/.test(tel);
 
   return (
