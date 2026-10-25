@@ -203,7 +203,7 @@ function Inscription() {
                   {step === 3 ? "Voir le récapitulatif" : step === 4 ? "Envoyer mon inscription" : "Continuer"} <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
-              <p className="mt-6 text-center text-sm text-muted-foreground">Déjà inscrit ? <a href="#" className="font-semibold text-primary">Se connecter</a></p>
+              <p className="mt-6 text-center text-sm text-muted-foreground">Déjà inscrit ? <Link to="/connexion" className="font-semibold text-primary">Se connecter</Link></p>
             </div>
           </div>
         </div>
