@@ -34,7 +34,7 @@ function Index() {
           <a href="#garanties" className="hover:text-foreground">Nos garanties</a>
         </nav>
         <div className="flex gap-2">
-          <a href="#" className={`${btnGhost} hidden sm:inline-flex !py-2`}>Se connecter</a>
+          <Link to="/connexion" className={`${btnGhost} hidden sm:inline-flex !py-2`}>Se connecter</Link>
           <Link to="/inscription" className={`${btnPrimary} !py-2`}>S'inscrire</Link>
         </div>
       </header>
@@ -46,7 +46,7 @@ function Index() {
           <p className="mt-5 max-w-md text-muted-foreground">Inscrivez-vous avec votre numéro. Suivez vos cultures et vendez vos récoltes, simplement.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/inscription" className={btnPrimary}>Créer mon compte producteur <ArrowRight className="h-4 w-4" /></Link>
-            <a href="#" className={btnGhost}>Se connecter</a>
+            <Link to="/connexion" className={btnGhost}>Se connecter</Link>
           </div>
           <div className="mt-10 grid max-w-md grid-cols-2 divide-x divide-border border-t border-border pt-6">
             <div><p className="font-display text-3xl">200 873</p><p className="text-xs text-muted-foreground">fermes du PDC</p></div>
