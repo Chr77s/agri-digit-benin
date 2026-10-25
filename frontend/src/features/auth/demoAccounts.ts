@@ -20,7 +20,8 @@ export const DEMO_STAFF = [
   { phone: '0197000011', role: 'repr_mtdi' },
 ] as const;
 
-/** Inscription de démonstration : fiche ANIP simulée libre (Awa SABI, NPI 1000000002). */
+/** Inscription de démonstration. Le bouton demande d'abord une fiche neuve au serveur (GET /demo/registration) ;
+ * ces valeurs (Awa SABI) servent de repli et fixent le département et la commune. */
 export const DEMO_REGISTRATION = {
   npi: '1000000002',
   first_name: 'Awa',

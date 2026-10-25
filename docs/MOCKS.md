@@ -25,6 +25,7 @@ Format : 10 chiffres (regex `NPI_REGEX` dans `.env`, format à confirmer avec l'
 | 1000000003 | Koffi | HOUNSOU | 1978-11-20 | valide, libre |
 | 1000000004 | Mariam | ZATO | 2011-05-04 | mineure (< 16 ans) : consentement parental exigé |
 | 1000000005 à 1000000045 | | | | fiches des ~40 producteurs du seed |
+| 8xxxxxxxxx | calculé | calculé | calculée | fiches de démonstration libres, servies par `GET /api/v1/demo/registration` (si `DEMO_MODE=true`) au bouton « Démo » de l'inscription : un NPI et un téléphone neufs à chaque clic |
 | 9999999999 | | | | service indisponible (503 `anip_unavailable`) |
 | tout autre NPI | | | | inconnu (400 `npi_unknown`) |
 

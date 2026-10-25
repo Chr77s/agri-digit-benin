@@ -124,6 +124,28 @@ def otp_inbox(request):
     return Response([{"body": o.body, "created_at": o.created_at} for o in rows[:5]])
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def demo_registration(request):
+    """SIMULATION (DEMO_MODE) : une fiche ANIP fictive encore libre et un téléphone libre, pour le bouton « Démo »."""
+    if not settings.DEMO_MODE:
+        raise Http404
+    import secrets
+
+    from apps.producers.models import Producer
+    from integrations.anip import DEMO_NPI_PREFIX, demo_record
+
+    for _ in range(50):
+        npi = DEMO_NPI_PREFIX + f"{secrets.randbelow(10**9):09d}"
+        phone = f"0196{secrets.randbelow(10**6):06d}"
+        if not (Producer.objects.filter(npi=npi).exists() or Producer.objects.filter(phone=phone).exists()
+                or User.objects.filter(phone=phone).exists()):
+            rec = demo_record(npi)
+            return Response({"npi": npi, "first_name": rec.first_name, "last_name": rec.last_name, "sex": rec.sex,
+                             "birth_date": rec.birth_date.isoformat(), "phone": phone})
+    raise ApiError("Aucune fiche de démonstration libre, réessayez.", "demo_exhausted", 503)
+
+
 class PhoneChangeRequestSerializer(serializers.Serializer):
     new_phone = serializers.CharField(validators=[_phone])
 
