@@ -115,7 +115,50 @@ function Index() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">© 2026 AgriBénin — République du Bénin</footer>
+      <footer className="mx-auto max-w-6xl px-6 pb-8 pt-16">
+        <div className="relative overflow-hidden rounded-t-[3rem] rounded-b-3xl bg-primary px-8 pb-8 pt-20 text-primary-foreground md:px-14">
+          <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full opacity-15" viewBox="0 0 800 400" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M0 80 C200 20 300 160 500 90 S800 60 800 60" /><path d="M0 160 C180 100 320 240 520 170 S800 140 800 140" /><path d="M0 260 C220 200 300 340 540 260 S800 230 800 230" /><path d="M0 340 C200 300 360 400 560 340 S800 320 800 320" />
+          </svg>
+          <span className="absolute left-1/2 top-0 grid h-20 w-20 -translate-x-1/2 -translate-y-1/3 place-items-center rounded-3xl bg-accent text-accent-foreground shadow-lg"><Sprout className="h-10 w-10" /></span>
+
+          <div className="relative text-center">
+            <p className="font-display text-4xl font-semibold md:text-5xl">Agri-Digit Bénin</p>
+            <p className="mx-auto mt-3 max-w-md text-sm opacity-80">La plateforme agricole du Bénin : parcelles, conseils, appuis et marché au même endroit.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link to="/inscription" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:opacity-90">Créer un compte producteur <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/connexion" className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 px-5 py-2.5 text-sm font-semibold transition hover:bg-primary-foreground/10">Se connecter <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          </div>
+
+          <div className="relative mt-14 grid gap-10 text-sm sm:grid-cols-2 md:grid-cols-4">
+            {[
+              ["La plateforme", ["Comment ça marche", "Pour qui", "Nos garanties", "Partenaires", "Questions fréquentes"]],
+              ["Mon espace", ["Créer un compte producteur", "Se connecter", "Vérifier une carte producteur"]],
+              ["Aide", ["Contact et assistance", "Plan du site", "Accessibilité"]],
+              ["Informations légales", ["Mentions légales", "Politique de confidentialité", "Conditions d'utilisation"]],
+            ].map(([t, items]) => (
+              <div key={t as string}>
+                <p className="font-display text-lg font-semibold">{t as string}</p>
+                <ul className="mt-3 space-y-1.5 opacity-80">
+                  {(items as string[]).map((i) => <li key={i}><a href="#" className="hover:text-accent">{i}</a></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="relative mt-12 flex flex-col gap-4 border-t border-primary-foreground/15 pt-6 text-xs md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1 opacity-80">
+              <p>© 2026 Ministère de l'agriculture, de l'élevage et de la pêche (MAEP), République du Bénin.</p>
+              <p>Prototype de démonstration : les données affichées ne sont pas officielles.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-accent-soft px-3 py-1.5 font-semibold text-foreground">FR</span>
+              <a href="#" className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3 py-1.5 font-semibold text-foreground">↑ Retour en haut</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
