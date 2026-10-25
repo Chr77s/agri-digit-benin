@@ -115,14 +115,15 @@ function Index() {
         </div>
       </section>
 
-      <footer className="mx-auto max-w-6xl px-6 pb-8 pt-16">
-        <div className="relative overflow-hidden rounded-t-[3rem] rounded-b-3xl bg-primary px-8 pb-8 pt-20 text-primary-foreground md:px-14">
+      <footer className="w-full">
+        <div className="relative overflow-hidden rounded-t-[3rem] bg-primary pb-10 pt-20 text-primary-foreground">
           <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full opacity-15" viewBox="0 0 800 400" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="1">
             <path d="M0 80 C200 20 300 160 500 90 S800 60 800 60" /><path d="M0 160 C180 100 320 240 520 170 S800 140 800 140" /><path d="M0 260 C220 200 300 340 540 260 S800 230 800 230" /><path d="M0 340 C200 300 360 400 560 340 S800 320 800 320" />
           </svg>
           <span className="absolute left-1/2 top-0 grid h-20 w-20 -translate-x-1/2 -translate-y-1/3 place-items-center rounded-3xl bg-accent text-accent-foreground shadow-lg"><Sprout className="h-10 w-10" /></span>
 
-          <div className="relative text-center">
+          <div className="relative mx-auto max-w-6xl px-6">
+          <div className="text-center">
             <p className="font-display text-4xl font-semibold md:text-5xl">Agri-Digit Bénin</p>
             <p className="mx-auto mt-3 max-w-md text-sm opacity-80">La plateforme agricole du Bénin : parcelles, conseils, appuis et marché au même endroit.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -156,6 +157,7 @@ function Index() {
               <span className="rounded-full bg-accent-soft px-3 py-1.5 font-semibold text-foreground">FR</span>
               <a href="#" className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3 py-1.5 font-semibold text-foreground">↑ Retour en haut</a>
             </div>
+          </div>
           </div>
         </div>
       </footer>
