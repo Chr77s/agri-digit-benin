@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import turfArea from '@turf/area';
@@ -16,6 +15,7 @@ import { useVcName } from '../../shared/api/ref';
 import i18n from '../../i18n';
 import { ListenGhost } from '../producers/producerKit';
 import { useCampaigns, useCreateParcel, useParcels } from './api';
+import { MAP_CENTER, ParcelBasemaps } from './ParcelBasemaps';
 import { ParcelDetail } from './ParcelDetail';
 import { GpsTrace } from './GpsTrace';
 import { fitPoints, ringOf } from './shape';
@@ -23,9 +23,6 @@ import './gps.css';
 
 export const LAND_TYPES = ['pluvial_plateau', 'bas_fond', 'irrigue'] as const;
 export const TENURES = ['propriete', 'location', 'pret', 'coutumier', 'autre'] as const;
-export const MAP_CENTER: [number, number] = [11.298, 2.438];
-export const OSM = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-export const osmAttribution = () => `&copy; ${i18n.t('parcels.mapContributors')} <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>`;
 
 // Libellés de leaflet-draw dans la langue courante (les autres textes restent ceux de la bibliothèque). Appelé à chaque création de la barre d'outils.
 function applyDrawLocale() {
@@ -185,7 +182,7 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
         <h2 className="sr-only" id="t-carte">{t('parcels.mapLabel')}</h2>
         <div className="map" role="region" aria-label={t('parcels.mapLabel')}>
           <MapContainer center={MAP_CENTER} zoom={14} className="map-canvas">
-            <TileLayer attribution={osmAttribution()} url={OSM} />
+            <ParcelBasemaps />
             <DrawControl onDrawn={onDrawn} />
             {parcels.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#B4532D' : '#016648', weight: 2, dashArray: p.overlap_warning ? '5 4' : undefined }} />)}
           </MapContainer>
@@ -197,6 +194,7 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
           </div>
         </div>
         <p className="hint mt-2.5">{t('parcels.mapHint')}</p>
+        <p className="small muted mt-1">{t('parcels.basemap.note')}</p>
       </section>
 
       <form onSubmit={onSubmit} noValidate className="card stack" style={{ ['--gap' as string]: '14px' }} aria-labelledby="t-nouvelle">

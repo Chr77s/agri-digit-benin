@@ -15,7 +15,7 @@ async function login(page: Page, phone: string, password?: string) {
   await expect(banner).toBeVisible({ timeout: 10_000 });
   const code = ((await banner.textContent()) ?? '').match(/\b(\d{6})\b/)?.[1];
   expect(code).toBeTruthy();
-  if (password) await page.getByLabel('Mot de passe').fill(password);
+  if (password) await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByLabel('Chiffre 1 sur 6').pressSequentially(code!);
   await page.getByRole('button', { name: 'Se connecter' }).click();
   // Coque Bénin Vert : la déconnexion est dans le menu du compte de l'en-tête.
@@ -82,7 +82,7 @@ test('coopérative : le gestionnaire met fin à une adhésion puis la rétablit'
   await expect(page.getByText(/Adhésion terminée\. Elle reste visible dans l'historique/)).toBeVisible();
 
   // L'adhésion terminée reste visible dans l'historique.
-  await page.getByLabel('Afficher', { exact: true }).selectOption('false');
+  await page.getByRole('tab', { name: 'Historique (adhésions terminées)' }).click();
   await expect(members.getByText(code!).first()).toBeVisible();
 
   // Le gestionnaire n'a pas accès au registre : il saisit le code du producteur.
@@ -91,7 +91,7 @@ test('coopérative : le gestionnaire met fin à une adhésion puis la rétablit'
   await add.getByLabel('Producteur', { exact: true }).fill(code!);
   await add.getByRole('button', { name: 'Ajouter à la coopérative' }).click();
   await expect(page.getByText('Membre ajouté.')).toBeVisible();
-  await page.getByLabel('Afficher', { exact: true }).selectOption('true');
+  await page.getByRole('tab', { name: 'Membres actifs' }).click();
   await expect(members.getByText(code!).first()).toBeVisible();
 });
 
@@ -110,7 +110,7 @@ test('appui : remis par l’agent ATDA puis confirmé par le producteur', async 
   await expect(page.getByRole('alert').first()).toBeVisible();
 
   const producer = page.getByLabel('Producteur', { exact: true });
-  const value = await producer.locator('option', { hasText: 'GOUNOU' }).first().getAttribute('value');
+  const value = await producer.locator('option', { hasText: 'Bio GOUNOU' }).first().getAttribute('value');
   expect(value).toBeTruthy();
   await producer.selectOption(value!);
   await page.getByLabel('Appui', { exact: true }).fill(item);
@@ -118,7 +118,7 @@ test('appui : remis par l’agent ATDA puis confirmé par le producteur', async 
   await page.getByLabel('Valeur (FCFA)').fill('37500');
   await submit.click();
   await expect(page.getByText('Appui enregistré. Le producteur doit maintenant le confirmer.')).toBeVisible();
-  await page.getByLabel('Rechercher').fill(item); // le tableau est paginé : on isole la ligne
+  await page.getByLabel('Rechercher', { exact: true }).fill(item); // le tableau est paginé : on isole la ligne
   await expect(page.getByRole('row', { name: new RegExp(item) })).toContainText('Remis');
   await logout(page);
 
@@ -129,8 +129,8 @@ test('appui : remis par l’agent ATDA puis confirmé par le producteur', async 
   await expect(mine).toBeVisible();
   await mine.getByRole('button', { name: 'Confirmer la réception' }).click();
   await expect(page.getByText('Merci. Votre confirmation est enregistrée.')).toBeVisible();
-  await expect(mine).toContainText('Confirmé le');
-  await expect(mine.getByRole('button', { name: 'Confirmer la réception' })).toHaveCount(0);
+  await expect(page.getByRole('row', { name: new RegExp(item) })).toContainText('Confirmé le');
+  await expect(mine).toHaveCount(0);
 });
 
 // ---------------------------------------------------------------------------------------------

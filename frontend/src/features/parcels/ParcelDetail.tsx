@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import { Alert, Badge, Card, EmptyState, Icon, PageHeader, QueryState, Timeline, buttonCls, fmtDate, fmtNum } from '../../shared/ui';
@@ -10,7 +10,7 @@ import { useAuth } from '../auth/AuthContext';
 import { StageBar } from '../producers/producerKit';
 import { moistureLevel, ndviLevel, useSatellite } from '../satellite/api';
 import { useCampaigns, useParcels } from './api';
-import { MAP_CENTER, OSM, osmAttribution } from './ParcelsPage';
+import { MAP_CENTER, ParcelBasemaps } from './ParcelBasemaps';
 
 /** Sommets du contour, sans le point de fermeture (identique au premier). */
 export const vertices = (g: GeoPolygon) => {
@@ -72,15 +72,16 @@ function Detail({ p, crumbs }: { p: Parcel; crumbs: { label: string; to?: string
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
         {p.overlap_warning && <Alert tone="warn" title={t('parcels.overlapBadge')}>{t('parcels.overlapText')}</Alert>}
         <div className="split">
-          <Card title={t('parcels.outline')} actions={<Badge tone="neutral">{t('parcels.osm')}</Badge>}>
+          <Card title={t('parcels.outline')}>
             <div className="map" role="img" aria-label={t('parcels.outlineAlt', { area: fmtNum(p.area_ha, 2), n: pts.length })}>
               <MapContainer center={MAP_CENTER} zoom={15} className="map-canvas" scrollWheelZoom={false}>
-                <TileLayer attribution={osmAttribution()} url={OSM} />
+                <ParcelBasemaps />
                 <GeoJSON data={p.geometry} style={{ color: '#016648', weight: 2.5, fillColor: '#00A563', fillOpacity: 0.35 }} />
                 <FitBounds geometry={p.geometry} />
               </MapContainer>
               <div className="map-legend"><ul className="legend"><li><span className="sw sw--2" />{t('parcels.legendParcel')} · <span className="num">{t('parcels.ha', { n: fmtNum(p.area_ha, 2) })}</span></li></ul></div>
             </div>
+            <p className="small muted mt-2">{t('parcels.basemap.note')}</p>
             <details className="mt-2.5">
               <summary className="small flex min-h-touch cursor-pointer items-center font-bold">{t('parcels.seePoints', { count: pts.length })}</summary>
               <div className="table-scroll">

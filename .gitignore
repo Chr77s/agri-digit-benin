@@ -17,3 +17,4 @@ test-results/
 *.log
 # captures de revue des maquettes (régénérables)
 .impeccable/review/
+sat-geotiff-fr/data/sat.tif

@@ -10,7 +10,7 @@ async function login(page: Page, phone: string, password?: string) {
   await expect(banner).toBeVisible({ timeout: 10_000 });
   const code = ((await banner.textContent()) ?? '').match(/\b(\d{6})\b/)?.[1];
   expect(code).toBeTruthy();
-  if (password) await page.getByLabel('Mot de passe').fill(password);
+  if (password) await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByLabel('Chiffre 1 sur 6').pressSequentially(code!);
   await page.getByRole('button', { name: 'Se connecter' }).click();
   // Coque Bénin Vert : la déconnexion est dans le menu du compte de l'en-tête.
@@ -52,12 +52,12 @@ test('parcours de démonstration', async ({ page }) => {
   await page.goto('/producteurs');
   await page.getByRole('link', { name: /BJ-AGR/ }).first().click();
   await page.getByRole('button', { name: 'Valider la fiche' }).click();
-  await expect(page.getByText(/Fiche validée/)).toBeVisible();
+  await expect(page.getByText('Fiche validée. Le producteur a été notifié.', { exact: true })).toBeVisible();
 
   // 5. Alerte ravageur envoyée, boîte SMS simulée
   await page.goto('/alertes');
   await page.getByLabel('Titre').fill('Chenille légionnaire');
-  await page.getByLabel(/Message/).fill('Chenille légionnaire signalée. Inspectez vos champs de maïs.');
+  await page.getByLabel('Message (SMS)', { exact: true }).fill('Chenille légionnaire signalée. Inspectez vos champs de maïs.');
   await page.getByRole('button', { name: "Enregistrer l'alerte" }).click();
   await page.getByRole('button', { name: "Envoyer l'alerte" }).first().click();
   await expect(page.getByText(/livré/)).toBeVisible();
@@ -69,10 +69,10 @@ test('parcours de démonstration', async ({ page }) => {
   await login(page, '0197000001');
   await page.goto('/assistant');
   await page.getByLabel('Votre question').fill('quand semer le maïs à Banikoara ?');
-  await page.getByRole('button', { name: 'Envoyer la question' }).click();
+  await page.getByRole('button', { name: 'Envoyer', exact: true }).click();
   await expect(page.getByText('Sources')).toBeVisible();
   await page.getByLabel('Votre question').fill('quelle dose de pesticide pour le coton ?');
-  await page.getByRole('button', { name: 'Envoyer la question' }).click();
+  await page.getByRole('button', { name: 'Envoyer', exact: true }).click();
   await expect(page.getByText(/transmise à un agent/)).toBeVisible();
 
   // 7. Programmes : candidature puis programme clos
@@ -86,7 +86,7 @@ test('parcours de démonstration', async ({ page }) => {
   await logout(page);
   await login(page, '0197000005', PWD);
   await page.goto('/tableau-de-bord');
-  await expect(page.getByText(/Source :/)).toBeVisible();
+  await expect(page.getByText(/Source :/).first()).toBeVisible();
 
   expect(errors).toEqual([]);
 });

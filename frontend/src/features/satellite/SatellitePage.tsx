@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MapContainer, useMap } from 'react-leaflet';
 import { useTranslation } from 'react-i18next';
 import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import type { SatelliteRow } from '../../shared/api/types';
 import { Alert, Card, EmptyState, Field, PageHeader, QueryState, Select, Table, fmtDate, fmtNum } from '../../shared/ui';
 import { useAuth } from '../auth/AuthContext';
 import '../producers/producteur.css';
+import { ParcelBasemaps } from '../parcels/ParcelBasemaps';
 import { moistureLevel, ndviLevel, useSatellite } from './api';
+
+const BENIN_BOUNDS: [[number, number], [number, number]] = [[6.2, 0.7], [12.4, 3.9]];
+
+function FitBeninBounds() {
+  const map = useMap();
+  useEffect(() => { map.fitBounds(BENIN_BOUNDS, { padding: [20, 20] }); }, [map]);
+  return null;
+}
 
 /** Barre en HTML/CSS ; la valeur et son interprétation sont aussi écrites en clair (la barre seule ne porte rien). */
 function Bar({ pct, text, moist }: { pct: number; text: string; moist?: boolean }) {
@@ -35,6 +45,15 @@ export function SatellitePage() {
         <Alert tone="demo" icon="satellite" title={t('satellite.banner')}>
           {q.data?.source && <p className="small">{q.data.source}</p>}
         </Alert>
+        <Card title={t('satellite.countryMapTitle')}>
+          <div className="map" role="region" aria-label={t('satellite.countryMapTitle')}>
+            <MapContainer center={[9.3, 2.3]} zoom={6} className="map-canvas" scrollWheelZoom={false}>
+              <ParcelBasemaps defaultLayer="sentinel" />
+              <FitBeninBounds />
+            </MapContainer>
+          </div>
+          <p className="small muted mt-2">{t('satellite.countryMapNote')}</p>
+        </Card>
         {canFilter && (
           <div className="w-full sm:w-64">
             <Field label={t('common.department')}>

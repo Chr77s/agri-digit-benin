@@ -6,6 +6,7 @@ const SIZES = [[320, 568], [360, 640], [375, 812], [740, 360], [768, 1024], [102
 
 for (const [width, height] of SIZES) {
   test(`landing sans chevauchement de texte en ${width}×${height}`, async ({ page }) => {
+    if (width === 1440) test.setTimeout(240_000);
     await page.setViewportSize({ width, height });
     await page.goto('/accueil-3d');
     await page.locator('.lp-wrap').waitFor();

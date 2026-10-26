@@ -269,6 +269,13 @@
     "listen": "Mes parcelles. Dessinez votre champ sur la carte, puis donnez-lui un nom et enregistrez.",
     "mapLabel": "Carte de dessin de la parcelle",
     "mapContributors": "contributeurs",
+    "basemap": {
+      "street": "Plan des rues · OpenStreetMap",
+      "relief": "Relief topographique · SRTM / OpenTopoMap",
+      "sentinel": "Sentinel-2 sans nuage · 2025 · EOX",
+      "satellite": "Imagerie satellite · Esri",
+      "note": "Les fonds Relief et Satellite sont chargés en ligne et servent au repérage ; ils ne fournissent pas de mesures agronomiques."
+    },
     "new": "Nouvelle parcelle",
     "area": "Surface estimée : <b>{{value}}</b>",
     "drawFirst": "dessinez la parcelle",
@@ -1297,6 +1304,8 @@
   },
   "satellite": {
     "banner": "Données de démonstration, non officielles",
+    "countryMapTitle": "Vue satellite du Bénin",
+    "countryMapNote": "Mosaïque mondiale Sentinel-2 cloudless de 2025 par EOX (licence CC BY-NC-SA 4.0, usage commercial non autorisé); l'imagerie Esri date varie selon les zones. Le relief vient d'OpenTopoMap. Ces fonds visuels ne calculent pas les indicateurs NDVI ou d'humidité affichés ci-dessous.",
     "explain": "Le NDVI mesure la vigueur de la végétation vue du ciel : proche de 0, il y a peu de plantes vertes ; proche de 1, la végétation est dense. L'humidité du sol est donnée en pourcentage. Les mentions écrites à côté des barres sont des repères indicatifs de démonstration.",
     "empty": "Aucune donnée satellite pour ce département.",
     "emptyHelp": "Choisissez « Tous » ou un autre département.",
