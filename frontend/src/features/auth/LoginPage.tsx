@@ -2,12 +2,14 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Badge, Button, Field, Icon, ListenButton, OtpInput, PhoneInput, Tabs, fmtDateTime, useMsg } from '../../shared/ui';
+import { Alert, Badge, Button, Field, Icon, ListenButton, OtpInput, PhoneInput, Select, Tabs, fmtDateTime, useMsg } from '../../shared/ui';
 import { ApiError } from '../../shared/api/client';
 import { useOtpInbox, useRequestOtp, useVerifyOtp } from './api';
 import { useAuth } from './AuthContext';
+import { DEMO_PASSWORD, DEMO_PRODUCER, DEMO_STAFF, otpFromSms } from './demoAccounts';
 import './access.css';
 import art from './img/champ-1440.jpg';
 import artSm from './img/champ-390.jpg';
@@ -44,6 +46,9 @@ export function LoginPage() {
   const [pwErr, setPwErr] = useState<string>();
   const [showPw, setShowPw] = useState(false);
   const [wait, setWait] = useState(0);
+  const [demoStaff, setDemoStaff] = useState<string>(DEMO_STAFF[0].phone);
+  const [demoFill, setDemoFill] = useState(false); // compte de démo : le code simulé sera recopié dès son arrivée
+  const qc = useQueryClient();
   const req = useRequestOtp();
   const verify = useVerifyOtp();
   const inbox = useOtpInbox(phone ?? '', !!phone);
@@ -64,6 +69,18 @@ export function LoginPage() {
     setWait(RESEND_S);
     verify.reset();
   };
+  // Démonstration : remplit le numéro du compte de test, demande le code, puis recopie le code et le mot de passe.
+  const demo = async () => {
+    const p = kind === 'prod' ? DEMO_PRODUCER.phone : demoStaff;
+    f1.setValue('phone', p, { shouldValidate: true });
+    qc.removeQueries({ queryKey: ['otp-inbox', p] }); // pas d'ancien SMS : seul le nouveau code compte
+    try {
+      await send(p);
+      setCode(''); setCodeErr(undefined); setPwErr(undefined);
+      setPassword(kind === 'agent' ? DEMO_PASSWORD : '');
+      setDemoFill(true);
+    } catch { /* message affiché sous le formulaire */ }
+  };
   const onPhone = f1.handleSubmit(async ({ phone: p }) => { try { await send(p); } catch { /* message affiché sous le formulaire */ } });
   const resend = async () => { try { await send(phone!); setCode(''); } catch { /* idem */ } };
 
@@ -83,11 +100,17 @@ export function LoginPage() {
       else if (err instanceof ApiError && err.code === 'invalid_code') setCodeErr(err.message);
     }
   };
-  const back = () => { setPhone(null); setCode(''); setPassword(''); setCodeErr(undefined); setPwErr(undefined); verify.reset(); };
+  const back = () => { setDemoFill(false); setPhone(null); setCode(''); setPassword(''); setCodeErr(undefined); setPwErr(undefined); verify.reset(); };
 
   const reqErr = req.error;
   const verErr = verify.error instanceof ApiError ? verify.error : null;
   const lastSms = inbox.data?.[0];
+
+  useEffect(() => {
+    if (!demoFill || !lastSms) return;
+    const c = otpFromSms(lastSms.body);
+    if (c) { setCode(c); setDemoFill(false); }
+  }, [demoFill, lastSms]);
 
   const stepPhone = (
     <form onSubmit={onPhone} noValidate className="card stack" style={{ ['--gap' as string]: '18px' }}>
@@ -97,6 +120,18 @@ export function LoginPage() {
       {reqErr && <Alert tone="danger" icon={reqErr instanceof ApiError && reqErr.code === 'locked' ? 'lock' : undefined} live>{reqErr.message}</Alert>}
       {!online && <div className="banner banner--offline" style={{ borderRadius: 'var(--r-md)' }}><Icon name="wifi-off" /><span>{t('login.offline')}</span></div>}
       <Button type="submit" block busy={req.isPending} disabled={!online}>{t('login.getCode')}</Button>
+      <div className="demo-fill stack" style={{ ['--gap' as string]: '8px' }}>
+        {kind === 'agent' && (
+          <Field label={t('demoAccess.staffLabel')}>
+            {(p) => <Select {...p} value={demoStaff} onChange={(e) => setDemoStaff(e.target.value)}
+              options={DEMO_STAFF.map((a) => ({ value: a.phone, label: `${t(`roles.${a.role}`)} · ${spaced(a.phone)}` }))} />}
+          </Field>
+        )}
+        <Button variant="secondary" block icon="user" busy={req.isPending} disabled={!online} onClick={() => void demo()}>
+          {t('demoAccess.button')}
+        </Button>
+        <span className="hint">{t(kind === 'prod' ? 'demoAccess.loginHintProducer' : 'demoAccess.loginHintStaff')} <Badge tone="sim">{t('common.simulation')}</Badge></span>
+      </div>
     </form>
   );
 

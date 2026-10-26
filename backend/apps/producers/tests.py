@@ -113,3 +113,21 @@ def test_withdraw_personal_data_closes_then_erases(users, producer):
     assert producer.first_name == "Compte" and producer.versions.count() == 0 and user.full_name == "Compte effacé"
     assert erase_closed(365, now=timezone.now() + timedelta(days=366)) == 0  # déjà effacé
     call_command("purge_retention")  # la commande planifiée appelle l'effacement
+
+
+def test_demo_registration_gives_a_fresh_identity_each_time(settings):
+    settings.DEMO_MODE = True
+    c = client_for()
+    codes = set()
+    for _ in range(2):
+        d = c.get("/api/v1/demo/registration").json()
+        assert d["npi"].startswith("8") and d["phone"].startswith("0196")
+        r = c.post("/api/v1/producers/register", {**REG, **d}, format="json")
+        assert r.status_code == 201, r.json()
+        codes.add(r.json()["code"])
+    assert len(codes) == 2
+
+
+def test_demo_registration_closed_outside_demo_mode(settings):
+    settings.DEMO_MODE = False
+    assert client_for().get("/api/v1/demo/registration").status_code == 404

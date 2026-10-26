@@ -5,11 +5,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Badge, Button, Checkbox, Field, Icon, ListenButton, PhoneInput, Radio, Select, Steps, Timeline, buttonCls, fmtDate, fmtDateTime, useMsg } from '../../shared/ui';
-import { ApiError } from '../../shared/api/client';
+import { ApiError, api } from '../../shared/api/client';
 import { useDepartments, usePlaceName } from '../../shared/api/ref';
 import type { Producer } from '../../shared/api/types';
 import { useRegisterProducer } from './api';
 import { useAuth } from '../auth/AuthContext';
+import { DEMO_REGISTRATION } from '../auth/demoAccounts';
 import '../auth/access.css';
 
 export function ageOn(birth: string, ref = new Date()) {
@@ -81,6 +82,7 @@ export function RegisterPage() {
   const [done, setDone] = useState<Producer | null>(null);
   const [queued, setQueued] = useState(false); // pas de réseau : la fiche part au retour de la connexion
   const [step, setStep] = useState(0);
+  const [demoBusy, setDemoBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
   const f = useForm<RegisterForm>({
@@ -176,6 +178,24 @@ export function RegisterPage() {
         : <Button key="send" type="submit" icon="send" busy={reg.isPending}>{t('register.submit')}</Button>}
     </div>
   );
+  // Démonstration : demande au serveur une fiche ANIP simulée encore libre (NPI et téléphone neufs à chaque clic),
+  // la remplit et s'arrête au consentement, qui reste à cocher soi-même.
+  const demo = async () => {
+    setDemoBusy(true);
+    let fresh: Partial<typeof DEMO_REGISTRATION> = {};
+    try { fresh = await api<Partial<typeof DEMO_REGISTRATION>>('/demo/registration'); } catch { /* serveur ancien : fiche fixe d'Awa SABI */ }
+    setDemoBusy(false);
+    const d = { ...DEMO_REGISTRATION, ...fresh };
+    const depCode = deps.data?.find((x) => x.name === d.department_name);
+    const opts = { shouldValidate: true, shouldDirty: true };
+    (['npi', 'first_name', 'last_name', 'sex', 'birth_date', 'phone', 'language'] as const).forEach((k) => f.setValue(k, d[k], opts));
+    if (depCode) {
+      f.setValue('department', depCode.code, opts);
+      const com = depCode.communes.find((c) => c.name === d.commune_name);
+      if (com) f.setValue('commune', com.code, opts);
+    }
+    go(depCode ? 3 : 1);
+  };
   const edit = (n: number) => <Button variant="ghost" size="sm" icon="edit" onClick={() => go(n)}>{t('register.edit')}</Button>;
   const depName = deps.data?.find((d) => d.code === v.department)?.name ?? v.department;
 
@@ -335,6 +355,12 @@ export function RegisterPage() {
             )}
           </>}
           {nav}
+          {step < 4 && (
+            <div className="demo-fill stack" style={{ ['--gap' as string]: '6px' }}>
+              <Button variant="secondary" icon="user" busy={demoBusy} onClick={() => void demo()} disabled={deps.isLoading}>{t('demoAccess.button')}</Button>
+              <span className="hint">{t('demoAccess.registerHint')} <Badge tone="sim">{t('common.simulation')}</Badge></span>
+            </div>
+          )}
         </section>
       </form>
     </div>

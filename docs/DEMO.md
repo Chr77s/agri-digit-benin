@@ -4,6 +4,8 @@ Lancement : double-clic sur `start.bat` (Windows) ou `./start.sh`, puis ouvrir `
 
 Connexion : saisir le téléphone, demander le code ; le code à 6 chiffres s'affiche sur la page de connexion dans le bandeau **Simulation** (il est aussi dans la boîte d'envoi). Les agents et administrateurs saisissent en plus le mot de passe.
 
+Raccourci : le bouton **Démo**, en bas du formulaire de connexion, remplit le compte de test (producteur, ou le rôle choisi dans la liste pour les agents et partenaires), demande le code et le recopie avec le mot de passe ; il reste à cliquer « Se connecter ». Sur le formulaire d'inscription, il remplit une fiche neuve à chaque clic (NPI de démonstration commençant par 8, téléphone libre, Alibori, Banikoara) jusqu'au consentement, qui reste à cocher. Comptes : `frontend/src/features/auth/demoAccounts.ts`.
+
 ## Comptes
 
 | Rôle | Téléphone | Mot de passe | Périmètre |

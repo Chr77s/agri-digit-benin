@@ -1,4 +1,11 @@
 {
+  "demoAccess": {
+    "button": "Démo",
+    "staffLabel": "Compte de démonstration",
+    "loginHintProducer": "Remplit le compte de test du producteur Bio GOUNOU (01 97 00 00 01) et le code reçu.",
+    "loginHintStaff": "Remplit le numéro, le mot de passe et le code du compte de test choisi.",
+    "registerHint": "Remplit une fiche de test neuve (identité ANIP simulée, NPI commençant par 8). Il reste à cocher le consentement."
+  },
   "login": {
     "title": "Se connecter",
     "desc": "Pas de mot de passe à retenir pour les producteurs : un code arrive par SMS à chaque connexion.",

@@ -45,11 +45,25 @@ for _i in range(5, 46):  # fiches des ~40 producteurs du seed
                               date(1960 + _i % 35, 1 + _i % 12, 1 + _i % 27), _sex)
 
 
+# Bouton « Démo » de l'inscription : tout NPI de 10 chiffres commençant par 8 est une fiche fictive libre,
+# calculée à partir du numéro (même NPI, même fiche). Elle sert à rejouer l'inscription sans doublon.
+DEMO_NPI_PREFIX = "8"
+
+
+def demo_record(npi: str) -> AnipRecord | None:
+    if len(npi) != 10 or not npi.isdigit() or not npi.startswith(DEMO_NPI_PREFIX):
+        return None
+    n = int(npi[1:])
+    fn, sex = _FIRST[n % len(_FIRST)]
+    return AnipRecord(npi, fn, _LAST[(n // len(_FIRST)) % len(_LAST)],
+                      date(1970 + n % 30, 1 + n % 12, 1 + n % 28), sex)
+
+
 class MockAnipClient(AnipClient):
     def lookup(self, npi):
         if npi == "9999999999":
             raise AnipUnavailable()
-        return FICHES.get(npi)
+        return FICHES.get(npi) or demo_record(npi)
 
 
 class RealAnipClient(AnipClient):

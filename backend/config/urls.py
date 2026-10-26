@@ -43,6 +43,7 @@ v1 = [
     path("auth/phone-change/request", acc.phone_change_request),
     path("auth/phone-change/confirm", acc.phone_change_confirm),
     path("demo/otp-inbox", acc.otp_inbox),
+    path("demo/registration", acc.demo_registration),
     path("admin/users", acc.admin_users),
     path("admin/users/<uuid:pk>", acc.admin_user_detail),
     path("audit-logs", audit.AuditLogList.as_view()),
