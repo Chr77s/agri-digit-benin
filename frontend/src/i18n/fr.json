@@ -297,7 +297,7 @@
     "errName": "Donnez un nom à la parcelle, par exemple « Champ du marigot ».",
     "errLandType": "Choisissez le type de terrain.",
     "errTenure": "Choisissez le statut foncier.",
-    "errGeom": "Dessinez le contour de la parcelle sur la carte avec l’outil polygone (en haut à droite).",
+    "errGeom": "Tracez le contour de la parcelle : touchez « Tracer le contour de ma parcelle », puis chaque coin du champ.",
     "landType": {
       "pluvial_plateau": "Pluvial (plateau)",
       "bas_fond": "Bas-fond",

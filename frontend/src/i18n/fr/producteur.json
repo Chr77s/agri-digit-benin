@@ -101,7 +101,35 @@
     "seeAll_one": "Voir ma parcelle",
     "seeAll_other": "Voir mes {{count}} parcelles",
     "legendSaved": "Enregistrée",
-    "mapHint": "Utilisez l'outil de tracé en haut de la carte, puis touchez le premier coin pour fermer la parcelle.",
+    "mapHint": "Cherchez votre village ou touchez « Ma position », puis « Tracer le contour de ma parcelle » : touchez chaque coin du champ et terminez par « Terminer ». Pour corriger, utilisez le crayon en haut à droite de la carte.",
+    "find": {
+      "label": "Rechercher un lieu",
+      "placeholder": "Village, commune ou département",
+      "go": "Chercher",
+      "here": "Ma position",
+      "searching": "Recherche en cours…",
+      "none": "Aucun lieu trouvé. Essayez un autre nom, ou celui de la commune.",
+      "offline": "Recherche en ligne indisponible : seuls les départements et les communes sont proposés (position approximative).",
+      "tip": "Appuyez sur Entrée pour chercher aussi un village.",
+      "approx": "position approximative",
+      "fixOk": "Vous êtes ici, à environ {{m}} m près. Tracez maintenant le contour de votre champ.",
+      "fix": {
+        "denied": "Position refusée. Autorisez la localisation dans votre navigateur, ou cherchez votre village.",
+        "unavailable": "Position introuvable pour le moment. Cherchez votre village par son nom.",
+        "timeout": "La position met trop de temps. Réessayez à ciel ouvert, ou cherchez votre village.",
+        "unsupported": "Cet appareil ne donne pas sa position. Cherchez votre village par son nom."
+      }
+    },
+    "trace": {
+      "group": "Tracer la parcelle",
+      "start": "Tracer le contour de ma parcelle",
+      "redo": "Refaire le tracé",
+      "clear": "Effacer",
+      "finish": "Terminer",
+      "undo": "Retirer le dernier point",
+      "idle": "Placez la carte sur votre champ, puis touchez chaque coin.",
+      "drawing": "Touchez la carte à chaque coin du champ (trois coins au moins), puis « Terminer »."
+    },
     "areaLabel": "Surface estimée",
     "errGeomTitle": "Dessinez le contour de la parcelle",
     "offlineHint": "Hors réseau, la parcelle reste sur le téléphone et part au retour de la connexion.",

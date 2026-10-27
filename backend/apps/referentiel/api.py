@@ -17,7 +17,7 @@ def value_chains(request):
 def departments(request):
     deps = Department.objects.prefetch_related("communes").order_by("name")
     return Response([
-        {"code": d.code, "name": d.name,
+        {"code": d.code, "name": d.name, "lat": d.lat, "lon": d.lon,
          "communes": [{"code": c.code, "name": c.name} for c in sorted(d.communes.all(), key=lambda c: c.name)]}
         for d in deps
     ])

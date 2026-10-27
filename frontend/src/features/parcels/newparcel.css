@@ -1,0 +1,26 @@
+/* « Mesurer une nouvelle parcelle » : grande carte, recherche de lieu posée dessus, formulaire rangé dessous. */
+.np-map { aspect-ratio: auto; height: clamp(420px, 62vh, 680px); }
+.np-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 12px; }
+.np-bar .hint { flex: 1 1 240px; margin: 0; }
+
+.np-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 18px; align-items: start; }
+.np-form .full { grid-column: 1 / -1; }
+.np-form .card-title { margin: 0; }
+
+/* à droite des commandes de zoom et de fond de carte de Leaflet (en haut à gauche), et avant la barre de modification (en haut à droite) */
+.np-finder { position: absolute; z-index: 1001; top: 10px; left: 56px; right: 56px; max-width: 460px; display: grid; gap: 8px; }
+.np-find-row { display: flex; gap: 8px; }
+.np-find-row input { flex: 1; min-width: 0; min-height: 48px; padding: 0 16px; border: 1px solid var(--line-input); border-radius: var(--r-lg); background: var(--surface); color: var(--ink); font: inherit; box-shadow: var(--sh-card); }
+.np-find-row input::placeholder { color: var(--ink-3); }
+.np-find-row input:focus-visible { outline: 3px solid var(--sun); outline-offset: 1px; }
+.np-here { display: flex; }
+.np-find-row .btn, .np-here .btn { box-shadow: var(--sh-card); background: var(--surface); }
+.np-results, .np-fix { margin: 0; border-radius: var(--r-lg); background: var(--surface); color: var(--ink); box-shadow: var(--sh-pop); }
+.np-results ul { list-style: none; margin: 0; padding: 4px 0; }
+.np-results button { display: grid; gap: 2px; width: 100%; min-height: 48px; padding: 6px 16px; text-align: left; border: 0; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.np-results button:hover, .np-results button:focus-visible { background: var(--surface-2); }
+.np-results button:focus-visible { outline: 3px solid var(--sun); outline-offset: -3px; }
+.np-results button span { font-size: var(--fs-sm); color: var(--ink-2); }
+.np-results p { margin: 0; padding: 10px 16px; font-size: var(--fs-sm); color: var(--ink-2); }
+.np-fix { padding: 10px 16px; font-size: var(--fs-sm); }
+.np-fix[hidden] { display: none; }

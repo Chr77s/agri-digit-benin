@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MapContainer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -15,11 +15,16 @@ import { useVcName } from '../../shared/api/ref';
 import i18n from '../../i18n';
 import { ListenGhost } from '../producers/producerKit';
 import { useCampaigns, useCreateParcel, useParcels } from './api';
-import { MAP_CENTER, ParcelBasemaps } from './ParcelBasemaps';
+import { ParcelBasemaps } from './ParcelBasemaps';
 import { ParcelDetail } from './ParcelDetail';
 import { GpsTrace } from './GpsTrace';
+import { DrawBar, type DrawApi } from './DrawBar';
+import { MapFinder } from './MapFinder';
 import { fitPoints, ringOf } from './shape';
 import './gps.css';
+import './newparcel.css';
+
+const BENIN: [number, number] = [9.3, 2.3];
 
 export const LAND_TYPES = ['pluvial_plateau', 'bas_fond', 'irrigue'] as const;
 export const TENURES = ['propriete', 'location', 'pret', 'coutumier', 'autre'] as const;
@@ -38,18 +43,33 @@ function applyDrawLocale() {
   L.drawLocal.edit.toolbar.actions.cancel.text = t('common.cancel');
 }
 
-function DrawControl({ onDrawn }: { onDrawn: (g: GeoPolygon | null) => void }) {
+interface DrawProps { onDrawn: (g: GeoPolygon | null) => void; onDrawing: (on: boolean) => void; api: MutableRefObject<DrawApi | null> }
+
+function DrawControl({ onDrawn, onDrawing, api }: DrawProps) {
   const map = useMap();
   useEffect(() => {
     applyDrawLocale();
     const items = new L.FeatureGroup();
     map.addLayer(items);
+    // le contour se trace avec les gros boutons de DrawBar ; la barre de leaflet-draw ne garde que modifier et supprimer
     const ctl = new L.Control.Draw({
       position: 'topright',
-      draw: { polygon: { allowIntersection: false, showArea: false }, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false },
+      draw: { polygon: false, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false },
       edit: { featureGroup: items, remove: true },
     });
     map.addControl(ctl);
+    const poly = new L.Draw.Polygon(map as L.DrawMap, { allowIntersection: false, showArea: false }); // le typage de leaflet-draw attend ce type, la carte est la même
+    api.current = {
+      start: () => { items.clearLayers(); onDrawn(null); poly.enable(); },
+      finish: () => poly.completeShape(),
+      undo: () => poly.deleteLastVertex(),
+      cancel: () => poly.disable(),
+      clear: () => { poly.disable(); items.clearLayers(); onDrawn(null); },
+    };
+    const started = () => onDrawing(true);
+    const stopped = () => onDrawing(false);
+    map.on(L.Draw.Event.DRAWSTART, started);
+    map.on(L.Draw.Event.DRAWSTOP, stopped);
     const created = (e: L.LeafletEvent) => {
       items.clearLayers();
       const layer = (e as L.DrawEvents.Created).layer as L.Polygon;
@@ -65,9 +85,29 @@ function DrawControl({ onDrawn }: { onDrawn: (g: GeoPolygon | null) => void }) {
     map.on(L.Draw.Event.DELETED, edited);
     return () => {
       map.off(L.Draw.Event.CREATED, created); map.off(L.Draw.Event.EDITED, edited); map.off(L.Draw.Event.DELETED, edited);
+      map.off(L.Draw.Event.DRAWSTART, started); map.off(L.Draw.Event.DRAWSTOP, stopped);
+      poly.disable(); api.current = null;
       map.removeControl(ctl); map.removeLayer(items);
     };
-  }, [map, onDrawn]);
+  }, [map, onDrawn, onDrawing, api]);
+  return null;
+}
+
+/** Vue de départ : les parcelles déjà tracées, sinon tout le Bénin. Plus reprise une fois que l'utilisateur a choisi sa vue. */
+function InitialView({ parcels, placed }: { parcels: Parcel[]; placed: MutableRefObject<boolean> }) {
+  const map = useMap();
+  const n = parcels.length;
+  useEffect(() => {
+    const lock = () => { placed.current = true; };
+    map.on('dragstart', lock);
+    return () => { map.off('dragstart', lock); };
+  }, [map, placed]);
+  useEffect(() => {
+    if (placed.current) return;
+    if (n) map.fitBounds(L.geoJSON(parcels.map((p) => ({ type: 'Feature' as const, properties: {}, geometry: p.geometry }))).getBounds(), { maxZoom: 16, padding: [30, 30] });
+    else map.setView(BENIN, 7);
+    // seul le nombre de parcelles compte : un rechargement des mêmes données ne doit pas déplacer la carte
+  }, [map, n]);
   return null;
 }
 
@@ -161,6 +201,10 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
   const create = useCreateParcel();
   const [geom, setGeom] = useState<GeoPolygon | null>(null);
   const [geomErr, setGeomErr] = useState(false);
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  const draw = useRef<DrawApi | null>(null);
+  const placed = useRef(false); // vrai dès que l'utilisateur a choisi sa vue (recherche, position, déplacement)
   const [result, setResult] = useState<Parcel | 'queued' | null>(null);
   const f = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { land_type: '', tenure: '' } });
   // Fonction stable : sinon la barre de dessin est recréée (et le tracé effacé) à chaque rendu.
@@ -177,15 +221,18 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
   }, () => { if (!geom) setGeomErr(true); });
 
   return (
-    <div className="split">
+    <div className="stack" style={{ ['--gap' as string]: '16px' }}>
       <section aria-labelledby="t-carte">
         <h2 className="sr-only" id="t-carte">{t('parcels.mapLabel')}</h2>
-        <div className="map" role="region" aria-label={t('parcels.mapLabel')}>
-          <MapContainer center={MAP_CENTER} zoom={14} className="map-canvas">
-            <ParcelBasemaps />
-            <DrawControl onDrawn={onDrawn} />
+        <DrawBar api={draw} drawing={drawing} hasShape={!!geom} />
+        <div className="map np-map" role="region" aria-label={t('parcels.mapLabel')}>
+          <MapContainer ref={setMap} center={BENIN} zoom={7} className="map-canvas">
+            <ParcelBasemaps defaultLayer="satellite" />
+            <DrawControl onDrawn={onDrawn} onDrawing={setDrawing} api={draw} />
+            <InitialView parcels={parcels} placed={placed} />
             {parcels.map((p) => <GeoJSON key={p.id} data={p.geometry} style={{ color: p.overlap_warning ? '#B4532D' : '#016648', weight: 2, dashArray: p.overlap_warning ? '5 4' : undefined }} />)}
           </MapContainer>
+          <MapFinder map={map} onNavigate={() => { placed.current = true; }} />
           <div className="map-legend">
             <ul className="legend">
               <li><span className="sw" />{t('parcels.legendSaved')}</li>
@@ -197,14 +244,14 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
         <p className="small muted mt-1">{t('parcels.basemap.note')}</p>
       </section>
 
-      <form onSubmit={onSubmit} noValidate className="card stack" style={{ ['--gap' as string]: '14px' }} aria-labelledby="t-nouvelle">
-        <h2 className="card-title" id="t-nouvelle">{t('parcels.new')}</h2>
-        <div className="area-out" aria-live="polite">
+      <form onSubmit={onSubmit} noValidate className="card np-form" aria-labelledby="t-nouvelle">
+        <h2 className="card-title full" id="t-nouvelle">{t('parcels.new')}</h2>
+        <div className="area-out full" aria-live="polite">
           <span className="muted">{t('parcels.areaLabel')}</span>
           <b className="num">{preview === null ? t('parcels.drawFirst') : t('parcels.ha', { n: fmtNum(preview, 2) })}</b>
           <span className="hint" style={{ flexBasis: '100%' }}>{t('parcels.previewNote')}</span>
         </div>
-        {geomErr && <Alert tone="danger" live title={t('parcels.errGeomTitle')}>{t('parcels.errGeom')}</Alert>}
+        {geomErr && <div className="full"><Alert tone="danger" live title={t('parcels.errGeomTitle')}>{t('parcels.errGeom')}</Alert></div>}
         <Field label={t('parcels.name')} error={f.formState.errors.name?.message}>
           {(p) => <Input {...p} {...f.register('name')} autoComplete="off" />}
         </Field>
@@ -214,10 +261,10 @@ function NewParcel({ parcels }: { parcels: Parcel[] }) {
         <Field label={t('parcels.tenureLabel')} error={f.formState.errors.tenure?.message}>
           {(p) => <Select {...p} {...f.register('tenure')} placeholder={t('common.choose')} options={TENURES.map((v) => ({ value: v, label: t(`parcels.tenure.${v}`) }))} />}
         </Field>
-        {create.error && <Alert tone="danger" live>{create.error.message}</Alert>}
-        <Button type="submit" block icon="check" busy={create.isPending}>{t('parcels.save')}</Button>
-        <p className="hint">{t('parcels.offlineHint')}</p>
-        <div aria-live="polite">
+        {create.error && <div className="full"><Alert tone="danger" live>{create.error.message}</Alert></div>}
+        <div className="full"><Button type="submit" block icon="check" busy={create.isPending}>{t('parcels.save')}</Button></div>
+        <p className="hint full">{t('parcels.offlineHint')}</p>
+        <div className="full" aria-live="polite">
           {result === 'queued' && <Alert tone="warn" icon="wifi-off">{t('parcels.queued')}</Alert>}
           {result && result !== 'queued' && (
             <Alert tone={result.overlap_warning ? 'warn' : 'ok'} title={result.overlap_warning ? t('parcels.overlap') : undefined}>

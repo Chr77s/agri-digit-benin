@@ -14,7 +14,8 @@ export const BASEMAPS: { key: Basemap; url: string; attribution: string; maxZoom
     attribution: 'Données : &copy; OpenStreetMap contributors · relief : SRTM · style : <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>)' },
   { key: 'sentinel', url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', maxNativeZoom: 18, maxZoom: 19,
     attribution: 'Données Copernicus Sentinel-2 modifiées 2025 · &copy; EOX IT Services GmbH · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · <a href="https://cloudless.eox.at">EOxCloudless</a>' },
-  { key: 'satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maxZoom: 19,
+  // Esri n'a plus d'image au niveau 19 (tuile grise « Map data not yet available », vérifié sur six zones du Bénin) : on agrandit le 18
+  { key: 'satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maxNativeZoom: 18, maxZoom: 19,
     attribution: 'Imagerie : &copy; Esri, Vantor, Earthstar Geographics et la communauté SIG' },
 ];
 
