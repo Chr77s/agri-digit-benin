@@ -129,6 +129,11 @@ PAYMENT_BACKEND = env("PAYMENT_BACKEND", default="fakepay")
 LLM_BACKEND = env("LLM_BACKEND", default="auto")
 WEATHER_BACKEND = env("WEATHER_BACKEND", default="open-meteo")  # "demo" : valeurs simulées
 WEATHER_URL = env("WEATHER_URL", default="https://api.open-meteo.com/v1/forecast")
+SATELLITE_BACKEND = env("SATELLITE_BACKEND", default="auto")  # "cdse" : Copernicus ; "demo" : valeurs simulées ; "auto" : cdse si les clés existent
+CDSE_CLIENT_ID = env("CDSE_CLIENT_ID", default="")
+CDSE_CLIENT_SECRET = env("CDSE_CLIENT_SECRET", default="")
+CDSE_TOKEN_URL = env("CDSE_TOKEN_URL", default="https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token")
+CDSE_STATS_URL = env("CDSE_STATS_URL", default="https://sh.dataspace.copernicus.eu/api/v1/statistics")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")
 OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
 OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="http://glm-gateway.tail577250.ts.net:4000/v1")

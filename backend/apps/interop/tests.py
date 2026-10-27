@@ -44,6 +44,7 @@ def test_satellite_is_deterministic_and_labelled(users):
     c = client_for(users["agent"])
     a, b = c.get("/api/v1/satellite").json(), c.get("/api/v1/satellite").json()
     assert a == b and "non officielles" in a["source"] and len(a["results"]) == 1  # agent : son département
+    assert list(a["series"]) == ["alibori"]
     assert len(client_for(users["admin"]).get("/api/v1/satellite").json()["results"]) == 12
 
 

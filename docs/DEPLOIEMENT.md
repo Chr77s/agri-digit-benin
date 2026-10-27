@@ -35,3 +35,15 @@ Projet Vercel : dossier racine `frontend`. Dans `frontend/vercel.json`, remplace
 - **Tâches de maintenance** (`purge_retention`, `verify_audit_chain`, `check_stock_alerts`, `remind_claims`) : rien ne les planifie ; à lancer par une tâche planifiée de l'hébergeur.
 - **Fichiers statiques de l'administration Django** : non servis (pas de WhiteNoise). L'API n'en a pas besoin.
 - **Image non construite à ce jour** : Docker n'était pas démarré sur le poste de développement ; seule la syntaxe et la logique de contrôle du script de démarrage ont été vérifiées.
+
+## 5. Suivi satellite (Copernicus)
+
+Variables du backend (`backend/.env` en local, variables d'environnement de l'hébergeur en ligne ; **jamais** dans Git, Vercel ou le frontend) :
+
+| Variable | Rôle |
+|---|---|
+| `SATELLITE_BACKEND` | `auto` (défaut : Copernicus si les deux clés existent, sinon démonstration), `cdse` ou `demo` |
+| `CDSE_CLIENT_ID`, `CDSE_CLIENT_SECRET` | client OAuth créé dans le tableau de bord Copernicus Data Space (User settings, OAuth clients) |
+| `CDSE_TOKEN_URL`, `CDSE_STATS_URL` | adresses de l'API, à ne changer que si Copernicus les modifie |
+
+Mise en service : `python manage.py migrate`, puis `python manage.py satellite_check --department alibori` (affiche « jeton OK » et la réponse brute), puis une tâche planifiée toutes les 12 h : `python manage.py refresh_satellite` (les observations sont gardées 24 h ; le premier chargement sans préchauffage peut durer jusqu'à 20 s).

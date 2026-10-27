@@ -54,3 +54,12 @@ Passages sans source en ligne : `source: "a_sourcer"`, `status: "brouillon_non_v
 ## 5. Données de seed
 
 Producteurs, NPI, téléphones : fictifs (voir `MOCKS.md`). Aucune donnée réelle de personne.
+
+## 6. Données satellite (suivi satellite)
+
+- **Indices** : NDVI et NDMI de Sentinel-2 L2A, calculés par la Statistical API de Copernicus Data Space (intervalles de 10 jours, nuages et ombres écartés par la bande SCL). Source affichée : « Copernicus Sentinel-2 L2A via Copernicus Data Space ». Sans clés Copernicus ou sans mesure stockée, l'écran passe en démonstration, étiquetée « non officielles ».
+- **Mention obligatoire** : « Contient des données Copernicus Sentinel modifiées ». Conditions : https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice
+- **Contours des 12 départements** : geoBoundaries (BEN, ADM1, version simplifiée), licence indiquée par l'API : Public Domain ; attribution conservée (CC BY 4.0 affiché par prudence). Fichier : `backend/apps/referentiel/benin_departements.geojson`, reconstruit par `docs/scripts/build_departements_geojson.py`.
+- **Fonds de carte** (affichage seulement, hors calcul) : OpenStreetMap, OpenTopoMap, Sentinel-2 cloudless 2025 d'EOX (CC BY-NC-SA 4.0, usage commercial non autorisé), Esri World Imagery.
+- **Relief 3D** : tuiles d'altitude Terrarium (AWS Open Data), chargées à la demande.
+- Le dossier `sat-geotiff-fr/` (image NextGIS) couvre la Barbade et non le Bénin : il n'est pas utilisé.

@@ -1,30 +1,37 @@
-"""UC-23 : suivi satellite. DONNÉES DE DÉMONSTRATION : valeurs déterministes, aucune image réelle n'est lue."""
-import hashlib
-from datetime import datetime, time, timedelta, timezone
+"""UC-23 : suivi satellite. NDVI et NDMI Sentinel-2 via Copernicus quand les clés existent ; sinon valeurs de démonstration,
+déterministes et étiquetées (`simulated`). Voir services.py."""
+from datetime import datetime, time, timezone
 
+from django.http import Http404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from apps.core.permissions import AGENT, PRODUCTEUR
+from apps.parcels.api import parcels_for
+from apps.referentiel import zones
 from apps.referentiel.models import Department
 
-SOURCE = "Données de démonstration (POC), non officielles"
-SENSOR = "Sentinel-2 (démonstration)"
+from . import services
 
 
-def _unit(key, day):
-    return int(hashlib.sha256(f"{key}:{day}".encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
-
-
-def _acquired(today):
-    # un passage tous les 5 jours, comme la revisite de Sentinel-2
-    day = today - timedelta(days=today.toordinal() % 5)
-    return datetime.combine(day, time(10, 30), tzinfo=timezone.utc)
+def _payload(scope, zs, department_of):
+    """Forme commune : une ligne par zone (dernier passage exploitable) et la série complète par zone."""
+    results = []
+    for code, z in zs.items():
+        last = next((p for p in reversed(z["points"]) if p["ndvi"] is not None), None)
+        ref = last or z["points"][-1]
+        results.append({
+            "department": department_of(code), "commune": None,
+            "ndvi": last and last["ndvi"], "ndmi": last and last["ndmi"], "valid_pct": ref["valid_pct"],
+            "acquired_at": datetime.combine(ref["to"], time(10, 30), tzinfo=timezone.utc),
+            "sensor": services.SENSOR_DEMO if z["simulated"] else services.SENSOR_REAL, "simulated": z["simulated"]})
+    simulated = any(r["simulated"] for r in results)
+    return {"source": services.SOURCE_DEMO if simulated else services.SOURCE_REAL, "simulated": simulated, "scope": scope,
+            "results": results, "series": {code: z["points"] for code, z in zs.items()}}
 
 
 @api_view(["GET"])
 def satellite(request):
-    when = _acquired(datetime.now(timezone.utc).date())
     dep = request.query_params.get("department")
     # l'agent et le producteur ne voient que leur département
     if request.user.role in (AGENT, PRODUCTEUR) and request.user.department:
@@ -32,11 +39,31 @@ def satellite(request):
     qs = Department.objects.order_by("name")
     if dep:
         qs = qs.filter(code=dep)
-    results = [{"department": d.code, "commune": None,
-                "ndvi": round(0.3 + 0.55 * _unit(d.code + ":ndvi", when.date()), 2),
-                "soil_moisture_pct": round(10 + 30 * _unit(d.code + ":sm", when.date()), 1),
-                "acquired_at": when, "sensor": SENSOR} for d in qs]
-    return Response({"source": SOURCE, "results": results})
+    codes = list(qs.values_list("code", flat=True))
+    zs = services.zone_series("department", {c: zones.department_geometry(c) for c in codes})
+    return Response(_payload("department", zs, lambda code: code))
+
+
+@api_view(["GET"])
+def satellite_zones(request):
+    return Response({"type": "FeatureCollection", "features": zones.department_features()})
+
+
+@api_view(["GET"])
+def parcel_satellite(request, pk):
+    """Indices de la parcelle ; sans mesure propre (démonstration, rien de stocké), ceux de son département."""
+    p = parcels_for(request.user).filter(pk=pk).first()
+    if p is None:
+        raise Http404
+    key = str(p.pk)
+    zs = services.zone_series("parcel", {key: p.geometry})
+    if not zs[key]["simulated"]:
+        return Response(_payload("parcel", zs, lambda code: p.department))
+    try:
+        dep = {p.department: zones.department_geometry(p.department)}
+    except KeyError:  # département hors référentiel : on garde la démonstration de la parcelle
+        return Response(_payload("department", zs, lambda code: p.department))
+    return Response(_payload("department", services.zone_series("department", dep), lambda code: code))
 
 
 def place_of(producer=None, department=None):

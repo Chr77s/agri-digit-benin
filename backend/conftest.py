@@ -13,6 +13,7 @@ PWD = "AgriDemo-2026!"
 def _setup(db, settings):
     settings.DEMO_MODE = True
     settings.WEATHER_BACKEND = "demo"  # aucun appel réseau pendant les tests
+    settings.SATELLITE_BACKEND = "demo"
     settings.REST_FRAMEWORK = {**settings.REST_FRAMEWORK, "DEFAULT_THROTTLE_RATES": {"otp": "1000/min"}}
     cache.clear()
     load_referentiels()

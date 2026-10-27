@@ -149,10 +149,11 @@
     "noCampaignTitle": "Aucune campagne sur ce champ",
     "noCampaignText": "Ouvrez une campagne pour suivre le semis, la floraison et la récolte.",
     "satTitle": "Vigueur vue du satellite",
-    "satScope": "Indices du département : le détail par parcelle viendra plus tard.",
+    "satScope": "Indices du département : cette parcelle n'a pas encore de mesure propre.",
+    "satScopeParcel": "Mesure sur le tracé de la parcelle.",
     "satMore": "Suivi détaillé",
     "satDate": "Relevé du {{date}} · {{place}}",
-    "satMoisture": "Humidité du sol : {{v}} %, {{level}}."
+    "satMoisture": "Humidité de la végétation : {{v}}, {{level}}."
   },
   "campaigns": {
     "desc": "Une campagne, c'est une culture sur une parcelle pour une saison. Changez le stade quand la culture avance, puis déclarez la récolte.",
@@ -243,8 +244,8 @@
     "desc": "La vigueur de vos cultures vue du ciel, à chaque passage du satellite. Utile pour repérer tôt une zone qui souffre.",
     "bannerText": "Indices simulés. Les mentions à côté des barres sont des repères indicatifs.",
     "lastPass": "Dernier passage · {{date}} · {{place}}",
-    "moistureNa": "Humidité du sol : non disponible",
-    "moistureLine": "Humidité du sol : {{v}} % · {{level}}",
+    "ndmiNa": "Humidité de la végétation : nuageux, pas de mesure",
+    "ndmiLine": "Humidité de la végétation : {{v}} · {{level}}",
     "howTo": "Comment lire le NDVI",
     "passes": "Passages du satellite",
     "zone": "Zone"

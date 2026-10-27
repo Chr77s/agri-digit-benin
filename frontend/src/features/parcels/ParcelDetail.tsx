@@ -8,7 +8,7 @@ import type { GeoPolygon, Parcel } from '../../shared/api/types';
 import { usePlaceName, useVcName } from '../../shared/api/ref';
 import { useAuth } from '../auth/AuthContext';
 import { StageBar } from '../producers/producerKit';
-import { moistureLevel, ndviLevel, useSatellite } from '../satellite/api';
+import { ndmiLevel, ndviLevel, useParcelSatellite } from '../satellite/api';
 import { useCampaigns, useParcels } from './api';
 import { MAP_CENTER, ParcelBasemaps } from './ParcelBasemaps';
 
@@ -128,32 +128,32 @@ function Detail({ p, crumbs }: { p: Parcel; crumbs: { label: string; to?: string
               )}
             </QueryState>
           </Card>
-          <SatelliteCard />
+          <SatelliteCard id={p.id} />
         </div>
       </div>
     </>
   );
 }
 
-/** Indices du département (le serveur ne calcule pas encore par parcelle) : données simulées, étiquetées. */
-function SatelliteCard() {
+/** Indices de la parcelle (Sentinel-2) ; sans mesure propre, ceux du département, ou la démonstration, toujours étiquetés. */
+function SatelliteCard({ id }: { id: string }) {
   const { t } = useTranslation();
-  const q = useSatellite();
+  const q = useParcelSatellite(id);
   const place = usePlaceName();
   return (
-    <Card title={t('parcels.satTitle')} actions={<Badge tone="sim">{t('pr.simulated')}</Badge>}
-      foot={<><span className="small muted">{t('parcels.satScope')}</span><Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to="/satellite">{t('parcels.satMore')}</Link></>}>
+    <Card title={t('parcels.satTitle')} actions={q.data?.simulated ? <Badge tone="sim">{t('pr.simulated')}</Badge> : undefined}
+      foot={<><span className="small muted">{t(q.data?.scope === 'parcel' ? 'parcels.satScopeParcel' : 'parcels.satScope')}</span><Link className={buttonCls({ variant: 'secondary', size: 'sm' })} to="/satellite">{t('parcels.satMore')}</Link></>}>
       <QueryState q={q} empty={(d) => d.results.length === 0} emptyText={<p className="muted">{t('satellite.empty')}</p>}>
         {(d) => {
           const r = d.results[0];
           return (
             <>
               <p>
-                {r.ndvi === null ? t('common.notAvailable') : <><b className="num">{fmtNum(r.ndvi, 2)}</b> · {t(`satellite.ndviLevel.${ndviLevel(r.ndvi)}`)}</>}
+                {r.ndvi === null ? t('satellite.cloudy') : <><b className="num">{fmtNum(r.ndvi, 2)}</b> · {t(`satellite.ndviLevel.${ndviLevel(r.ndvi)}`)}</>}
                 {' '}<span className="small muted">{t('parcels.satDate', { date: fmtDate(r.acquired_at), place: place(r.department) })}</span>
               </p>
-              {r.soil_moisture_pct !== null && (
-                <p className="small muted mt-2">{t('parcels.satMoisture', { v: fmtNum(r.soil_moisture_pct, 1), level: t(`satellite.moistureLevel.${moistureLevel(r.soil_moisture_pct)}`) })}</p>
+              {r.ndmi !== null && (
+                <p className="small muted mt-2">{t('parcels.satMoisture', { v: fmtNum(r.ndmi, 2), level: t(`satellite.ndmiLevel.${ndmiLevel(r.ndmi)}`) })}</p>
               )}
             </>
           );

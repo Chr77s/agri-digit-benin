@@ -152,8 +152,10 @@ export interface Match { id: string; offer: string | Offer; requester: string; r
 export type PaymentStatus = 'en_attente' | 'reussi' | 'echoue' | 'rembourse';
 export interface Receipt { reference: string; amount_xof: number; payer_masked: string; payee_masked: string; paid_at: string }
 export interface Payment { id: string; status: PaymentStatus; provider: string; reference: string; amount_xof?: number; match?: string; receipt?: Receipt | null; payer_masked?: string; created_at?: string; paid_at?: string | null; refunded_at?: string | null; simulation?: boolean }
-export interface SatelliteRow { department: string; commune: string | null; ndvi: number | null; soil_moisture_pct: number | null; acquired_at: string; sensor: string }
-export interface SatelliteData { source: string; results: SatelliteRow[] }
+export interface SatellitePoint { from: string; to: string; ndvi: number | null; ndmi: number | null; valid_pct: number | null }
+export interface SatelliteRow { department: string; commune: string | null; ndvi: number | null; ndmi: number | null; valid_pct: number | null; acquired_at: string; sensor: string; simulated: boolean }
+export interface SatelliteData { source: string; simulated: boolean; scope: 'department' | 'parcel'; results: SatelliteRow[]; series: Record<string, SatellitePoint[]> }
+export interface SatelliteZones { type: 'FeatureCollection'; features: { type: 'Feature'; properties: { code: string; name: string }; geometry: GeoJSON.Geometry }[] }
 export interface SeaIndicator extends Indicator { breakdown?: { label: string; value: number | null }[] }
 export interface SeaDashboard { scope: Dashboard['scope']; indicators: SeaIndicator[] }
 export interface Works { id: string; scheme: string; type: 'rehabilitation' | 'nouvel_amenagement' | 'entretien'; title: string; status: 'planifie' | 'en_cours' | 'termine' | 'abandonne'; planned_on: string | null; started_on: string | null; finished_on: string | null; cost_xof: number | null; contractor: string; progress_pct: number; notes: string; created_at: string }

@@ -75,9 +75,14 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
 - `GET /payments/{id}` : FakePay passe `en_attente` -> `reussi` après environ 3 s. Les numéros se terminant par `0` échouent (`echoue`), pour la démonstration. Champ `receipt {reference, amount_xof, payer_masked, payee_masked, paid_at}` si réussi.
 - `POST /payments/{id}/refund` (admin) -> `rembourse`. Toutes les transitions sont journalisées dans l'audit.
 
-## UC-23 Suivi satellite (données de démonstration)
+## UC-23 Suivi satellite (Copernicus Sentinel-2 L2A, repli démonstration étiqueté)
 
-- `GET /satellite?department=` -> `{source: "Données de démonstration (POC), non officielles", results: [{department, commune|null, ndvi, soil_moisture_pct, acquired_at, sensor: "Sentinel-2 (démonstration)"}]}`. Valeurs générées de façon déterministe et datées.
+- `GET /satellite?department=` -> `{source, simulated, scope: "department", results: [{department, commune|null, ndvi, ndmi, valid_pct, acquired_at, sensor, simulated}], series: {<code département>: [{from, to, ndvi, ndmi, valid_pct}] }}`. `series` : 9 intervalles de 10 jours. `ndvi` et `ndmi` valent `null` quand l'intervalle est trop nuageux (moins de 20 % de pixels clairs). Agent et producteur sont bornés à leur département.
+  - Réel : `source` = « Copernicus Sentinel-2 L2A via Copernicus Data Space », `sensor` = « Sentinel-2 L2A », `simulated: false`.
+  - Démonstration (clés absentes ou Copernicus indisponible sans donnée stockée) : `source` = « Données de démonstration (POC), non officielles », `sensor` = « Sentinel-2 (démonstration) », `simulated: true`, valeurs déterministes.
+  - `soil_moisture_pct` est supprimé : Sentinel-2 ne mesure pas l'humidité du sol. `ndmi` (humidité de la végétation) le remplace.
+- `GET /satellite/zones` -> FeatureCollection des 12 départements (`properties: {code, name}`), contours geoBoundaries.
+- `GET /parcels/{id}/satellite` -> même forme que `/satellite`. `scope: "parcel"` (une ligne, `series` clé = identifiant de la parcelle) ; sans mesure propre : `scope: "department"` avec la valeur du département. Portée d'accès de `/parcels` (un producteur ne lit que ses parcelles, 404 sinon).
 
 ## UC-24 Interopérabilité
 
