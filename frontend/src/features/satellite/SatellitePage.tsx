@@ -7,12 +7,15 @@ import { useAuth } from '../auth/AuthContext';
 import type { Basemap } from '../parcels/ParcelBasemaps';
 import '../producers/producteur.css';
 import { LayersPanel } from './LayersPanel';
+import { ParcelCard } from './ParcelCard';
+import { ParcelSearch } from './ParcelSearch';
 import { SatelliteMap } from './SatelliteMap';
 import { Timeline } from './Timeline';
-import { ndmiLevel, ndviLevel, useSatellite, useSatelliteZones } from './api';
+import { ndmiLevel, ndviLevel, useSatellite, useSatelliteParcels, useSatelliteZones } from './api';
 import { LOW_NDVI, indexRange, type IndexKind } from './scale';
 import { hasWebGL } from './terrain';
 import './satellite.css';
+import './parcel-layer.css';
 
 // three.js reste hors du chargement initial : le relief 3D n'est téléchargé qu'à la demande.
 const Relief3D = lazy(() => import('./Relief3D'));
@@ -36,9 +39,13 @@ function Console({ d }: { d: SatelliteData }) {
   const { t } = useTranslation();
   const place = usePlaceName();
   const zones = useSatelliteZones();
+  const { user } = useAuth();
+  const parcels = useSatelliteParcels().data ?? [];
   const [kind, setKind] = useState<IndexKind>('ndvi');
   const [basemap, setBasemap] = useState<Basemap>('sentinel');
   const [showDeps, setShowDeps] = useState(true);
+  const [showParcels, setShowParcels] = useState(true);
+  const [parcelId, setParcelId] = useState('');
   const [selected, setSelected] = useState('');
   const [picked, setPicked] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -58,6 +65,14 @@ function Console({ d }: { d: SatelliteData }) {
     const id = window.setTimeout(() => setPicked(index + 1), 1000);
     return () => window.clearTimeout(id);
   }, [playing, index, total]);
+
+  const parcel = parcels.find((p) => p.id === parcelId);
+  useEffect(() => {
+    if (!parcelId) return undefined;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setParcelId(''); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [parcelId]);
 
   const at = (code: string): SatellitePoint => d.series[code][Math.min(index, d.series[code].length - 1)];
   const vals = codes.map((code) => ({ code, v: at(code).ndvi })).filter((x): x is { code: string; v: number } => x.v !== null);
@@ -96,7 +111,10 @@ function Console({ d }: { d: SatelliteData }) {
         <div className="sat-body">
           <div className="sat-stage" role="region" aria-label={t('satellite.countryMapTitle')}>
             <SatelliteMap zones={zones.data} series={d.series} kind={kind} index={index} basemap={basemap} selected={selected}
-              onSelect={setSelected} showDepartments={showDeps} name={place} />
+              onSelect={setSelected} showDepartments={showDeps} name={place}
+              parcels={parcels} showParcels={showParcels} selectedParcel={parcelId} onPickParcel={setParcelId} />
+            {!relief && <ParcelSearch parcels={parcels} onPick={setParcelId} />}
+            {!relief && parcel && <ParcelCard parcel={parcel} index={index} onClose={() => setParcelId('')} canOpenList={user?.role === 'producteur'} />}
             {relief && (
               <Suspense fallback={null}>
                 <Relief3D zones={zones.data} series={d.series} kind={kind} index={index} onClose={() => setRelief(false)}
@@ -105,7 +123,8 @@ function Console({ d }: { d: SatelliteData }) {
             )}
           </div>
           <LayersPanel id="sat-panel" className={drawer ? 'is-open' : ''} basemap={basemap} onBasemap={setBasemap} kind={kind} onKind={setKind}
-            showDepartments={showDeps} onToggleDepartments={() => setShowDeps((s) => !s)} watch={watch} onSelect={setSelected}
+            showDepartments={showDeps} onToggleDepartments={() => setShowDeps((s) => !s)}
+            showParcels={showParcels} onToggleParcels={parcels.length ? () => setShowParcels((s) => !s) : undefined} watch={watch} onSelect={setSelected}
             onRelief={hasWebGL() ? () => { setReliefError(false); setRelief(true); } : undefined} />
         </div>
         {reliefError && <p className="sat-note" role="status">{t('satellite.reliefError')}</p>}

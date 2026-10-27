@@ -248,7 +248,22 @@
     "ndmiLine": "Humidité de la végétation : {{v}} · {{level}}",
     "howTo": "Comment lire le NDVI",
     "passes": "Passages du satellite",
-    "zone": "Zone"
+    "zone": "Zone",
+    "parcelsLayer": "Parcelles",
+    "searchParcel": "Rechercher une parcelle",
+    "noParcel": "Aucune parcelle ne correspond.",
+    "cardProducer": "Producteur {{code}}",
+    "cardClose": "Fermer la fiche de la parcelle",
+    "cardArea": "Surface",
+    "cardChains": "Filières",
+    "cardNoCampaign": "Aucune campagne",
+    "cardIndices": "Indices du passage",
+    "cardLoading": "Chargement des indices…",
+    "cardError": "Les indices de cette parcelle ne sont pas disponibles pour le moment.",
+    "cardOwn": "Mesure sur le tracé de la parcelle.",
+    "cardDept": "Pas de mesure propre à la parcelle : indices du département ({{place}}).",
+    "cardDemo": "Valeurs de démonstration.",
+    "cardMine": "Voir mes parcelles"
   },
   "consents": {
     "desc": "Vos données vous appartiennent. Vous pouvez retirer chaque consentement à tout moment, en un clic (loi n° 2017-20, art. 389 et 390).",

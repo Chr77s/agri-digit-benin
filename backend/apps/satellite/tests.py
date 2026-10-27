@@ -339,6 +339,47 @@ def test_parcel_satellite_real_mode_uses_the_parcel(producer, cdse, settings):
     assert list(d["series"]) == [str(p.pk)]
 
 
+# ---------- marqueurs de parcelles ----------
+def test_parcel_markers_carry_position_and_summary(producer):
+    from apps.parcels.models import Campaign
+
+    p = _parcel(producer)
+    Campaign.objects.create(parcel=p, value_chain="mais", season="2026", stage="semis")
+    r = client_for(producer.user).get("/api/v1/satellite/parcels")
+    assert r.status_code == 200
+    (m,) = r.json()["parcels"]
+    assert m["id"] == str(p.pk) and m["name"] == "Champ" and m["department"] == "alibori"
+    assert (m["lat"], m["lon"]) == (pytest.approx(11.05), pytest.approx(2.05))  # centre du carré GEOM
+    assert m["area_ha"] == 1.0 and m["land_type"] == "bas_fond" and m["tenure"] == "propriete"
+    assert m["value_chains"] == ["mais"] and m["producer"] == producer.code
+    assert m["geometry"] == GEOM  # le tracé sert à entourer la parcelle choisie, sans second appel
+
+
+def test_parcel_markers_follow_the_parcel_scope(users, producer):
+    _parcel(producer)
+    assert len(client_for(users["agent"]).get("/api/v1/satellite/parcels").json()["parcels"]) == 1
+    assert client_for(users["agent_zou"]).get("/api/v1/satellite/parcels").json()["parcels"] == []  # autre département
+    assert len(client_for(users["admin"]).get("/api/v1/satellite/parcels").json()["parcels"]) == 1
+
+
+@pytest.mark.parametrize("role", ["resp", "repr", "financier"])
+def test_roles_without_parcel_access_get_an_empty_list_not_an_error(users, producer, role):
+    _parcel(producer)  # la console reste utilisable pour ces rôles : simplement sans marqueurs
+    r = client_for(users[role]).get("/api/v1/satellite/parcels")
+    assert r.status_code == 200 and r.json() == {"parcels": []}
+
+
+def test_parcel_markers_skip_an_unreadable_outline(producer):
+    p = _parcel(producer)
+    p.geometry = {"type": "Polygon", "coordinates": []}
+    p.save()
+    assert client_for(producer.user).get("/api/v1/satellite/parcels").json() == {"parcels": []}
+
+
+def test_parcel_markers_require_authentication():
+    assert client_for().get("/api/v1/satellite/parcels").status_code == 401
+
+
 # ---------- commandes ----------
 from io import StringIO  # noqa: E402
 

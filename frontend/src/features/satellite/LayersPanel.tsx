@@ -10,6 +10,9 @@ interface Props {
   onKind: (k: IndexKind) => void;
   showDepartments: boolean;
   onToggleDepartments: () => void;
+  /** Présents seulement quand le rôle voit des parcelles : la case « Parcelles » n'a pas de sens sans marqueurs. */
+  showParcels?: boolean;
+  onToggleParcels?: () => void;
   watch: { code: string; name: string; ndvi: number }[];
   onSelect: (code: string) => void;
   /** Présent seulement si le relief 3D est disponible (WebGL). */
@@ -19,7 +22,7 @@ interface Props {
 }
 
 /** Colonne de droite de la console : indice, légende, fond de carte, départements, zones à surveiller. */
-export function LayersPanel({ basemap, onBasemap, kind, onKind, showDepartments, onToggleDepartments, watch, onSelect, onRelief, id, className = '' }: Props) {
+export function LayersPanel({ basemap, onBasemap, kind, onKind, showDepartments, onToggleDepartments, showParcels, onToggleParcels, watch, onSelect, onRelief, id, className = '' }: Props) {
   const { t } = useTranslation();
   const [lo, hi] = indexRange(kind);
   const legend = `linear-gradient(90deg, ${indexStops(kind).join(', ')})`;
@@ -51,6 +54,12 @@ export function LayersPanel({ basemap, onBasemap, kind, onKind, showDepartments,
           <input type="checkbox" checked={showDepartments} onChange={onToggleDepartments} />
           <span>{t('satellite.departments')}</span>
         </label>
+        {onToggleParcels && (
+          <label className="sat-opt">
+            <input type="checkbox" checked={!!showParcels} onChange={onToggleParcels} />
+            <span>{t('satellite.parcelsLayer')}</span>
+          </label>
+        )}
       </fieldset>
 
       <div className="sat-group">

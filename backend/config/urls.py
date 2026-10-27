@@ -192,6 +192,7 @@ v1 = [
     path("satellite/refresh", sat.satellite_refresh),
     path("satellite", sat.satellite),
     path("satellite/zones", sat.satellite_zones),
+    path("satellite/parcels", sat.satellite_parcels),
     path("parcels/<uuid:pk>/satellite", sat.parcel_satellite),
     path("weather", sat.weather),
     path("interop/connectors", interop.connectors),

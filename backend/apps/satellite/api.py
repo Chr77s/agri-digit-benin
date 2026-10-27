@@ -1,6 +1,7 @@
 """UC-23 : suivi satellite. NDVI et NDMI Sentinel-2 via Copernicus quand les clés existent ; sinon valeurs de démonstration,
 déterministes et étiquetées (`simulated`). Voir services.py."""
 import hmac
+from collections import defaultdict
 from datetime import datetime, time, timezone
 
 from django.conf import settings
@@ -8,15 +9,18 @@ from django.http import Http404
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from shapely.geometry import shape
 
-from apps.core.permissions import AGENT, PRODUCTEUR
+from apps.core.permissions import ADMIN, AGENT, PRODUCTEUR
 from apps.parcels.api import parcels_for
+from apps.parcels.models import Campaign
 from apps.referentiel import zones
 from apps.referentiel.models import Department
 
 from . import services
 from .refresh import refresh_departments
 
+MAX_MARKERS = 500  # shortcut: pas de pagination ni de regroupement côté serveur, à revoir au-delà de quelques centaines de parcelles
 CRON_DEADLINE_S = 25  # les services de cron en ligne coupent vers 30 s ; ce qui manque est repris à l'appel suivant
 
 
@@ -63,6 +67,30 @@ def satellite_refresh(request):
     if not hmac.compare_digest(given.encode(), expected.encode()):
         return Response({"detail": "Clé invalide."}, status=403)
     return Response(refresh_departments(deadline=CRON_DEADLINE_S))
+
+
+@api_view(["GET"])
+def satellite_parcels(request):
+    """Marqueurs de la console : une ligne légère par parcelle visible (mêmes règles que /parcels), au centre du tracé.
+    Les rôles de la console sans accès aux parcelles reçoivent une liste vide. Les indices sont demandés au clic."""
+    if request.user.role not in (PRODUCTEUR, AGENT, ADMIN):
+        return Response({"parcels": []})
+    rows = list(parcels_for(request.user).select_related("producer").order_by("name", "id")[:MAX_MARKERS])
+    chains = defaultdict(set)
+    for pid, v in Campaign.objects.filter(parcel__in=rows).values_list("parcel_id", "value_chain"):
+        chains[pid].add(v)
+    markers = []
+    for p in rows:
+        try:
+            c = shape(p.geometry).centroid
+        except Exception:  # tracé illisible : la parcelle est ignorée, pas la carte
+            continue
+        if c.is_empty:
+            continue
+        markers.append({"id": str(p.pk), "name": p.name, "producer": p.producer.code, "department": p.department,
+                        "lat": c.y, "lon": c.x, "area_ha": round(p.area_ha, 2), "land_type": p.land_type, "tenure": p.tenure,
+                        "value_chains": sorted(chains[p.pk]), "geometry": p.geometry})
+    return Response({"parcels": markers})
 
 
 @api_view(["GET"])

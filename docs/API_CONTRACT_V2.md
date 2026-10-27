@@ -82,6 +82,8 @@ Complète `API_CONTRACT.md` (mêmes conventions : `/api/v1`, erreurs `{detail, c
   - Démonstration (clés absentes ou Copernicus indisponible sans donnée stockée) : `source` = « Données de démonstration (POC), non officielles », `sensor` = « Sentinel-2 (démonstration) », `simulated: true`, valeurs déterministes.
   - `soil_moisture_pct` est supprimé : Sentinel-2 ne mesure pas l'humidité du sol. `ndmi` (humidité de la végétation) le remplace.
 - `GET /satellite/zones` -> FeatureCollection des 12 départements (`properties: {code, name}`), contours geoBoundaries.
+- `GET /satellite/parcels` -> `{parcels: [{id, name, producer (code), department, lat, lon, area_ha, land_type, tenure, value_chains: [code], geometry}]}` : marqueurs de la console, au centre du tracé (500 au plus, tracé illisible ignoré). Portée d'accès de `/parcels` (producteur : les siennes ; agent : son département ; administrateur : toutes) ; les autres rôles de la console reçoivent `{parcels: []}`. Les indices ne sont pas inclus : le clic les demande à `/parcels/{id}/satellite`.
+- `GET /satellite/refresh` (cron en ligne) -> `{real, fallback}`. Clé `SATELLITE_CRON_KEY` en en-tête `Authorization: Bearer` ou `?key=` ; 404 si la clé n'est pas définie, 403 si elle est fausse. Voir `DEPLOIEMENT.md`.
 - `GET /parcels/{id}/satellite` -> même forme que `/satellite`. `scope: "parcel"` (une ligne, `series` clé = identifiant de la parcelle) ; sans mesure propre : `scope: "department"` avec la valeur du département. Portée d'accès de `/parcels` (un producteur ne lit que ses parcelles, 404 sinon).
 
 ## UC-24 Interopérabilité

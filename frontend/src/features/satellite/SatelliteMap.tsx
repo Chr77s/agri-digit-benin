@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import type { SatellitePoint, SatelliteZones } from '../../shared/api/types';
 import { fmtNum } from '../../shared/ui';
 import { BASEMAPS, type Basemap } from '../parcels/ParcelBasemaps';
-import { ndmiLevel, ndviLevel } from './api';
+import { ndmiLevel, ndviLevel, type SatelliteParcel } from './api';
+import { ParcelMarkers } from './ParcelMarkers';
 import { indexColor, type IndexKind } from './scale';
 
 const BENIN_BOUNDS: [[number, number], [number, number]] = [[6.2, 0.7], [12.4, 3.9]];
@@ -25,10 +26,14 @@ interface Props {
   onSelect: (code: string) => void;
   showDepartments: boolean;
   name: (code: string) => string;
+  parcels?: SatelliteParcel[];
+  showParcels?: boolean;
+  selectedParcel?: string;
+  onPickParcel?: (id: string) => void;
 }
 
 /** Carte plein cadre : un fond réel, et les départements colorés par l'indice du passage choisi. */
-export function SatelliteMap({ zones, series, kind, index, basemap, selected, onSelect, showDepartments, name }: Props) {
+export function SatelliteMap({ zones, series, kind, index, basemap, selected, onSelect, showDepartments, name, parcels = [], showParcels = true, selectedParcel = '', onPickParcel }: Props) {
   const { t } = useTranslation();
   const tile = BASEMAPS.find((b) => b.key === basemap) ?? BASEMAPS[0];
   const { key: tileKey, ...tileProps } = tile;
@@ -50,6 +55,7 @@ export function SatelliteMap({ zones, series, kind, index, basemap, selected, on
           </GeoJSON>
         );
       })}
+      <ParcelMarkers parcels={parcels} selected={selectedParcel} showMarkers={showParcels} onPick={(id) => onPickParcel?.(id)} />
     </MapContainer>
   );
 }
