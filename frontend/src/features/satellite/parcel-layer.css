@@ -17,9 +17,12 @@
 
 .sat-card { top: 72px; max-height: calc(100% - 84px); overflow-y: auto; padding: 14px 16px 16px; }
 .sat-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+/* Grand écran : la fiche est le premier bloc du panneau de droite, pas une fenêtre par-dessus la carte. */
+.sat-panel > .sat-card { position: static; width: auto; max-height: none; margin: 0 0 18px; box-shadow: none; }
 .sat-card h3 { margin: 0; font-size: 1.125rem; }
 .sat-card h3:focus { outline: none; }
 .sat-card header p { display: flex; flex-wrap: wrap; gap: 0 12px; margin: 2px 0 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.sat-card header p span { white-space: nowrap; } /* le code producteur passe à la ligne en entier plutôt que coupé au tiret */
 .sat-card h4 { margin: 14px 0 6px; font-size: var(--fs-sm); color: var(--ink-2); }
 .sat-card-close { flex: none; width: 44px; height: 44px; margin: -6px -8px 0 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer; }
 .sat-card-close:hover { background: var(--surface-2); }
@@ -32,9 +35,18 @@
 .sat-card-note { margin: 10px 0 0; font-size: var(--fs-xs); color: var(--ink-2); }
 .sat-card-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; font-weight: 700; color: var(--canopy); }
 
+/* Relief 3D (MapLibre) : les commandes de navigation sous le bouton « Fermer », le réglage d'amplification en bas à gauche. */
+/* la feuille de MapLibre impose `position: relative` à son conteneur : sans cette règle plus précise, il tombe à 0 px de haut et la carte reste invisible */
+.sat-relief-view .sat-relief-host { position: absolute; inset: 0; }
+.sat-relief-host .maplibregl-ctrl-top-right { top: 56px; }
+.sat-relief-exag { position: absolute; z-index: 5; left: 12px; bottom: 64px; display: grid; gap: 2px; padding: 8px 14px; border-radius: var(--r-md); background: var(--canopy); color: var(--on-dark); font-size: var(--fs-sm); }
+.sat-relief-exag input { width: 160px; height: 32px; accent-color: var(--sun); cursor: pointer; }
+.sat-relief-exag input:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
 /* Téléphone : la fiche devient un volet en bas de la carte, comme dans Google Maps. */
 @media (max-width: 1023px) {
   .sat-search { width: auto; right: 72px; } /* laisse la place de la commande de zoom, en haut à droite */
+  .sat-relief-exag { bottom: auto; top: 68px; } /* le volet de la fiche occupe le bas de la carte */
   .sat-card { top: auto; bottom: 12px; right: 12px; width: auto; max-height: 46%; }
 }
 @media (prefers-reduced-motion: no-preference) {

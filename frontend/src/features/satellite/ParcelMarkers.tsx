@@ -1,30 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import L from 'leaflet';
 import { GeoJSON, Marker, useMap } from 'react-leaflet';
 import type { SatelliteParcel } from './api';
+import { SHEET_PX, isWide } from './layout';
 
 const still = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const pin = (selected: boolean) => L.divIcon({ className: `sat-pin${selected ? ' is-sel' : ''}`, html: '<i></i>', iconSize: [28, 36], iconAnchor: [14, 34] });
 const PIN = pin(false);
 const PIN_SELECTED = pin(true);
 
-/** Comme Google Maps : la carte glisse vers la parcelle choisie (en laissant la place à la fiche) puis revient à la vue d'avant. */
+/** Comme Google Maps : la carte glisse vers la parcelle choisie. Fermer la fiche ne bouge plus la vue. */
 function Focus({ parcel }: { parcel: SatelliteParcel | undefined }) {
   const map = useMap();
-  const home = useRef<{ center: L.LatLng; zoom: number } | null>(null);
   const id = parcel?.id;
   useEffect(() => {
-    const animate = !still();
-    if (parcel) {
-      home.current ??= { center: map.getCenter(), zoom: map.getZoom() };
-      const wide = window.innerWidth >= 1024;
-      map.flyToBounds(L.geoJSON(parcel.geometry).getBounds(), {
-        paddingTopLeft: [wide ? 380 : 40, 60], paddingBottomRight: [40, wide ? 40 : 280], maxZoom: 17, animate, duration: 0.8,
-      });
-    } else if (home.current) {
-      map.flyTo(home.current.center, home.current.zoom, { animate, duration: 0.8 });
-      home.current = null;
-    }
+    if (!parcel) return;
+    // sur grand écran la fiche est dans le panneau de droite ; sur téléphone elle est un volet en bas : la parcelle reste au-dessus
+    map.flyToBounds(L.geoJSON(parcel.geometry).getBounds(), {
+      paddingTopLeft: [40, 70], paddingBottomRight: [40, isWide() ? 40 : SHEET_PX], maxZoom: 17, animate: !still(), duration: 0.8,
+    });
     // la dépendance est l'identifiant : un rechargement des données ne doit pas relancer le déplacement
   }, [id, map]);
   return null;

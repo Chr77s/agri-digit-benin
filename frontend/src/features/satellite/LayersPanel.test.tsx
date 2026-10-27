@@ -31,6 +31,13 @@ describe('LayersPanel', () => {
     expect(onRelief).toHaveBeenCalledTimes(1);
   });
 
+  it('range la fiche de la parcelle en haut du panneau, avant les réglages de la carte', () => {
+    render(<LayersPanel {...base} top={<section aria-label="Fiche test">Champ 1</section>} />);
+    const fiche = screen.getByRole('region', { name: 'Fiche test' });
+    const indice = screen.getByRole('group', { name: 'Indice' });
+    expect(fiche.compareDocumentPosition(indice) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("dit qu'aucune zone n'est à surveiller quand la liste est vide", () => {
     render(<LayersPanel {...base} />);
     expect(screen.getByText('Aucune zone sous 0,4 sur ce passage.')).toBeInTheDocument();

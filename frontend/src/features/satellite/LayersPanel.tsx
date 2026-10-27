@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fmtNum } from '../../shared/ui';
 import { BASEMAPS, type Basemap } from '../parcels/ParcelBasemaps';
@@ -17,17 +18,20 @@ interface Props {
   onSelect: (code: string) => void;
   /** Présent seulement si le relief 3D est disponible (WebGL). */
   onRelief?: () => void;
+  /** Fiche de la parcelle choisie, rangée en haut du panneau sur grand écran pour ne pas recouvrir la carte. */
+  top?: ReactNode;
   id?: string;
   className?: string;
 }
 
 /** Colonne de droite de la console : indice, légende, fond de carte, départements, zones à surveiller. */
-export function LayersPanel({ basemap, onBasemap, kind, onKind, showDepartments, onToggleDepartments, showParcels, onToggleParcels, watch, onSelect, onRelief, id, className = '' }: Props) {
+export function LayersPanel({ basemap, onBasemap, kind, onKind, showDepartments, onToggleDepartments, showParcels, onToggleParcels, watch, onSelect, onRelief, top, id, className = '' }: Props) {
   const { t } = useTranslation();
   const [lo, hi] = indexRange(kind);
   const legend = `linear-gradient(90deg, ${indexStops(kind).join(', ')})`;
   return (
     <aside id={id} className={`sat-panel ${className}`} aria-label={t('satellite.layers')}>
+      {top}
       <fieldset className="sat-group">
         <legend>{t('satellite.index')}</legend>
         {(['ndvi', 'ndmi'] as const).map((k) => (

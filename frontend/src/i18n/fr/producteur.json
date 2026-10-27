@@ -250,6 +250,7 @@
     "passes": "Passages du satellite",
     "zone": "Zone",
     "parcelsLayer": "Parcelles",
+    "reliefExag": "Relief amplifié ×{{n}}",
     "searchParcel": "Rechercher une parcelle",
     "noParcel": "Aucune parcelle ne correspond.",
     "cardProducer": "Producteur {{code}}",

@@ -9,6 +9,7 @@ import '../producers/producteur.css';
 import { LayersPanel } from './LayersPanel';
 import { ParcelCard } from './ParcelCard';
 import { ParcelSearch } from './ParcelSearch';
+import { useWide } from './layout';
 import { SatelliteMap } from './SatelliteMap';
 import { Timeline } from './Timeline';
 import { ndmiLevel, ndviLevel, useSatellite, useSatelliteParcels, useSatelliteZones } from './api';
@@ -67,6 +68,9 @@ function Console({ d }: { d: SatelliteData }) {
   }, [playing, index, total]);
 
   const parcel = parcels.find((p) => p.id === parcelId);
+  // grand écran : la fiche vit dans le panneau de droite et ne cache pas la parcelle ; téléphone : volet en bas de la carte
+  const wide = useWide();
+  const card = parcel && <ParcelCard parcel={parcel} index={index} onClose={() => setParcelId('')} canOpenList={user?.role === 'producteur'} />;
   useEffect(() => {
     if (!parcelId) return undefined;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setParcelId(''); };
@@ -113,11 +117,12 @@ function Console({ d }: { d: SatelliteData }) {
             <SatelliteMap zones={zones.data} series={d.series} kind={kind} index={index} basemap={basemap} selected={selected}
               onSelect={setSelected} showDepartments={showDeps} name={place}
               parcels={parcels} showParcels={showParcels} selectedParcel={parcelId} onPickParcel={setParcelId} />
-            {!relief && <ParcelSearch parcels={parcels} onPick={setParcelId} />}
-            {!relief && parcel && <ParcelCard parcel={parcel} index={index} onClose={() => setParcelId('')} canOpenList={user?.role === 'producteur'} />}
+            <ParcelSearch parcels={parcels} onPick={setParcelId} />
+            {!wide && card}
             {relief && (
               <Suspense fallback={null}>
-                <Relief3D zones={zones.data} series={d.series} kind={kind} index={index} onClose={() => setRelief(false)}
+                <Relief3D zones={zones.data} series={d.series} kind={kind} index={index} basemap={basemap} parcels={showParcels ? parcels : []}
+                  selectedParcel={parcelId} onPickParcel={setParcelId} onClose={() => setRelief(false)}
                   onError={() => { setRelief(false); setReliefError(true); }} />
               </Suspense>
             )}
@@ -125,6 +130,7 @@ function Console({ d }: { d: SatelliteData }) {
           <LayersPanel id="sat-panel" className={drawer ? 'is-open' : ''} basemap={basemap} onBasemap={setBasemap} kind={kind} onKind={setKind}
             showDepartments={showDeps} onToggleDepartments={() => setShowDeps((s) => !s)}
             showParcels={showParcels} onToggleParcels={parcels.length ? () => setShowParcels((s) => !s) : undefined} watch={watch} onSelect={setSelected}
+            top={wide ? card : undefined}
             onRelief={hasWebGL() ? () => { setReliefError(false); setRelief(true); } : undefined} />
         </div>
         {reliefError && <p className="sat-note" role="status">{t('satellite.reliefError')}</p>}
