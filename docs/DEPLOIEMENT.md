@@ -47,3 +47,5 @@ Variables du backend (`backend/.env` en local, variables d'environnement de l'h�
 | `CDSE_TOKEN_URL`, `CDSE_STATS_URL` | adresses de l'API, à ne changer que si Copernicus les modifie |
 
 Mise en service : `python manage.py migrate`, puis `python manage.py satellite_check --department alibori` (affiche « jeton OK » et la réponse brute), puis une tâche planifiée toutes les 12 h : `python manage.py refresh_satellite` (les observations sont gardées 24 h ; le premier chargement sans préchauffage peut durer jusqu'à 20 s).
+
+Coût mesuré en unités de traitement Copernicus (27/10/2026) : environ 620 pour un premier remplissage des 12 départements (17 s), environ 170 par rafraîchissement ensuite, car seuls les 2 derniers intervalles et ceux jamais stockés sont redemandés. Vérifiez votre quota mensuel dans le tableau de bord Copernicus.

@@ -13,15 +13,23 @@ MIN_VALID_PCT = 20.0  # sous ce seuil, l'intervalle est trop nuageux pour être 
 MAX_CLOUD = 80
 _TOKEN = {"value": None, "exp": 0.0}
 
+# Composite « NDVI maximal » : pour chaque pixel et chaque intervalle, on garde la meilleure observation claire (en saison des
+# pluies, une seule date par intervalle laisse la moitié des pixels sous les nuages) ; le NDMI est pris à la même date.
 # SCL exclus : 0 sans donnée, 1 saturé, 3 ombre de nuage, 8 et 9 nuages, 10 cirrus, 11 neige
 EVALSCRIPT = """//VERSION=3
 function setup() {
   return { input: [{ bands: ["B04", "B08", "B8A", "B11", "SCL", "dataMask"] }],
-    output: [{ id: "ndvi", bands: 1, sampleType: "FLOAT32" }, { id: "ndmi", bands: 1, sampleType: "FLOAT32" }, { id: "dataMask", bands: 1 }] };
+    output: [{ id: "ndvi", bands: 1, sampleType: "FLOAT32" }, { id: "ndmi", bands: 1, sampleType: "FLOAT32" }, { id: "dataMask", bands: 1 }],
+    mosaicking: "ORBIT" };
 }
-function evaluatePixel(s) {
-  const bad = [0, 1, 3, 8, 9, 10, 11].includes(s.SCL);
-  return { ndvi: [(s.B08 - s.B04) / (s.B08 + s.B04)], ndmi: [(s.B8A - s.B11) / (s.B8A + s.B11)], dataMask: [bad ? 0 : s.dataMask] };
+function evaluatePixel(samples) {
+  let best = -2, ndmi = 0, ok = 0;
+  for (const s of samples) {
+    if ([0, 1, 3, 8, 9, 10, 11].includes(s.SCL) || s.dataMask === 0) continue;
+    const v = (s.B08 - s.B04) / (s.B08 + s.B04);
+    if (v > best) { best = v; ndmi = (s.B8A - s.B11) / (s.B8A + s.B11); ok = 1; }
+  }
+  return { ndvi: [best], ndmi: [ndmi], dataMask: [ok] };
 }
 """
 

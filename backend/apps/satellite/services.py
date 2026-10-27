@@ -63,7 +63,15 @@ def _stale(kind, code, ps):
     return last is None or last < timezone.now() - TTL or not qs.filter(period_start=ps[-1][0]).exists()
 
 
-def _refresh(kind, zones, ps):
+def _first_needed(kind, code, ps):
+    """Début de la plage à redemander : les 2 derniers intervalles (des passages tardifs peuvent arriver) et tout intervalle
+    jamais stocké. Les anciens intervalles sont définitifs : les redemander coûterait des unités de traitement pour rien."""
+    have = set(SatelliteObservation.objects.filter(zone_kind=kind, zone_code=code).values_list("period_start", flat=True))
+    missing = [a for a, _ in ps[:-2] if a not in have]
+    return min(missing + [ps[-2][0]])
+
+
+def _refresh(kind, zones, ps, deadline):
     todo = [c for c in zones if _stale(kind, c, ps) and not cache.get(_fail_key(kind, c))]
     if not todo or cache.get(_fail_key("token", "")):
         return
@@ -74,9 +82,10 @@ def _refresh(kind, zones, ps):
         cache.set(_fail_key("token", ""), 1, FAIL_TTL_S)
         return
     pool = ThreadPoolExecutor(WORKERS)
-    futures = {pool.submit(copernicus.series, zones[c], ps[0][0], ps[-1][1], RESOLUTION[kind]): c for c in todo}
+    starts = {c: _first_needed(kind, c, ps) for c in todo}
+    futures = {pool.submit(copernicus.series, zones[c], starts[c], ps[-1][1], RESOLUTION[kind]): c for c in todo}
     try:
-        for f in as_completed(futures, timeout=DEADLINE_S):
+        for f in as_completed(futures, timeout=deadline):
             code = futures[f]
             try:
                 points = f.result()
@@ -84,12 +93,17 @@ def _refresh(kind, zones, ps):
                 log.warning("satellite : zone %s/%s en échec : %s", kind, code, e)
                 cache.set(_fail_key(kind, code), 1, FAIL_TTL_S)
                 continue
-            for p in points:
+            got = {p["from"]: p for p in points}
+            for a, b in ps:
+                if a < starts[code]:
+                    continue
+                # Copernicus ne renvoie rien quand aucun passage n'existe : on garde une ligne vide pour ne pas le redemander
+                p = got.get(a) or {"to": b, "ndvi": None, "ndmi": None, "valid_pct": None}
                 SatelliteObservation.objects.update_or_create(
-                    zone_kind=kind, zone_code=code, period_start=p["from"],
+                    zone_kind=kind, zone_code=code, period_start=a,
                     defaults={"period_end": p["to"], "ndvi": p["ndvi"], "ndmi": p["ndmi"], "valid_pct": p["valid_pct"]})
     except FuturesTimeout:
-        log.warning("satellite : délai de %s s dépassé, zones restantes servies depuis le cache", DEADLINE_S)
+        log.warning("satellite : délai de %s s dépassé, zones restantes servies depuis le cache", deadline)
     finally:
         pool.shutdown(wait=False, cancel_futures=True)
 
@@ -106,9 +120,9 @@ def _read(kind, code, ps):
     return {"simulated": False, "points": points}
 
 
-def zone_series(kind, zones, today=None):
+def zone_series(kind, zones, today=None, deadline=DEADLINE_S):
     """{code: {"simulated": bool, "points": [9 points]}} pour les zones `{code: géométrie GeoJSON}`."""
     ps = periods(today or date.today())
     if backend() == "cdse":
-        _refresh(kind, zones, ps)
+        _refresh(kind, zones, ps, deadline)
     return {code: _read(kind, code, ps) for code in zones}

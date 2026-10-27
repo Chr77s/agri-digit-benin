@@ -246,6 +246,37 @@ def test_one_failing_zone_does_not_block_others(cdse, settings):
     assert r["alibori"]["simulated"] is False and r["zou"]["simulated"] is True
 
 
+def test_refresh_requests_only_recent_and_missing_periods(cdse, settings):
+    settings.SATELLITE_BACKEND = "cdse"
+    ps = services.periods(TODAY)
+    _store("alibori", ps, 0.42, 25)
+    cdse["stats"] = _payload(ps[-2:], ndvi=0.6)
+    r = services.zone_series("department", {"alibori": GEOM}, TODAY)
+    tr = cdse["bodies"][0]["aggregation"]["timeRange"]
+    assert tr == {"from": f"{ps[-2][0]}T00:00:00Z", "to": f"{ps[-1][1] + timedelta(days=1)}T00:00:00Z"}
+    pts = r["alibori"]["points"]
+    assert pts[0]["ndvi"] == 0.42 and pts[-1]["ndvi"] == 0.6  # anciens passages gardés, récents mis à jour
+
+
+def test_period_absent_from_the_response_is_stored_as_empty_and_not_requested_again(cdse, settings):
+    from django.utils import timezone
+
+    settings.SATELLITE_BACKEND = "cdse"
+    ps = services.periods(TODAY)
+    cdse["stats"] = _payload(ps[:3] + ps[4:])  # aucun passage Copernicus pour ps[3]
+    services.zone_series("department", {"alibori": GEOM}, TODAY)
+    assert SatelliteObservation.objects.filter(zone_code="alibori").count() == 9
+    assert SatelliteObservation.objects.get(zone_code="alibori", period_start=ps[3][0]).ndvi is None
+    SatelliteObservation.objects.update(fetched_at=timezone.now() - timedelta(hours=25))
+    cdse["bodies"].clear()
+    services.zone_series("department", {"alibori": GEOM}, TODAY)
+    assert cdse["bodies"][0]["aggregation"]["timeRange"]["from"] == f"{ps[-2][0]}T00:00:00Z"
+
+
+def test_evalscript_composes_the_best_clear_observation_of_each_interval():
+    assert 'mosaicking: "ORBIT"' in copernicus.EVALSCRIPT and "SCL" in copernicus.EVALSCRIPT
+
+
 # ---------- API ----------
 from conftest import client_for  # noqa: E402,F811
 

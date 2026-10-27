@@ -10,6 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         codes = list(Department.objects.values_list("code", flat=True))
-        zs = services.zone_series("department", {c: zones.department_geometry(c) for c in codes})
+        # le premier remplissage (9 intervalles par département) dépasse le délai d'une requête web : ici on attend
+        zs = services.zone_series("department", {c: zones.department_geometry(c) for c in codes}, deadline=300)
         real = sum(1 for z in zs.values() if not z["simulated"])
         self.stdout.write(f"réel : {real}, repli : {len(zs) - real}")
