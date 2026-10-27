@@ -1,9 +1,12 @@
 """UC-23 : suivi satellite. NDVI et NDMI Sentinel-2 via Copernicus quand les clés existent ; sinon valeurs de démonstration,
 déterministes et étiquetées (`simulated`). Voir services.py."""
+import hmac
 from datetime import datetime, time, timezone
 
+from django.conf import settings
 from django.http import Http404
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.core.permissions import AGENT, PRODUCTEUR
@@ -12,6 +15,9 @@ from apps.referentiel import zones
 from apps.referentiel.models import Department
 
 from . import services
+from .refresh import refresh_departments
+
+CRON_DEADLINE_S = 25  # les services de cron en ligne coupent vers 30 s ; ce qui manque est repris à l'appel suivant
 
 
 def _payload(scope, zs, department_of):
@@ -42,6 +48,21 @@ def satellite(request):
     codes = list(qs.values_list("code", flat=True))
     zs = services.zone_series("department", {c: zones.department_geometry(c) for c in codes})
     return Response(_payload("department", zs, lambda code: code))
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def satellite_refresh(request):
+    """Adresse pour un cron en ligne : GET avec la clé SATELLITE_CRON_KEY (en-tête `Authorization: Bearer …` ou `?key=…`).
+    Désactivée (404) tant que la clé n'est pas définie. Sans coût si les observations ont moins de 24 h."""
+    expected = settings.SATELLITE_CRON_KEY
+    if not expected:
+        raise Http404
+    given = request.headers.get("Authorization", "").removeprefix("Bearer ") or request.query_params.get("key", "")
+    if not hmac.compare_digest(given.encode(), expected.encode()):
+        return Response({"detail": "Clé invalide."}, status=403)
+    return Response(refresh_departments(deadline=CRON_DEADLINE_S))
 
 
 @api_view(["GET"])

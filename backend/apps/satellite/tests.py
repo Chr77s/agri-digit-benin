@@ -365,3 +365,35 @@ def test_check_command_without_keys_exits_1(settings):
     copernicus._TOKEN.update(value=None, exp=0.0)
     with pytest.raises(CommandError, match="Clés"):
         call_command("satellite_check", stdout=StringIO())
+
+
+# ---------- endpoint pour un cron en ligne ----------
+from rest_framework.test import APIClient  # noqa: E402
+
+CRON_URL = "/api/v1/satellite/refresh"
+
+
+def test_cron_endpoint_is_disabled_without_a_key(settings):
+    settings.SATELLITE_CRON_KEY = ""
+    assert APIClient().get(CRON_URL).status_code == 404
+    assert APIClient().get(CRON_URL, {"key": ""}).status_code == 404
+
+
+@pytest.mark.parametrize("headers, params", [({}, {}), ({}, {"key": "faux"}), ({"HTTP_AUTHORIZATION": "Bearer faux"}, {})])
+def test_cron_endpoint_refuses_a_missing_or_wrong_key(settings, cdse, headers, params):
+    settings.SATELLITE_CRON_KEY = "la-bonne-cle"
+    assert APIClient().get(CRON_URL, params, **headers).status_code == 403
+    assert cdse["calls"] == []  # rien n'est demandé à Copernicus
+
+
+@pytest.mark.parametrize("headers, params", [({}, {"key": "la-bonne-cle"}), ({"HTTP_AUTHORIZATION": "Bearer la-bonne-cle"}, {})])
+def test_cron_endpoint_refreshes_with_the_key_in_query_or_header(settings, cdse, headers, params):
+    settings.SATELLITE_BACKEND, settings.SATELLITE_CRON_KEY = "cdse", "la-bonne-cle"
+    cdse["stats"] = _payload(services.periods(date.today()))
+    r = APIClient().get(CRON_URL, params, **headers)  # sans session : c'est un cron
+    assert r.status_code == 200 and r.json() == {"real": 12, "fallback": 0}
+
+
+def test_cron_endpoint_only_accepts_get(settings):
+    settings.SATELLITE_CRON_KEY = "la-bonne-cle"
+    assert APIClient().post(CRON_URL, {"key": "la-bonne-cle"}).status_code == 405

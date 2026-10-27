@@ -45,7 +45,10 @@ Variables du backend (`backend/.env` en local, variables d'environnement de l'h�
 | `SATELLITE_BACKEND` | `auto` (défaut : Copernicus si les deux clés existent, sinon démonstration), `cdse` ou `demo` |
 | `CDSE_CLIENT_ID`, `CDSE_CLIENT_SECRET` | client OAuth créé dans le tableau de bord Copernicus Data Space (User settings, OAuth clients) |
 | `CDSE_TOKEN_URL`, `CDSE_STATS_URL` | adresses de l'API, à ne changer que si Copernicus les modifie |
+| `SATELLITE_CRON_KEY` | clé longue et aléatoire (par exemple `python -c "import secrets; print(secrets.token_urlsafe(32))"`) qui ouvre l'adresse du cron ; vide : adresse désactivée (404) |
 
 Mise en service : `python manage.py migrate`, puis `python manage.py satellite_check --department alibori` (affiche « jeton OK » et la réponse brute), puis une tâche planifiée toutes les 12 h : `python manage.py refresh_satellite` (les observations sont gardées 24 h ; le premier chargement sans préchauffage peut durer jusqu'à 20 s).
+
+**Sans accès à la console de l'hébergeur**, un service de cron en ligne (cron-job.org, par exemple) peut appeler l'équivalent par HTTP, toutes les 12 h : `GET https://<api>/api/v1/satellite/refresh`, avec la clé dans l'en-tête `Authorization: Bearer <SATELLITE_CRON_KEY>` (préféré : une adresse avec `?key=…` s'écrit dans les journaux) ou, pour un service qui ne sait pas ajouter d'en-tête, `…/refresh?key=<SATELLITE_CRON_KEY>`. Réponse `200 {"real": 12, "fallback": 0}` ; `403` si la clé est fausse, `404` si l'adresse est désactivée. L'appel attend au plus 25 s (les services de cron coupent vers 30 s) : si le premier remplissage est plus long, les départements restants sont repris à l'appel suivant. Un appel dont les observations ont moins de 24 h ne coûte rien chez Copernicus.
 
 Coût mesuré en unités de traitement Copernicus (27/10/2026) : environ 620 pour un premier remplissage des 12 départements (17 s), environ 170 par rafraîchissement ensuite, car seuls les 2 derniers intervalles et ceux jamais stockés sont redemandés. Vérifiez votre quota mensuel dans le tableau de bord Copernicus.

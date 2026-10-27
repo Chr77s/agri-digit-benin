@@ -132,6 +132,7 @@ WEATHER_URL = env("WEATHER_URL", default="https://api.open-meteo.com/v1/forecast
 SATELLITE_BACKEND = env("SATELLITE_BACKEND", default="auto")  # "cdse" : Copernicus ; "demo" : valeurs simulées ; "auto" : cdse si les clés existent
 CDSE_CLIENT_ID = env("CDSE_CLIENT_ID", default="")
 CDSE_CLIENT_SECRET = env("CDSE_CLIENT_SECRET", default="")
+SATELLITE_CRON_KEY = env("SATELLITE_CRON_KEY", default="")  # vide : l'adresse /satellite/refresh du cron est désactivée
 CDSE_TOKEN_URL = env("CDSE_TOKEN_URL", default="https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token")
 CDSE_STATS_URL = env("CDSE_STATS_URL", default="https://sh.dataspace.copernicus.eu/api/v1/statistics")
 OLLAMA_URL = env("OLLAMA_URL", default="http://localhost:11434")

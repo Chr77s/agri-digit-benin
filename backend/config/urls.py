@@ -189,6 +189,7 @@ v1 = [
     path("payments", market.payment_create),
     path("payments/<uuid:pk>", market.payment_detail),
     path("payments/<uuid:pk>/refund", market.payment_refund),
+    path("satellite/refresh", sat.satellite_refresh),
     path("satellite", sat.satellite),
     path("satellite/zones", sat.satellite_zones),
     path("parcels/<uuid:pk>/satellite", sat.parcel_satellite),
