@@ -34,6 +34,7 @@
 
 /* Téléphone : la fiche devient un volet en bas de la carte, comme dans Google Maps. */
 @media (max-width: 1023px) {
+  .sat-search { width: auto; right: 72px; } /* laisse la place de la commande de zoom, en haut à droite */
   .sat-card { top: auto; bottom: 12px; right: 12px; width: auto; max-height: 46%; }
 }
 @media (prefers-reduced-motion: no-preference) {

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { GeoJSON, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { GeoJSON, MapContainer, TileLayer, Tooltip, ZoomControl, useMap } from 'react-leaflet';
 import { useTranslation } from 'react-i18next';
 import type { SatellitePoint, SatelliteZones } from '../../shared/api/types';
 import { fmtNum } from '../../shared/ui';
@@ -38,7 +38,9 @@ export function SatelliteMap({ zones, series, kind, index, basemap, selected, on
   const tile = BASEMAPS.find((b) => b.key === basemap) ?? BASEMAPS[0];
   const { key: tileKey, ...tileProps } = tile;
   return (
-    <MapContainer center={[9.3, 2.3]} zoom={6} className="sat-map" scrollWheelZoom={false}>
+    <MapContainer center={[9.3, 2.3]} zoom={6} className="sat-map" scrollWheelZoom={false} zoomControl={false}>
+      {/* à droite : en haut à gauche, le zoom passait sous le champ de recherche de parcelle */}
+      <ZoomControl position="topright" />
       <TileLayer key={tileKey} {...tileProps} />
       <FitBenin />
       {showDepartments && zones?.features.map((f) => {
