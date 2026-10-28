@@ -7,9 +7,6 @@
     "trainings": "Formations",
     "showcase": "Vitrine des produits"
   },
-  "navGroup": {
-    "markets": "Marchés et formation"
-  },
   "stocks": {
     "title": "Stocks et ruptures",
     "desc": "Stock de vos lots, sorties des 30 derniers jours (ventes et transformations) et nombre de jours de couverture au rythme observé.",

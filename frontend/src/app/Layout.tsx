@@ -11,51 +11,82 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
-import { MARKETS_NAV } from '../features/markets/nav';
 import { useNotifications } from '../features/alerts/api';
 import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, Emblem, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
 import type { Role, User } from '../shared/api/types';
 
-/** Entrée de navigation ; `group` = clé navGroup.* de la rubrique (rubriques reprises de maquettes/web/kit.js). */
+/** Entrée de navigation ; `group` = clé navGroup.* de la rubrique (rubriques de la fiche synthétique, voir NAV). */
 export interface NavItem { to: string; key: string; icon: IconName; group?: string }
 const g = (group: string | undefined, items: [string, string, IconName][]): NavItem[] => items.map(([to, key, icon]) => ({ to, key, icon, group }));
 
-// La 1re entrée de chaque rôle est sa page d'arrivée (App.tsx).
+// Rubriques de la fiche synthétique (clés navGroup.*) : register = Enregistrement, follow = Suivi, ai = Intelligence artificielle, market = Marketplace ;
+// rights et admin sont transversales. La 1re entrée de chaque rôle est sa page d'arrivée (App.tsx) : sa rubrique passe en tête, les autres gardent l'ordre ci-dessus.
 export const NAV: Record<Role, NavItem[]> = {
   producteur: [
-    ...g('farm', [['/', 'home', 'home'], ['/parcelles', 'parcels', 'parcel'], ['/campagnes', 'campaigns', 'calendar'], ['/sols', 'lands', 'wheat'], ['/amenagements', 'schemes', 'drop']]),
-    ...g('advice', [['/assistant', 'assistant', 'chat'], ['/diagnostic', 'diagnosis', 'leaf-scan'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/risques-climatiques', 'climate', 'sun'], ['/satellite', 'satellite', 'satellite']]),
-    ...g('sell', [['/marche', 'market', 'market'], ['/appuis', 'mySupports', 'gift'], ['/remboursements', 'repayments', 'coins'], ['/revenu', 'revenue', 'trend'], ['/materiels', 'equipment', 'truck'], ['/mecanisation', 'mechanization', 'truck'], ['/pmea', 'pmea', 'building'], ['/programmes', 'programs', 'clipboard'], ['/mes-cooperatives', 'myCoops', 'users'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),
-    ...g('rights', [['/ma-carte', 'card', 'id-card'], ['/messages', 'notifications', 'mail'], ['/contestations', 'contests', 'scale'], ['/consentements', 'consents', 'shield-check']]),
+    ...g(undefined, [['/', 'home', 'home']]),
+    ...g('register', [['/ma-carte', 'card', 'id-card'], ['/parcelles', 'parcels', 'parcel'], ['/sols', 'lands', 'wheat'], ['/amenagements', 'schemes', 'drop'], ['/mes-cooperatives', 'myCoops', 'users'], ['/materiels', 'equipment', 'truck'], ['/pmea', 'pmea', 'building']]),
+    ...g('follow', [['/campagnes', 'campaigns', 'calendar'], ['/satellite', 'satellite', 'satellite'], ['/mecanisation', 'mechanization', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/revenu', 'revenue', 'trend'], ['/programmes', 'programs', 'clipboard'], ['/appuis', 'mySupports', 'gift'], ['/remboursements', 'repayments', 'coins'], ['/formations', 'trainings', 'calendar']]),
+    ...g('ai', [['/assistant', 'assistant', 'chat'], ['/diagnostic', 'diagnosis', 'leaf-scan'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/risques-climatiques', 'climate', 'sun']]),
+    ...g('market', [['/marche', 'market', 'market'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
+    ...g('rights', [['/messages', 'notifications', 'mail'], ['/contestations', 'contests', 'scale'], ['/consentements', 'consents', 'shield-check']]),
   ],
   agent_atda: [
-    ...g('field', [['/', 'home', 'home'], ['/producteurs', 'producers', 'users'], ['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/meteo-prix', 'weatherPrices', 'cloud-sun']]),
-    ...g('programs', [['/candidatures', 'applications', 'file-text'], ['/selection', 'selection', 'list-check'], ['/appuis', 'supports', 'gift'], ['/semences', 'seeds', 'sprout'], ['/recouvrement', 'recovery', 'coins'], ['/contestations', 'contestsReview', 'scale']]),
-    ...g('chains', [['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building']]),
-    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/services', 'services', 'sprout']]),
+    ...g(undefined, [['/', 'home', 'home']]),
+    ...g('register', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building'], ['/boite-envoi', 'outbox', 'send']]),
+    ...g('follow', [['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/semences', 'seeds', 'sprout'], ['/stocks', 'stockOutlook', 'warehouse'], ['/satellite', 'satellite', 'satellite'], ['/candidatures', 'applications', 'file-text'], ['/selection', 'selection', 'list-check'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/contestations', 'contestsReview', 'scale'], ['/organisations', 'organisations', 'network'], ['/formations', 'trainings', 'calendar'], ['/enquetes', 'surveys', 'clipboard'], ['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/alertes', 'alerts', 'megaphone']]),
+    ...g('ai', [['/assistant', 'assistant', 'chat'], ['/meteo-prix', 'weatherPrices', 'cloud-sun'], ['/risques-climatiques', 'climate', 'sun']]),
+    ...g('market', [['/prix', 'priceReadings', 'coins'], ['/analyses-marches', 'marketOutlook', 'trend'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
   ],
-  agronome_inrab: g(undefined, [['/fiches', 'knowledge', 'book'], ['/diagnostic', 'diagnosisQueue', 'microscope'], ['/qualite-modeles', 'modelQuality', 'target'], ['/services', 'services', 'sprout']]),
+  agronome_inrab: [
+    ...g('ai', [['/fiches', 'knowledge', 'book'], ['/diagnostic', 'diagnosisQueue', 'microscope'], ['/assistant', 'assistant', 'chat'], ['/qualite-modeles', 'modelQuality', 'target']]),
+    ...g('market', [['/services', 'services', 'sprout']]),
+  ],
   responsable_programme: [
-    ...g(undefined, [['/programmes', 'programs', 'clipboard'], ['/selection', 'selection', 'list-check'], ['/candidatures', 'applications', 'file-text'], ['/recouvrement', 'recovery', 'coins']]),
-    ...g('followUp', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/qualite-modeles', 'modelQuality', 'target'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/semences', 'seeds', 'sprout'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
+    ...g('follow', [['/programmes', 'programs', 'clipboard'], ['/selection', 'selection', 'list-check'], ['/candidatures', 'applications', 'file-text'], ['/recouvrement', 'recovery', 'coins'], ['/organisations', 'organisations', 'network'], ['/formations', 'trainings', 'calendar'], ['/enquetes', 'surveys', 'clipboard'], ['/stocks', 'stockOutlook', 'warehouse'], ['/semences', 'seeds', 'sprout'], ['/satellite', 'satellite', 'satellite'], ['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin']]),
+    ...g('register', [['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building']]),
+    ...g('ai', [['/assistant', 'assistant', 'chat'], ['/previsions', 'forecasts', 'trend'], ['/risques-climatiques', 'climate', 'sun'], ['/qualite-modeles', 'modelQuality', 'target']]),
+    ...g('market', [['/prix', 'priceReadings', 'coins'], ['/analyses-marches', 'marketOutlook', 'trend'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
   ],
   admin_maep: [
-    ...g('steering', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/previsions', 'forecasts', 'trend'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/qualite-modeles', 'modelQuality', 'target'], ['/exports', 'exports', 'download'], ['/interoperabilite', 'interop', 'network']]),
-    ...g('registry', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/organisations', 'organisations', 'network'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/marche', 'market', 'market'], ['/satellite', 'satellite', 'satellite'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/semences', 'seeds', 'sprout'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building']]),
-    ...g('communication', [['/alertes', 'alerts', 'megaphone'], ['/boite-envoi', 'outbox', 'send'], ['/langues', 'translations', 'languages'], ['/services', 'services', 'sprout']]),
-    ...g('governance', [['/selection', 'selection', 'list-check'], ['/contestations', 'contestsReview', 'scale'], ['/comptes', 'admin', 'user-cog'], ['/journal', 'audit', 'scroll']]),
+    ...g('follow', [['/tableau-de-bord', 'dashboard', 'dashboard'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/exports', 'exports', 'download'], ['/appuis', 'supports', 'gift'], ['/recouvrement', 'recovery', 'coins'], ['/organisations', 'organisations', 'network'], ['/selection', 'selection', 'list-check'], ['/contestations', 'contestsReview', 'scale'], ['/recoltes-signalees', 'flaggedHarvests', 'flag'], ['/tracabilite', 'trace', 'layers'], ['/semences', 'seeds', 'sprout'], ['/stocks', 'stockOutlook', 'warehouse'], ['/satellite', 'satellite', 'satellite'], ['/formations', 'trainings', 'calendar'], ['/enquetes', 'surveys', 'clipboard'], ['/alertes', 'alerts', 'megaphone']]),
+    ...g('register', [['/producteurs', 'producers', 'users'], ['/cooperatives', 'cooperatives', 'building'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building'], ['/boite-envoi', 'outbox', 'send']]),
+    ...g('ai', [['/assistant', 'assistant', 'chat'], ['/previsions', 'forecasts', 'trend'], ['/langues', 'translations', 'languages'], ['/risques-climatiques', 'climate', 'sun'], ['/qualite-modeles', 'modelQuality', 'target']]),
+    ...g('market', [['/marche', 'market', 'market'], ['/prix', 'priceReadings', 'coins'], ['/analyses-marches', 'marketOutlook', 'trend'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
+    ...g('admin', [['/comptes', 'admin', 'user-cog'], ['/journal', 'audit', 'scroll'], ['/interoperabilite', 'interop', 'network']]),
   ],
-  auditeur_copil: g(undefined, [['/journal', 'audit', 'scroll'], ['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/qualite-modeles', 'modelQuality', 'target'], ['/recouvrement', 'recovery', 'coins'], ['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/risques-climatiques', 'climate', 'sun'], ['/semences', 'seeds', 'sprout'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
-  agent_financier: g(undefined, [['/credit', 'credit', 'coins'], ['/recouvrement', 'recovery', 'wallet'], ['/services', 'services', 'sprout']]),
-  gestionnaire_cooperative: g(undefined, [['/cooperatives', 'myCoop', 'building'], ['/marche', 'market', 'market'], ['/materiels', 'equipment', 'truck'], ['/mecanisation', 'mechanization', 'truck'], ['/pmea', 'pmea', 'building'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/organisations', 'organisations', 'network'], ['/services', 'services', 'sprout']]),
-  transformateur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'tag'], ['/remboursements', 'repayments', 'coins'], ['/pmea', 'pmea', 'building'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),
-  distributeur: g(undefined, [['/marche', 'market', 'market'], ['/offres', 'offers', 'warehouse'], ['/pmea', 'pmea', 'building'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/services', 'services', 'sprout']]),
-  repr_mtdi: g(undefined, [['/langues', 'translations', 'languages'], ['/suivi-evaluation', 'sea', 'chart-bar'], ['/satellite', 'satellite', 'satellite']]),
+  auditeur_copil: [
+    ...g('admin', [['/journal', 'audit', 'scroll']]),
+    ...g('follow', [['/couverture', 'coverage', 'globe'], ['/carte-acteurs', 'actorsMap', 'map-pin'], ['/recouvrement', 'recovery', 'coins'], ['/organisations', 'organisations', 'network'], ['/semences', 'seeds', 'sprout']]),
+    ...g('register', [['/amenagements', 'schemes', 'drop'], ['/sols', 'lands', 'wheat'], ['/materiels', 'equipmentStaff', 'truck'], ['/pmea', 'pmea', 'building']]),
+    ...g('ai', [['/risques-climatiques', 'climate', 'sun'], ['/qualite-modeles', 'modelQuality', 'target']]),
+    ...g('market', [['/services', 'services', 'sprout']]),
+  ],
+  agent_financier: [
+    ...g('ai', [['/credit', 'credit', 'coins']]),
+    ...g('follow', [['/recouvrement', 'recovery', 'wallet']]),
+    ...g('market', [['/services', 'services', 'sprout']]),
+  ],
+  gestionnaire_cooperative: [
+    ...g('register', [['/cooperatives', 'myCoop', 'building'], ['/materiels', 'equipment', 'truck'], ['/pmea', 'pmea', 'building']]),
+    ...g('follow', [['/mecanisation', 'mechanization', 'truck'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/organisations', 'organisations', 'network'], ['/stocks', 'stockOutlook', 'warehouse'], ['/formations', 'trainings', 'calendar']]),
+    ...g('market', [['/marche', 'market', 'market'], ['/prix', 'priceReadings', 'coins'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
+  ],
+  transformateur: [
+    ...g('market', [['/marche', 'market', 'market'], ['/offres', 'offers', 'tag'], ['/prix', 'priceReadings', 'coins'], ['/analyses-marches', 'marketOutlook', 'trend'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
+    ...g('register', [['/pmea', 'pmea', 'building']]),
+    ...g('follow', [['/remboursements', 'repayments', 'coins'], ['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/stocks', 'stockOutlook', 'warehouse'], ['/formations', 'trainings', 'calendar']]),
+  ],
+  distributeur: [
+    ...g('market', [['/marche', 'market', 'market'], ['/offres', 'offers', 'warehouse'], ['/prix', 'priceReadings', 'coins'], ['/analyses-marches', 'marketOutlook', 'trend'], ['/vitrine', 'showcase', 'tag'], ['/services', 'services', 'sprout']]),
+    ...g('register', [['/pmea', 'pmea', 'building']]),
+    ...g('follow', [['/collecte', 'collection', 'truck'], ['/tracabilite', 'trace', 'layers'], ['/stocks', 'stockOutlook', 'warehouse'], ['/formations', 'trainings', 'calendar']]),
+  ],
+  repr_mtdi: [
+    ...g('ai', [['/langues', 'translations', 'languages']]),
+    ...g('follow', [['/suivi-evaluation', 'sea', 'chart-bar'], ['/satellite', 'satellite', 'satellite']]),
+  ],
 };
-
-// Relevés de prix, analyses, stocks, enquêtes, formations et vitrine : rubrique « Marchés et formation » en fin de menu (features/markets/nav.ts).
-for (const [role, items] of Object.entries(MARKETS_NAV) as [Role, [string, string, IconName][]][]) NAV[role].push(...g('markets', items));
 
 /* ---------- Présentation mobile (< 640 px, maquettes/mobile/) ---------- */
 // Onglets du bas par rôle (5 au plus, maquettes/mobile/m.js) ; un rôle absent garde le tiroir seul. Le reste du menu reste dans le tiroir.
@@ -220,7 +251,7 @@ function SideNav({ nav, collapsed, onToggle, onNavigate, inDrawer }: { nav: NavI
   const collapsible = nav.length > 12 && groups.length > 3 && !collapsed;
   const activeGroup = nav.filter((n) => n.to === pathname || (n.to !== '/' && pathname.startsWith(n.to + '/'))).sort((a, b) => b.to.length - a.to.length)[0]?.group;
   const [opened, setOpened] = useState<Record<string, boolean>>({});
-  const isOpen = (k?: string) => !collapsible || !k || (opened[k] ?? (k === activeGroup || k === groups[0]?.key));
+  const isOpen = (k?: string) => !collapsible || !k || (opened[k] ?? (k === activeGroup || k === groups.find((x) => x.key)?.key));
   return (
     <>
       <div className="sb-head">

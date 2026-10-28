@@ -92,18 +92,12 @@
     "offers": "Offres et stocks"
   },
   "navGroup": {
-    "farm": "Mon exploitation",
-    "advice": "Conseil",
-    "sell": "Vendre et recevoir",
+    "register": "Enregistrement",
+    "follow": "Suivi",
+    "ai": "Intelligence artificielle",
+    "market": "Marketplace",
     "rights": "Mes droits",
-    "field": "Terrain",
-    "programs": "Programmes",
-    "chains": "Filières",
-    "followUp": "Suivi",
-    "steering": "Pilotage",
-    "registry": "Registre et terrain",
-    "communication": "Communication",
-    "governance": "Gouvernance"
+    "admin": "Administration"
   },
   "home": {
     "hello": "Bonjour {{name}}",

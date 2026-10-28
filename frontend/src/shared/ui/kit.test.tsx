@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { Hero, OtpInput, QuickTiles, Stat, Table, initials, pageList } from '.';
 import { NAV } from '../../app/Layout';
+import i18n from '../../i18n';
 
 describe('kit Bénin Vert', () => {
   it('pagination : première, dernière, voisines de la courante, trous marqués', () => {
@@ -58,6 +59,11 @@ describe('kit Bénin Vert', () => {
       expect(items.length).toBeGreaterThan(0);
       expect(new Set(items.map((n) => n.to)).size).toBe(items.length);
     }
+  });
+  it('chaque rubrique du menu a son libellé', () => {
+    const groups = new Set(Object.values(NAV).flatMap((items) => items.map((n) => n.group)).filter(Boolean));
+    expect(groups.size).toBeGreaterThan(0);
+    for (const k of groups) expect(i18n.exists(`navGroup.${k}`), `navGroup.${k}`).toBe(true);
   });
   it('refonte : carte d’accueil, chiffre pastel avec icône et tuiles d’accès rapide', () => {
     render(
