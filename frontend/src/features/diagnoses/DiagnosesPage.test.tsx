@@ -39,6 +39,40 @@ describe('Diagnostic par photo', () => {
     expect(await screen.findByText(/Les feuilles du centre sont trouées\./)).toBeInTheDocument();
   });
 
+  it('« Prendre une photo » ouvre la caméra, la photo prise remplace le choix d\'un fichier et le flux est coupé', async () => {
+    auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi' };
+    mockFetch((u) => (u.includes('/diagnoses') ? { body: { results: [], next: null } } : u.includes('/ref/') ? { body: [] } : undefined));
+    const stop = vi.fn();
+    const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop }] });
+    vi.stubGlobal('navigator', { ...navigator, mediaDevices: { getUserMedia } });
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+    vi.spyOn(HTMLVideoElement.prototype, 'videoWidth', 'get').mockReturnValue(1280);
+    vi.spyOn(HTMLVideoElement.prototype, 'videoHeight', 'get').mockReturnValue(720);
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((cb) => cb(new Blob(['x'], { type: 'image/jpeg' })));
+    const user = userEvent.setup();
+    page();
+    await user.click(await screen.findByRole('button', { name: 'Prendre une photo' }));
+    expect(getUserMedia).toHaveBeenCalledWith({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+    const shoot = await screen.findByRole('button', { name: 'Prendre la photo' });
+    await waitFor(() => expect(shoot).toBeEnabled());
+    await user.click(shoot);
+    expect(await screen.findByText(/^plante-\d+\.jpg$/)).toBeInTheDocument();
+    expect(stop).toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
+  it('caméra refusée : message clair et repli vers l\'appareil photo du système', async () => {
+    auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi' };
+    mockFetch((u) => (u.includes('/diagnoses') ? { body: { results: [], next: null } } : u.includes('/ref/') ? { body: [] } : undefined));
+    vi.stubGlobal('navigator', { ...navigator, mediaDevices: { getUserMedia: vi.fn().mockRejectedValue(new Error('NotAllowedError')) } });
+    const user = userEvent.setup();
+    page();
+    await user.click(await screen.findByRole('button', { name: 'Prendre une photo' }));
+    expect(await screen.findByText(/La caméra n'a pas pu s'ouvrir/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ouvrir l\'appareil photo du téléphone' })).toBeInTheDocument();
+  });
+
   it('les conseils de cadrage s\'ouvrent depuis le formulaire de photo', async () => {
     auth.user = { id: 'u1', role: 'producteur', full_name: 'Awa Sabi' };
     mockFetch((u) => (u.includes('/diagnoses') ? { body: { results: [], next: null } } : u.includes('/ref/') ? { body: [] } : undefined));

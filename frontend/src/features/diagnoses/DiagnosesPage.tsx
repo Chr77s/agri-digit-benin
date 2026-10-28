@@ -184,6 +184,54 @@ function ReviewTrack({ d }: { d: Diagnosis }) {
   );
 }
 
+/** Aperçu de la caméra (ordinateur ou téléphone) ; le flux est coupé au démontage. Un refus ou l'absence de caméra renvoie vers l'appareil photo du système. */
+function CameraView({ onShot, onFallback }: { onShot: (f: File) => void; onFallback: () => void }) {
+  const { t } = useTranslation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let stopped = false;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+      .then((s) => {
+        if (stopped) { s.getTracks().forEach((x) => x.stop()); return; }
+        stream = s;
+        const v = videoRef.current;
+        if (!v) return;
+        v.srcObject = s;
+        Promise.resolve(v.play?.()).catch(() => undefined);
+        setReady(true);
+      })
+      .catch(() => { if (!stopped) setFailed(true); });
+    return () => { stopped = true; stream?.getTracks().forEach((x) => x.stop()); };
+  }, []);
+  const shoot = () => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const k = Math.min(1, 1600 / v.videoWidth); // l'image reste bien sous les 5 Mo
+    const c = document.createElement('canvas');
+    c.width = Math.round(v.videoWidth * k); c.height = Math.round(v.videoHeight * k);
+    c.getContext('2d')?.drawImage(v, 0, 0, c.width, c.height);
+    c.toBlob((b) => { if (b) onShot(new File([b], `plante-${Date.now()}.jpg`, { type: 'image/jpeg' })); }, 'image/jpeg', 0.88);
+  };
+  if (failed) {
+    return (
+      <div className="stack" style={{ ['--gap' as string]: '12px' }}>
+        <Alert tone="warn" live>{t('diagnosis.cameraDenied')}</Alert>
+        <Button variant="secondary" icon="camera" onClick={onFallback}>{t('diagnosis.cameraSystem')}</Button>
+      </div>
+    );
+  }
+  return (
+    <div className="stack" style={{ ['--gap' as string]: '12px' }}>
+      <video ref={videoRef} autoPlay playsInline muted aria-label={t('diagnosis.cameraPreview')} style={{ width: '100%', maxHeight: '60vh', background: '#000', borderRadius: 12 }} />
+      {!ready && <p className="small muted" role="status">{t('diagnosis.cameraStarting')}</p>}
+      <Button icon="camera" block disabled={!ready} onClick={shoot}>{t('diagnosis.cameraShoot')}</Button>
+    </div>
+  );
+}
+
 function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> }) {
   const { t } = useTranslation();
   const vc = useVcSelect();
@@ -191,9 +239,14 @@ function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> })
   const [chain, setChain] = useState('');
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [tips, setTips] = useState(false);
+  const [cam, setCam] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const captureRef = useRef<HTMLInputElement>(null);
   const err = (name: string) => errs[name] || fieldError(create.error, name);
   const imageError = (f: File) => (!FORMATS.includes(f.type) ? t('diagnosis.errFormat') : f.size > MAX_BYTES ? t('diagnosis.errSize') : undefined);
+  const pickFile = (f: File | null) => { setFile(f); setErrs((x) => ({ ...x, image: f ? imageError(f) ?? '' : '' })); };
+  // Sans caméra accessible (page non sécurisée, vieux navigateur) : appareil photo du système, sinon sélecteur de fichiers.
+  const takePhoto = () => (typeof navigator.mediaDevices?.getUserMedia === 'function' ? setCam(true) : captureRef.current?.click());
   return (
     <form noValidate className="card stack" style={{ ['--gap' as string]: '14px' }} aria-labelledby="t-env" onSubmit={(e) => {
       e.preventDefault();
@@ -204,7 +257,7 @@ function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> })
       setErrs(er);
       if (Object.keys(er).length || !file) return;
       create.mutate({ image: file, value_chain: chain }, {
-        onSuccess: () => { setFile(null); if (fileRef.current) fileRef.current.value = ''; },
+        onSuccess: () => { setFile(null); if (fileRef.current) fileRef.current.value = ''; if (captureRef.current) captureRef.current.value = ''; },
       });
     }}>
       <div className="between">
@@ -222,15 +275,24 @@ function NewPhoto({ create }: { create: ReturnType<typeof useCreateDiagnosis> })
       </Dialog>
       <Field label={t('diagnosis.photo')} error={err('image')}>
         {(p) => (
-          <label className="dropzone">
+          <div className="dropzone">
             <span className="dz-icon"><Icon name="camera" /></span>
             <strong>{file ? file.name : t('diagnosis.pick')}</strong>
             <span className="small">{t('diagnosis.pickHint')}</span>
-            <input {...p} ref={fileRef} type="file" accept="image/jpeg,image/png" capture="environment"
-              onChange={(e) => { const f = e.target.files?.[0] ?? null; setFile(f); setErrs((x) => ({ ...x, image: f ? imageError(f) ?? '' : '' })); }} />
-          </label>
+            <span className="cluster" style={{ justifyContent: 'center' }}>
+              <Button type="button" icon="camera" onClick={takePhoto}>{t('diagnosis.take')}</Button>
+              <Button type="button" variant="secondary" icon="upload" onClick={() => fileRef.current?.click()}>{t('diagnosis.chooseFile')}</Button>
+            </span>
+            <input {...p} ref={fileRef} type="file" accept="image/jpeg,image/png" className="sr-only" tabIndex={-1}
+              onChange={(e) => pickFile(e.target.files?.[0] ?? null)} />
+            <input ref={captureRef} type="file" accept="image/jpeg,image/png" capture="environment" className="sr-only" tabIndex={-1} aria-hidden="true"
+              onChange={(e) => pickFile(e.target.files?.[0] ?? null)} />
+          </div>
         )}
       </Field>
+      <Dialog open={cam} onClose={() => setCam(false)} title={t('diagnosis.cameraTitle')} footer={<Button variant="ghost" onClick={() => setCam(false)}>{t('common.cancel')}</Button>}>
+        <CameraView onShot={(f) => { pickFile(f); setCam(false); }} onFallback={() => { setCam(false); captureRef.current?.click(); }} />
+      </Dialog>
       <Field label={t('common.valueChain')} error={err('value_chain')}>
         {(p) => <Select {...p} value={chain} onChange={(e) => setChain(e.target.value)} placeholder={t('common.choose')} options={vc.options} groups={vc.groups} />}
       </Field>
