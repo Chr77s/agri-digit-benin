@@ -99,8 +99,11 @@ def ask(user, question, value_chain=None, language="fr"):
                    **_field_context(user)}
             backend = get_backend()
             try:
-                answer = backend.answer(question, passages, ctx)
-            except Exception:
+                answer = backend.answer(_redact(question), passages, ctx)  # un numéro saisi ne part pas chez le LLM
+            except Exception as e:
+                # jamais le message de l'erreur (il peut citer l'adresse) : son type et le code HTTP suffisent
+                log.warning("assistant.llm_failed", backend=backend.name, error=type(e).__name__,
+                            status=getattr(getattr(e, "response", None), "status_code", None))
                 backend = ExtractiveBackend()
                 answer = backend.answer(question, passages, ctx)
             result.update(status="answered", answer=answer, backend=backend.name,

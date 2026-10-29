@@ -77,11 +77,16 @@ class OpenAICompatibleBackend(LLMBackend):
             r = httpx.get(f"{base}/models", headers=h, timeout=10)
             r.raise_for_status()
             model = OpenAICompatibleBackend._model = r.json()["data"][0]["id"]
-        r = httpx.post(f"{base}/chat/completions", headers=h, timeout=60,
-                       json={"model": model, "max_tokens": 400,
-                             "messages": [{"role": "user", "content": _prompt(question, passages, context)}]})
+        # OPENAI_EXTRA_BODY complète ou remplace les réglages (ex. {"thinking": {"type": "disabled"}} pour GLM) ;
+        # le modèle et les messages restent ceux de l'assistant.
+        body = {"max_tokens": settings.OPENAI_MAX_TOKENS, **settings.OPENAI_EXTRA_BODY, "model": model,
+                "messages": [{"role": "user", "content": _prompt(question, passages, context)}]}
+        r = httpx.post(f"{base}/chat/completions", headers=h, timeout=settings.OPENAI_TIMEOUT, json=body)
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"].strip()
+        text = (r.json()["choices"][0]["message"].get("content") or "").strip()
+        if not text:  # modèle à raisonnement : tout le budget est parti dans la réflexion
+            raise ValueError("réponse vide du modèle")
+        return text
 
 
 def get_backend() -> LLMBackend:

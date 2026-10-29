@@ -49,6 +49,79 @@ def test_local_openai_gateway_needs_only_the_key(settings, monkeypatch):
     assert llm.get_backend().name != "openai"  # sans clé, la passerelle n'est pas utilisée
 
 
+def _glm(settings, **extra):
+    settings.LLM_BACKEND, settings.OPENAI_API_KEY, settings.OPENAI_MODEL = "openai", "sk-test", "glm-4.6"
+    settings.OPENAI_BASE_URL = "http://gw:4000/v1"
+    for k, v in extra.items():
+        setattr(settings, k, v)
+
+
+def _chat(content):
+    return lambda url, **kw: httpx.Response(200, json={"choices": [{"message": {"content": content}}]},
+                                            request=httpx.Request("POST", url))
+
+
+def test_glm_options_reach_the_request_and_cannot_replace_model_or_messages(settings, monkeypatch):
+    _glm(settings, OPENAI_TIMEOUT=7, OPENAI_MAX_TOKENS=900,
+         OPENAI_EXTRA_BODY={"thinking": {"type": "disabled"}, "model": "autre", "messages": []})
+    seen = {}
+
+    def fake_post(url, headers=None, timeout=None, json=None):
+        seen.update(timeout=timeout, body=json)
+        return _chat("Semer en juin.")(url)
+
+    monkeypatch.setattr(llm.httpx, "post", fake_post)
+    assert llm.OpenAICompatibleBackend().answer("Quand semer ?", PASSAGES, {}) == "Semer en juin."
+    assert seen["timeout"] == 7 and seen["body"]["max_tokens"] == 900
+    assert seen["body"]["thinking"] == {"type": "disabled"}
+    assert seen["body"]["model"] == "glm-4.6" and seen["body"]["messages"][0]["role"] == "user"
+
+
+def test_an_empty_answer_is_an_error_so_the_assistant_falls_back(settings, monkeypatch):
+    import pytest
+
+    _glm(settings)
+    for content in (None, "  "):  # modèle à raisonnement : le budget est parti dans la réflexion
+        monkeypatch.setattr(llm.httpx, "post", _chat(content))
+        with pytest.raises(ValueError):
+            llm.OpenAICompatibleBackend().answer("Quand semer ?", PASSAGES, {})
+
+
+def test_ask_sends_a_redacted_question_and_falls_back_when_the_llm_fails(db, monkeypatch):
+    from apps.assistant import services
+
+    doc = {"id": "d1", "title": "Quand semer", "body": "Semer en juin. Puis sarcler.", "source": "INRAB", "version": 1,
+           "value_chain": "mais"}
+    monkeypatch.setattr(services, "search", lambda q, vc: [(3.0, doc)])
+    sent = []
+
+    class Panne(llm.LLMBackend):
+        name = "panne"
+
+        def answer(self, question, passages, context):
+            sent.append(question)
+            raise RuntimeError("http://adresse-privee")
+
+    monkeypatch.setattr(services, "get_backend", lambda: Panne())
+    r = services.ask(object(), "Quand semer ? Rappelez le 0197000001", None)
+    assert sent == ["Quand semer ? Rappelez le [numéro retiré]"]
+    assert r["status"] == "answered" and r["backend"] == "extractive" and r["answer"].startswith("Semer en juin")
+
+
+def test_check_llm_reports_the_mode_and_never_prints_the_key(db, settings, monkeypatch, capsys):
+    import pytest
+    from django.core.management import CommandError, call_command
+
+    _glm(settings)
+    monkeypatch.setattr(llm.httpx, "post", _chat("Semer en juin."))
+    call_command("check_llm")
+    out = capsys.readouterr().out
+    assert "« openai »" in out and "glm-4.6" in out and "Semer en juin." in out and "sk-test" not in out
+    settings.LLM_BACKEND = "extractive"
+    with pytest.raises(CommandError, match="extractif"):
+        call_command("check_llm")
+
+
 def test_assistant_context_carries_the_parcel_and_real_weather(producer, settings, monkeypatch):
     from apps.assistant.services import _field_context
     from apps.parcels.models import Campaign, Parcel

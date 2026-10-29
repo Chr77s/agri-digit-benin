@@ -140,6 +140,10 @@ OLLAMA_MODEL = env("OLLAMA_MODEL", default="qwen2.5:3b")
 OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="http://glm-gateway.tail577250.ts.net:4000/v1")
 OPENAI_API_KEY = env("OPENAI_API_KEY", default="")  # renseignée : l'assistant passe par la passerelle
 OPENAI_MODEL = env("OPENAI_MODEL", default="")  # vide : premier modèle annoncé par la passerelle
+OPENAI_TIMEOUT = env.int("OPENAI_TIMEOUT", default=60)  # secondes ; au-delà, l'assistant se rabat sur la réponse extractive
+OPENAI_MAX_TOKENS = env.int("OPENAI_MAX_TOKENS", default=400)  # un modèle à raisonnement (GLM) peut en demander davantage
+# JSON ajouté au corps de la requête, ex. {"thinking": {"type": "disabled"}} pour couper la réflexion d'un GLM
+OPENAI_EXTRA_BODY = env.json("OPENAI_EXTRA_BODY", default={})
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
 ANTHROPIC_BASE_URL = env("ANTHROPIC_BASE_URL", default="https://api.anthropic.com")  # serveur Claude du réseau local
 ANTHROPIC_MODEL = env("ANTHROPIC_MODEL", default="claude-haiku-4-5")
