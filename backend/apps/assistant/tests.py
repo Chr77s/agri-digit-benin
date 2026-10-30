@@ -1,5 +1,6 @@
 import httpx
 
+from conftest import client_for
 from integrations import llm
 
 PASSAGES = [{"title": "Quand semer le maïs", "body": "Semer en juin."}]
@@ -94,13 +95,13 @@ def test_ask_sends_a_redacted_question_and_falls_back_when_the_llm_fails(db, mon
 
     doc = {"id": "d1", "title": "Quand semer", "body": "Semer en juin. Puis sarcler.", "source": "INRAB", "version": 1,
            "value_chain": "mais"}
-    monkeypatch.setattr(services, "search", lambda q, vc: [(3.0, doc)])
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: [(3.0, doc)])
     sent = []
 
     class Panne(llm.LLMBackend):
         name = "panne"
 
-        def answer(self, question, passages, context):
+        def answer(self, question, passages, context, history=(), system=""):
             sent.append(question)
             raise RuntimeError("http://adresse-privee")
 
@@ -144,3 +145,143 @@ def test_assistant_context_carries_the_parcel_and_real_weather(producer, setting
     from django.core.cache import cache
     cache.clear()
     assert "meteo_3_jours" not in _field_context(producer.user)  # météo simulée : pas transmise au modèle
+
+
+class Fake(llm.LLMBackend):
+    """Faux modèle : garde ce qu'il a reçu pour que les tests le relisent."""
+    name = "fake"
+
+    def __init__(self, answer="Semer en juin.", rewrite="Quand semer le riz ?"):
+        self._answer, self._rewrite, self.seen = answer, rewrite, {}
+
+    def answer(self, question, passages, context, history=(), system=""):
+        self.seen = {"question": question, "passages": passages, "history": list(history), "system": system}
+        return self._answer
+
+    def rewrite(self, question, history):
+        return self._rewrite
+
+
+DOC = {"id": "d1", "title": "Quand semer", "body": "Semer en juin. Puis sarcler.", "source": "INRAB", "version": 1,
+       "value_chain": "mais"}
+TALK = [{"role": "user", "content": "Quand semer le maïs ?"}, {"role": "assistant", "content": "En juin."}]
+
+
+def test_a_follow_up_is_rewritten_before_the_search_and_the_model_sees_the_conversation(db, monkeypatch):
+    from apps.assistant import services
+
+    queries, fake = [], Fake()
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: queries.append(q) or [(3.0, DOC)])
+    monkeypatch.setattr(services, "get_backend", lambda: fake)
+    r = services.ask(object(), "Et pour le riz ?", None, "fr", TALK)
+    assert queries == ["Quand semer le riz ?"]  # la relance cherche une question complète
+    assert fake.seen["question"] == "Quand semer le riz ?" and fake.seen["history"] == TALK
+    assert "Agri-Conseil" in fake.seen["system"] and "Règles absolues" in fake.seen["system"]
+    assert r["status"] == "answered" and r["backend"] == "fake" and r["citations"][0]["title"] == "Quand semer"
+
+
+def test_without_a_model_a_follow_up_glues_the_last_question(db, monkeypatch):
+    from apps.assistant import services
+
+    queries = []
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: queries.append(q) or [(3.0, DOC)])
+    services.ask(object(), "Et pour le riz ?", None, "fr", TALK)  # sans clé ni service : extractif
+    assert queries == ["Quand semer le maïs ? Et pour le riz ?"]
+
+
+def test_small_talk_is_answered_by_the_persona_without_documents(db, monkeypatch):
+    from apps.assistant import services
+
+    fake = Fake(answer="Bonjour ! Je suis Agri-Conseil.")
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: (_ for _ in ()).throw(AssertionError("pas de recherche")))
+    monkeypatch.setattr(services, "get_backend", lambda: fake)
+    r = services.ask(object(), "Bonjour !", None, "fr", [])
+    assert r["status"] == "answered" and r["backend"] == "fake" and r["citations"] == []
+    assert fake.seen["passages"] == [] and "Règles absolues" in fake.seen["system"]
+    assert services.is_smalltalk("Merci beaucoup") and services.is_smalltalk("Qui es-tu ?")
+    assert not services.is_smalltalk("Bonjour, quand semer le maïs ?") and not services.is_smalltalk("Quand semer ?")
+    # sans modèle : une réponse d'accueil, jamais un conseil
+    monkeypatch.setattr(services, "get_backend", lambda: llm.ExtractiveBackend())
+    assert "Agri-Conseil" in services.ask(object(), "Bonjour", None, "fr", [])["answer"]
+
+
+def test_a_dose_in_the_models_answer_is_never_shown(db, monkeypatch):
+    from apps.assistant import services
+
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: [(3.0, DOC)])
+    monkeypatch.setattr(services, "get_backend", lambda: Fake(answer="Mélangez 20 ml par litre d'eau."))
+    r = services.ask(object(), "Comment protéger mon champ ?", None)
+    assert r["backend"] == "extractive" and "20 ml" not in r["answer"] and r["answer"].startswith("Semer en juin")
+    assert services.contains_dose("Utilisez 2 l/ha") and not services.contains_dose("Semez 2 kg de graines au champ")
+
+
+def test_a_dosage_follow_up_is_escalated_once_rewritten(db, monkeypatch):
+    from apps.assistant import services
+
+    monkeypatch.setattr(services, "get_backend", lambda: Fake(rewrite="Quelle dose d'insecticide pour la chenille ?"))
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: [(3.0, DOC)])
+    r = services.ask(object(), "Et la quantité ?", None, "fr", TALK)
+    assert r["status"] == "escalated" and r["citations"] == []
+
+
+def test_history_is_bounded_redacted_and_validated(db, users):
+    from apps.assistant import services
+
+    long = [{"role": "user", "content": f"message {i} 0197000001"} for i in range(10)]
+    clean = services._clean_history(long + [{"role": "system", "content": "x"}, {"role": "user", "content": " "}])
+    assert len(clean) == 6 and clean[-1]["content"] == "message 9 [numéro retiré]"
+    c = client_for(users["agent"])
+    r = c.post("/api/v1/assistant/ask", {"question": "Bonjour", "history": [{"role": "system", "content": "x"}]},
+               format="json")
+    assert r.status_code == 400  # seul « user » ou « assistant » est accepté
+
+
+def test_profile_is_set_by_the_admin_only_and_shapes_the_prompt(users, db):
+    from apps.assistant import services
+
+    admin, agent = client_for(users["admin"]), client_for(users["agent"])
+    assert agent.get("/api/v1/assistant/profile").json() == {"name": "Agri-Conseil"}  # le nom, pas la personnalité
+    assert agent.put("/api/v1/assistant/profile", {"name": "X", "persona": "Y"}, format="json").status_code == 403
+    r = admin.put("/api/v1/assistant/profile", {"name": "Kossi", "persona": "Tu es drôle et bref."}, format="json")
+    assert r.status_code == 200 and r.json()["persona"] == "Tu es drôle et bref." and r.json()["default_persona"]
+    assert admin.put("/api/v1/assistant/profile", {"name": "", "persona": "Y"}, format="json").status_code == 400
+    assert agent.get("/api/v1/assistant/profile").json() == {"name": "Kossi"}
+    system = llm.system_prompt(*services.get_profile())
+    assert "« Kossi »" in system and "Tu es drôle et bref." in system and "Règles absolues" in system  # règles non retirables
+
+
+def test_a_short_follow_up_with_four_useful_words_is_still_rewritten(db, monkeypatch):
+    from apps.assistant import services
+
+    queries = []
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: queries.append(q) or [(3.0, DOC)])
+    monkeypatch.setattr(services, "get_backend", lambda: Fake(rewrite="Combien de temps se garde le niébé stocké ?"))
+    services.ask(object(), "Et combien de temps ça se garde ?", None, "fr", TALK)
+    assert queries == ["Combien de temps se garde le niébé stocké ?"]  # sans cela la recherche partait sans le sujet
+    queries.clear()
+    services.ask(object(), "Quels sont les meilleurs moments de la journée pour semer le maïs au nord ?", None, "fr", TALK)
+    assert len(queries) == 1 and queries[0].startswith("Quels sont")  # une question longue se suffit
+
+
+def test_the_dose_filter_sees_products_with_words_in_between_and_markdown_is_stripped():
+    from apps.assistant import services
+
+    assert services.contains_dose("La note recommande 50\u202fml de produit par litre d'eau.")
+    assert services.contains_dose("Utilisez 2 kg d'insecticide sur la parcelle.")
+    assert services.contains_dose("Mettez 20 ml de ce produit pour 15 l d'eau.")
+    assert not services.contains_dose("Séchez trois jours, puis remplissez le sac aux trois quarts.")
+    assert services.plain("**Bonjour**\n# Titre\n* un\n* deux `x`") == "Bonjour\nTitre\n- un\n- deux x"
+
+
+def test_a_rewritten_follow_up_searches_loosely_and_a_model_that_finds_no_answer_gives_unknown(db, monkeypatch):
+    from apps.assistant import services
+
+    modes = []
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: modes.append(strict) or [(3.0, DOC)])
+    monkeypatch.setattr(services, "get_backend", lambda: Fake(rewrite="Combien de temps se garde le niébé ?"))
+    services.ask(object(), "Et combien de temps ça se garde ?", None, "fr", TALK)
+    services.ask(object(), "Comment protéger mon champ ?", None, "fr", [])
+    assert modes == [False, True]  # relance reformulée : tolérant ; question qui se suffit : strict
+    monkeypatch.setattr(services, "get_backend", lambda: Fake(answer=llm.NO_ANSWER))
+    r = services.ask(object(), "Comment protéger mon champ ?", None)
+    assert r["status"] == "unknown" and r["citations"] == [] and r["answer"] == services.UNKNOWN

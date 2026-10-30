@@ -18,3 +18,4 @@ ruff==0.13.3
 gunicorn==23.0.0
 psycopg[binary]==3.2.10
 Pillow==11.3.0
+pypdf==6.21.4

@@ -14,6 +14,7 @@ def _setup(db, settings):
     settings.DEMO_MODE = True
     settings.WEATHER_BACKEND = "demo"  # aucun appel réseau pendant les tests
     settings.SATELLITE_BACKEND = "demo"
+    settings.LLM_BACKEND = "extractive"  # jamais le vrai LLM du .env ; les tests du LLM fixent le mode eux-mêmes
     settings.REST_FRAMEWORK = {**settings.REST_FRAMEWORK, "DEFAULT_THROTTLE_RATES": {"otp": "1000/min"}}
     cache.clear()
     load_referentiels()

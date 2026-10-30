@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../shared/api/client';
 import type { AssistantAnswer } from '../../shared/api/types';
@@ -8,7 +8,7 @@ import { useVcName, useValueChains, vcSelect } from '../../shared/api/ref';
 import { Alert, Badge, Button, Chips, Field, Icon, Input, PageHeader, Select, Textarea, buttonCls, speak } from '../../shared/ui';
 import '../producers/producteur.css';
 
-type Ask = { question: string; value_chain?: string; language?: string };
+type Ask = { question: string; value_chain?: string; language?: string; history?: { role: 'user' | 'assistant'; content: string }[] };
 const useAsk = () => useMutation({ mutationFn: (b: Ask) => api<AssistantAnswer>('/assistant/ask', { method: 'POST', body: b }) });
 
 type SR = { lang: string; interimResults: boolean; onresult: (e: { results: { 0: { transcript: string } }[] }) => void; onerror: () => void; onend: () => void; start: () => void };
@@ -21,6 +21,9 @@ const FAQ = ['faq1', 'faq2', 'faq3'] as const;
 interface Turn { id: number; ask: Ask; at: Date; answer?: AssistantAnswer; error?: string; voice?: boolean }
 interface Convo { id: number; turns: Turn[] }
 const hhmm = (d: Date) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+// Derniers échanges envoyés avec la question : l'assistant suit ainsi le fil (le serveur ne les garde pas).
+const historyOf = (turns: Turn[]): NonNullable<Ask['history']> => turns.filter((x) => x.answer?.answer).slice(-3)
+  .flatMap((x) => [{ role: 'user' as const, content: x.ask.question }, { role: 'assistant' as const, content: x.answer!.answer }]);
 
 // Historique gardé sur ce téléphone seulement (le serveur ne garde pas les questions avec leur auteur).
 const HIST_KEY = 'adb-assistant';
@@ -41,6 +44,7 @@ export function AssistantPage() {
   const vcs = useValueChains();
   const vcName = useVcName();
   const ask = useAsk();
+  const profile = useQuery({ queryKey: ['assistant-profile'], queryFn: () => api<{ name: string }>('/assistant/profile'), staleTime: 300_000 });
   const [convos, setConvos] = useState<Convo[]>(loadConvos);
   const [cur, setCur] = useState(() => convos[0].id);
   const [search, setSearch] = useState('');
@@ -61,14 +65,14 @@ export function AssistantPage() {
     const cid = convo.id;
     const tid = Date.now();
     setConvos((cs) => cs.map((c) => (c.id === cid ? { ...c, turns: [...c.turns, { id: tid, ask: b, at: new Date(), voice: isVoice }] } : c)));
-    ask.mutate(b, {
+    ask.mutate({ ...b, history: historyOf(convo.turns) }, {
       onSuccess: (a) => patch(cid, tid, { answer: a }),
       onError: (e) => patch(cid, tid, { error: e.message }),
     });
   };
   const retry = (x: Turn) => {
     patch(convo.id, x.id, { error: undefined });
-    ask.mutate(x.ask, { onSuccess: (a) => patch(convo.id, x.id, { answer: a }), onError: (e) => patch(convo.id, x.id, { error: e.message }) });
+    ask.mutate({ ...x.ask, history: historyOf(convo.turns.slice(0, convo.turns.indexOf(x))) }, { onSuccess: (a) => patch(convo.id, x.id, { answer: a }), onError: (e) => patch(convo.id, x.id, { error: e.message }) });
   };
 
   const submit = (e: React.FormEvent) => {
@@ -142,7 +146,7 @@ export function AssistantPage() {
           <div className="msgs" aria-live="polite">
             {convo.turns.length === 0 && <p className="muted">{t('assistant.start')}</p>}
             {convo.turns.map((x) => (
-              <TurnView key={x.id} x={x} pending={!x.answer && !x.error} onRetry={() => retry(x)} />
+              <TurnView key={x.id} x={x} botName={profile.data?.name} pending={!x.answer && !x.error} onRetry={() => retry(x)} />
             ))}
           </div>
           <form className="composer" noValidate onSubmit={submit}>
@@ -170,7 +174,7 @@ export function AssistantPage() {
   );
 }
 
-function TurnView({ x, pending, onRetry }: { x: Turn; pending: boolean; onRetry: () => void }) {
+function TurnView({ x, pending, onRetry, botName }: { x: Turn; pending: boolean; onRetry: () => void; botName?: string }) {
   const { t } = useTranslation();
   const a = x.answer;
   return (
@@ -205,7 +209,7 @@ function TurnView({ x, pending, onRetry }: { x: Turn; pending: boolean; onRetry:
                 <Button variant="ghost" size="sm" icon="megaphone" onClick={() => speak(`${a.answer} ${a.disclaimer || t('assistant.disclaimer')}`)}>{t('assistant.listenAnswer')}</Button>
               )}
               <Link className={buttonCls({ variant: 'ghost', size: 'sm' })} to="/diagnostic"><Icon name="leaf-scan" />{t('assistant.sendPhoto')}</Link>
-              <span>{hhmm(x.at)}</span>
+              <span>{botName ? `${botName} · ` : ''}{hhmm(x.at)}</span>
             </div>
           )}
         </div>

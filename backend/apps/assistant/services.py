@@ -4,19 +4,36 @@ import unicodedata
 import structlog
 from django.conf import settings
 
-from apps.knowledge.services import search
-from integrations.llm import ExtractiveBackend, get_backend
+from apps.audit.services import record
+from apps.knowledge.services import search, tokens
+from integrations.llm import DEFAULT_NAME, DEFAULT_PERSONA, NO_ANSWER, ExtractiveBackend, get_backend, system_prompt
 from integrations.notifications import get_channel
 
-from .models import AssistantLog
+from .models import AssistantLog, AssistantProfile
 
 log = structlog.get_logger()
 DISCLAIMER = "Conseil indicatif, vérifiez avec votre agent ATDA"
+UNKNOWN = "Je ne sais pas : aucune fiche publiée ne couvre cette question. Contactez votre agent ATDA."
 DOSAGE = re.compile(r"\b(doses?|dosages?|posologie|combien de (ml|millilitres?|litres?|l|g|grammes?|kg|cc|"
                     r"sachets?|bouteilles?)|quelle quantite|ml par|litres? par|grammes? par|g par)\b")
 RISK = re.compile(r"\b(pesticides?|insecticides?|herbicides?|fongicides?|phyto\w*|traitements?|trait\w+|produits?|"
                   r"medicaments?|vaccins?|vermifuges?|antibiotiques?|veterinaires?|poisons?)\b")
 STRONG = re.compile(r"\b(dosages?|posologie)\b")
+# une quantité de produit rapportée à une surface ou un volume (« 20 ml par litre », « 2 l/ha ») dans la réponse du modèle
+UNIT = r"(ml|cl|l|litres?|g|kg|cc|sachets?|bouchons?|cuilleres?)"
+DOSE_OUT = re.compile(rf"\b\d+([.,]\d+)?\s*{UNIT}\b(\s+[a-z']+){{0,4}}?\s*(/|par|pour|a l|a la)\s*"
+                      r"(ha|hectares?|litres?|l|pulverisateur|pompe|seau|10 ?l|15 ?l|are|m2)\b")
+# « 50 ml de produit », « 2 kg d'engrais phytosanitaire » : une quantité de produit à appliquer, sans surface
+DOSE_PRODUCT = re.compile(rf"\b\d+([.,]\d+)?\s*{UNIT}\s+(de |d')\s*(produit|pesticide|insecticide|herbicide|fongicide|poison|"
+                          r"traitement|phyto\w*)")
+HIST_TURNS, HIST_CHARS = 6, 1200
+ESCALATED = ("Les questions de dosage de produits phytosanitaires ou vétérinaires ne reçoivent pas de réponse "
+             "automatique. ")
+# salutations et phrases sans conseil agricole : la conversation sans documents ne sert qu'à elles
+_GREET = re.compile(r"^(bonjour|bonsoir|salut|coucou|hello)\b")
+_CHAT = re.compile(r"^(merci( beaucoup| bien)?|ok|d accord|au revoir|a bientot|bonne (journee|soiree|nuit)|"
+                   r"(qui es tu|tu es qui|qui etes vous|presente toi|comment (vas tu|ca va|allez vous)|"
+                   r"que (sais|peux|fais) tu( faire)?|a quoi sers tu|aide( moi)?)( .*)?)$")
 
 
 def _norm(text):
@@ -28,9 +45,48 @@ def is_dosage_question(q):
     return bool(STRONG.search(n) or (DOSAGE.search(n) and RISK.search(n)))
 
 
+def contains_dose(text):
+    n = _norm(text)
+    return bool(DOSE_OUT.search(n) or DOSE_PRODUCT.search(n))
+
+
+def plain(text):
+    """Le modèle met parfois du Markdown malgré la consigne : on l'enlève, l'écran affiche du texte brut."""
+    t = re.sub(r"(\*\*|__|`)", "", text)
+    t = re.sub(r"(?m)^\s{0,3}#{1,6}\s*", "", t)
+    t = re.sub(r"(?m)^(\s*)[*•]\s+", r"\1- ", t)
+    return t.strip()
+
+
+def is_smalltalk(q):
+    n = " ".join(re.sub(r"[^a-z0-9]+", " ", _norm(q)).split())
+    n = _GREET.sub("", n).strip()
+    return n == "" or bool(_CHAT.match(n))
+
+
 def _redact(q):
     # minimisation : retire numéros de téléphone / NPI éventuellement saisis
     return re.sub(r"\d{8,}", "[numéro retiré]", q)
+
+
+def get_profile():
+    p = AssistantProfile.objects.first()
+    return (p.name, p.persona) if p else (DEFAULT_NAME, DEFAULT_PERSONA)
+
+
+def save_profile(actor, name, persona):
+    p = AssistantProfile.objects.first() or AssistantProfile()
+    p.name, p.persona, p.updated_by = name.strip(), persona.strip(), actor
+    p.save()
+    record(actor, "assistant.profile", p, name=p.name)
+    return p
+
+
+def _clean_history(history):
+    """Derniers échanges, sans numéro de téléphone, bornés : c'est tout ce que le modèle sait de la conversation."""
+    out = [{"role": m["role"], "content": _redact(str(m["content"]).strip())[:HIST_CHARS]}
+           for m in (history or ()) if m.get("role") in ("user", "assistant") and str(m.get("content", "")).strip()]
+    return out[-HIST_TURNS:]
 
 
 def escalate(user, question):
@@ -46,6 +102,13 @@ def escalate(user, question):
     for a in agents:
         get_channel("in_app").send(a.phone, body, user=a, title="Question de dosage à traiter")
     return len(agents)
+
+
+def _escalated(user, question):
+    sent = escalate(user, question)
+    return {"status": "escalated",
+            "answer": ESCALATED + ("Votre question est transmise à l'agent ATDA de votre secteur, qui vous contactera."
+                                   if sent else "Posez-la à votre agent ATDA.")}
 
 
 def _field_context(user):
@@ -69,46 +132,86 @@ def _field_context(user):
     return out
 
 
-def ask(user, question, value_chain=None, language="fr"):
+def _failed(backend, e):
+    # jamais le message de l'erreur (il peut citer l'adresse) : son type et le code HTTP suffisent
+    log.warning("assistant.llm_failed", backend=backend.name, error=type(e).__name__,
+                status=getattr(getattr(e, "response", None), "status_code", None))
+
+
+def _standalone(backend, question, history):
+    """Une relance (« et pour le riz ? ») devient une question complète avant la recherche dans les documents."""
+    if not history or len(tokens(question)) >= 7:  # une question longue se suffit ; « et combien de temps ? » non
+        return question
+    try:
+        text = backend.rewrite(question, history)
+        if text:
+            return text
+    except Exception as e:
+        _failed(backend, e)
+    last = next((m["content"] for m in reversed(history) if m["role"] == "user"), "")
+    return f"{last} {question}".strip()
+
+
+def _smalltalk(backend, name, question, history, system):
+    canned = (f"Bonjour ! Je suis {name}, l'assistant agricole d'Agri-Digit Bénin. Posez-moi votre question sur vos "
+              f"cultures (semis, maladies, stockage…) : je réponds à partir des fiches techniques de l'INRAB et de l'ATDA.")
+    if isinstance(backend, ExtractiveBackend):
+        return canned, backend
+    try:
+        text = plain(backend.answer(_redact(question), [], {}, history, system))
+        return (canned, ExtractiveBackend()) if contains_dose(text) else (text, backend)
+    except Exception as e:
+        _failed(backend, e)
+        return canned, ExtractiveBackend()
+
+
+def ask(user, question, value_chain=None, language="fr", history=()):
     from apps.translations import corpus
 
     result = {"citations": [], "disclaimer": DISCLAIMER, "backend": "extractive", "language": "fr"}
     top = None
+    name, persona = get_profile()
+    system = system_prompt(name, persona)
+    history = _clean_history(history)
     native = corpus.match(language, question) if language in corpus.LANGUAGES else None
     if native:  # réponse écrite et validée par des locuteurs (MTDI), jamais générée
         result.update(status="answered", answer=native.answer, backend="corpus", language=language)
     elif is_dosage_question(question):
-        sent = escalate(user, question)
-        result.update(status="escalated",
-                      answer="Les questions de dosage de produits phytosanitaires ou vétérinaires ne reçoivent "
-                             "pas de réponse automatique. " + (
-                                 "Votre question est transmise à l'agent ATDA de votre secteur, qui vous contactera."
-                                 if sent else "Posez-la à votre agent ATDA."))
+        result.update(_escalated(user, question))
+    elif is_smalltalk(question):
+        text, backend = _smalltalk(get_backend(), name, question, history, system)
+        result.update(status="answered", answer=text, backend=backend.name)
     else:
-        hits = search(question, value_chain)
+        backend = get_backend()
+        standalone = _standalone(backend, question, history)
+        hits = search(standalone, value_chain, strict=standalone == question)
         top = hits[0][0] if hits else None
-        if not hits or top < settings.ASSISTANT_MIN_SCORE:
-            result.update(status="unknown", answer="Je ne sais pas : aucune fiche publiée ne couvre cette "
-                                                   "question. Contactez votre agent ATDA.")
+        if standalone != question and is_dosage_question(standalone):
+            result.update(_escalated(user, standalone))
+        elif not hits or top < settings.ASSISTANT_MIN_SCORE:
+            result.update(status="unknown", answer=UNKNOWN)
         else:
-            # un second passage n'est cité que s'il porte sur la même filière (sinon : coton cité pour le maïs)
+            # d'autres extraits ne sont cités que s'ils portent sur la même filière (sinon : coton cité pour le maïs)
             passages = [d for s, d in hits if s >= settings.ASSISTANT_MIN_SCORE
-                        and d["value_chain"] == hits[0][1]["value_chain"]][:2]
+                        and d["value_chain"] == hits[0][1]["value_chain"]][:3]
             # contexte sans donnée personnelle : filière, commune, parcelle (type, surface, stade) et météo à venir
             ctx = {"filiere": value_chain or passages[0]["value_chain"], "commune": getattr(user, "commune", ""),
                    **_field_context(user)}
-            backend = get_backend()
             try:
-                answer = backend.answer(_redact(question), passages, ctx)  # un numéro saisi ne part pas chez le LLM
+                answer = plain(backend.answer(_redact(standalone), passages, ctx, history, system))  # relance : la question complète
+                if contains_dose(answer):  # le modèle a donné un dosage malgré la consigne : refusé, jamais montré
+                    raise ValueError("dosage dans la réponse du modèle")
+                if NO_ANSWER in answer:  # les extraits ne répondent pas : même réponse que sans fiche
+                    result.update(status="unknown", answer=UNKNOWN, backend=backend.name)
+                    answer = None
             except Exception as e:
-                # jamais le message de l'erreur (il peut citer l'adresse) : son type et le code HTTP suffisent
-                log.warning("assistant.llm_failed", backend=backend.name, error=type(e).__name__,
-                            status=getattr(getattr(e, "response", None), "status_code", None))
+                _failed(backend, e)
                 backend = ExtractiveBackend()
                 answer = backend.answer(question, passages, ctx)
-            result.update(status="answered", answer=answer, backend=backend.name,
-                          citations=[{"doc_id": str(d["id"]), "title": d["title"], "source": d["source"],
-                                      "version": d["version"]} for d in passages])
+            if answer is not None:
+                result.update(status="answered", answer=answer, backend=backend.name,
+                              citations=[{"doc_id": str(d["id"]), "title": d["title"], "source": d["source"],
+                                          "version": d["version"]} for d in passages])
     if language in corpus.LANGUAGES and not native:
         corpus.keep_unanswered(language, question)
         result["language_notice"] = "no_validated_answer"  # l'écran explique : réponse en français pour l'instant

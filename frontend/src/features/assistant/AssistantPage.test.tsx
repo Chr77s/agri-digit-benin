@@ -43,4 +43,29 @@ describe('Assistant agricole', () => {
     expect(await screen.findByText('Posez-la à votre agent ATDA.')).toBeInTheDocument();
     expect(screen.queryByText(/transmise à l'agent ATDA de votre secteur, qui vous contactera/)).not.toBeInTheDocument();
   });
+
+  it("envoie les derniers échanges avec la question et montre le nom de l'assistant", async () => {
+    const bodies: { question: string; history?: { role: string; content: string }[] }[] = [];
+    mockFetch((u, init) => {
+      if (u.includes('/assistant/ask')) {
+        bodies.push(JSON.parse(String(init?.body)));
+        return { body: { status: 'answered', answer: bodies.length === 1 ? 'Semer en juin.' : 'Pour le riz, semer en juillet.', citations: [], disclaimer: '' } };
+      }
+      if (u.endsWith('/assistant/profile')) return { body: { name: 'Kossi' } };
+      return u.includes('/auth/') ? undefined : { body: [] };
+    });
+    const user = userEvent.setup();
+    renderApp(<AssistantPage />);
+    await user.type(screen.getByPlaceholderText('Ex. : Quand semer le maïs ?'), 'Quand semer le maïs ?');
+    await user.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect((await screen.findAllByText('Semer en juin.')).length).toBeGreaterThan(0);
+    await user.type(screen.getByPlaceholderText('Ex. : Quand semer le maïs ?'), 'Et pour le riz ?');
+    await user.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect((await screen.findAllByText('Pour le riz, semer en juillet.')).length).toBeGreaterThan(0);
+    expect(bodies[0].history).toEqual([]); // première question : pas d'historique
+    expect(bodies[1].history).toEqual([{ role: 'user', content: 'Quand semer le maïs ?' }, { role: 'assistant', content: 'Semer en juin.' }]);
+    expect((await screen.findAllByText(/Kossi · \d{2}:\d{2}/)).length).toBeGreaterThan(0);
+    const stored = JSON.parse(localStorage.getItem('adb-assistant') ?? '[]') as { turns: { ask: Record<string, unknown> }[] }[];
+    expect(stored[0].turns[1].ask).not.toHaveProperty('history'); // l'historique n'est pas copié dans chaque message gardé
+  });
 });

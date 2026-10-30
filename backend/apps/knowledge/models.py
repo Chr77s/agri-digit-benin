@@ -16,6 +16,8 @@ class KnowledgeDoc(models.Model):
     status = models.CharField(max_length=20, choices=STATUSES, default="brouillon", db_index=True)
     language = models.CharField(max_length=5, default="fr")
     language_validation = models.CharField(max_length=20, default="valide")
+    # extraits issus d'un même fichier importé (relecture et publication groupées) ; vide pour une fiche saisie à la main
+    batch = models.UUIDField(null=True, blank=True, db_index=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)

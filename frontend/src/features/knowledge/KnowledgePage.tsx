@@ -6,6 +6,7 @@ import type { KnowledgeDoc, Paginated } from '../../shared/api/types';
 import { Alert, Badge, Button, Card, Chips, Dialog, EmptyState, Field, Icon, Input, PageHeader, QueryState, Select, Textarea, fmtDate, fmtDateTime } from '../../shared/ui';
 import { useValueChains, useVcName, vcSelect } from '../../shared/api/ref';
 import '../dashboard/pilotage.css';
+import { ImportPanel, PersonaCard } from './AssistantDocs';
 
 const STATUS_TONE = { brouillon: 'draft', relu: 'wait', publie: 'ok' } as const;
 // Plusieurs sources dans le champ `source` du serveur (500 caractères) : séparées par « ; ».
@@ -26,6 +27,7 @@ export function KnowledgePage() {
     <div className="pv">
       <PageHeader title={t('nav.knowledge')} desc={t('knowledge.intro')} crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.knowledge') }]}
         actions={<Button icon="plus" onClick={() => setCurrent('new')}>{t('knowledge.write')}</Button>} />
+      <ImportPanel />
       <div className="split">
         <section className="card stack" style={{ '--gap': '14px' } as React.CSSProperties} aria-labelledby="kn-list">
           <div className="between">
@@ -63,6 +65,7 @@ export function KnowledgePage() {
             : <Editor key={current === 'new' ? 'new' : `${current.id}-${current.version}`} doc={current === 'new' ? null : current} onSaved={setCurrent} />}
         </aside>
       </div>
+      <PersonaCard />
     </div>
   );
 }

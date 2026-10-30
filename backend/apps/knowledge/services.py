@@ -35,7 +35,7 @@ def rebuild_index():
     _index["bm25"] = BM25Okapi(corpus) if corpus else None
 
 
-def search(question, value_chain=None, k=3):
+def search(question, value_chain=None, k=3, strict=True):
     if _index["bm25"] is None:
         rebuild_index()
     if _index["bm25"] is None:
@@ -43,8 +43,11 @@ def search(question, value_chain=None, k=3):
     q = set(tokens(question))
     scores = _index["bm25"].get_scores(list(q))
     ranked = sorted(zip(scores, _index["docs"], _index["sets"], strict=True), key=lambda x: -x[0])
-    # une fiche doit porter plus de la moitié des mots de la question : « maïs » seul ne suffit pas pour « chenille du maïs »
-    ranked = [(s, d) for s, d, ts in ranked if len(q) < 2 or len(q & ts) / len(q) > 0.5]
+    # strict : une fiche doit porter plus de la moitié des mots de la question (« maïs » seul ne suffit pas pour
+    # « chenille du maïs »). Tolérant (relance reformulée : « se garde » pour « se conserve ») : un mot commun suffit,
+    # et c'est le modèle qui juge si l'extrait répond.
+    ranked = [(s, d) for s, d, ts in ranked
+              if (len(q & ts) >= 1 if not strict else (len(q) < 2 or len(q & ts) / len(q) > 0.5))]
     if value_chain:
         ranked = [r for r in ranked if r[1]["value_chain"] == value_chain]
     return [(float(s), d) for s, d in ranked[:k]]

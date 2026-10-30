@@ -17,6 +17,7 @@ from apps.farms import api as farms
 from apps.farmservices import api as fs
 from apps.interop import api as interop
 from apps.knowledge import api as kn
+from apps.knowledge import import_api as kimp
 from apps.knowledge import publications as pubs
 from apps.lands import api as lands
 from apps.market import api as market
@@ -63,11 +64,17 @@ v1 = [
     path("campaigns", parcels.campaign_list),
     path("campaigns/<uuid:pk>", parcels.campaign_detail),
     path("assistant/ask", assistant.ask),
+    path("assistant/profile", assistant.profile),
     path("knowledge", kn.doc_list),
     path("knowledge/<uuid:pk>", kn.doc_detail),
     path("knowledge/<uuid:pk>/review", kn.doc_review),
     path("knowledge/<uuid:pk>/publish", kn.doc_publish),
     path("knowledge/<uuid:pk>/versions", kn.doc_versions),
+    path("knowledge/import", kimp.doc_import),
+    path("knowledge/batches", kimp.batch_list),
+    path("knowledge/batches/<uuid:batch>/review", kimp.batch_review),
+    path("knowledge/batches/<uuid:batch>/publish", kimp.batch_publish),
+    path("knowledge/batches/<uuid:batch>", kimp.batch_delete),
     path("alerts", alerts.alert_list),
     path("alerts/<uuid:pk>/approve", alerts.alert_approve),
     path("alerts/<uuid:pk>/send", alerts.alert_send),

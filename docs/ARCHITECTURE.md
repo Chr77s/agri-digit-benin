@@ -44,7 +44,7 @@ Organisation par fonctionnalité (`src/features/producers`, `parcels`, etc.), `s
 
 1. Inscription : formulaire, `POST /producers/register`, `AnipClient.verify`, création `producer` (en attente) + `consent` + audit, notification à l'agent du périmètre.
 2. Validation : l'agent valide, version enregistrée, notification au producteur (in-app et SMS simulé).
-3. Assistant : question, retrait des données personnelles, détection des sujets à risque (dosage : escalade), BM25 sur les fiches publiées, génération par le premier `LLMBackend` disponible, réponse avec citation et mention indicative, journal sans donnée personnelle.
+3. Assistant : question et derniers échanges (retrait des données personnelles), détection des sujets à risque (dosage : escalade), salutations traitées sans document, reformulation des relances, BM25 sur les fiches et documents importés publiés, génération par le premier `LLMBackend` disponible avec la personnalité réglable (`AssistantProfile`) et des règles fixes, refus de tout dosage dans la réponse, citation et mention indicative, journal sans donnée personnelle. Import de documents : `knowledge/importer.py`, lots de brouillons à relire.
 4. Alerte : création, seconde validation si urgente, envoi par canal, statut par message dans `outbox`.
 5. Sélection : poids figés, calcul sur les exploitations POC, proposition, validation motivée par un autre agent, contestation.
 6. Données POC : import serveur en flux au chargement, jamais envoyé au navigateur ; agrégats et bbox paginés.
