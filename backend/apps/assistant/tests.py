@@ -56,8 +56,9 @@ def _glm(settings, **extra):
         setattr(settings, k, v)
 
 
-def _chat(content):
-    return lambda url, **kw: httpx.Response(200, json={"choices": [{"message": {"content": content}}]},
+def _chat(content, finish="stop"):
+    return lambda url, **kw: httpx.Response(200, json={"choices": [{"message": {"content": content},
+                                                                    "finish_reason": finish}]},
                                             request=httpx.Request("POST", url))
 
 
@@ -81,9 +82,10 @@ def test_an_empty_answer_is_an_error_so_the_assistant_falls_back(settings, monke
     import pytest
 
     _glm(settings)
-    for content in (None, "  "):  # modèle à raisonnement : le budget est parti dans la réflexion
-        monkeypatch.setattr(llm.httpx, "post", _chat(content))
-        with pytest.raises(ValueError):
+    # vide, ou coupée (la réflexion d'un modèle à raisonnement peut tomber dans le texte) : jamais montrée au producteur
+    for content, finish in ((None, "stop"), ("  ", "stop"), ("\n* Language: French.\n* Style: Brief", "length")):
+        monkeypatch.setattr(llm.httpx, "post", _chat(content, finish))
+        with pytest.raises(ValueError, match="OPENAI_MAX_TOKENS"):
             llm.OpenAICompatibleBackend().answer("Quand semer ?", PASSAGES, {})
 
 

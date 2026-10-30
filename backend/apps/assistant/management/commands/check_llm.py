@@ -33,5 +33,8 @@ class Command(BaseCommand):
             text = backend.answer(question, passages, {"filiere": "mais", "commune": "banikoara"})
         except Exception as e:  # jamais le message : il peut citer l'adresse du service
             status = getattr(getattr(e, "response", None), "status_code", None)
-            raise CommandError(f"Échec de l'appel : {type(e).__name__}" + (f" (HTTP {status})" if status else ""))
-        self.stdout.write(self.style.SUCCESS(f"Réponse en {time.time() - t0:.1f} s :\n{text}"))
+            detail = f" : {e}" if isinstance(e, ValueError) else ""  # nos propres messages seulement
+            raise CommandError(f"Échec de l'appel : {type(e).__name__}" + (f" (HTTP {status})" if status else "") + detail)
+        enc = getattr(self.stdout._out, "encoding", None) or "utf-8"  # console Windows en cp1252 : pas de plantage sur les espaces insécables
+        shown = text.encode(enc, "replace").decode(enc)
+        self.stdout.write(self.style.SUCCESS(f"Réponse en {time.time() - t0:.1f} s :\n{shown}"))

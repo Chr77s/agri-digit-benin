@@ -38,7 +38,7 @@ class ExtractiveBackend(LLMBackend):
 def _prompt(question, passages, context):
     ctx = ", ".join(f"{k}: {v}" for k, v in context.items() if v)
     docs = "\n\n".join(f"[{p['title']}]\n{p['body']}" for p in passages)
-    return (f"Réponds en français, brièvement, uniquement à partir des fiches ci-dessous. Ne donne aucun dosage.\n"
+    return (f"Réponds en français, brièvement, en texte brut sans Markdown, uniquement à partir des fiches ci-dessous. Ne donne aucun dosage.\n"
             f"Contexte : {ctx}\nFiches :\n{docs}\n\nQuestion : {question}")
 
 
@@ -83,9 +83,11 @@ class OpenAICompatibleBackend(LLMBackend):
                 "messages": [{"role": "user", "content": _prompt(question, passages, context)}]}
         r = httpx.post(f"{base}/chat/completions", headers=h, timeout=settings.OPENAI_TIMEOUT, json=body)
         r.raise_for_status()
-        text = (r.json()["choices"][0]["message"].get("content") or "").strip()
-        if not text:  # modèle à raisonnement : tout le budget est parti dans la réflexion
-            raise ValueError("réponse vide du modèle")
+        choice = r.json()["choices"][0]
+        text = (choice["message"].get("content") or "").strip()
+        # vide ou coupée : un modèle à raisonnement a épuisé ses jetons (parfois sa réflexion tombe dans le texte)
+        if not text or choice.get("finish_reason") == "length":
+            raise ValueError("réponse vide ou tronquée : augmenter OPENAI_MAX_TOKENS")
         return text
 
 
