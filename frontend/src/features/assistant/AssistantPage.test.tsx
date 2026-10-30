@@ -58,6 +58,7 @@ describe('Assistant agricole', () => {
     await user.type(screen.getByPlaceholderText(PLACEHOLDER), 'Quand semer le maïs ?');
     await user.click(screen.getByRole('button', { name: 'Envoyer' }));
     expect(await screen.findByText('Semer en juin.')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(PLACEHOLDER)).toHaveFocus(); // le curseur reste dans la saisie après l'envoi
     await user.type(screen.getByPlaceholderText(PLACEHOLDER), 'Et pour le riz ?');
     await user.click(screen.getByRole('button', { name: 'Envoyer' }));
     expect(await screen.findByText('Pour le riz, semer en juillet.')).toBeInTheDocument();
@@ -100,5 +101,26 @@ describe('Assistant agricole', () => {
     await vi.waitFor(() => expect(asked).toHaveLength(2));
     expect(asked[0]).toBe('Comment stocker le niébé ?');
     expect(asked[1]).toBe('Premier\nsecond');
+  });
+  it("nomme la conversation d'une courte phrase nominale donnée par l'assistant, une seule fois", async () => {
+    const titled: { question: string; answer: string }[] = [];
+    mockFetch((u, init) => {
+      if (u.endsWith('/assistant/title')) { titled.push(JSON.parse(String(init?.body))); return { body: { title: 'Calendrier de semis du maïs' } }; }
+      if (u.includes('/assistant/ask')) return answered('Semer en juin.');
+      return u.includes('/auth/') ? undefined : { body: [] };
+    });
+    const user = userEvent.setup();
+    renderApp(<AssistantPage />);
+    await user.type(screen.getByPlaceholderText(PLACEHOLDER), 'Quand semer le maïs ?');
+    await user.click(screen.getByRole('button', { name: 'Envoyer' }));
+    await screen.findByText('Semer en juin.');
+    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem('adb-assistant') ?? '[]')[0]?.title).toBe('Calendrier de semis du maïs'));
+    expect(titled).toEqual([{ question: 'Quand semer le maïs ?', answer: 'Semer en juin.' }]);
+    await user.type(screen.getByPlaceholderText(PLACEHOLDER), 'Et pour le riz ?');
+    await user.click(screen.getByRole('button', { name: 'Envoyer' }));
+    await vi.waitFor(() => expect(screen.getAllByText('Semer en juin.')).toHaveLength(2));
+    expect(titled).toHaveLength(1); // seul le premier échange nomme la conversation
+    await user.click(screen.getByRole('button', { name: 'Mes conversations' }));
+    expect(within(screen.getByRole('region', { name: 'Mes conversations' })).getByText('Calendrier de semis du maïs')).toBeInTheDocument();
   });
 });

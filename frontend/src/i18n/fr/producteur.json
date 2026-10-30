@@ -227,6 +227,8 @@
     "histNoMatch": "Aucune question ne correspond.",
     "histClear": "Effacer l'historique de ce téléphone",
     "options": "Langue et culture",
+    "openBubble": "Ouvrir l'assistant",
+    "closeBubble": "Fermer l'assistant",
     "welcome": "Bonjour, je suis {{name}}.",
     "sourcesCount_one": "Source ({{count}})",
     "sourcesCount_other": "Sources ({{count}})"

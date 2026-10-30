@@ -65,6 +65,7 @@ v1 = [
     path("campaigns/<uuid:pk>", parcels.campaign_detail),
     path("assistant/ask", assistant.ask),
     path("assistant/profile", assistant.profile),
+    path("assistant/title", assistant.title),
     path("knowledge", kn.doc_list),
     path("knowledge/<uuid:pk>", kn.doc_detail),
     path("knowledge/<uuid:pk>/review", kn.doc_review),

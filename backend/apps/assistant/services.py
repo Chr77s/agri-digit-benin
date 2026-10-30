@@ -152,6 +152,35 @@ def _standalone(backend, question, history):
     return f"{last} {question}".strip()
 
 
+def _clean_title(text):
+    """Titre rendu par le modèle : une seule ligne courte, sans Markdown ni guillemets ni ponctuation finale."""
+    lines = (text or "").strip().splitlines()
+    t = re.sub(r"[*_`#>\"«»]", "", lines[0] if lines else "")
+    t = re.sub(r"^(titre|title)\s*:\s*", "", t.strip(), flags=re.I)
+    t = " ".join(t.strip(" .!?:;…-–").split())
+    if not t or len(t.split()) > 10 or contains_dose(t) or NO_ANSWER in t:
+        return ""
+    return (t[0].upper() + t[1:])[:60].rstrip()
+
+
+def _fallback_title(question):
+    return " ".join(_redact(question).replace("?", " ").split()[:6])[:60] or "Conversation"
+
+
+def make_title(question, answer=""):
+    """Titre d'une conversation d'après son premier échange. Une question de dosage ne part pas au modèle (comme dans `ask`) ;
+    sans modèle ou en cas de panne, le début de la question tient lieu de titre."""
+    q = _redact(question)
+    backend = get_backend()
+    if is_dosage_question(q) or isinstance(backend, ExtractiveBackend):
+        return _fallback_title(q)
+    try:
+        return _clean_title(backend.title(q, _redact(answer)[:600])) or _fallback_title(q)
+    except Exception as e:
+        _failed(backend, e)
+        return _fallback_title(q)
+
+
 def _smalltalk(backend, name, question, history, system, fmt=lambda t: t):
     canned = (f"Bonjour ! Je suis {name}, l'assistant agricole d'Agri-Digit Bénin. Posez-moi votre question sur vos "
               f"cultures (semis, maladies, stockage…) : je réponds à partir des fiches techniques de l'INRAB et de l'ATDA.")

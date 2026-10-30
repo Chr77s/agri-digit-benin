@@ -24,6 +24,11 @@ class AskSerializer(serializers.Serializer):
     history = serializers.ListField(child=TurnSerializer(), required=False, max_length=20)
 
 
+class TitleSerializer(serializers.Serializer):
+    question = serializers.CharField(max_length=1000)
+    answer = serializers.CharField(required=False, allow_blank=True, max_length=4000, default="")
+
+
 class ProfileSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=40)
     persona = serializers.CharField(max_length=1500)
@@ -37,6 +42,15 @@ def ask(request):
     d = s.validated_data
     return Response(services.ask(request.user, d["question"], d.get("value_chain") or None, d["language"],
                                  d.get("history", []), markdown=True))
+
+
+@api_view(["POST"])
+@permission_classes([USERS])
+def title(request):
+    """Titre court d'une conversation, demandé par l'écran après le premier échange et gardé dans le téléphone."""
+    s = TitleSerializer(data=request.data)
+    s.is_valid(raise_exception=True)
+    return Response({"title": services.make_title(s.validated_data["question"], s.validated_data["answer"])})
 
 
 @api_view(["GET", "PUT"])

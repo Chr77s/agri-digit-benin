@@ -28,8 +28,16 @@ FORMAT = {False: "en texte brut sans Markdown",
           True: "avec un Markdown simple (listes à puces, gras pour l'essentiel, ni titre ni tableau)"}
 
 
+# Ton de la réponse à l'écran, indépendant de la personnalité modifiable (une personnalité enregistrée avant cet ajout ne l'a pas).
+# Absent de l'USSD et du SMS, où chaque caractère compte.
+STYLE = ("Façon de répondre : commence toujours par une courte phrase d'introduction naturelle qui reprend le sujet de "
+         "la question, en une phrase complète (par exemple « Voici comment bien sécher votre maïs : »), jamais seulement « Bonne question ! », puis donne le détail, en liste à puces s'il y a "
+         "plusieurs étapes ; ne commence jamais directement par une liste.")
+
+
 def system_prompt(name=DEFAULT_NAME, persona=DEFAULT_PERSONA, markdown=False):
-    return f"Tu es « {name} », l'assistant agricole d'Agri-Digit Bénin. {persona}\n{RULES.format(fmt=FORMAT[markdown])}"
+    style = f"\n{STYLE}" if markdown else ""
+    return f"Tu es « {name} », l'assistant agricole d'Agri-Digit Bénin. {persona}\n{RULES.format(fmt=FORMAT[markdown])}{style}"
 
 
 def _ollama_up():
@@ -59,6 +67,9 @@ def _messages(question, passages, context, history, system):
     return out + [dict(m) for m in history] + [{"role": "user", "content": _user_content(question, passages, context)}]
 
 
+TITLE = ("Tu nommes une conversation. Réponds uniquement par un titre : une courte phrase nominale en français (2 à 6 mots), "
+         "sans verbe conjugué, sans guillemets, sans point final. Exemples : Séchage du maïs grain ; Stockage du niébé après "
+         "la récolte ; Arrosage des tomates en saison sèche.")
 REWRITE = ("Tu reformules le dernier message d'un utilisateur en une question complète et autonome, en français, en "
            "reprenant du fil de la conversation ce qui manque (culture, sujet). Réponds seulement par la question.")
 
@@ -81,12 +92,21 @@ class LLMBackend:
         return text.strip().strip('"« »')
 
 
+    def title(self, question, answer):
+        """Titre de la conversation : une courte phrase nominale (vide si le modèle n'en donne pas)."""
+        return self.complete([{"role": "system", "content": TITLE},
+                              {"role": "user", "content": f"Question : {question}\n\nRéponse : {answer}"}])
+
+
 class ExtractiveBackend(LLMBackend):
     name = "extractive"
 
     def answer(self, question, passages, context, history=(), system=""):
         sentences = [s.strip() for s in passages[0]["body"].replace("\n", " ").split(". ") if s.strip()]
         return ". ".join(sentences[:3]).rstrip(".") + "."
+
+    def title(self, question, answer):
+        return ""  # sans modèle, l'appelant garde le début de la question
 
     def rewrite(self, question, history):
         return ""  # sans modèle, l'appelant recolle la dernière question de l'utilisateur

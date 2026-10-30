@@ -297,3 +297,37 @@ def test_the_screen_gets_markdown_while_ussd_and_sms_keep_plain_text(db, monkeyp
     assert "Markdown simple" in fake.seen["system"]
     plain = services.ask(object(), "Comment sécher le grain ?")["answer"]  # appel par défaut (USSD) : texte brut
     assert "**" not in plain and "sans Markdown" in fake.seen["system"]
+
+def test_the_screen_prompt_asks_for_an_introduction_but_ussd_does_not():
+    assert llm.STYLE in llm.system_prompt(markdown=True)
+    assert llm.STYLE not in llm.system_prompt()  # USSD et SMS : pas de phrase d'introduction
+    assert llm.STYLE in llm.system_prompt("Kossi", "Tu es drôle.", markdown=True)  # même avec une personnalité déjà enregistrée
+
+def test_a_conversation_title_is_a_short_noun_phrase_with_a_fallback(db, users, monkeypatch):
+    from apps.assistant import services
+
+    fake = Fake()
+    monkeypatch.setattr(services, "get_backend", lambda: fake)
+    fake.title = lambda q, a: '"Titre : séchage du maïs grain."\nUne seconde ligne'
+    assert services.make_title("Comment sécher le maïs ?", "Étalez-le au soleil.") == "Séchage du maïs grain"  # nettoyé, une ligne
+    fake.title = lambda q, a: "Voici comment il faut faire pour bien sécher votre maïs avant de le stocker dans un grenier"
+    assert services.make_title("Comment sécher le maïs ?") == "Comment sécher le maïs"  # une phrase entière : refusée
+    fake.title = lambda q, a: "Utilisez 20 ml par litre d'eau"
+    assert services.make_title("Comment protéger mon champ ?") == "Comment protéger mon champ"  # une dose n'est jamais un titre
+
+    def down(q, a):
+        raise TimeoutError
+
+    fake.title = down
+    assert services.make_title("Quand semer le maïs ?") == "Quand semer le maïs"  # panne du modèle : début de la question
+
+    def never(q, a):
+        raise AssertionError("une question de dosage ne part pas au modèle")
+
+    fake.title = never
+    assert services.make_title("Quelle dose d'insecticide pour la chenille ?") == "Quelle dose d'insecticide pour la chenille"
+    monkeypatch.setattr(services, "get_backend", lambda: llm.ExtractiveBackend())
+    c = client_for(users["agent"])
+    r = c.post("/api/v1/assistant/title", {"question": "Quand semer le maïs ?", "answer": "En juin."}, format="json")
+    assert r.status_code == 200 and r.json() == {"title": "Quand semer le maïs"}
+    assert c.post("/api/v1/assistant/title", {"answer": "x"}, format="json").status_code == 400

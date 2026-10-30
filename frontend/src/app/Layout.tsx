@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import { syncQueue, useOfflineStatus } from '../features/outbox/offlineQueue';
 import { ConflictsPanel } from '../features/outbox/ConflictsPanel';
+import { AssistantBubble } from '../features/assistant/AssistantBubble';
 import { useNotifications } from '../features/alerts/api';
 import { Avatar, Button, Icon, TabBar, ThemeToggle, Toaster, Emblem, toast, type IconName } from '../shared/ui';
 import { useTheme } from '../shared/theme/useTheme';
@@ -467,6 +468,7 @@ function AppShell({ user, children }: { user: User; children?: ReactNode }) {
         </div>
       </div>
       <MobileTabs role={user.role} />
+      <AssistantBubble />
       {user.role === 'producteur' && <SystemNotifier />}
       <Toaster />
     </>
