@@ -152,26 +152,27 @@ def _standalone(backend, question, history):
     return f"{last} {question}".strip()
 
 
-def _smalltalk(backend, name, question, history, system):
+def _smalltalk(backend, name, question, history, system, fmt=lambda t: t):
     canned = (f"Bonjour ! Je suis {name}, l'assistant agricole d'Agri-Digit Bénin. Posez-moi votre question sur vos "
               f"cultures (semis, maladies, stockage…) : je réponds à partir des fiches techniques de l'INRAB et de l'ATDA.")
     if isinstance(backend, ExtractiveBackend):
         return canned, backend
     try:
-        text = plain(backend.answer(_redact(question), [], {}, history, system))
+        text = fmt(backend.answer(_redact(question), [], {}, history, system))
         return (canned, ExtractiveBackend()) if contains_dose(text) else (text, backend)
     except Exception as e:
         _failed(backend, e)
         return canned, ExtractiveBackend()
 
 
-def ask(user, question, value_chain=None, language="fr", history=()):
+def ask(user, question, value_chain=None, language="fr", history=(), markdown=False):
     from apps.translations import corpus
 
     result = {"citations": [], "disclaimer": DISCLAIMER, "backend": "extractive", "language": "fr"}
     top = None
     name, persona = get_profile()
-    system = system_prompt(name, persona)
+    system = system_prompt(name, persona, markdown)
+    fmt = (lambda t: t.strip()) if markdown else plain  # l'écran affiche du Markdown ; l'USSD et le SMS du texte brut
     history = _clean_history(history)
     native = corpus.match(language, question) if language in corpus.LANGUAGES else None
     if native:  # réponse écrite et validée par des locuteurs (MTDI), jamais générée
@@ -179,7 +180,7 @@ def ask(user, question, value_chain=None, language="fr", history=()):
     elif is_dosage_question(question):
         result.update(_escalated(user, question))
     elif is_smalltalk(question):
-        text, backend = _smalltalk(get_backend(), name, question, history, system)
+        text, backend = _smalltalk(get_backend(), name, question, history, system, fmt)
         result.update(status="answered", answer=text, backend=backend.name)
     else:
         backend = get_backend()
@@ -198,7 +199,7 @@ def ask(user, question, value_chain=None, language="fr", history=()):
             ctx = {"filiere": value_chain or passages[0]["value_chain"], "commune": getattr(user, "commune", ""),
                    **_field_context(user)}
             try:
-                answer = plain(backend.answer(_redact(standalone), passages, ctx, history, system))  # relance : la question complète
+                answer = fmt(backend.answer(_redact(standalone), passages, ctx, history, system))  # relance : la question complète
                 if contains_dose(answer):  # le modèle a donné un dosage malgré la consigne : refusé, jamais montré
                     raise ValueError("dosage dans la réponse du modèle")
                 if NO_ANSWER in answer:  # les extraits ne répondent pas : même réponse que sans fiche

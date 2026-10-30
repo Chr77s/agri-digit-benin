@@ -208,12 +208,12 @@
     "histTitle": "Mes conversations",
     "histHint": "Gardé sur ce téléphone seulement : le serveur ne conserve pas vos questions avec votre nom.",
     "lang": "Langue",
-    "start": "Posez votre première question : semis, engrais, maladies, stockage… Vous pouvez aussi toucher le micro et parler.",
+    "start": "Posez votre question sur vos cultures : semis, maladies, stockage…",
     "faq": "Questions fréquentes",
     "faq1": "Quand semer le maïs ?",
     "faq2": "Comment stocker le niébé ?",
     "faq3": "Que faire contre les taches sur le manioc ?",
-    "placeholder": "Ex. : Quand semer le maïs ?",
+    "placeholder": "Écrivez votre question…",
     "cropShort": "Culture",
     "sendShort": "Envoyer",
     "voiceNote": "Message vocal, transcrit",
@@ -225,7 +225,11 @@
     "sendPhoto": "Envoyer une photo",
     "histSearch": "Chercher dans mes questions",
     "histNoMatch": "Aucune question ne correspond.",
-    "histClear": "Effacer l'historique de ce téléphone"
+    "histClear": "Effacer l'historique de ce téléphone",
+    "options": "Langue et culture",
+    "welcome": "Bonjour, je suis {{name}}.",
+    "sourcesCount_one": "Source ({{count}})",
+    "sourcesCount_other": "Sources ({{count}})"
   },
   "diagnosis": {
     "simTitle": "Diagnostic simulé",

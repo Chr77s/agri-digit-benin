@@ -36,7 +36,7 @@ def ask(request):
     s.is_valid(raise_exception=True)
     d = s.validated_data
     return Response(services.ask(request.user, d["question"], d.get("value_chain") or None, d["language"],
-                                 d.get("history", [])))
+                                 d.get("history", []), markdown=True))
 
 
 @api_view(["GET", "PUT"])

@@ -285,3 +285,15 @@ def test_a_rewritten_follow_up_searches_loosely_and_a_model_that_finds_no_answer
     monkeypatch.setattr(services, "get_backend", lambda: Fake(answer=llm.NO_ANSWER))
     r = services.ask(object(), "Comment protéger mon champ ?", None)
     assert r["status"] == "unknown" and r["citations"] == [] and r["answer"] == services.UNKNOWN
+
+
+def test_the_screen_gets_markdown_while_ussd_and_sms_keep_plain_text(db, monkeypatch):
+    from apps.assistant import services
+
+    fake = Fake(answer="Voici :\n- **trois jours** au soleil")
+    monkeypatch.setattr(services, "search", lambda q, vc, strict=True: [(3.0, DOC)])
+    monkeypatch.setattr(services, "get_backend", lambda: fake)
+    assert "**trois jours**" in services.ask(object(), "Comment sécher le grain ?", None, "fr", [], markdown=True)["answer"]
+    assert "Markdown simple" in fake.seen["system"]
+    plain = services.ask(object(), "Comment sécher le grain ?")["answer"]  # appel par défaut (USSD) : texte brut
+    assert "**" not in plain and "sans Markdown" in fake.seen["system"]
